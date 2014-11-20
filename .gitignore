@@ -26,3 +26,10 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# IDE Project files
+*.iws
+*.iml
+*.ipr
+.classpath
+.project

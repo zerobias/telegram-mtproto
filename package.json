@@ -1,0 +1,45 @@
+{
+    "name": "telegram-mt-node",
+    "version": "0.3.0",
+    "description": "Telegram MTProto (javascript, node.js)",
+    "keywords": [
+        "telegram",
+        "mt",
+        "mtproto",
+        "mobile",
+        "protocol"
+    ],
+    "author": "Enrico Stara <enrico.stara@gmail.com>",
+    "homepage": "https://github.com/enricostara/telegram-mt-node",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/enricostara/telegram-mt-node.git"
+    },
+    "bugs": {
+        "url": "https://github.com/enricostara/telegram-mt-node/issues"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "get-log": "latest",
+        "jsbn": "latest"
+    },
+    "devDependencies": {
+        "coveralls": "latest",
+        "istanbul": "latest",
+        "gulp": "latest",
+        "gulp-jshint": "latest",
+        "gulp-mocha": "latest",
+        "mocha-lcov-reporter": "latest",
+        "mocha-better-spec-reporter": "latest",
+        "mocha": "latest",
+        "should": "latest"
+    },
+    "main": "index",
+    "engines": {
+        "node": "0.10.x"
+    },
+    "scripts": {
+        "test": "gulp test",
+        "coveralls": "istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+    }
+}
