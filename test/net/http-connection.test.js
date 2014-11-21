@@ -1,12 +1,6 @@
-//       telegram.link
-//
-//       Copyright 2014 Enrico Stara 'enrico.stara@gmail.com'
-//       Released under the MIT license
-//       http://telegram.link
-
 require('should');
 var http = require('http');
-var HttpConnection = require("lib/net").HttpConnection;
+var HttpConnection = require("../../lib/net").HttpConnection;
 
 describe('HttpConnection', function () {
 

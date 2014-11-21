@@ -1,9 +1,14 @@
+//     telegram-mt-node
+//     Copyright 2014 Enrico Stara 'enrico.stara@gmail.com'
+//     Released under the MIT License
+//     https://github.com/enricostara/telegram-mt-node
+
 require('should');
 var net = require('net');
-var mtproto = require('lib/mtproto');
-var TcpConnection = require("lib/net").TcpConnection;
 var TypeObject = require('telegram-tl-node').TypeObject;
 var TypeVector = require('telegram-tl-node').TypeVector;
+var mtproto = require('../lib/mtproto');
+var TcpConnection = require("../lib/net").TcpConnection;
 
 describe('mtproto', function () {
 
