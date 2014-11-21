@@ -20,23 +20,31 @@
     },
     "license": "MIT",
     "dependencies": {
+        "telegram-tl-node": "latest",
         "get-log": "latest",
-        "jsbn": "latest"
+        "jsbn": "latest",
+        "bigint-node": "latest",
+        "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
+        "http-browserify": "enricostara/http-browserify"
     },
     "devDependencies": {
-        "coveralls": "latest",
-        "istanbul": "latest",
         "gulp": "latest",
         "gulp-jshint": "latest",
         "gulp-mocha": "latest",
-        "mocha-lcov-reporter": "latest",
-        "mocha-better-spec-reporter": "latest",
+        "should": "latest",
         "mocha": "latest",
-        "should": "latest"
+        "mocha-better-spec-reporter": "latest",
+        "mocha-lcov-reporter": "latest",
+        "coveralls": "latest",
+        "istanbul": "latest",
+        "zuul": "latest"
     },
     "main": "index",
     "engines": {
         "node": "0.10.x"
+    },
+    "browser": {
+        "http": "http-browserify"
     },
     "scripts": {
         "test": "gulp test",
