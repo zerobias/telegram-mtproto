@@ -1,13 +1,14 @@
 {
     "name": "telegram-mt-node",
     "version": "0.3.0",
-    "description": "Telegram MTProto (javascript, node.js)",
+    "description": "Telegram MTProto library (javascript, node.js)",
     "keywords": [
         "telegram",
         "mt",
         "mtproto",
         "mobile",
-        "protocol"
+        "protocol",
+        "library"
     ],
     "author": "Enrico Stara <enrico.stara@gmail.com>",
     "homepage": "https://github.com/enricostara/telegram-mt-node",
@@ -39,7 +40,7 @@
         "istanbul": "latest",
         "zuul": "latest"
     },
-    "main": "index",
+    "main": "./lib/mtproto",
     "engines": {
         "node": "0.10.x"
     },
