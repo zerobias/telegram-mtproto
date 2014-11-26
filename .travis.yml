@@ -6,5 +6,5 @@ after_script:
    - npm run coveralls
 env:
   global:
-    - secure: G6N8h4CcxUNIcFUStnx7faP1ZYo9mu6hWdfaE6Cg1EE/Kzas+0Fa/0L/KZC7K+Do/6pBL7K+b00Jz14OhAuejEaGQEgCZ5yEp3cR5zmk1RjCkFDihBvus18omV2k3fmQCi3cDv/xms5eJU3UZfHGkEqMEGGcmKcl6hpS8qBX29g=
-    - secure: KJFFEOXAljZ4Em2ESpjqoCnOIld7KBa4hWSx2Hx4Q2DdgzGUZDh410oOlyStXhLXb2y5gDvSmRoEHCtc0uMdkv6XDb/SkNGqsoiG2gLX/xUXM2UR4dQ5yDFxgItMaVyur2YGaifTxnzi2fDVYXyjVG4vuqEq0XfAFXmBrooh6Q==
+    - secure: aygd1S9VazTZoQawjZbsBJkOACaUifCtH58d8FS+KjMFzJEcgCpAl1Q2ut91sGICwLnFF96Kne9ItwVuCrEYMmHUIc7I/zVs2NfJgRRz1cEuizpoIfdYFh4nlSgDqtomdO4hRWGm+2ZySqWEsZN6wGSnoCosweJTz+HsCI5kQgc=
+    - secure: XZ/dd9VGbJdr6wSo7lSP/34K+uNpKV+rVPBYImpqXpgytJHYnIipc9Pu3chcjnZbXqQoL/sP2dOL57ETHQ8V2zpRilmFKL2ruzyuxNdrLvzMhmblOU0Mq0+nxfkbMFfrQ1u39x6RW0TuEjEGb/eB/nZL0wtWD/CWv4UmQIogvJk=
