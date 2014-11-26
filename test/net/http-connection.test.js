@@ -77,7 +77,7 @@ describe('HttpConnection', function () {
 
     after(function () {
         if (isNode) {
-            require('./tcp-server').shutdown();
+            require('./http-server').shutdown();
         } else {
             conn = new HttpConnection({protocol: protocol, host: hostname, port: port});
             conn.connect(function () {

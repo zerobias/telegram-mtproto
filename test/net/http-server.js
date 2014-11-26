@@ -25,12 +25,12 @@ server = http.createServer(function (req, res) {
 exports.port = function () {
     var port = process.env.ZUUL_PORT || 2001;
     server.listen(port, function () {
-        console.log("Server bound on port %s\n", port);
+        console.log("HTTP Server bound on port %s\n", port);
     });
     return port;
 }();
 
 exports.shutdown = function() {
     server.close();
-    console.log('Server shutdown.')
+    console.log('HTTP Server shutdown.')
 };

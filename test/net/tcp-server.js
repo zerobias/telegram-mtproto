@@ -15,14 +15,14 @@ server = net.createServer(function (conn) {
 });
 
 exports.port = function () {
-    var port = 2002;
+    var port = 3002;
     server.listen(port, function () {
-        console.log("Server bound on port %s\n", port);
+        console.log("TCP Server bound on port %s\n", port);
     });
     return port;
 }();
 
 exports.shutdown = function() {
     server.close();
-    console.log('Server shutdown.')
+    console.log('TCP Server shutdown.')
 };
