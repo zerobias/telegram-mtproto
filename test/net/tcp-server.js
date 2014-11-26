@@ -13,7 +13,7 @@ server = net.createServer(function (conn) {
         }
     })
 });
-port = 2001;
+port = 2002;
 server.listen(port, function () {
     console.log("Server bound on port %s\n", port);
 })
