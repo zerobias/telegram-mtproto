@@ -9,7 +9,6 @@ describe('HttpConnection', function () {
 
     this.timeout(30000);
 
-
     before(function () {
         protocol = isNode ? undefined : 'https';
         hostname = isNode ? 'localhost' : window.location.hostname;
@@ -64,16 +63,28 @@ describe('HttpConnection', function () {
         it('should call back after read', function (done) {
             conn = new HttpConnection({protocol: protocol, host: hostname, port: port});
             conn.connect();
-            conn.write(new Buffer(">string<"));
+            conn.write(new Buffer("test post method"));
             conn.read(function (ex, data) {
                 if (ex) {
                     console.err(ex);
                 }
-                data.should.be.a.Buffer;
-                console.log(data);
+                data.should.be.ok;
                 console.log(data.toString());
                 done();
             });
         })
+    });
+
+    after(function () {
+        if (isNode) {
+            require('./tcp-server').shutdown();
+        } else {
+            conn = new HttpConnection({protocol: protocol, host: hostname, port: port});
+            conn.connect(function () {
+                conn.write(new Buffer("shutdown"));
+                conn.read(function (ex, data) {
+                });
+            });
+        }
     });
 });

@@ -1,5 +1,5 @@
 var net = require('net');
-var server, port;
+var server;
 server = net.createServer(function (conn) {
     console.log("Server: connected");
     conn.on("data", function (data) {
@@ -13,9 +13,16 @@ server = net.createServer(function (conn) {
         }
     })
 });
-port = 2002;
-server.listen(port, function () {
-    console.log("Server bound on port %s\n", port);
-})
 
-exports.port = port;
+exports.port = function () {
+    var port = 2002;
+    server.listen(port, function () {
+        console.log("Server bound on port %s\n", port);
+    });
+    return port;
+}();
+
+exports.shutdown = function() {
+    server.close();
+    console.log('Server shutdown.')
+};

@@ -153,4 +153,9 @@ describe('TcpConnection', function () {
             });
         })
     });
+
+    after(function () {
+        require('./tcp-server').shutdown();
+    });
+
 });
