@@ -1,5 +1,7 @@
 # telegram-mt-node
-[![npm version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependency Status][gemnasium-image]][gemnasium-url]
+[![npm version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coverage-image]][coverage-url]
+[![Sauce Test Status][sauce-image]][sauce-url]
+
 
 **Telegram Mobile Protocol** [(MTProto)](https://core.telegram.org/mtproto) unofficial library in pure **javascript** on the Node.js platform
 
@@ -65,5 +67,5 @@ The project is released under the [Mit License](./LICENSE)
 [coverage-url]: https://coveralls.io/r/enricostara/telegram-mt-node?branch=master
 [coverage-image]: https://img.shields.io/coveralls/enricostara/telegram-mt-node.svg
 
-[gemnasium-url]: https://gemnasium.com/enricostara/telegram-mt-node
-[gemnasium-image]: https://gemnasium.com/enricostara/telegram-mt-node.svg
+[sauce-url]: https://saucelabs.com/u/enricostara
+[sauce-image]: https://saucelabs.com/browser-matrix/enricostara.svg
