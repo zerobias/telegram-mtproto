@@ -50,6 +50,6 @@
     "scripts": {
         "test": "gulp test",
         "coveralls": "istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
-        "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/cipher.test.js ./test/*.js"
+        "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/*.js"
     }
 }

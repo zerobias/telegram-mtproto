@@ -1,15 +1,17 @@
 ui: mocha-bdd
 browsers:
   - name: chrome
-    version: 35..latest
+    version: latest
   - name: ie
-    version: 11..latest
+    version: latest
   - name: firefox
-    version: 30..latest
+    version: latest
   - name: safari
-    version: 6..latest
+    version: latest
   - name: android
-    version: 4.0..latest
+    version: latest
   - name: iphone
-    version: 6.0..latest
+    version: latest
+  - name: ipad
+    version: latest
 server: ./test/net/http-server.js
