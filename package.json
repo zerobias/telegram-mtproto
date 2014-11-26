@@ -38,8 +38,7 @@
         "mocha-lcov-reporter": "latest",
         "coveralls": "latest",
         "istanbul": "latest",
-        "zuul": "latest",
-        "localtunnel": "latest"
+        "zuul": "latest"
     },
     "main": "./lib/mtproto",
     "engines": {
