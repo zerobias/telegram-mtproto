@@ -12,3 +12,4 @@ browsers:
     version: 4.0..latest
   - name: iphone
     version: 6.0..latest
+server: ./test/net/http-server.js

@@ -1,27 +1,19 @@
 require('should');
-var http = require('http');
 var HttpConnection = require("../../lib/net").HttpConnection;
+
+var isNode = (typeof window === 'undefined');
 
 describe('HttpConnection', function () {
 
-    var conn, server, port;
+    var conn, protocol, hostname, port;
+
+    this.timeout(30000);
+
 
     before(function () {
-        server = http.createServer(function (req, res) {
-
-            console.log('Server: requested URL %s', req.url);
-            console.log('Server: requested header %s', JSON.stringify(req.headers));
-            console.log('Server: requested method %s', JSON.stringify(req.method));
-            req.on('data', function(data) {console.log('data: %s', data); });
-            res.writeHead(200);
-            res.end('1234567890');
-
-        });
-        port = 2001;
-        server.listen(port, function () {
-            console.log("Server bound on port %s\n", port);
-        })
-
+        protocol = isNode ? undefined : 'https';
+        hostname = isNode ? 'localhost' : window.location.hostname;
+        port = isNode ? require('./http-server').port : window.location.port;
     });
 
     describe('#init()', function () {
@@ -34,10 +26,9 @@ describe('HttpConnection', function () {
         })
     });
 
-
     describe('#read()', function () {
         it('should notify error back on reading', function (done) {
-            conn = new HttpConnection({host: "nohost"});
+            conn = new HttpConnection({protocol: protocol, host: "nohost"});
             conn.connect();
             conn.read(function (e) {
                 console.log(e);
@@ -71,38 +62,18 @@ describe('HttpConnection', function () {
 
     describe('#read()', function () {
         it('should call back after read', function (done) {
-            conn = new HttpConnection({host: "0.0.0.0", port: port});
+            conn = new HttpConnection({protocol: protocol, host: hostname, port: port});
             conn.connect();
             conn.write(new Buffer(">string<"));
             conn.read(function (ex, data) {
+                if (ex) {
+                    console.err(ex);
+                }
                 data.should.be.a.Buffer;
                 console.log(data);
                 console.log(data.toString());
                 done();
             });
         })
-    });
-    describe('#read()', function () {
-        it('outgoing connection should call back after read', function (done) {
-            conn = new HttpConnection({
-                proxyHost: process.env.PROXY_HOST,
-                proxyPort: process.env.PROXY_PORT,
-                host: "www.google.com",
-                port: '80'
-            });
-            conn.connect();
-            conn.read(function (ex, data) {
-                if(ex) {
-                    console.log("response ko: %s", ex.toString());
-                } else {
-                    console.log("response OK: %s", data.toString());
-                }
-                done();
-            });
-         })
-    });
-
-    after(function () {
-        server.close();
     });
 });

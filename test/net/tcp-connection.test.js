@@ -1,35 +1,12 @@
-//     telegram-mt-node
-//     Copyright 2014 Enrico Stara 'enrico.stara@gmail.com'
-//     Released under the MIT License
-//     https://github.com/enricostara/telegram-mt-node
-
 require('should');
-var net = require('net');
 var TcpConnection = require("../../lib/net").TcpConnection;
 
 describe('TcpConnection', function () {
 
-    var tcpConn, server, port;
+    var tcpConn, port;
 
     before(function () {
-        server = net.createServer(function (conn) {
-            console.log("Server: connected");
-            conn.on("data", function (data) {
-
-                if (data.length == 1 && data[0] == 0xef) {
-                    console.log("Server: abridgedFlag detected");
-                } else {
-                    console.log("Server: echo data of length %s:", data.length);
-                    console.log(data);
-                    conn.write(data);
-                }
-            })
-        });
-        port = 2001;
-        server.listen(port, function () {
-            console.log("Server bound on port %s\n", port);
-        })
-
+        port = require('./tcp-server').port;
     });
 
     describe('#init()', function () {
@@ -175,9 +152,5 @@ describe('TcpConnection', function () {
                 done();
             });
         })
-    });
-
-    after(function () {
-        server.close();
     });
 });
