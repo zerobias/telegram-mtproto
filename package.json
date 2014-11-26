@@ -1,7 +1,7 @@
 {
     "name": "telegram-mt-node",
-    "version": "0.3.0",
-    "description": "Telegram MTProto library (javascript, node.js)",
+    "version": "0.3.1",
+    "description": "Telegram MTProto library",
     "keywords": [
         "telegram",
         "mt",
@@ -38,7 +38,8 @@
         "mocha-lcov-reporter": "latest",
         "coveralls": "latest",
         "istanbul": "latest",
-        "zuul": "latest"
+        "zuul": "latest",
+        "localtunnel": "latest"
     },
     "main": "./lib/mtproto",
     "engines": {
@@ -49,6 +50,7 @@
     },
     "scripts": {
         "test": "gulp test",
-        "coveralls": "istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+        "coveralls": "istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+        "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/*.js"
     }
 }

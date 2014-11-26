@@ -2,4 +2,9 @@ language: node_js
 node_js:
    - "0.10"
 after_script:
+   - npm run zuul
    - npm run coveralls
+env:
+  global:
+    - secure: G6N8h4CcxUNIcFUStnx7faP1ZYo9mu6hWdfaE6Cg1EE/Kzas+0Fa/0L/KZC7K+Do/6pBL7K+b00Jz14OhAuejEaGQEgCZ5yEp3cR5zmk1RjCkFDihBvus18omV2k3fmQCi3cDv/xms5eJU3UZfHGkEqMEGGcmKcl6hpS8qBX29g=
+    - secure: KJFFEOXAljZ4Em2ESpjqoCnOIld7KBa4hWSx2Hx4Q2DdgzGUZDh410oOlyStXhLXb2y5gDvSmRoEHCtc0uMdkv6XDb/SkNGqsoiG2gLX/xUXM2UR4dQ5yDFxgItMaVyur2YGaifTxnzi2fDVYXyjVG4vuqEq0XfAFXmBrooh6Q==
