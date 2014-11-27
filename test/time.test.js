@@ -10,7 +10,7 @@ describe('time', function () {
             var localTime = new Date().getTime();
             var serverTime = localTime + offset;
             time.timeSynchronization(serverTime, duration);
-            time.getLocalTime().should.be.approximately(localTime + (offset + duration/2), 10);
+            time.getLocalTime().should.be.approximately(localTime + (offset + duration/2), 50);
         })
     });
 });
