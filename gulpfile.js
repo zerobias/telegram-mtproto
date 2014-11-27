@@ -5,7 +5,7 @@ var mocha = require('gulp-mocha');
 gulp.task('quality', function () {
     return gulp.src('./lib/**/*.js')
         .pipe(jshint())
-        .pipe(jshint.reporter('default'))
+        .pipe(jshint.reporter('default'));
 });
 
 gulp.task('test', function () {
