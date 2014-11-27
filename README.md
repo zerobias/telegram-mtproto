@@ -67,5 +67,5 @@ The project is released under the [Mit License](./LICENSE)
 [coverage-url]: https://coveralls.io/r/enricostara/telegram-mt-node?branch=master
 [coverage-image]: https://img.shields.io/coveralls/enricostara/telegram-mt-node.svg
 
-[sauce-url]: https://saucelabs.com/u/enricostara
-[sauce-image]: https://saucelabs.com/browser-matrix/enricostara.svg
+[sauce-url]: https://saucelabs.com/u/telegram-mt-node
+[sauce-image]: https://saucelabs.com/browser-matrix/telegram-mt-node.svg
