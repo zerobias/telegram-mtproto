@@ -37,6 +37,7 @@
         "mocha-better-spec-reporter": "latest",
         "mocha-lcov-reporter": "latest",
         "coveralls": "latest",
+        "codeclimate-test-reporter": "latest",
         "istanbul": "latest",
         "zuul": "latest"
     },
@@ -48,8 +49,8 @@
         "http": "http-browserify"
     },
     "scripts": {
-        "test": "gulp test",
-        "coveralls": "istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+        "test": "DEBUG=-mocha*,* gulp test",
+        "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
         "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/*.js"
     }
 }

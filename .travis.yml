@@ -4,7 +4,7 @@ node_js:
 after_script:
    - npm run zuul
    - npm run coveralls
-env:
+env: CODECLIMATE_REPO_TOKEN=7251592b3080fd05183fefc76f9c8f2d5d9bf95e04d7f6cce93e31e9bcfc0224
   global:
     - secure: W0qoI1cvVeuok9BwJG0HMs9Q3iJ6RpDlYoVccDoXyt1XyPyeogslDZId9+tonMchlfXYkHgZhup3WmvfCkYqrfntVXDcc2x4l/dFheHNxuQNgqR3NXClQkeoZbWpH9bW66cZYjViGbIPTG8gwVPmQ9UyNs/mE46Z47pjrNflnoU=
     - secure: Qrhmhma9oGiWipmSM3hmupshDo/8K917iAaCtv8dywJMJw36I1q1MzguQqAvViURHIZeLilnNpkgd3ZkTsBvHlK9mXcsBKh6SOG4wQKxnLHsfueep67FqocFRCr6+MUcThnTvKfeDEkAiuEYMj3m0U9l3J1K6Ougij3giLXi0Bo=

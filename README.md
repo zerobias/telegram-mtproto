@@ -1,5 +1,5 @@
 # telegram-mt-node
-[![npm version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coverage-image]][coverage-url]
+[![npm version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coverage-image]][coverage-url] [![Climate Status][climate-image]][climate-url]
 [![Sauce Test Status][sauce-image]][sauce-url]
 
 
@@ -66,6 +66,9 @@ The project is released under the [Mit License](./LICENSE)
 
 [coverage-url]: https://coveralls.io/r/enricostara/telegram-mt-node?branch=master
 [coverage-image]: https://img.shields.io/coveralls/enricostara/telegram-mt-node.svg
+
+[climate-url]: https://codeclimate.com/github/enricostara/telegram-mt-node
+[climate-image]: https://codeclimate.com/github/enricostara/telegram-mt-node/badges/gpa.svg
 
 [sauce-url]: https://saucelabs.com/u/telegram-mt-node
 [sauce-image]: https://saucelabs.com/browser-matrix/telegram-mt-node.svg
