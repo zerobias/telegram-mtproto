@@ -18,7 +18,7 @@ describe('cipher', function () {
             key.should.be.ok;
             var message = new Buffer(255);
             message.fill(1);
-            var encryptedMsg = cipher.rsaEncrypt(key, message).toString('hex');
+            var encryptedMsg = cipher.rsaEncrypt(message, key).toString('hex');
             encryptedMsg.should.be.equal(rsaEncrypted);
         })
     });
