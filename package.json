@@ -1,6 +1,6 @@
 {
     "name": "telegram-mt-node",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "Telegram MTProto library",
     "keywords": [
         "telegram",
@@ -25,8 +25,7 @@
         "get-log": "latest",
         "jsbn": "latest",
         "bigint-node": "latest",
-        "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
-        "http-browserify": "enricostara/http-browserify"
+        "node-cryptojs-aes": "enricostara/node-cryptojs-aes"
     },
     "devDependencies": {
         "gulp": "latest",
@@ -39,7 +38,8 @@
         "coveralls": "latest",
         "codeclimate-test-reporter": "latest",
         "istanbul": "latest",
-        "zuul": "latest"
+        "zuul": "latest",
+        "http-browserify": "enricostara/http-browserify"
     },
     "main": "./lib/mtproto",
     "engines": {

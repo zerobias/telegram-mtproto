@@ -37,8 +37,8 @@ The **telegram-mt-node** library implements the **Mobile Protocol** and provides
  
  - **MTProto TL-Schema** compilation as **javascript classes and functions** via [**telegram-tl-node**](https://github.com/enricostara/telegram-tl-node) dependency
 
-The [**telegram.link**](http://telegram.link) <img src="https://raw.githubusercontent.com/enricostara/telegram.link/master/telegram.link.png" 
-width="25" /> main project has a dependency on this library.
+<img src="https://raw.githubusercontent.com/enricostara/telegram.link/master/telegram.link.png" 
+    width="20" /> [**telegram.link**](http://telegram.link)  main project has a dependency by this library.
 
 ## Installation
 
@@ -53,6 +53,20 @@ $ npm install
 ```bash
 $ npm test
 ```
+
+## Dependencies
+
+- [telegram-tl-node](https://github.com/enricostara/telegram-tl-node): a Telegram TypeLanguage library
+
+- [get-log](https://github.com/enricostara/get-log): a Node.js Logging Utility, easy to use and ready for production.
+
+- [jsbn](https://github.com/enricostara/get-log): a portable implementation of large-number math in pure JavaScript, 
+enabling public-key crypto and other applications on desktop and mobile browsers.
+
+- [bigint-node](https://github.com/cwacek/bigint-node): the Leemon Baird BigInteger javascript library ported to Node.js
+
+- [node-cryptojs-aes](https://github.com/chengxianga2008/node-cryptojs-aes): A minimalist port of cryptojs javascript 
+library to node.js, that supports AES symmetric key cryptography 
 
 ## License
 
