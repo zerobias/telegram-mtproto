@@ -24,7 +24,30 @@ describe('utility', function () {
             var e = 4;
             var m = 10;
             var result = util.modPow(x, e, m).toString('hex');
-            result.should.be.equal('01')
+            result.should.be.equal('01');
+        })
+    });
+
+    describe('#xor()', function () {
+        it('should calculate xor op between two buffer', function () {
+            var buffer1 = new Buffer('0505', 'hex');
+            var buffer2 = new Buffer('0b0b', 'hex');
+            var buffer = util.xor(buffer1, buffer2);
+            buffer.toString('hex').should.be.equal('0e0e');
+        })
+    });
+
+    describe('#string2Buffer()', function () {
+        it('should convert a String to a buffer', function () {
+            var str = '0x0e0e';
+            util.string2Buffer(str, 4).toString('hex').should.be.equal('0e0e0000');
+        })
+    });
+
+    describe('#buffer2String()', function () {
+        it('should convert a Buffer to a String', function () {
+            var buffer = new Buffer('0e0e0000', 'hex');
+            util.buffer2String(buffer).should.be.equal('0x00000e0e');
         })
     });
 
