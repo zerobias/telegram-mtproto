@@ -38,7 +38,7 @@ The **telegram-mt-node** library implements the **Mobile Protocol** and provides
  - **MTProto TL-Schema** compilation as **javascript classes and functions** via [**telegram-tl-node**](https://github.com/enricostara/telegram-tl-node) dependency
 
 <img src="https://raw.githubusercontent.com/enricostara/telegram.link/master/telegram.link.png" 
-    width="20" /> [**telegram.link**](http://telegram.link)  main project has a dependency by this library.
+    width="20" /> [**telegram.link**](http://telegram.link)  main project depends by this library.
 
 ## Installation
 
