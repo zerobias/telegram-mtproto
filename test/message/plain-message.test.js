@@ -1,6 +1,6 @@
 require('should');
 var TypeObject = require('telegram-tl-node').TypeObject;
-var PlainMessage = require('../lib/plain-message');
+var PlainMessage = require('../../lib/mtproto').message.PlainMessage;
 
 describe('PlainMessage', function () {
 
