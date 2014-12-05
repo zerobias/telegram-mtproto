@@ -41,7 +41,7 @@
         "zuul": "latest",
         "http-browserify": "enricostara/http-browserify"
     },
-    "main": "./nosw_modules/lib/mtproto",
+    "main": "./node_modules/lib/mtproto",
     "engines": {
         "node": "0.10.x"
     },
