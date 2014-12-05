@@ -1,2 +1,3 @@
 instrumentation:
-  excludes: ["gulpfile.js"]
+  default-excludes: false
+  excludes: ["gulpfile.js", "**/test/**", "**/node_modules/!(lib)/**"]
