@@ -1,5 +1,5 @@
 require('should');
-var TcpConnection = require("../../lib/net").TcpConnection;
+var TcpConnection = require("lib/net").TcpConnection;
 
 describe('TcpConnection', function () {
 

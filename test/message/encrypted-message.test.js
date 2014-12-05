@@ -1,5 +1,5 @@
 require('should');
-var EncryptedMessage = require('../../lib/message/encrypted-message');
+var EncryptedMessage = require('lib/message/encrypted-message');
 
 describe('EncryptedMessage', function () {
 

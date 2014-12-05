@@ -1,5 +1,5 @@
 require('should');
-var util = require('../lib/utility');
+var util = require('lib/utility');
 
 describe('utility', function () {
 

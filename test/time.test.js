@@ -1,5 +1,5 @@
 require('should');
-var time = require('../lib/time');
+var time = require('lib/time');
 
 describe('time', function () {
 

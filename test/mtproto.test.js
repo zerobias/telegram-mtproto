@@ -1,5 +1,5 @@
 require('should');
-var mtproto = require('../lib/mtproto');
+var mtproto = require('lib/mtproto');
 
 describe('mtproto', function () {
 

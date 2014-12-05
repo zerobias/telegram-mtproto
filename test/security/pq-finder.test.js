@@ -1,5 +1,5 @@
 require('should');
-var PQFinder = require("../../lib/security").PQFinder;
+var PQFinder = require("lib/security").PQFinder;
 
 describe('PQFinder', function () {
 
