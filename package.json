@@ -1,6 +1,6 @@
 {
     "name": "telegram-mt-node",
-    "version": "0.3.6",
+    "version": "0.3.7",
     "description": "Telegram MTProto library",
     "keywords": [
         "telegram",
@@ -41,7 +41,7 @@
         "zuul": "latest",
         "http-browserify": "enricostara/http-browserify"
     },
-    "main": "./node_modules/lib/mtproto",
+    "main": "./lib/mtproto",
     "engines": {
         "node": "0.10.x"
     },
