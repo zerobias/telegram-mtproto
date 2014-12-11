@@ -1,3 +1,4 @@
+(module.paths && module.paths.push('.'));
 require('should');
 var time = require('lib/time');
 

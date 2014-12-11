@@ -1,3 +1,4 @@
+(module.paths && module.paths.push('.'));
 require('should');
 var util = require('lib/utility');
 

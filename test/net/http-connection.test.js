@@ -1,5 +1,6 @@
+(module.paths && module.paths.push('.'));
 require('should');
-var HttpConnection = require("lib/net").HttpConnection;
+var HttpConnection = require('lib/net').HttpConnection;
 
 var isNode = (typeof window === 'undefined');
 

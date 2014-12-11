@@ -1,3 +1,4 @@
+(module.paths && module.paths.push('.'));
 require('should');
 var mtproto = require('lib/mtproto');
 
