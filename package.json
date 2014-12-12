@@ -39,7 +39,6 @@
         "mocha": "latest",
         "mocha-better-spec-reporter": "latest",
         "mocha-lcov-reporter": "latest",
-        "require-mainify": "latest",
         "should": "latest",
         "zuul": "1.15.2"
     },
