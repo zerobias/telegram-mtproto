@@ -1,4 +1,4 @@
-(module.paths && module.paths.push('.'));
+require('requirish')._(module);
 require('should');
 var TypeObject = require('telegram-tl-node').TypeObject;
 var PlainMessage = require('lib/mtproto').message.PlainMessage;

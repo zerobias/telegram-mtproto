@@ -1,4 +1,4 @@
-(module.paths && module.paths.push('.'));
+require('requirish')._(module);
 require('should');
 var TcpConnection = require("lib/net").TcpConnection;
 
