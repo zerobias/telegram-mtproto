@@ -1,6 +1,6 @@
 {
     "name": "telegram-mt-node",
-    "version": "0.3.7",
+    "version": "0.3.8",
     "description": "Telegram MTProto library",
     "keywords": [
         "telegram",
@@ -22,7 +22,6 @@
     "license": "MIT",
     "dependencies": {
         "bigint-node": "latest",
-        "browserify": "^7.0.0",
         "get-log": "latest",
         "jsbn": "latest",
         "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
