@@ -16,4 +16,4 @@ browsers:
     version: latest
 server: ./test/net/http-server.js
 browserify:
-  - transform: require-mainify
+  - transform: requirish
