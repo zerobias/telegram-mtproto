@@ -21,25 +21,27 @@
     },
     "license": "MIT",
     "dependencies": {
-        "telegram-tl-node": "latest",
+        "bigint-node": "latest",
+        "browserify": "^7.0.0",
         "get-log": "latest",
         "jsbn": "latest",
-        "bigint-node": "latest",
-        "node-cryptojs-aes": "enricostara/node-cryptojs-aes"
+        "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
+        "telegram-tl-node": "latest"
     },
     "devDependencies": {
+        "codeclimate-test-reporter": "latest",
+        "coveralls": "latest",
         "gulp": "latest",
         "gulp-jshint": "latest",
         "gulp-mocha": "latest",
-        "should": "latest",
+        "http-browserify": "enricostara/http-browserify",
+        "istanbul": "latest",
         "mocha": "latest",
         "mocha-better-spec-reporter": "latest",
         "mocha-lcov-reporter": "latest",
-        "coveralls": "latest",
-        "codeclimate-test-reporter": "latest",
-        "istanbul": "latest",
-        "zuul": "latest",
-        "http-browserify": "enricostara/http-browserify"
+        "require-mainify": "latest",
+        "should": "latest",
+        "zuul": "1.15.2"
     },
     "main": "./lib/mtproto",
     "engines": {

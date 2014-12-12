@@ -15,3 +15,5 @@ browsers:
   - name: ipad
     version: latest
 server: ./test/net/http-server.js
+browserify:
+  - transform: require-mainify
