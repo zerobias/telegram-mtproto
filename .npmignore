@@ -22,6 +22,11 @@ build/Release
 #Test
 test
 
+# Dev-Config
+*.yml
+.npmignore
+gulpfile.js
+
 # Users Environment Variables
 .lock-wscript
 
