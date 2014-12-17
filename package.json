@@ -22,6 +22,7 @@
     "license": "MIT",
     "dependencies": {
         "bigint-node": "latest",
+        "get-flow": "latest",
         "get-log": "latest",
         "jsbn": "latest",
         "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
