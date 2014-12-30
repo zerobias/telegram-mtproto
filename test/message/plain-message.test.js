@@ -15,8 +15,8 @@ describe('PlainMessage', function () {
             msg.isReadonly().should.be.false;
 
             msg = new PlainMessage({message: new Buffer('FFFF', 'hex')});
-            msg.should.have.properties({_authKeyId: 0, _messageLength: 2});
-            msg.getMessage().toString('hex').should.equal('ffff');
+            msg.should.have.properties({auth_key_id: 0, bytes: 2});
+            msg.body.toString('hex').should.equal('ffff');
 
             msg = new PlainMessage({buffer: new Buffer('FFFF', 'hex')});
             msg.retrieveBuffer().toString('hex').should.equal('ffff');
@@ -28,7 +28,7 @@ describe('PlainMessage', function () {
     describe('#serialize()', function () {
         it('should serialize the msg', function (done) {
             var msg = new PlainMessage({message: new Buffer('FFFF', 'hex')});
-            msg._messageId = 1;
+            msg.msg_id = 1;
             var buffer = msg.serialize();
             buffer.should.be.ok;
             buffer.toString('hex').should.be.equal('0000000000000000010000000000000002000000ffff');
@@ -40,8 +40,8 @@ describe('PlainMessage', function () {
         it('should de-serialize the msg', function (done) {
             var msg = new PlainMessage({buffer: new Buffer('0000000000000000010000000000000002000000ffff', 'hex')});
             msg.deserialize().should.be.ok;
-            msg.getMessageId().should.be.equal('0x0000000000000001');
-            msg.getMessage().toString('hex').should.equal('ffff');
+            msg.msg_id.should.be.equal('0x0000000000000001');
+            msg.body.toString('hex').should.equal('ffff');
             done();
         })
     });
