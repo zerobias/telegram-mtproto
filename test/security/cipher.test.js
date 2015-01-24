@@ -29,8 +29,8 @@ describe('cipher', function () {
         it('should encrypt a message', function () {
             var buffer = new Buffer(255);
             buffer.fill(1);
-            var aesKey = utility.createSHA1Hash(buffer);
-            var aesIv = utility.createSHA1Hash(buffer);
+            var aesKey = utility.createSHAHash(buffer);
+            var aesIv = utility.createSHAHash(buffer);
             var plainMsg = new Buffer('A plain-text message to be encrypted / decrypted');
             var encryptedMsg = cipher.aesEncrypt(plainMsg, aesKey, aesIv).toString('hex');
             encryptedMsg.should.be.equal(aesEncrypted);
@@ -41,8 +41,8 @@ describe('cipher', function () {
         it('should decrypt an encrypted message', function () {
             var buffer = new Buffer(255);
             buffer.fill(1);
-            var aesKey = utility.createSHA1Hash(buffer);
-            var aesIv = utility.createSHA1Hash(buffer);
+            var aesKey = utility.createSHAHash(buffer);
+            var aesIv = utility.createSHAHash(buffer);
             var encryptedMsg = new Buffer(aesEncrypted, 'hex');
             var plainMsg = cipher.aesDecrypt(encryptedMsg, aesKey, aesIv).toString();
             plainMsg.should.be.equal('A plain-text message to be encrypted / decrypted');
