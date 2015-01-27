@@ -38,7 +38,7 @@
         "http-browserify": "enricostara/http-browserify",
         "istanbul": "latest",
         "mocha": "latest",
-        "mocha-better-spec-reporter": "latest",
+        "mocha-better-spec-reporter": "1.x",
         "mocha-lcov-reporter": "latest",
         "should": "latest",
         "zuul": "1.15.2"
