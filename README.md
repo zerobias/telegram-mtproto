@@ -31,7 +31,7 @@ The **telegram-mt-node** library implements the **Mobile Protocol** and provides
  
  - A cipher implementation for **AES and RSA encryption** in the security layer
  
- - Both **plain-text and encrypted message** (this will be available soon) to communicate data with the server 
+ - Both **plain-text and encrypted message** to communicate data with the server
  
  - **Diffie-Hellman key exchange** supported by the **prime factorization** function implemented in the security layer
  
