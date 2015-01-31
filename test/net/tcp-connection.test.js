@@ -7,7 +7,7 @@ describe('TcpConnection', function () {
     var tcpConn, port;
 
     before(function () {
-        port = require('./tcp-server').port;
+        port = require('./tcp-server').start();
     });
 
     describe('#init()', function () {
