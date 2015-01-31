@@ -14,34 +14,40 @@ describe('auth', function() {
     describe('#createAuthKey()', function() {
         it('should returns AuthKey using a HTTP connection', function(done) {
             var connection = new net.HttpConnection(primaryDC);
-            auth.createAuthKey(function(ex, auth) {
-                if (ex) {
-                    console.log('Auth key KO: %s', ex);
-                } else {
-                    auth.key.should.be.ok;
-                    auth.serverSalt.should.be.ok;
-                    console.log('Auth key OK: %s', auth.key.toString());
-                }
-                (!ex).should.be.true;
-                connection.close(done);
-            }, connection);
+            connection.connect(function() {
+                var channel = new net.RpcChannel(connection);
+                auth.createAuthKey(function(ex, auth) {
+                    if (ex) {
+                        console.log('Auth key KO: %s', ex);
+                    } else {
+                        auth.key.should.be.ok;
+                        auth.serverSalt.should.be.ok;
+                        console.log('Auth key OK: %s', auth.key.toString());
+                    }
+                    (!ex).should.be.true;
+                    connection.close(done);
+                }, channel);
+            });
         });
     });
 
     describe('#createAuthKey()', function() {
         it('should returns AuthKey using a TCP connection', function(done) {
             var connection = new net.TcpConnection(primaryDC);
-            auth.createAuthKey(function(ex, auth) {
-                if (ex) {
-                    console.log('Auth key KO: %s', ex);
-                } else {
-                    auth.key.should.be.ok;
-                    auth.serverSalt.should.be.ok;
-                    console.log('Auth key OK: %s', auth.key.toString());
-                }
-                (!ex).should.be.true;
-                connection.close(done);
-            }, connection);
+            connection.connect(function() {
+                var channel = new net.RpcChannel(connection);
+                auth.createAuthKey(function(ex, auth) {
+                    if (ex) {
+                        console.log('Auth key KO: %s', ex);
+                    } else {
+                        auth.key.should.be.ok;
+                        auth.serverSalt.should.be.ok;
+                        console.log('Auth key OK: %s', auth.key.toString());
+                    }
+                    (!ex).should.be.true;
+                    connection.close(done);
+                }, channel);
+            });
         });
     });
 
