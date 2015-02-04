@@ -72,7 +72,7 @@ describe('RpcChannel', function() {
     });
 
     describe('#close()', function() {
-        it('should close the channel', function(done) {
+        it('should call the method', function(done) {
             var rpcChannel = new net.RpcChannel(tcpConn);
             rpcChannel.callMethod(resPq, function(ex, resObj, duration) {
 
