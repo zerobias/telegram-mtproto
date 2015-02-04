@@ -7,7 +7,7 @@ describe('mtproto', function () {
     describe('.type namespace', function () {
         it('should be not empty', function () {
             mtproto.type.should.be.ok;
-            mtproto.type.should.have.properties(['ResPQ', 'P_q_inner_data', 'Server_DH_inner_data', 'Client_DH_inner_data']);
+            mtproto.type.should.have.properties(['ResPQ', 'P_q_inner_data', 'Server_DH_inner_data', 'Client_DH_inner_data', 'Message']);
         })
     });
     describe('.service namespace', function () {

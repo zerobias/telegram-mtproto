@@ -1,0 +1,39 @@
+{
+  "methods": [
+    {
+      "id": "1769565673",
+      "method": "initConnection",
+      "params": [{
+        "name": "api_id",
+        "type": "int"
+      }, {
+        "name": "device_model",
+        "type": "string"
+      }, {
+        "name": "system_version",
+        "type": "string"
+      }, {
+        "name": "app_version",
+        "type": "string"
+      }, {
+        "name": "lang_code",
+        "type": "string"
+      }, {
+        "name": "query",
+        "type": "!X"
+      }],
+      "type": "X"
+    }, {
+      "id": "-627372787",
+      "method": "invokeWithLayer",
+      "params": [{
+        "name": "layer",
+        "type": "int"
+      }, {
+        "name": "query",
+        "type": "!X"
+      }],
+      "type": "X"
+    }
+  ]
+}
