@@ -5,76 +5,10 @@ var auth = require('lib/auth');
 var mtproto = require('lib/mtproto');
 var TypeObject = require('telegram-tl-node').TypeObject;
 var EncryptedMessage = require('lib/message/encrypted-message');
+var SequenceNumber = require('lib/sequence-number');
 
 describe('EncryptedMessage', function() {
 
-
-    describe('InnerMessage', function() {
-
-        var innerModel = {
-            props: {
-                server_salt: '0xfce2ec8fa401b366',
-                session_id: '0x77907373a54aba77',
-                payload: new mtproto.type.Message({
-                    props: {
-                        msg_id: '0x84739073a54aba84',
-                        seqno: 0,
-                        bytes: 2,
-                        body: new Buffer('FFFF', 'hex')
-                    }
-                })
-            }
-        };
-
-        describe('#init()', function() {
-            it('should return an instance', function(done) {
-                var msg = new EncryptedMessage.InnerMessage();
-                msg.should.be.ok;
-                msg.should.be.an.instanceof(EncryptedMessage.InnerMessage);
-                msg.should.be.an.instanceof(tl.TypeObject);
-                msg.isReadonly().should.be.false;
-
-                msg = new EncryptedMessage.InnerMessage(innerModel);
-                msg.should.be.an.instanceof(EncryptedMessage.InnerMessage);
-                msg.should.have.properties({
-                    server_salt: '0xfce2ec8fa401b366',
-                    session_id: '0x77907373a54aba77'
-                });
-                msg.payload.should.be.an.instanceof(mtproto.type.Message);
-                msg.payload.bytes.should.be.equal(2);
-                msg.payload.body.toString('hex').should.equal('ffff');
-                done();
-            })
-        });
-
-        describe('#serialize()', function() {
-            it('should serialize the msg', function(done) {
-                var msg = new EncryptedMessage.InnerMessage(innerModel);
-                var buffer = msg.serialize();
-                buffer.should.be.ok;
-                buffer.toString('hex').should.be.equal('66b301a48fece2fc77ba4aa57373907711e5b85b84ba4aa5739073840000000002000000ffff');
-                done();
-            })
-        });
-
-        describe('#deserialize()', function() {
-            it('should de-serialize the msg', function(done) {
-                var msg = new EncryptedMessage.InnerMessage({
-                    buffer: new Buffer('66b301a48fece2fc77ba4aa57373907711e5b85b84ba4aa5739073840000000002000000ffff', 'hex')
-                });
-                msg.deserialize(true).should.be.ok;
-                msg.should.be.an.instanceof(EncryptedMessage.InnerMessage);
-                msg.should.have.properties({
-                    server_salt: '0xfce2ec8fa401b366',
-                    session_id: '0x77907373a54aba77'
-                });
-                msg.payload.should.be.an.instanceof(mtproto.type.Message);
-                msg.payload.bytes.should.be.equal(2);
-                msg.payload.body.toString('hex').should.equal('ffff');
-                done();
-            })
-        });
-    });
 
     var authKey = new auth.AuthKey(
         new Buffer('4efd920588a83ac9', 'hex'),
@@ -96,7 +30,7 @@ describe('EncryptedMessage', function() {
                 authKey: authKey,
                 serverSalt: '0xfce2ec8fa401b366',
                 sessionId: '0x77907373a54aba77',
-                sequenceNumber: 0
+                sequenceNumber: new SequenceNumber()
             });
             msg.should.have.properties({
                 authKey: authKey,
@@ -107,7 +41,7 @@ describe('EncryptedMessage', function() {
                 session_id: '0x77907373a54aba77'
             });
             msg.innerMessage.payload.should.have.properties({
-                seqno: 0,
+                seqno: 1,
                 bytes: 2
             });
 
@@ -123,13 +57,13 @@ describe('EncryptedMessage', function() {
                 authKey: authKey,
                 serverSalt: '0xfce2ec8fa401b366',
                 sessionId: '0x77907373a54aba77',
-                sequenceNumber: 0
+                sequenceNumber: new SequenceNumber()
             });
             msg.innerMessage.payload.msg_id = '0x84739073a54aba84';
             var buffer = msg.serialize();
             buffer.should.be.ok;
             console.log(buffer.toString('hex'));
-            buffer.slice(0, -16).toString('hex').should.be.equal('4efd920588a83ac997486bd42312d797118e978b290af0f69357f784d1ee32c948bdae34984dfb6defa06ef2ab4f4a67519b023e160be9efec7e471a');
+            buffer.slice(0, -16).toString('hex').should.be.equal('4efd920588a83ac9885bda4c4bde1243252290042cd6e2aff35150888ae03a47d8f8fcebde1afe68d0be2afd7ff559346832f4ed0474cb3c');
             done();
         })
     });
@@ -138,9 +72,9 @@ describe('EncryptedMessage', function() {
         it('should deserialize the msg', function () {
 
             var encMsg = new EncryptedMessage({
-                buffer: new Buffer('4efd920588a83ac997486bd42312d797118e978b290af0f69357f7840d5e7479e6805430e682326a630283c0cded7f2046b128f34bba8d335c7f88939263ab2ee985656f3910b52f0a1d1c8d', 'hex'),
+                buffer: new Buffer('4efd920588a83ac9885bda4c4bde1243252290042cd6e2aff35150888ae03a47d8f8fcebde1afe68d0be2afd7ff559346832f4ed0474cb3c72a7364a6ad67534b65b0f75093d5252', 'hex'),
                 authKey: authKey});
-            var decrypted = encMsg.deserialize();
+            var decrypted = encMsg.deserialize(true);
             decrypted.should.be.ok;
 
             var msg = decrypted;
@@ -148,7 +82,7 @@ describe('EncryptedMessage', function() {
             msg.should.have.properties({
                 serverSalt: '0xfce2ec8fa401b366',
                 sessionId: '0x77907373a54aba77',
-                sequenceNumber: 0
+                sequenceNumber: 1
             });
 
             msg.innerMessage.should.be.an.instanceof(EncryptedMessage.InnerMessage);
