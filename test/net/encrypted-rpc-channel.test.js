@@ -5,6 +5,7 @@ var auth = require('lib/auth');
 var message = require('lib/message');
 var net = require("lib/net");
 var tl = require('telegram-tl-node');
+var SequenceNumber = require('lib/sequence-number');
 
 
 describe('EncryptedRpcChannel', function() {
@@ -104,7 +105,7 @@ describe('EncryptedRpcChannel', function() {
                 authKey: authKey,
                 serverSalt: '0xfce2ec8fa401b366',
                 sessionId: '0x77907373a54aba77',
-                sequenceNumber: 0
+                sequenceNumber: new SequenceNumber()
             }, function(ex, resObj, duration) {
                 if (ex) {
                     console.log(ex);
@@ -144,7 +145,7 @@ describe('EncryptedRpcChannel', function() {
                 authKey: authKey,
                 serverSalt: '0xfce2ec8fa401b366',
                 sessionId: '0x77907373a54aba77',
-                sequenceNumber: 0
+                sequenceNumber: new SequenceNumber()
             }, function(ex, resObj, duration) {
                 if (ex) {
                     console.log(ex);
