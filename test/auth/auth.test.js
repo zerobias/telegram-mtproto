@@ -50,7 +50,6 @@ describe('auth', function() {
             });
         });
     });
-
 });
 
 
