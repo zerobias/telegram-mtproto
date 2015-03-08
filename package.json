@@ -45,7 +45,7 @@
     },
     "main": "./lib/mtproto",
     "engines": {
-        "node": "0.10.x"
+        "node": ">0.10.30"
     },
     "browser": {
         "http": "http-browserify"
