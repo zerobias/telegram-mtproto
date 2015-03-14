@@ -22,7 +22,7 @@ describe('auth', function() {
                     } else {
                         auth.key.should.be.ok;
                         auth.serverSalt.should.be.ok;
-                        console.log('Auth key OK: %s', auth.key.toString());
+                        console.log('Auth key OK: %s', auth.toPrintable());
                     }
                     (!ex).should.be.true;
                     connection.close(done);
@@ -42,7 +42,7 @@ describe('auth', function() {
                     } else {
                         auth.key.should.be.ok;
                         auth.serverSalt.should.be.ok;
-                        console.log('Auth key OK: %s', auth.key.toString());
+                        console.log('Auth key OK: %s', auth.toPrintable());
                     }
                     (!ex).should.be.true;
                     connection.close(done);
