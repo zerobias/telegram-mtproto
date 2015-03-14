@@ -1,6 +1,6 @@
 require('requirish')._(module);
 require('should');
-var TypeObject = require('telegram-tl-node').TypeObject;
+var tl = require('telegram-tl-node');
 var PlainMessage = require('lib/mtproto').message.PlainMessage;
 
 describe('PlainMessage', function () {
@@ -11,7 +11,7 @@ describe('PlainMessage', function () {
             var msg = new PlainMessage();
             msg.should.be.ok;
             msg.should.be.an.instanceof(PlainMessage);
-            msg.should.be.an.instanceof(TypeObject);
+            msg.should.be.an.instanceof(tl.TypeObject);
             msg.isReadonly().should.be.false;
 
             msg = new PlainMessage({message: new Buffer('FFFF', 'hex')});
@@ -25,23 +25,44 @@ describe('PlainMessage', function () {
         })
     });
 
+    var Body = new tl.TypeBuilder('namespace', {
+        "id": "66665",
+        "predicate": "body",
+        "params": [
+            {
+                "name": "key",
+                "type": "int"
+            }
+        ],
+        "type": "Body"
+    }).getType();
+
+
     describe('#serialize()', function () {
         it('should serialize the msg', function (done) {
-            var msg = new PlainMessage({message: new Buffer('FFFF', 'hex')});
+            var msg = new PlainMessage({
+                message: new Body({
+                    props: {
+                        key: 6666
+                    }
+                })
+            });
             msg.msg_id = 1;
             var buffer = msg.serialize();
             buffer.should.be.ok;
-            buffer.toString('hex').should.be.equal('0000000000000000010000000000000002000000ffff');
+            buffer.toString('hex').should.be.equal('0000000000000000010000000000000008000000690401000a1a0000');
             done();
         })
     });
 
     describe('#deserialize()', function () {
         it('should de-serialize the msg', function (done) {
-            var msg = new PlainMessage({buffer: new Buffer('0000000000000000010000000000000002000000ffff', 'hex')});
+            var msg = new PlainMessage({buffer: new Buffer('0000000000000000010000000000000008000000690401000a1a0000', 'hex')});
             msg.deserialize().should.be.ok;
             msg.msg_id.should.be.equal('0x0000000000000001');
-            msg.body.toString('hex').should.equal('ffff');
+            msg.bytes.should.be.equal(8);
+            msg.body.should.be.an.instanceof(Body);
+            msg.body.key.should.be.equal(6666);
             done();
         })
     });
