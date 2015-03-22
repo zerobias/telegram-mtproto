@@ -6,12 +6,20 @@ describe('time', function () {
 
     describe('#getLocalTime()', function () {
         it('should be a synchronized time', function () {
-            var offset = 1000;
-            var duration = 50;
+            var offset = .05;
+            var duration = 100;
             var localTime = new Date().getTime();
-            var serverTime = localTime + offset;
+            var serverTime = Math.round(localTime/1000) + offset;
             time.timeSynchronization(serverTime, duration);
-            time.getLocalTime().should.be.approximately(localTime + (offset + duration/2), 50);
+            var check = localTime + (offset * 1000 + duration / 2);
+            var synchLocalTime = time.getLocalTime();
+            console.log('synchLocalTime %s should be more or less %s', synchLocalTime, check);
+            synchLocalTime.should.be.approximately(check, 1000);
+
+            duration = 700;
+            time.timeSynchronization(serverTime, duration);
+            var synchLocalTime2 = time.getLocalTime();
+            synchLocalTime2.should.be.approximately(synchLocalTime, 10);
         })
     });
 });
