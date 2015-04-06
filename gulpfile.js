@@ -13,6 +13,11 @@ gulp.task('test', function () {
         .pipe(mocha({reporter: 'mocha-better-spec-reporter', timeout: '90s'}));
 });
 
+gulp.task('example', function () {
+    return gulp.src('./example/**/*example.js')
+        .pipe(mocha({reporter: 'mocha-better-spec-reporter', timeout: '90s'}));
+});
+
 gulp.task('cover', function () {
     return gulp.src('./test/**/*test.js')
         .pipe(mocha({reporter: 'mocha-lcov-reporter', timeout: '90s'}));

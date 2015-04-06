@@ -54,6 +54,13 @@ $ npm install
 $ npm test
 ```
 
+## Example
+
+You can find an example where take an auth key on the fly and ask what is the nearest DataCenter:
+```bash
+$ npm run-script example
+```
+
 ## Dependencies
 
 - [telegram-tl-node](https://github.com/enricostara/telegram-tl-node): a Telegram TypeLanguage library

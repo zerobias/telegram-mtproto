@@ -51,6 +51,3 @@ describe('auth', function() {
         });
     });
 });
-
-
-

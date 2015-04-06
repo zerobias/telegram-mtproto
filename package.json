@@ -1,6 +1,6 @@
 {
     "name": "telegram-mt-node",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "Telegram MTProto library",
     "keywords": [
         "telegram",
@@ -51,7 +51,8 @@
         "http": "http-browserify"
     },
     "scripts": {
-        "test": "DEBUG=-mocha*,-TypeBuilder,* gulp test",
+        "test": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js test",
+        "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
         "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
         "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/*.js"
     }
