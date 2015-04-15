@@ -27,6 +27,7 @@ example
 
 # Dev-Config
 *.yml
+.gitignore
 .npmignore
 gulpfile.js
 
@@ -37,6 +38,7 @@ gulpfile.js
 *.iws
 *.iml
 *.ipr
+.idea
 .classpath
 .project
 
