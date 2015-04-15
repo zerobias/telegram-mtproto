@@ -7,7 +7,7 @@ var TypeObject = require('telegram-tl-node').TypeObject;
 var EncryptedMessage = require('lib/message/encrypted-message');
 var SequenceNumber = require('lib/sequence-number');
 
-describe('EncryptedMessage', function() {
+describe('EncryptedMessage', function () {
 
 
     var authKey = new auth.AuthKey(
@@ -27,8 +27,8 @@ describe('EncryptedMessage', function() {
         "type": "Body"
     }).getType();
 
-    describe('#init()', function() {
-        it('should return an instance', function() {
+    describe('#init()', function () {
+        it('should return an instance', function () {
 
             var msg = new EncryptedMessage();
             msg.should.be.ok;
@@ -89,7 +89,8 @@ describe('EncryptedMessage', function() {
 
             var encMsg = new EncryptedMessage({
                 buffer: new Buffer('4efd920588a83ac9f33f86b0f793bce2fc491b4771739d5ba094e1c361dc2499db7cfddd9c256d882b1240f3e9728765c39ae5f03b69a62d62bd4e4f577f4ec297c7614438fc2755', 'hex'),
-                authKey: authKey});
+                authKey: authKey
+            });
             var decrypted = encMsg.deserialize(true);
             decrypted.should.be.ok;
 

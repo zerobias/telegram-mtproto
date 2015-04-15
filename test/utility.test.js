@@ -6,7 +6,7 @@ describe('utility', function () {
 
     describe('#createNonce()', function () {
         it('should return a nonce', function () {
-            utility.createNonce(32).length.should.be.equal((32+1)*2);
+            utility.createNonce(32).length.should.be.equal((32 + 1) * 2);
         })
     });
 

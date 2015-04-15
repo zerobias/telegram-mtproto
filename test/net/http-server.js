@@ -5,12 +5,12 @@ server = http.createServer(function (req, res) {
     console.log('Server: requested header %s', JSON.stringify(req.headers));
     console.log('Server: requested method %s', JSON.stringify(req.method));
 
-    if(req.method == 'POST')  {
+    if (req.method == 'POST') {
         console.log('POST method');
         req.setEncoding('utf8');
-        req.on('data', function(chunk) {
+        req.on('data', function (chunk) {
             console.log('data: %s', chunk);
-            if('shutdown' == chunk) {
+            if ('shutdown' == chunk) {
                 exports.shutdown();
             }
             res.end('OK');
@@ -30,7 +30,7 @@ exports.port = function () {
     return port;
 }();
 
-exports.shutdown = function() {
+exports.shutdown = function () {
     server.close();
     console.log('HTTP Server shutdown.')
 };

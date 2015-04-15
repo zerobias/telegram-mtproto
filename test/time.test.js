@@ -9,7 +9,7 @@ describe('time', function () {
             var offset = .05;
             var duration = 100;
             var localTime = new Date().getTime();
-            var serverTime = Math.round(localTime/1000) + offset;
+            var serverTime = Math.round(localTime / 1000) + offset;
             time.timeSynchronization(serverTime, duration);
             var check = localTime + (offset * 1000 + duration / 2);
             var synchLocalTime = time.getLocalTime();

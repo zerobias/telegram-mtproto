@@ -9,14 +9,14 @@ require('lib/security').PublicKey.addKey({
     exponent: '010001'
 });
 
-describe('auth', function() {
+describe('auth', function () {
     this.timeout(60000);
-    describe('#createAuthKey()', function() {
-        it('should returns AuthKey using a HTTP connection', function(done) {
+    describe('#createAuthKey()', function () {
+        it('should returns AuthKey using a HTTP connection', function (done) {
             var connection = new net.HttpConnection(primaryDC);
-            connection.connect(function() {
+            connection.connect(function () {
                 var channel = new net.RpcChannel(connection);
-                auth.createAuthKey(function(ex, auth) {
+                auth.createAuthKey(function (ex, auth) {
                     if (ex) {
                         console.log('Auth key KO: %s', ex);
                     } else {
@@ -31,12 +31,12 @@ describe('auth', function() {
         });
     });
 
-    describe('#createAuthKey()', function() {
-        it('should returns AuthKey using a TCP connection', function(done) {
+    describe('#createAuthKey()', function () {
+        it('should returns AuthKey using a TCP connection', function (done) {
             var connection = new net.TcpConnection(primaryDC);
-            connection.connect(function() {
+            connection.connect(function () {
                 var channel = new net.RpcChannel(connection);
-                auth.createAuthKey(function(ex, auth) {
+                auth.createAuthKey(function (ex, auth) {
                     if (ex) {
                         console.log('Auth key KO: %s', ex);
                     } else {

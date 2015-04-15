@@ -1,59 +1,59 @@
 {
-    "name": "telegram-mt-node",
-    "version": "0.6.1",
-    "description": "Telegram MTProto library",
-    "keywords": [
-        "telegram",
-        "mt",
-        "mtproto",
-        "mobile",
-        "protocol",
-        "library"
-    ],
-    "author": "Enrico Stara <enrico.stara@gmail.com>",
-    "homepage": "https://github.com/enricostara/telegram-mt-node",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/enricostara/telegram-mt-node.git"
-    },
-    "bugs": {
-        "url": "https://github.com/enricostara/telegram-mt-node/issues"
-    },
-    "license": "MIT",
-    "dependencies": {
-        "bigint-node": "latest",
-        "get-flow": "latest",
-        "get-log": "latest",
-        "jsbn": "latest",
-        "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
-        "requirish": "latest",
-        "telegram-tl-node": "latest"
-    },
-    "devDependencies": {
-        "codeclimate-test-reporter": "latest",
-        "coveralls": "latest",
-        "gulp": "latest",
-        "gulp-jshint": "latest",
-        "gulp-mocha": "latest",
-        "http-browserify": "enricostara/http-browserify",
-        "istanbul": "latest",
-        "mocha": "latest",
-        "mocha-better-spec-reporter": "1.x",
-        "mocha-lcov-reporter": "latest",
-        "should": "latest",
-        "zuul": "1.15.2"
-    },
-    "main": "./lib/mtproto",
-    "engines": {
-        "node": ">0.10.30"
-    },
-    "browser": {
-        "http": "http-browserify"
-    },
-    "scripts": {
-        "test": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js test",
-        "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
-        "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
-        "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/*.js"
-    }
+  "name": "telegram-mt-node",
+  "version": "0.6.1",
+  "description": "Telegram MTProto library",
+  "keywords": [
+    "telegram",
+    "mt",
+    "mtproto",
+    "mobile",
+    "protocol",
+    "library"
+  ],
+  "author": "Enrico Stara <enrico.stara@gmail.com>",
+  "homepage": "https://github.com/enricostara/telegram-mt-node",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/enricostara/telegram-mt-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/enricostara/telegram-mt-node/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bigint-node": "latest",
+    "get-flow": "latest",
+    "get-log": "latest",
+    "jsbn": "latest",
+    "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
+    "requirish": "latest",
+    "telegram-tl-node": "latest"
+  },
+  "devDependencies": {
+    "codeclimate-test-reporter": "latest",
+    "coveralls": "latest",
+    "gulp": "latest",
+    "gulp-jshint": "latest",
+    "gulp-mocha": "latest",
+    "http-browserify": "enricostara/http-browserify",
+    "istanbul": "latest",
+    "mocha": "latest",
+    "mocha-better-spec-reporter": "1.x",
+    "mocha-lcov-reporter": "latest",
+    "should": "latest",
+    "zuul": "1.15.2"
+  },
+  "main": "./lib/mtproto",
+  "engines": {
+    "node": ">0.10.30"
+  },
+  "browser": {
+    "http": "http-browserify"
+  },
+  "scripts": {
+    "test": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js test",
+    "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
+    "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
+    "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/*.js"
+  }
 }

@@ -5,13 +5,13 @@ var net = require("lib/net");
 var tl = require('telegram-tl-node');
 
 
-describe('RpcChannel', function() {
+describe('RpcChannel', function () {
 
     var tcpConn;
     var port = 3003;
     var ResPQ, resPq;
 
-    before(function() {
+    before(function () {
         require('./tcp-server').start(port);
         tcpConn = new net.TcpConnection({host: "0.0.0.0", port: port});
         tcpConn.connect();
@@ -34,8 +34,8 @@ describe('RpcChannel', function() {
         });
     });
 
-    describe('#init()', function() {
-        it('should notify error back ', function(done) {
+    describe('#init()', function () {
+        it('should notify error back ', function (done) {
             try {
                 new net.RpcChannel();
             } catch (err) {
@@ -44,8 +44,8 @@ describe('RpcChannel', function() {
         })
     });
 
-    describe('#init()', function() {
-        it('should notify error back ', function(done) {
+    describe('#init()', function () {
+        it('should notify error back ', function (done) {
             try {
                 new net.RpcChannel(new net.TcpConnection({host: "0.0.0.0", port: port}));
             } catch (err) {
@@ -54,16 +54,16 @@ describe('RpcChannel', function() {
         })
     });
 
-    describe('#init()', function() {
-        it('should create an instance', function() {
+    describe('#init()', function () {
+        it('should create an instance', function () {
             var rpcChannel = new net.RpcChannel(tcpConn);
             rpcChannel.should.be.ok;
             rpcChannel.isOpen().should.be.true;
         })
     });
 
-    describe('#close()', function() {
-        it('should close the channel', function() {
+    describe('#close()', function () {
+        it('should close the channel', function () {
             var rpcChannel = new net.RpcChannel(tcpConn);
             rpcChannel.should.be.ok;
             rpcChannel.close();
@@ -71,10 +71,10 @@ describe('RpcChannel', function() {
         })
     });
 
-    describe('#close()', function() {
-        it('should call the method', function(done) {
+    describe('#close()', function () {
+        it('should call the method', function (done) {
             var rpcChannel = new net.RpcChannel(tcpConn);
-            rpcChannel.callMethod(resPq, function(ex, resObj, duration) {
+            rpcChannel.callMethod(resPq, function (ex, resObj, duration) {
 
                 resObj.should.be.ok;
                 resObj.should.have.properties({
@@ -89,7 +89,7 @@ describe('RpcChannel', function() {
         })
     });
 
-    after(function() {
+    after(function () {
         tcpConn.close();
         require('./tcp-server').shutdown(port);
     });
