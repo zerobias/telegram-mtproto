@@ -12,7 +12,7 @@ describe('EncryptedRpcChannel', function () {
 
     var tcpConn;
     var port = 3005;
-    var SendCode = new tl.TypeBuilder('namespace', {
+    var SendCode = new tl.TypeBuilder.buildType('namespace', {
         "id": "1988976461",
         "method": "auth.sendCode",
         "params": [{
@@ -32,7 +32,7 @@ describe('EncryptedRpcChannel', function () {
             "type": "string"
         }],
         "type": "auth.SentCode"
-    }).getType();
+    });
 
     var authKey = new auth.AuthKey(
         new Buffer('4efd920588a83ac9', 'hex'),

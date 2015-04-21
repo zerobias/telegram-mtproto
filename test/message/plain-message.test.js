@@ -25,7 +25,7 @@ describe('PlainMessage', function () {
         })
     });
 
-    var Body = new tl.TypeBuilder('namespace', {
+    var Body = new tl.TypeBuilder.buildType('namespace', {
         "id": "66665",
         "predicate": "body",
         "params": [
@@ -35,7 +35,7 @@ describe('PlainMessage', function () {
             }
         ],
         "type": "Body"
-    }).getType();
+    });
 
 
     describe('#serialize()', function () {

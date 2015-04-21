@@ -15,14 +15,14 @@ describe('RpcChannel', function () {
         require('./tcp-server').start(port);
         tcpConn = new net.TcpConnection({host: "0.0.0.0", port: port});
         tcpConn.connect();
-        ResPQ = new tl.TypeBuilder('namespace', {
+        ResPQ = new tl.TypeBuilder.buildType('namespace', {
             "id": "85337187", "predicate": "resPQ", "params": [
                 {"name": "nonce", "type": "int128"},
                 {"name": "server_nonce", "type": "int128"},
                 {"name": "pq", "type": "bytes"},
                 {"name": "server_public_key_fingerprints", "type": "Vector<long>"}
             ], "type": "ResPQ"
-        }).getType();
+        });
 
         resPq = new ResPQ({
             props: {

@@ -15,7 +15,7 @@ describe('EncryptedMessage', function () {
         new Buffer('33843a2caeb2452873c89349fd8f7221ba734c8df5e05c122a9e36b036995afc81057270b71b6375ae1ccf59514519748bbb0ec508dde9d17bce70e3dcf685b3731917b144710233f0d4b6a1d69b37722eaa075c5aeabde8d1848ef04af661055f52ab406ab7df8dec44a7ddcbf9de5be36ace00ecfbf5cb69b156c18a469e70658b99ecc2d1ff8de47cf573589b475833016a327f855965b7f541a9926651e50e4dcea69ebb5adbe2cc6ad49b36d38c6058c9f1fff06b07688ccb129e20aef00d77912a2f61cb82274fa86d0aa24b58c9e12cad8c751c6da2831ec635d053bd99b26a6fc83a28c64ff5c94efb5ef82356783c6f2ca0b55a074de82de553c6cb', 'hex')
     );
 
-    var Body = new tl.TypeBuilder('namespace', {
+    var Body = new tl.TypeBuilder.buildType('namespace', {
         "id": "66666",
         "predicate": "body",
         "params": [
@@ -25,7 +25,7 @@ describe('EncryptedMessage', function () {
             }
         ],
         "type": "Body"
-    }).getType();
+    });
 
     describe('#init()', function () {
         it('should return an instance', function () {
