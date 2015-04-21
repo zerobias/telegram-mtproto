@@ -22,7 +22,7 @@ describe('api', function () {
     describe('#call getNearestDC', function () {
         it('should get the nearest DC..', function (done) {
 
-            var NearestDc = new tl.TypeBuilder('api', {
+            var NearestDc = new tl.TypeBuilder.buildType('api', {
                 "id": "-1910892683",
                 "predicate": "nearestDc",
                 "params": [{
@@ -36,14 +36,14 @@ describe('api', function () {
                     "type": "int"
                 }],
                 "type": "NearestDc"
-            }).getType();
+            });
 
-            var GetNearestDc = new tl.TypeBuilder('api', {
+            var GetNearestDc = new tl.TypeBuilder.buildType('api', {
                 "id": "531836966",
                 "method": "help.getNearestDc",
                 "params": [],
                 "type": "NearestDc"
-            }).getType();
+            });
 
             //var connection = new net.TcpConnection(primaryDC);
             var connection = new net.HttpConnection(primaryDC);
