@@ -85,8 +85,8 @@ describe('EncryptedRpcChannel', function () {
         })
     });
 
-    net.EncryptedRpcChannel.prototype._deserializeResponse = function (response, context) {
-        return new message.EncryptedMessage({buffer: response, authKey: context.authKey}).deserialize(true).body;
+    net.EncryptedRpcChannel.prototype._deserializeResponse = function (response) {
+        return new message.EncryptedMessage({buffer: response, authKey: this._context.authKey}).deserialize(true).body;
     };
 
     describe('#callMethod()', function () {
@@ -100,13 +100,13 @@ describe('EncryptedRpcChannel', function () {
                     lang_code: 'it'
                 }
             });
-            var rpcChannel = new net.EncryptedRpcChannel(tcpConn);
-            rpcChannel.callMethod(sendCode, {
+            var rpcChannel = new net.EncryptedRpcChannel(tcpConn, {
                 authKey: authKey,
                 serverSalt: '0xfce2ec8fa401b366',
                 sessionId: '0x77907373a54aba77',
                 sequenceNumber: new SequenceNumber()
-            }, function (ex, resObj, duration) {
+            });
+            rpcChannel.callMethod(sendCode, function (ex, resObj, duration) {
                 if (ex) {
                     console.log(ex);
                 }
@@ -118,58 +118,64 @@ describe('EncryptedRpcChannel', function () {
                     api_hash: '844584f2b1fd2daecee726166dcc1ef8',
                     lang_code: 'it'
                 });
-                console.log('calling the method takes %sms', duration);
+                console.log('calling the method took %sms', duration);
                 done();
             });
         })
     });
 
-    describe('#callMethod()', function () {
+    describe('#callMethod() - wrapped - ', function () {
         it('should call the wrapped method', function (done) {
-            var sendCode = new SendCode({
-                props: {
-                    phone_number: '003934987654321',
-                    sms_type: 5,
-                    api_id: 10534,
-                    api_hash: '844584f2b1fd2daecee726166dcc1ef8',
-                    lang_code: 'it'
-                }
-            });
-            var rpcChannel = new net.EncryptedRpcChannel(
-                tcpConn, {
-                    appId: 1234,
-                    appVersion: '1.0.0'
-                }
-            );
-            rpcChannel.callMethod(sendCode, {
-                authKey: authKey,
-                serverSalt: '0xfce2ec8fa401b366',
-                sessionId: '0x77907373a54aba77',
-                sequenceNumber: new SequenceNumber()
-            }, function (ex, resObj, duration) {
-                if (ex) {
-                    console.log(ex);
-                }
-                resObj.should.be.ok;
-                resObj.should.have.properties({
-                    layer: 23
+            try {
+
+                var sendCode = new SendCode({
+                    props: {
+                        phone_number: '003934987654321',
+                        sms_type: 5,
+                        api_id: 10534,
+                        api_hash: '844584f2b1fd2daecee726166dcc1ef8',
+                        lang_code: 'it'
+                    }
                 });
-                var initConn = new mtproto.service.initConnection.Type({buffer: resObj.query}).deserialize();
-                initConn.should.have.properties({
-                    api_id: 1234,
-                    app_version: '1.0.0'
+                var rpcChannel = new net.EncryptedRpcChannel(
+                    tcpConn, {
+                        authKey: authKey,
+                        serverSalt: '0xfce2ec8fa401b366',
+                        sessionId: '0x77907373a54aba77',
+                        sequenceNumber: new SequenceNumber()
+                    }, {
+                        appId: 1234,
+                        appVersion: '1.0.0'
+                    }
+                );
+                rpcChannel.callMethod(sendCode, function (ex, resObj, duration) {
+                    if (ex) {
+                        console.log(ex);
+                    }
+                    resObj.should.be.ok;
+                    resObj.should.have.properties({
+                        layer: 23
+                    });
+                    var initConn = new mtproto.service.initConnection.Type({buffer: resObj.query}).deserialize();
+                    initConn.should.have.properties({
+                        api_id: 1234,
+                        app_version: '1.0.0'
+                    });
+                    var resObj = new SendCode({buffer: initConn.query}).deserialize();
+                    resObj.should.have.properties({
+                        phone_number: '003934987654321',
+                        sms_type: 5,
+                        api_id: 10534,
+                        api_hash: '844584f2b1fd2daecee726166dcc1ef8',
+                        lang_code: 'it'
+                    });
+                    console.log('calling the method took %sms', duration);
+                    done();
                 });
-                var resObj = new SendCode({buffer: initConn.query}).deserialize();
-                resObj.should.have.properties({
-                    phone_number: '003934987654321',
-                    sms_type: 5,
-                    api_id: 10534,
-                    api_hash: '844584f2b1fd2daecee726166dcc1ef8',
-                    lang_code: 'it'
-                });
-                console.log('calling the method takes %sms', duration);
-                done();
-            });
+            } catch (err) {
+                console.log(err.stack);
+                done()
+            }
         })
     });
 
