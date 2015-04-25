@@ -65,6 +65,11 @@ describe('api', function () {
 
                         var rpcChannel = new net.EncryptedRpcChannel(
                             connection, {
+                                authKey: auth.key,
+                                serverSalt: serverSalt,
+                                sessionId: sessionId,
+                                sequenceNumber: sequenceNumber
+                            }, {
                                 appId: 10534,
                                 appVersion: '1.0.0'
                             }
@@ -73,12 +78,7 @@ describe('api', function () {
                             props: {}
                         });
                         console.log('Begin call  with sessionId %s and serverSalt %s', sessionId, serverSalt);
-                        rpcChannel.callMethod(getNearestDc, {
-                                authKey: auth.key,
-                                serverSalt: serverSalt,
-                                sessionId: sessionId,
-                                sequenceNumber: sequenceNumber
-                            }, function (ex, resObj, duration) {
+                        rpcChannel.callMethod(getNearestDc, function (ex, resObj, duration) {
                                 if (ex) {
                                     console.log('Exception %s', ex);
                                 } else {
@@ -94,12 +94,7 @@ describe('api', function () {
                                         }
                                     });
 
-                                    rpcChannel.callMethod(msgsAck, {
-                                        authKey: auth.key,
-                                        serverSalt: serverSalt,
-                                        sessionId: sessionId,
-                                        sequenceNumber: sequenceNumber
-                                    }, function (ex, resObj, duration) {
+                                    rpcChannel.callMethod(msgsAck, function (ex, resObj, duration) {
                                         if (ex) {
                                             console.log('Exception %s', ex);
                                         } else {
