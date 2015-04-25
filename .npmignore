@@ -22,9 +22,6 @@ build/Release
 #Test
 test
 
-#Example
-example
-
 # Dev-Config
 *.yml
 .gitignore
