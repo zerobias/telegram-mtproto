@@ -47,7 +47,10 @@ describe('EncryptedRpcChannel', function () {
         tcpConn.connect();
 
         net.EncryptedRpcChannel.prototype._deserializeResponse = function (response) {
-            return new message.EncryptedMessage({buffer: response, authKey: this._context.authKey}).deserialize(true).body;
+            return new message.EncryptedMessage({
+                buffer: response,
+                authKey: this._context.authKey
+            }).deserialize(true).body;
         };
     });
 
@@ -91,7 +94,6 @@ describe('EncryptedRpcChannel', function () {
         })
     });
 
-
     describe('#callMethod()', function () {
         it('should call the method', function (done) {
             var sendCode = new SendCode({
@@ -109,10 +111,8 @@ describe('EncryptedRpcChannel', function () {
                 sessionId: '0x77907373a54aba77',
                 sequenceNumber: new SequenceNumber()
             });
-            rpcChannel.callMethod(sendCode, function (ex, resObj, duration) {
-                if (ex) {
-                    console.log(ex);
-                }
+
+            var callback = function (resObj, duration) {
                 resObj.should.be.ok;
                 resObj.should.have.properties({
                     phone_number: '003934987654321',
@@ -123,7 +123,9 @@ describe('EncryptedRpcChannel', function () {
                 });
                 console.log('calling the method took %sms', duration);
                 done();
-            });
+            };
+            rpcChannel._parser.once('namespace.auth.sendCode', callback);
+            rpcChannel.callMethod(sendCode);
         })
     });
 
@@ -151,10 +153,7 @@ describe('EncryptedRpcChannel', function () {
                         appVersion: '1.0.0'
                     }
                 );
-                rpcChannel.callMethod(sendCode, function (ex, resObj, duration) {
-                    if (ex) {
-                        console.log(ex);
-                    }
+                var callback = function (resObj, duration) {
                     resObj.should.be.ok;
                     resObj.should.have.properties({
                         layer: 23
@@ -174,7 +173,9 @@ describe('EncryptedRpcChannel', function () {
                     });
                     console.log('calling the method took %sms', duration);
                     done();
-                });
+                };
+                rpcChannel._parser.once('mtproto.service.invokeWithLayer', callback);
+                rpcChannel.callMethod(sendCode, callback);
             } catch (err) {
                 console.log(err.stack);
                 done()
