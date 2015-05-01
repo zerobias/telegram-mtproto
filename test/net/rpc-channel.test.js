@@ -45,16 +45,6 @@ describe('RpcChannel', function () {
     });
 
     describe('#init()', function () {
-        it('should notify error back ', function (done) {
-            try {
-                new net.RpcChannel(new net.TcpConnection({host: "0.0.0.0", port: port}));
-            } catch (err) {
-                done();
-            }
-        })
-    });
-
-    describe('#init()', function () {
         it('should create an instance', function () {
             var rpcChannel = new net.RpcChannel(tcpConn);
             rpcChannel.should.be.ok;
