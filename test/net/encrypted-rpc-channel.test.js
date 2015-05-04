@@ -66,7 +66,7 @@ describe('EncryptedRpcChannel', function () {
 
     describe('#init()', function () {
         it('should create an instance', function () {
-            var rpcChannel = new net.EncryptedRpcChannel(tcpConn);
+            var rpcChannel = new net.EncryptedRpcChannel(tcpConn, null, {});
             rpcChannel.should.be.ok;
             rpcChannel.should.have.properties({
                 _connection: tcpConn
@@ -77,7 +77,7 @@ describe('EncryptedRpcChannel', function () {
 
     describe('#close()', function () {
         it('should close the channel', function () {
-            var rpcChannel = new net.EncryptedRpcChannel(tcpConn);
+            var rpcChannel = new net.EncryptedRpcChannel(tcpConn, null, {});
             rpcChannel.should.be.ok;
             rpcChannel.close();
             rpcChannel.isOpen().should.be.false;
@@ -86,43 +86,47 @@ describe('EncryptedRpcChannel', function () {
 
     describe('#callMethod()', function () {
         it('should call the method', function (done) {
-            var sendCode = new SendCode({
-                props: {
-                    phone_number: '003934987654321',
-                    sms_type: 5,
-                    api_id: 10534,
-                    api_hash: '844584f2b1fd2daecee726166dcc1ef8',
-                    lang_code: 'it'
-                }
-            });
-            var rpcChannel = new net.EncryptedRpcChannel(tcpConn, {
-                authKey: authKey,
-                serverSalt: '0xfce2ec8fa401b366',
-                sessionId: '0x77907373a54aba77',
-                sequenceNumber: new SequenceNumber()
-            });
-
-            var callback = function (resObj, duration) {
-                resObj.should.be.ok;
-                resObj.should.have.properties({
-                    phone_number: '003934987654321',
-                    sms_type: 5,
-                    api_id: 10534,
-                    api_hash: '844584f2b1fd2daecee726166dcc1ef8',
-                    lang_code: 'it'
+            try {
+                var sendCode = new SendCode({
+                    props: {
+                        phone_number: '003934987654321',
+                        sms_type: 5,
+                        api_id: 10534,
+                        api_hash: '844584f2b1fd2daecee726166dcc1ef8',
+                        lang_code: 'it'
+                    }
                 });
-                console.log('calling the method took %sms', duration);
-                done();
-            };
-            rpcChannel._parser.once('namespace.auth.sendCode', callback);
-            rpcChannel.callMethod(sendCode);
+                var rpcChannel = new net.EncryptedRpcChannel(tcpConn, {
+                    authKey: authKey,
+                    serverSalt: '0xfce2ec8fa401b366',
+                    sessionId: '0x77907373a54aba77',
+                    sequenceNumber: new SequenceNumber()
+                }, {});
+
+                var callback = function (resObj, duration) {
+                    resObj.should.be.ok;
+                    resObj.should.have.properties({
+                        phone_number: '003934987654321',
+                        sms_type: 5,
+                        api_id: 10534,
+                        api_hash: '844584f2b1fd2daecee726166dcc1ef8',
+                        lang_code: 'it'
+                    });
+                    console.log('calling the method took %sms', duration);
+                    done();
+                };
+                rpcChannel._parser.once('namespace.auth.sendCode', callback);
+                rpcChannel._initialized = true;
+                rpcChannel.callMethod(sendCode);
+            } catch (err) {
+                console.log(err.stack);
+            }
         })
     });
 
     describe('#callMethod() - wrapped - ', function () {
         it('should call the wrapped method', function (done) {
             try {
-
                 var sendCode = new SendCode({
                     props: {
                         phone_number: '003934987654321',
@@ -139,8 +143,8 @@ describe('EncryptedRpcChannel', function () {
                         sessionId: '0x77907373a54aba77',
                         sequenceNumber: new SequenceNumber()
                     }, {
-                        appId: 1234,
-                        appVersion: '1.0.0'
+                        id: 1234,
+                        version: '1.0.0'
                     }
                 );
                 var callback = function (resObj, duration) {
@@ -168,7 +172,6 @@ describe('EncryptedRpcChannel', function () {
                 rpcChannel.callMethod(sendCode, callback);
             } catch (err) {
                 console.log(err.stack);
-                done()
             }
         })
     });

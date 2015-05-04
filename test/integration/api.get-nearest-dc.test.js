@@ -62,8 +62,8 @@ describe('api', function () {
                                 sessionId: sessionId,
                                 sequenceNumber: sequenceNumber
                             }, {
-                                appId: 10534,
-                                appVersion: '1.0.0'
+                                id: 10534,
+                                version: '1.0.0'
                             }
                         );
 
