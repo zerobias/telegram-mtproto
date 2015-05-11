@@ -91,7 +91,14 @@ describe('EncryptedMessage', function () {
                 buffer: new Buffer('4efd920588a83ac9f33f86b0f793bce2fc491b4771739d5ba094e1c361dc2499db7cfddd9c256d882b1240f3e9728765c39ae5f03b69a62d62bd4e4f577f4ec297c7614438fc2755', 'hex'),
                 authKey: authKey
             });
-            var decrypted = encMsg.deserialize(true);
+            try {
+                var decrypted = encMsg.deserialize(true);
+            } catch (e) {
+                console.log('type: ', EncryptedMessage.InnerMessage);
+                console.log('err: ', e.stack);
+                throw e;
+            }
+
             decrypted.should.be.ok;
 
             var msg = decrypted;
