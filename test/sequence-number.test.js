@@ -10,8 +10,13 @@ describe('SequenceNumber', function () {
             seqNo.generate(true).should.be.equal(1);
             seqNo.generate(true).should.be.equal(3);
             seqNo.generate(false).should.be.equal(4);
+            seqNo.generate(false).should.be.equal(4);
             seqNo.generate(true).should.be.equal(5);
-            seqNo.generate(false).should.be.equal(6);
+            seqNo.generate(true).should.be.equal(7);
+            seqNo.generate(true).should.be.equal(9);
+            seqNo.generate(false).should.be.equal(10);
+            seqNo.generate(false).should.be.equal(10);
+            seqNo.generate(false).should.be.equal(10);
         })
     });
 });
