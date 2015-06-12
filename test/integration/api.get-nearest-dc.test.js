@@ -74,10 +74,23 @@ describe('api', function () {
                                 if (ex) {
                                     console.log('Exception %s', ex);
                                 } else {
-                                    console.log('Executed: it takes %sms', duration);
+                                    console.log('Executed A: it takes %sms', duration);
                                     console.log(resObj.toPrintable());
 
-                                    done();
+                                    getNearestDc({
+                                        prop: {},
+                                        channel: rpcChannel,
+                                        callback: function (ex, resObj, duration) {
+                                            if (ex) {
+                                                console.log('Exception %s', ex);
+                                            } else {
+                                                console.log('Executed B: it takes %sms', duration);
+                                                console.log(resObj.toPrintable());
+
+                                                done();
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
