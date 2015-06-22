@@ -29,6 +29,17 @@ describe('AuthKey', function () {
         });
     });
 
+    describe('#decryptAuthKey()', function () {
+        it('should returnsnull', function () {
+
+            var decrypted = auth.AuthKey.decryptAuthKey(
+                new Buffer('380d03d50bf5107cab6f62486dd908876f8b1c8aca553c94bc40dab673b61a8901609c240c36a2fce8b0b7c98822e0f54aa1a8434bdac9aa1ce24a36e778f8b182331b56ceccc160c1f9dd47684211f33b9da56012ad6d02e9a900d6bec5cd0ec5863970f4c949b610a26b28560eb50792ce5c87d189240e6bd5c9f941cc770fe6642dca9f1e1742b6306b59cb8b25098b361b79ede3f0ac8e93774d6ae7aad360df95d0590c706286493799e244479acdb4ab7f5d497c9d53cd8d51638703fd0c44c4592ee0c70a8bc0b62b16e465f151e8baea78ee17e4d4fd3914d3b28c3850def6fc71d20d91c26f2bf00ed3d3851067fcd05ea4bb1414ed6cee2a0df219c1c58659add7586679410841457506bf', 'hex'),
+                'wrongsecret'
+            );
+            (decrypted == null).should.be.true;
+        });
+    });
+
     describe('#derivateAesKey()', function () {
         it('should returns an derivated AES key ', function () {
             var authKey = new auth.AuthKey(
