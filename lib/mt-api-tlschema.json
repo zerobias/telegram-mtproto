@@ -45,6 +45,21 @@
         }
       ],
       "type": "X"
+    },
+    {
+      "id": "-878758099",
+      "method": "invokeAfterMsg",
+      "params": [
+        {
+          "name": "msg_id",
+          "type": "long"
+        },
+        {
+          "name": "query",
+          "type": "!X"
+        }
+      ],
+      "type": "X"
     }
   ]
 }
