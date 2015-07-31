@@ -19,7 +19,7 @@ describe('time', function () {
             duration = 700;
             time.timeSynchronization(serverTime, duration);
             var synchLocalTime2 = time.getLocalTime();
-            synchLocalTime2.should.be.approximately(synchLocalTime, 10);
+            synchLocalTime2.should.be.approximately(synchLocalTime, 50);
         })
     });
 });
