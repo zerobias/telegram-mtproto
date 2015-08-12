@@ -68,8 +68,8 @@ describe('RpcChannel', function () {
 
                 resObj.should.be.ok;
                 resObj.should.have.properties({
-                    id: '63241605',
-                    typeName: 'namespace.ResPQ',
+                    _typeId: '63241605',
+                    _typeName: 'namespace.ResPQ',
                     nonce: '0xfce2ec8fa401b366e927ca8c8249053e',
                     server_nonce: '0x30739073a54aba77a81ea1f4334dcfa5'
                 });
