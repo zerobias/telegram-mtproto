@@ -1,6 +1,6 @@
 {
   "name": "telegram-mt-node",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Telegram MTProto library",
   "keywords": [
     "telegram",
@@ -11,7 +11,7 @@
     "library"
   ],
   "author": "Enrico Stara <enrico.stara@gmail.com>",
-  "homepage": "https://github.com/enricostara/telegram-mt-node",
+  "homepage": "https://githubcom/enricostara/telegram-mt-node",
   "repository": {
     "type": "git",
     "url": "git://github.com/enricostara/telegram-mt-node.git"
