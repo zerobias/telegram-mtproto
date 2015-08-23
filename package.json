@@ -1,6 +1,6 @@
 {
   "name": "telegram-mt-node",
-  "version": "0.9.3",
+  "version": "0.9.5",
   "description": "Telegram MTProto library",
   "keywords": [
     "telegram",
