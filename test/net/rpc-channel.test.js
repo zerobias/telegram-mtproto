@@ -61,7 +61,7 @@ describe('RpcChannel', function () {
         })
     });
 
-    describe('#close()', function () {
+    describe('#callMethod()', function () {
         it('should call the method', function (done) {
             var rpcChannel = new net.RpcChannel(tcpConn);
             rpcChannel.callMethod(resPq, function (ex, resObj, duration) {
@@ -74,6 +74,7 @@ describe('RpcChannel', function () {
                     server_nonce: '0x30739073a54aba77a81ea1f4334dcfa5'
                 });
                 console.log('calling the method takes %sms', duration);
+                rpcChannel.close();
                 done();
             });
         })

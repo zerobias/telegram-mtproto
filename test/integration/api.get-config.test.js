@@ -158,7 +158,7 @@ describe('api', function () {
                                 } else {
                                     console.log('Executed: it takes %sms', duration);
                                     console.log(resObj.toPrintable());
-
+                                    rpcChannel.close();
                                     done();
                                 }
                             }

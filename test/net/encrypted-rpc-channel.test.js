@@ -166,6 +166,7 @@ describe('EncryptedRpcChannel', function () {
                         lang_code: 'it'
                     });
                     console.log('calling the method took %sms', duration);
+                    rpcChannel.close();
                     done();
                 };
                 rpcChannel._parser.once('mtproto.service.invokeWithLayer', callback);
