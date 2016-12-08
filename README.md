@@ -43,7 +43,7 @@ The **telegram-mt-node** library implements the **Mobile Protocol** and provides
 ## Installation
 
 ```bash
-$ git clone --branch=master git://github.com/enricostara/telegram-mt-node.git
+$ git clone --branch=master git://github.com/goodmind/telegram-mt-node.git
 $ cd telegram-mt-node
 $ npm install
 ```
@@ -63,7 +63,7 @@ $ npm run-script example
 
 ## Dependencies
 
-- [telegram-tl-node](https://github.com/enricostara/telegram-tl-node): a Telegram TypeLanguage library
+- [telegram-tl-node](https://github.com/goodmind/telegram-tl-node): a Telegram TypeLanguage library
 
 - [get-log](https://github.com/enricostara/get-log): a Node.js Logging Utility, easy to use and ready for production.
 
