@@ -1,4 +1,4 @@
-# telegram-mt-node
+# @goodmind/telegram-mt-node
 [![npm version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coverage-image]][coverage-url] [![Climate Status][climate-image]][climate-url]
 [![Sauce Test Status][sauce-image]][sauce-url]
 
@@ -35,10 +35,10 @@ The **telegram-mt-node** library implements the **Mobile Protocol** and provides
  
  - **Diffie-Hellman key exchange** supported by the **prime factorization** function implemented in the security layer
  
- - **MTProto TL-Schema** compilation as **javascript classes and functions** via [**telegram-tl-node**](https://github.com/goodmind/telegram-tl-node) dependency
+ - **MTProto TL-Schema** compilation as **javascript classes and functions** via [**@goodmind/telegram-tl-node**](https://github.com/goodmind/telegram-tl-node) dependency
 
 <img src="https://raw.githubusercontent.com/enricostara/telegram.link/master/telegram.link.png" 
-    width="20" /> [**telegram.link**](http://telegram.link)  main project depends by this library.
+    width="20" /> [**@goodmind/telegram.link**](http://github.com/goodmind/telegram.link)  main project depends by this library.
 
 ## Installation
 
@@ -63,7 +63,7 @@ $ npm run-script example
 
 ## Dependencies
 
-- [telegram-tl-node](https://github.com/goodmind/telegram-tl-node): a Telegram TypeLanguage library
+- [@goodmind/telegram-tl-node](https://github.com/goodmind/telegram-tl-node): a Telegram TypeLanguage library
 
 - [get-log](https://github.com/enricostara/get-log): a Node.js Logging Utility, easy to use and ready for production.
 
