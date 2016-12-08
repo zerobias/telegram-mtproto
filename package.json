@@ -1,5 +1,5 @@
 {
-  "name": "telegram-mt-node",
+  "name": "@goodmind/telegram-mt-node",
   "version": "0.9.7",
   "description": "Telegram MTProto library",
   "keywords": [
@@ -11,13 +11,13 @@
     "library"
   ],
   "author": "Enrico Stara <enrico.stara@gmail.com>",
-  "homepage": "https://githubcom/enricostara/telegram-mt-node",
+  "homepage": "https://githubcom/goodmind/telegram-mt-node",
   "repository": {
     "type": "git",
-    "url": "git://github.com/enricostara/telegram-mt-node.git"
+    "url": "git://github.com/goodmind/telegram-mt-node.git"
   },
   "bugs": {
-    "url": "https://github.com/enricostara/telegram-mt-node/issues"
+    "url": "https://github.com/goodmind/telegram-mt-node/issues"
   },
   "license": "MIT",
   "dependencies": {
@@ -27,7 +27,7 @@
     "jsbn": "0.0.0",
     "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
     "requirish": "latest",
-    "telegram-tl-node": "latest"
+    "@goodmind/telegram-tl-node": "latest"
   },
   "devDependencies": {
     "codeclimate-test-reporter": "0.1.0",
