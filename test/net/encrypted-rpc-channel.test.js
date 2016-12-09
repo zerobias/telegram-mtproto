@@ -3,8 +3,8 @@ require('should');
 var mtproto = require('lib/mtproto');
 var auth = require('lib/auth');
 var message = require('lib/message');
-var net = require("lib/net");
-var tl = require('telegram-tl-node');
+var net = require('lib/net');
+var tl = require('@goodmind/telegram-tl-node');
 var SequenceNumber = require('lib/sequence-number');
 
 
@@ -67,11 +67,9 @@ describe('EncryptedRpcChannel', function () {
     describe('#init()', function () {
         it('should create an instance', function () {
             var rpcChannel = new net.EncryptedRpcChannel(tcpConn, null, {});
-            rpcChannel.should.be.ok;
-            rpcChannel.should.have.properties({
-                _connection: tcpConn
-            });
-            rpcChannel.isOpen().should.be.true;
+            rpcChannel.should.be.ok();
+            rpcChannel._connection.should.be.equal(tcpConn);
+            rpcChannel.isOpen().should.be.true();
         })
     });
 
