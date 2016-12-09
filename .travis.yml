@@ -2,7 +2,7 @@ language: node_js
 node_js:
    - "0.10"
    - "stable"
-   - "latest"
+   - "node"
 after_script:
    - npm run zuul
    - npm run coveralls
