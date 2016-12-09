@@ -60,6 +60,21 @@
         }
       ],
       "type": "X"
+    },
+    {
+      "id": "1036301552",
+      "method": "invokeAfterMsgs",
+      "params": [
+        {
+          "name": "msg_ids",
+          "type": "Vector<long>"
+        },
+        {
+          "name": "query",
+          "type": "!X"
+        }
+      ],
+      "type": "X"
     }
   ]
 }

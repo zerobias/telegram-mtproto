@@ -61,41 +61,6 @@
       "type": "P_Q_inner_data"
     },
     {
-      "id": "1013613780",
-      "predicate": "p_q_inner_data_temp",
-      "params": [
-        {
-          "name": "pq",
-          "type": "bytes"
-        },
-        {
-          "name": "p",
-          "type": "bytes"
-        },
-        {
-          "name": "q",
-          "type": "bytes"
-        },
-        {
-          "name": "nonce",
-          "type": "int128"
-        },
-        {
-          "name": "server_nonce",
-          "type": "int128"
-        },
-        {
-          "name": "new_nonce",
-          "type": "int256"
-        },
-        {
-          "name": "expires_in",
-          "type": "int"
-        }
-      ],
-      "type": "P_Q_inner_data"
-    },
-    {
       "id": "2043348061",
       "predicate": "server_DH_params_fail",
       "params": [
@@ -601,33 +566,6 @@
         }
       ],
       "type": "MsgDetailedInfo"
-    },
-    {
-      "id": "1973679973",
-      "predicate": "bind_auth_key_inner",
-      "params": [
-        {
-          "name": "nonce",
-          "type": "long"
-        },
-        {
-          "name": "temp_auth_key_id",
-          "type": "long"
-        },
-        {
-          "name": "perm_auth_key_id",
-          "type": "long"
-        },
-        {
-          "name": "temp_session_id",
-          "type": "long"
-        },
-        {
-          "name": "expires_at",
-          "type": "int"
-        }
-      ],
-      "type": "BindAuthKeyInner"
     }
   ],
   "methods": [
