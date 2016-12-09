@@ -5,7 +5,7 @@ var mtproto = require('lib/mtproto');
 var net = require('lib/net');
 var utility = require('lib/utility');
 var SequenceNumber = require('lib/sequence-number');
-var tl = require('telegram-tl-node');
+var tl = require('@goodmind/telegram-tl-node');
 
 var primaryDC = {host: "149.154.167.40", port: "80"}; // TEST.DC2
 require('lib/security').PublicKey.addKey({

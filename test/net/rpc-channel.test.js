@@ -1,8 +1,8 @@
 require('requirish')._(module);
 require('should');
 var mtproto = require('lib/mtproto');
-var net = require("lib/net");
-var tl = require('telegram-tl-node');
+var net = require('lib/net');
+var tl = require('@goodmind/telegram-tl-node');
 
 
 describe('RpcChannel', function () {

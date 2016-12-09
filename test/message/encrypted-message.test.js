@@ -1,9 +1,9 @@
 require('requirish')._(module);
 require('should');
-var tl = require('telegram-tl-node');
+var tl = require('@goodmind/telegram-tl-node');
 var auth = require('lib/auth');
 var mtproto = require('lib/mtproto');
-var TypeObject = require('telegram-tl-node').TypeObject;
+var TypeObject = require('@goodmind/telegram-tl-node').TypeObject;
 var EncryptedMessage = require('lib/message/encrypted-message');
 var SequenceNumber = require('lib/sequence-number');
 
