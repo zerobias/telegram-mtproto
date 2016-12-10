@@ -1,6 +1,6 @@
 {
   "name": "@goodmind/telegram-mt-node",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "Telegram MTProto library",
   "publishConfig": {
     "access": "public"
