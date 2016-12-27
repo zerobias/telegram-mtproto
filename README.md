@@ -79,11 +79,11 @@ library to node.js, that supports AES symmetric key cryptography
 
 The project is released under the [Mit License](./LICENSE) 
 
-[npm-url]: https://www.npmjs.org/package/telegram-mt-node
-[npm-image]: https://badge.fury.io/js/telegram-mt-node.svg
+[npm-url]: https://www.npmjs.org/package/@goodmind/telegram-mt-node
+[npm-image]: https://badge.fury.io/js/%40goodmind%2Ftelegram-mt-node.svg
 
-[travis-url]: https://travis-ci.org/enricostara/telegram-mt-node
-[travis-image]: https://travis-ci.org/enricostara/telegram-mt-node.svg?branch=master
+[travis-url]: https://travis-ci.org/goodmind/telegram-mt-node
+[travis-image]: https://travis-ci.org/goodmind/telegram-mt-node.svg?branch=master
 
 [coverage-url]: https://coveralls.io/r/enricostara/telegram-mt-node?branch=master
 [coverage-image]: https://img.shields.io/coveralls/enricostara/telegram-mt-node.svg
