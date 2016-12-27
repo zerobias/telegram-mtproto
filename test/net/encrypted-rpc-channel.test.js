@@ -148,7 +148,7 @@ describe('EncryptedRpcChannel', function () {
                 var callback = function (resObj, duration) {
                     resObj.should.be.ok;
                     resObj.should.have.properties({
-                        layer: 23
+                        layer: 57
                     });
                     var initConn = new mtproto.service.initConnection.Type({buffer: resObj.query}).deserialize();
                     initConn.should.have.properties({
