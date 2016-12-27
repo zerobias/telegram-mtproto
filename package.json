@@ -24,13 +24,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@goodmind/telegram-tl-node": "^0.12.3",
+    "@goodmind/telegram-tl-node": "^0.12.4",
     "bigint-node": "1.0.4",
-    "get-flow": "latest",
-    "get-log": "latest",
+    "get-flow": "^0.3.0",
+    "get-log": "^1.1.5",
     "jsbn": "0.0.0",
-    "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
-    "requirish": "latest"
+    "node-cryptojs-aes": "enricostara/node-cryptojs-aes"
   },
   "devDependencies": {
     "codeclimate-test-reporter": "0.1.0",
@@ -43,6 +42,7 @@
     "mocha": "2.2.5",
     "mocha-better-spec-reporter": "1.1.2",
     "mocha-lcov-reporter": "0.0.2",
+    "requirish": "^0.3.0",
     "should": "7.0.2",
     "zuul": "1.15.2"
   },
