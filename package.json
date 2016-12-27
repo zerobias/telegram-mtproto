@@ -24,13 +24,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@goodmind/telegram-tl-node": "^0.12.3",
     "bigint-node": "1.0.4",
     "get-flow": "latest",
     "get-log": "latest",
     "jsbn": "0.0.0",
     "node-cryptojs-aes": "enricostara/node-cryptojs-aes",
-    "requirish": "latest",
-    "@goodmind/telegram-tl-node": "latest"
+    "requirish": "latest"
   },
   "devDependencies": {
     "codeclimate-test-reporter": "0.1.0",
