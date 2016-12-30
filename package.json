@@ -50,9 +50,6 @@
   "engines": {
     "node": ">0.10.30"
   },
-  "browser": {
-    "http": "http-browserify"
-  },
   "scripts": {
     "test": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js test",
     "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
