@@ -34,3 +34,4 @@ node_modules
 .idea
 .classpath
 .project
+.vscode
