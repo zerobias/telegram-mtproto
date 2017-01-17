@@ -6,6 +6,7 @@
   "dependencies": {
     "@goodmind/telegram-tl-node": "^0.12.4",
     "bigint-node": "1.0.4",
+    "bluebird": "^3.4.7",
     "colors": "^1.1.2",
     "get-flow": "^0.3.0",
     "get-log": "^1.1.5",
@@ -29,6 +30,7 @@
     "requirish": "^0.3.0",
     "should": "7.0.2",
     "tap": "^8.0.1",
+    "telegram-js": "^0.2.4",
     "zuul": "1.15.2"
   },
   "engines": {
@@ -53,6 +55,7 @@
   "name": "telegram-mtproto",
   "readme": "ERROR: No README data found!",
   "scripts": {
+    "test:watch": "nodemon ./test/smoke.js",
     "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
     "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
     "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
