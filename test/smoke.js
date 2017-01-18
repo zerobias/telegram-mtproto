@@ -1,6 +1,6 @@
 const test = require('tap').test
 const mt = require('../lib/mtproto')
-const tl = require('@goodmind/telegram-tl-node')
+const tl = require('../lib/tl')
 const { Telegram } = require('telegram-js')
 
 const phone = {
