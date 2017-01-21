@@ -12,6 +12,7 @@
     "get-log": "^1.1.5",
     "humint": "^1.2.1",
     "jsbn": "0.0.0",
+    "knack": "0.0.1",
     "node-cryptojs-aes": "^0.4.0",
     "pako": "^1.0.4"
   },

@@ -28,6 +28,7 @@ module.exports = {
     "no-unneeded-ternary"  : "warn",
     "no-underscore-dangle" : "warn",
     "prefer-const"         : "warn",
+    "no-debugger"          : "off",
 
     //General
     "arrow-body-style"     : ["error", "as-needed"],
