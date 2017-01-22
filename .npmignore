@@ -39,3 +39,5 @@ gulpfile.js
 .classpath
 .project
 
+./schema*
+schema.txt

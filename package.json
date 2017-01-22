@@ -1,19 +1,13 @@
 {
-  "author": {
-    "name": "Enrico Stara",
-    "email": "enrico.stara@gmail.com"
-  },
+  "author": "Zero Bias",
   "dependencies": {
-    "@goodmind/telegram-tl-node": "^0.12.4",
+    "@goodmind/node-cryptojs-aes": "^0.4.0",
     "bigint-node": "1.0.4",
-    "bluebird": "^3.4.7",
     "colors": "^1.1.2",
-    "get-flow": "^0.3.0",
     "get-log": "^1.1.5",
     "humint": "^1.2.1",
     "jsbn": "0.0.0",
     "knack": "0.0.1",
-    "node-cryptojs-aes": "^0.4.0",
     "pako": "^1.0.4"
   },
   "description": "Telegram MTProto library",
@@ -62,5 +56,5 @@
     "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
     "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/auth/** ./test/*.js"
   },
-  "version": "0.9.15"
+  "version": "1.0.1"
 }

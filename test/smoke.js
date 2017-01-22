@@ -38,10 +38,9 @@ const publicKeys = [{
 const fileSchema = require('./api-schema-57.json')
 
 const telegramFactory = () => {
-  const telegram = new Telegram()
+  const telegram = new Telegram(fileSchema)
   const addKey = key => telegram.addPublicKey(key)
   publicKeys.forEach(addKey)
-  telegram.useSchema(fileSchema)
   return telegram
 }
 
