@@ -46,7 +46,7 @@
     "library"
   ],
   "license": "MIT",
-  "main": "./lib/mtproto",
+  "main": "./lib/index.js",
   "maintainers": [
     {
       "name": "Zero Bias",

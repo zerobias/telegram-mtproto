@@ -1,7 +1,5 @@
 const test = require('tap').test
-const mt = require('../lib/mtproto')
-const tl = require('../lib/tl')
-const { Telegram } = require('telegram-js')
+const { Telegram, mtproto } = require('../lib/index')
 
 const phone = {
   num : '+9996620000',
@@ -40,7 +38,7 @@ const publicKeys = [{
 const fileSchema = require('./api-schema-57.json')
 
 const telegramFactory = () => {
-  const telegram = new Telegram(mt, tl)
+  const telegram = new Telegram()
   const addKey = key => telegram.addPublicKey(key)
   publicKeys.forEach(addKey)
   telegram.useSchema(fileSchema)
@@ -53,7 +51,7 @@ const connect = () => new Promise((rs, rj) => {
     .setup(config)
     .then(client => rs({ telegram, client }), rj)
 
-  const connection = new mt.net.HttpConnection(server)
+  const connection = new mtproto.net.HttpConnection(server)
   const client = telegram.createClient()
   client.setConnection(connection)
   connection.connect(onConnect)
