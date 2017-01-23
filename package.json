@@ -56,5 +56,5 @@
     "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
     "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/auth/** ./test/*.js"
   },
-  "version": "1.0.1"
+  "version": "1.0.3"
 }
