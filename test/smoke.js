@@ -53,7 +53,7 @@ const connect = () => new Promise((rs, rj) => {
   const connection = new mtproto.net.HttpConnection(server)
   const client = telegram.createClient()
   client.setConnection(connection)
-  connection.connect(onConnect)
+  connection.connect().then(onConnect)
 })
 
 class ApiError extends Error {

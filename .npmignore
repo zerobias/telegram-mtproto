@@ -41,3 +41,4 @@ gulpfile.js
 
 ./schema*
 schema.txt
+./lib/net_old
