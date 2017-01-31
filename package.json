@@ -51,7 +51,11 @@
     }
   ],
   "name": "telegram-mtproto",
-  "readme": "ERROR: No README data found!",
+  "readme": "./README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zerobias/telegram-mtproto.git"
+  },
   "scripts": {
     "test:watch": "nodemon ./test/smoke.js",
     "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
