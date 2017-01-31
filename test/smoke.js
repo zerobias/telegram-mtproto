@@ -1,5 +1,5 @@
 const test = require('tap').test
-const { Telegram, mtproto } = require('../lib/index')
+const { Telegram, mtproto, network } = require('../lib/index')
 
 const phone = {
   num : '+9996620000',
@@ -50,7 +50,7 @@ const connect = () => new Promise((rs, rj) => {
     .setup(config)
     .then(client => rs({ telegram, client }), rj)
 
-  const connection = new mtproto.net.HttpConnection(server)
+  const connection = new network.http(server)
   const client = telegram.createClient()
   client.setConnection(connection)
   connection.connect().then(onConnect)
@@ -82,6 +82,21 @@ const auth = ({ telegram, client }) => {
     phone_code_hash: phone_code_hash,
     phone_code     : phone.code
   }))
+    .then(
+      result => {
+        const final = () => result
+        const log = tag => obj => {
+          console.log(tag)
+          console.dir(obj, { colors: true })
+          return obj
+        }
+        return send('help.getConfig')
+          .then(e => log('get config')(e.dc_options.list))
+          .then(() => send('help.getNearestDc'))
+          .then(log('get nearest'))
+          .then(final)
+      }
+  )
 }
 
 

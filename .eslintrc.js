@@ -43,7 +43,7 @@ module.exports = {
     "max-len"              : ["error", {
       "code": 120,
       "tabWidth":2,
-      "comments":120 //Separated max length for comments
+      "comments":160 //Separated max length for comments
     }],
 
     //Indents,whitespace settings

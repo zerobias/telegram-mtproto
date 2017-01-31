@@ -6,8 +6,8 @@
     "colors": "^1.1.2",
     "get-log": "^1.1.5",
     "humint": "^1.2.1",
-    "jsbn": "0.0.0",
-    "knack": "0.0.1",
+    "jsbn": "^0.1.0",
+    "knack": "0.0.3",
     "pako": "^1.0.4"
   },
   "description": "Telegram MTProto library",
@@ -31,6 +31,9 @@
   "engines": {
     "node": ">0.10.30"
   },
+  "files": [
+    "lib/"
+  ],
   "keywords": [
     "telegram",
     "mt",
@@ -56,5 +59,5 @@
     "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
     "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/auth/** ./test/*.js"
   },
-  "version": "1.0.3"
+  "version": "1.0.4"
 }
