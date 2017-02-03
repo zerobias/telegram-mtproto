@@ -6,10 +6,21 @@ const phone = {
   code: '22222'
 }
 
-const server = {
-  host: '149.154.167.40',
-  port: '443'
-}
+
+const servers = [{
+  host: '149.154.167.40', // dev2
+  port: '80'
+}, {
+  host: '149.154.175.10',
+  port: '80'
+}, {
+  host: '149.154.167.51',
+  port: '80'
+}, {
+  host: 'pluto.web.telegram.org',
+  port: '443',
+  protocol: 'https:'
+}]
 
 const config = {
   // NOTE: if you FORK the project you MUST use your APP ID.
@@ -50,7 +61,7 @@ const connect = () => new Promise((rs, rj) => {
     .setup(config)
     .then(client => rs({ telegram, client }), rj)
 
-  const connection = new network.http(server)
+  const connection = new network.http(servers[0])
   const client = telegram.createClient()
   client.setConnection(connection)
   connection.connect().then(onConnect)
