@@ -9,7 +9,8 @@
     "humint": "^1.2.1",
     "jsbn": "0.0.0",
     "knack": "^0.0.3",
-    "pako": "^1.0.4"
+    "pako": "^1.0.4",
+    "ws": "^2.0.1"
   },
   "description": "Telegram MTProto library",
   "devDependencies": {
