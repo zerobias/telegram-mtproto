@@ -28,6 +28,7 @@ module.exports = {
     "no-unneeded-ternary"  : "warn",
     "no-underscore-dangle" : "warn",
     "prefer-const"         : "warn",
+    "no-debugger"          : "off",
 
     //General
     "arrow-body-style"     : ["error", "as-needed"],
@@ -42,7 +43,7 @@ module.exports = {
     "max-len"              : ["error", {
       "code": 120,
       "tabWidth":2,
-      "comments":120 //Separated max length for comments
+      "comments":160 //Separated max length for comments
     }],
 
     //Indents,whitespace settings
@@ -113,7 +114,6 @@ module.exports = {
 
     //Strict best practices. No reason not to use this
     "no-alert"             : "error",
-    "no-bitwise"           : "error",
     "no-caller"            : "error",
     "no-global-assign"     : "error",
     "no-eval"              : "error",
