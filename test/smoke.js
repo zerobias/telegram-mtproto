@@ -82,21 +82,21 @@ const auth = ({ telegram, client }) => {
     phone_code_hash: phone_code_hash,
     phone_code     : phone.code
   }))
-    .then(
-      result => {
-        const final = () => result
-        const log = tag => obj => {
-          console.log(tag)
-          console.dir(obj, { colors: true })
-          return obj
-        }
-        return send('help.getConfig')
-          .then(e => log('get config')(e.dc_options.list))
-          .then(() => send('help.getNearestDc'))
-          .then(log('get nearest'))
-          .then(final)
-      }
-  )
+  //   .then(
+  //     result => {
+  //       const final = () => result
+  //       const log = tag => obj => {
+  //         // console.log(tag)
+  //         // console.dir(obj, { colors: true })
+  //         return obj
+  //       }
+  //       return send('help.getConfig')
+  //         .then(e => log('get config')(e.dc_options.list))
+  //         .then(() => send('help.getNearestDc'))
+  //         .then(log('get nearest'))
+  //         .then(final)
+  //     }
+  // )
 }
 
 

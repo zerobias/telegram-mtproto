@@ -2,6 +2,7 @@
   "author": "Zero Bias",
   "dependencies": {
     "@goodmind/node-cryptojs-aes": "^0.4.0",
+    "big-integer": "^1.6.17",
     "bigint-node": "1.0.4",
     "colors": "^1.1.2",
     "get-log": "^1.1.5",

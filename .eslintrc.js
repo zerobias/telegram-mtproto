@@ -114,7 +114,6 @@ module.exports = {
 
     //Strict best practices. No reason not to use this
     "no-alert"             : "error",
-    "no-bitwise"           : "error",
     "no-caller"            : "error",
     "no-global-assign"     : "error",
     "no-eval"              : "error",
