@@ -35,3 +35,7 @@ node_modules
 .classpath
 .project
 .vscode/*
+schema*.*
+typings
+typings.json
+test-int.js

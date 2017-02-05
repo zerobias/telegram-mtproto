@@ -11,7 +11,7 @@
     "jsbn": "0.0.0",
     "knack": "^0.0.3",
     "pako": "^1.0.4",
-    "ws": "^2.0.1"
+    "ws": "^2.0.2"
   },
   "description": "Telegram MTProto library",
   "devDependencies": {
@@ -66,5 +66,5 @@
     "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
     "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/auth/** ./test/*.js"
   },
-  "version": "1.0.6"
+  "version": "1.1.0"
 }

@@ -76,23 +76,33 @@ class ApiError extends Error {
 }
 
 const auth = ({ telegram, client }) => {
-  const send = (method, ...args) => new Promise((rs, rj) => {
+  const send = (method, ...args) => () => new Promise((rs, rj) => {
     const onResp = resp => resp.error_code
       ? rj(new ApiError(resp))
       : rs(resp)
     return client.callApi(method, ...args).then(onResp, rj)
   })
-  return send('auth.sendCode', {
-    phone_number  : phone.num,
-    current_number: false,
-    api_id        : config.id,
-    api_hash      : config.hash
-  }).then(
-  ({ phone_code_hash }) => send('auth.signIn', {
-    phone_number   : phone.num,
-    phone_code_hash: phone_code_hash,
-    phone_code     : phone.code
-  }))
+  const sendLog = method => () => send(method)().then(
+    rs => {
+      console.log(rs)
+      return rs
+    })
+  return Promise
+    .resolve({})
+    .then(sendLog('help.getConfig'))
+    .then(sendLog('help.getNearestDc'))
+    .then(send('auth.sendCode', {
+      phone_number  : phone.num,
+      current_number: false,
+      api_id        : config.id,
+      api_hash      : config.hash
+    }))
+    .then(
+    ({ phone_code_hash }) => send('auth.signIn', {
+      phone_number   : phone.num,
+      phone_code_hash: phone_code_hash,
+      phone_code     : phone.code
+    })())
   //   .then(
   //     result => {
   //       const final = () => result

@@ -39,6 +39,8 @@ gulpfile.js
 .classpath
 .project
 
-./schema*
-schema.txt
 ./lib/net_old
+schema*.*
+typings
+typings.json
+test-int.js
