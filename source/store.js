@@ -30,9 +30,9 @@ export const dcList = ValueStoreMap()
 
 
 export const PureStorage = {
-  get   : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
-  set   : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
-  remove: (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
+  get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
+  set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
+  remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
   noPrefix: () => ConfigStorage.noPrefix(),
   clear   : () => new Promise(rs => ConfigStorage.clear(rs))
 }

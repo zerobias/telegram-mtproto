@@ -1,9 +1,6 @@
 const test = require('tap').test
 const Nightmare = require('nightmare')
 
-const mtproto = require('telegram-mtproto')
-mtproto.api
-
 const night = Nightmare({
   openDevTools: {
     mode: 'detach'
@@ -27,7 +24,7 @@ const data = {
     form   : '.login_page',
     end    : '[my-i18n="im_select_a_chat"]',
     err    : '[my-i18n="error_modal_internal_title"]',
-    im: 'Please select a chat to start messaging'
+    im     : 'Please select a chat to start messaging'
   }
 }
 

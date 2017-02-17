@@ -21,9 +21,9 @@ let updatesProcessor
 let iii = 0
 let offlineInited = false
 let akStopped = false
-const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/)
-const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false
-const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
+// const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/)
+// const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false
+// const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 class MtpNetworker {
   constructor(dcID, authKey, serverSalt, options = {}) {
     this.dcID = dcID
@@ -621,9 +621,9 @@ class MtpNetworker {
       request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key')
       request.storeRawBytes(encryptedResult.bytes, 'encrypted_data')
 
-      const requestData = xhrSendBuffer
+      const requestData = /*xhrSendBuffer
         ? request.getBuffer()
-        : request.getArray()
+        : */request.getArray()
 
       try {
         options = { responseType: 'arraybuffer', ...options }
@@ -645,7 +645,7 @@ class MtpNetworker {
 
   parseResponse(responseBuffer) {
     // console.log(dTime(), 'Start parsing response')
-    const self = this
+    // const self = this
 
     const deserializer = new TLDeserialization(responseBuffer)
 

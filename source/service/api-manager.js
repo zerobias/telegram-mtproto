@@ -1,11 +1,16 @@
 import Promise from 'bluebird'
+import EventEmitter from 'eventemitter2'
 
 import { pathSatisfies, complement, isNil, unless, is, always,
   propEq, __, propOr } from 'ramda'
 
+import { getNetworker } from './networker'
+import { auth } from './authorizer'
 import { PureStorage } from '../store'
 import blueDefer from '../defer'
 import { dTime, tsNow } from './time-manager'
+
+import { bytesFromHex, bytesToHex } from '../bin'
 
 export const mtpSetUserAuth = onAuth =>
   function mtpSetUserAuth(dcID, userAuth) {
@@ -24,13 +29,88 @@ const cachedExportPromise = {}
 // const cachedUploadNetworkers = {}
 // const cachedNetworkers = {}
 
-// const baseDc = innerStore.subtree('dc', 'base')
-// baseDc.set(false)
-
 let baseDcID = 2
 
-export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
-  function mtpInvokeApi(method, params, options = {}) {
+export const mtpClearStorage = function() {
+  const saveKeys = []
+  for (let dcID = 1; dcID <= 5; dcID++) {
+    saveKeys.push(`dc${  dcID  }_auth_key`)
+    saveKeys.push(`t_dc${  dcID  }_auth_key`)
+  }
+  PureStorage.noPrefix()
+  return PureStorage
+    .get(saveKeys)
+    .tap(PureStorage.clear)
+    .then(values => {
+      const restoreObj = {}
+      saveKeys.forEach((key, i) => {
+        const value = values[i]
+        if (value !== false && value !== undefined)
+          restoreObj[key] = value
+      })
+      PureStorage.noPrefix()
+      return restoreObj
+    })
+    .then(PureStorage.set)
+}
+
+export class ApiManager {
+  emitter = new EventEmitter({
+    wildcard: true
+  })
+  on = this.emitter.on
+  emit = this.emitter.emit
+  cache = {
+    uploader  : {},
+    downloader: {}
+  }
+  constructor() {
+    this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
+  }
+  mtpGetNetworker = (dcID, options = {}) => {
+    const cache = options.fileUpload || options.fileDownload
+      ? this.cache.uploader
+      : this.cache.downloader
+    if (!dcID) throw new Error('get Networker without dcID')
+
+    if (!isNil(cache[dcID])) return cache[dcID]
+
+    const akk = `dc${  dcID  }_auth_key`
+    const ssk = `dc${  dcID  }_server_salt`
+
+    return PureStorage.get(akk, ssk).then(result => {
+      if (cache[dcID]) return cache[dcID]
+
+      const authKeyHex = result[0]
+      let serverSaltHex = result[1]
+      // console.log('ass', dcID, authKeyHex, serverSaltHex)
+      if (authKeyHex && authKeyHex.length === 512) {
+        if (!serverSaltHex || serverSaltHex.length !== 16)
+          serverSaltHex = 'AAAAAAAAAAAAAAAA'
+        const authKey = bytesFromHex(authKeyHex)
+        const serverSalt = bytesFromHex(serverSaltHex)
+
+        return cache[dcID] = getNetworker(dcID, authKey, serverSalt, options)
+      }
+
+      if (!options.createNetworker)
+        return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 })
+
+      const onDcAuth = ({ authKey, serverSalt }) => {
+        const storeObj = {}
+        storeObj[akk] = bytesToHex(authKey)
+        storeObj[ssk] = bytesToHex(serverSalt)
+        PureStorage.set(storeObj)
+
+        return cache[dcID] = getNetworker(dcID, authKey, serverSalt, options)
+      }
+
+      return auth(dcID)
+        .then(onDcAuth, netError)
+    })
+  }
+  mtpInvokeApi(method, params, options = {}) {
+    const self = this
     const deferred = blueDefer()
     const rejectPromise = error => {
       if (!error)
@@ -46,12 +126,10 @@ export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
           hasPath(['originalError', 'stack'], error) ||
           error.stack ||
           (new Error()).stack
-
-        onInvokeError(error)
+        self.emit('error.invoke', error)
       }
     }
-    let dcID,
-        networkerPromise
+    let dcID
 
 
     let cachedNetworker
@@ -68,7 +146,7 @@ export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
             switch (true) {
               case codeEq(401) && dcEq(baseDcID): {
                 PureStorage.remove('dc', 'user_auth')
-                notifyFalse()
+                self.emit('error.401.base')
                 rejectPromise(error)
                 break
               }
@@ -76,15 +154,15 @@ export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
                     baseDcID &&
                     !dcEq(baseDcID)
               : {
-                if (cachedExportPromise[dcID] === undefined) {
+                if (isNil(cachedExportPromise[dcID])) {
                   const exportDeferred = blueDefer()
                   const importAuth = ({ id, bytes }) =>
-                    mtpInvokeApi(
+                    self.mtpInvokeApi(
                       'auth.importAuthorization',
                       { id, bytes },
-                      { dcID: dcID, noErrorBox: true })
+                      { dcID, noErrorBox: true })
 
-                  mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true })
+                  self.mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true })
                     .then(importAuth)
                     .then(exportDeferred.resolve)
                     .catch(exportDeferred.reject)
@@ -112,7 +190,7 @@ export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
 
                 const apiRecall = networker => networker.wrapApiCall(method, params, options)
 
-                mtpGetNetworker(newDcID, options)
+                self.mtpGetNetworker(newDcID, options)
                   .then(apiRecall)
                   .then(deferred.resolve)
                   .catch(rejectPromise)
@@ -151,9 +229,9 @@ export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
             }
           })
     const getDcNetworker = (baseDcID = 2) =>
-      mtpGetNetworker(dcID = defDc(baseDcID), options)
-    if (dcID = (options.dcID || baseDcID))
-      Promise.resolve(mtpGetNetworker(dcID, options))
+      self.mtpGetNetworker(dcID = defDc(baseDcID), options)
+    if (dcID = options.dcID || baseDcID)
+      Promise.resolve(self.mtpGetNetworker(dcID, options))
         .then(performRequest)
         .catch(rejectPromise)
     else
@@ -164,77 +242,13 @@ export const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) =>
 
     return deferred.promise
   }
-
-export const mtpClearStorage = function() {
-  const saveKeys = []
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${  dcID  }_auth_key`)
-    saveKeys.push(`t_dc${  dcID  }_auth_key`)
-  }
-  Storage.noPrefix()
-  return Storage
-    .get(saveKeys)
-    .tap(Storage.clear)
-    .then(values => {
-      const restoreObj = {}
-      saveKeys.forEach((key, i) => {
-        const value = values[i]
-        if (value !== false && value !== undefined)
-          restoreObj[key] = value
-      })
-      Storage.noPrefix()
-      return restoreObj
-    })
-    .then(Storage.set)
 }
 
-export class ApiManager {
-  cache = {
-    uploader  : {},
-    downloader: {}
-  }
-  mtpGetNetworker = (dcID, options = {}) => {
-    const cache = (options.fileUpload || options.fileDownload)
-      ? this.cache.uploader
-      : this.cache.downloader
-    if (!dcID) throw new Exception('get Networker without dcID')
-
-    if (cache[dcID] !== undefined) return cache[dcID]
-
-    const akk = `dc${  dcID  }_auth_key`
-    const ssk = `dc${  dcID  }_server_salt`
-
-    return window.mtproto.PureStorage.get(akk, ssk).then(function(result) {
-      if (cache[dcID] !== undefined) return cache[dcID]
-
-      const authKeyHex = result[0]
-      let serverSaltHex = result[1]
-      // console.log('ass', dcID, authKeyHex, serverSaltHex)
-      if (authKeyHex && authKeyHex.length === 512) {
-        if (!serverSaltHex || serverSaltHex.length !== 16)
-          serverSaltHex = 'AAAAAAAAAAAAAAAA'
-        const authKey = bytesFromHex(authKeyHex)
-        const serverSalt = bytesFromHex(serverSaltHex)
-
-        return cache[dcID] = window.$rework.MtpNetworkerFactory.getNetworker(dcID, authKey, serverSalt, options)
-      }
-
-      if (!options.createNetworker)
-        return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 })
-
-      return window.$rework.MtpAuthorizer.auth(dcID).then(function({ authKey, serverSalt }) {
-        const storeObj = {}
-        storeObj[akk] = bytesToHex(authKey)
-        storeObj[ssk] = bytesToHex(serverSalt)
-        window.mtproto.PureStorage.set(storeObj)
-
-        return cache[dcID] = window.$rework.MtpNetworkerFactory.getNetworker(dcID, authKey, serverSalt, options)
-      }, function(error) {
-        console.log('Get networker error', error, error.stack)
-        return Promise.reject(error)
-      })
-    })
-  }
+const netError = error => {
+  console.log('Get networker error', error, error.stack)
+  return Promise.reject(error)
 }
 
 export const api = new ApiManager
+
+export const mtpInvokeApi = api.mtpInvokeApi

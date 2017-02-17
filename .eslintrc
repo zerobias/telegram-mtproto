@@ -3,7 +3,7 @@
   "parserOptions": {
     "ecmaVersion": 8,
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": false
+      "experimentalObjectRestSpread": true
     }
   },
   "extends": [
@@ -13,13 +13,6 @@
     "babel",
     "promise"
   ],
-  "env": {
-    "node"  : true,
-    "browser": true,
-    "es6"   : true,
-    "jasmine": true,
-    "jquery": true
-  },
   "globals": {
     "inject": true,
     "angular": true,
@@ -28,9 +21,17 @@
     "Config": true,
     "setZeroTimeout": true
   },
+  "env": {
+    "node"  : true,
+    "browser": true,
+    "es6"   : true,
+    "jasmine": true,
+    "jquery": true
+  },
   "rules": {
     "no-console"           : "off",
     "no-cond-assign"       : "warn",
+
     //Controversial rules
     "no-unused-vars"       : "warn",
     "prefer-template"      : "warn",
@@ -38,6 +39,25 @@
     "no-unneeded-ternary"  : "warn",
     "no-underscore-dangle" : "warn",
     "prefer-const"         : "warn",
+
+    //On test
+    "no-extra-bind"        : "error",
+    "no-case-declarations" : "error",
+    "no-useless-call"      : "error",
+    "prefer-arrow-callback": [
+      "error",
+      { "allowNamedFunctions": true }
+    ],
+    "object-shorthand"     : [
+      "error",
+      "always",
+      {
+        "avoidQuotes": true,
+        "ignoreConstructors": true,
+        "avoidExplicitReturnArrows": true
+      }
+    ],
+    "no-extra-parens"      : "error",
 
     //General
     "arrow-body-style"     : ["error", "as-needed"],
@@ -74,6 +94,9 @@
       "before": false,
       "after": true
     }],
+    "block-spacing"        : [
+      "error", "always"
+    ],
     "object-curly-spacing" : [2, "always"],
     "semi-spacing"         : ["error", {
       "before": false,
@@ -92,7 +115,12 @@
         "parameters": "first"
       },
       "MemberExpression": 1,
-      "SwitchCase": 1
+      "SwitchCase": 1,
+      "CallExpression": {
+        "arguments": "first"
+      },
+      "ArrayExpression": 1,
+      "ObjectExpression": "first"
     }],
     "multiline-ternary"    : ["warn", "always"],
     "operator-linebreak": ["error", "after", {
@@ -132,6 +160,9 @@
     "no-iterator"          : "error",
     "no-lone-blocks"       : "error",
     "no-self-compare"      : "error",
+    "no-self-assign"       : ["error", {
+      "props": true
+    }],
     "no-invalid-regexp"    : ["error", {
       "allowConstructorFlags": ["u", "y"]
     }],

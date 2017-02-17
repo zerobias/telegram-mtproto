@@ -17,10 +17,12 @@
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.3.2",
     "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.23.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "cross-env": "^3.1.4",
     "eslint": "^3.15.0",
     "eslint-plugin-babel": "^4.0.1",
+    "eslint-plugin-promise": "^3.4.2",
     "nightmare": "^2.9.1",
     "tap": "^10.1.1",
     "webpack": "^2.2.1"
@@ -43,7 +45,7 @@
     "library"
   ],
   "license": "MIT",
-  "main": "./dist/mtproto2-browser.js",
+  "main": "./lib/index.js",
   "typings": "./index.d.ts",
   "jsnext:main": "./source/index.js",
   "maintainers": [
@@ -59,10 +61,11 @@
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
   "scripts": {
-    "watch": "webpack --watch",
+    "watch": "webpack --watch --config config/webogram/webpack.config.js",
     "build:webogram:vendor": "webpack --config config/webogram/webpack.vendor.config.js",
     "build:webogram": "webpack --config config/webogram/webpack.config.js",
     "rebuild:webogram": "npm run build:webogram:vendor && npm run build:webogram",
+    "build:cjs": "cross-env BABEL_ENV=commonjs babel source/ -d lib -s",
     "test": "node --harmony test/ci-test.js"
   },
   "version": "2.0.0"

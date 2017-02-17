@@ -2064,217 +2064,6 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 
 /***/ }),
 /* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(360);
-
-/***/ }),
-/* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__time_manager__ = __webpack_require__(5);
-
-
-
-
-
-
-
-
-const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
-  const fullUserAuth = Object.assign({ dcID }, userAuth);
-  __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].set({
-    dc: dcID,
-    user_auth: fullUserAuth
-  });
-  onAuth(fullUserAuth, dcID);
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = mtpSetUserAuth;
-
-
-const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"]));
-const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["always"])(2));
-
-const cachedExportPromise = {};
-// const cachedUploadNetworkers = {}
-// const cachedNetworkers = {}
-
-// const baseDc = innerStore.subtree('dc', 'base')
-// baseDc.set(false)
-
-let baseDcID = 2;
-
-const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function mtpInvokeApi(method, params, options = {}) {
-  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__defer__["b" /* default */])();
-  const rejectPromise = error => {
-    if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, error)) error = { message: error };
-    deferred.reject(error);
-
-    if (!options.noErrorBox) {
-      //TODO weird code. `error` changed after `.reject`?
-      error.input = method;
-      error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
-
-      onInvokeError(error);
-    }
-  };
-  let dcID, networkerPromise;
-
-  let cachedNetworker;
-  const stack = new Error().stack || 'empty stack';
-  const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
-    console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
-    const codeEq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propEq"])('code', __WEBPACK_IMPORTED_MODULE_1_ramda__["__"], error);
-    const dcEq = val => val === dcID;
-    switch (true) {
-      case codeEq(401) && dcEq(baseDcID):
-        {
-          __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].remove('dc', 'user_auth');
-          notifyFalse();
-          rejectPromise(error);
-          break;
-        }
-      case codeEq(401) && baseDcID && !dcEq(baseDcID):
-        {
-          if (cachedExportPromise[dcID] === undefined) {
-            const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__defer__["b" /* default */])();
-            const importAuth = ({ id, bytes }) => mtpInvokeApi('auth.importAuthorization', { id, bytes }, { dcID: dcID, noErrorBox: true });
-
-            mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
-
-            cachedExportPromise[dcID] = exportDeferred.promise;
-          }
-
-          const apiRecall = () => (cachedNetworker = networker).wrapApiCall(method, params, options);
-
-          cachedExportPromise[dcID].then(apiRecall).then(deferred.resolve).catch(rejectPromise);
-
-          break;
-        }
-      case codeEq(303):
-        {
-          const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
-          if (dcEq(newDcID)) break;
-          if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].set({ dc: baseDcID = newDcID });
-
-          const apiRecall = networker => networker.wrapApiCall(method, params, options);
-
-          mtpGetNetworker(newDcID, options).then(apiRecall).then(deferred.resolve).catch(rejectPromise);
-          break;
-        }
-      case !options.rawError && codeEq(420):
-        {
-          const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
-          if (waitTime > (options.timeout || 60)) return rejectPromise(error);
-          setTimeout(() => performRequest(cachedNetworker), waitTime * 1000);
-          break;
-        }
-      case !options.rawError && (codeEq(500) || error.type == 'MSG_WAIT_FAILED'):
-        {
-          const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__time_manager__["tsNow"])();
-          if (options.stopTime) {
-            if (now >= options.stopTime) return rejectPromise(error);
-          } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propOr"])(10, 'timeout', options) * 1000;
-          options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
-          setTimeout(() => performRequest(cachedNetworker), options.waitTime * 1000);
-          break;
-        }
-      default:
-        rejectPromise(error);
-    }
-  });
-  const getDcNetworker = (baseDcID = 2) => mtpGetNetworker(dcID = defDc(baseDcID), options);
-  if (dcID = options.dcID || baseDcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
-
-  return deferred.promise;
-};
-/* harmony export (immutable) */ __webpack_exports__["b"] = mtpInvokeApi;
-
-
-const mtpClearStorage = function () {
-  const saveKeys = [];
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${dcID}_auth_key`);
-    saveKeys.push(`t_dc${dcID}_auth_key`);
-  }
-  Storage.noPrefix();
-  return Storage.get(saveKeys).tap(Storage.clear).then(values => {
-    const restoreObj = {};
-    saveKeys.forEach((key, i) => {
-      const value = values[i];
-      if (value !== false && value !== undefined) restoreObj[key] = value;
-    });
-    Storage.noPrefix();
-    return restoreObj;
-  }).then(Storage.set);
-};
-/* harmony export (immutable) */ __webpack_exports__["c"] = mtpClearStorage;
-
-
-class ApiManager {
-  constructor() {
-    this.cache = {
-      uploader: {},
-      downloader: {}
-    };
-
-    this.mtpGetNetworker = (dcID, options = {}) => {
-      const cache = options.fileUpload || options.fileDownload ? this.cache.uploader : this.cache.downloader;
-      if (!dcID) throw new Exception('get Networker without dcID');
-
-      if (cache[dcID] !== undefined) return cache[dcID];
-
-      const akk = `dc${dcID}_auth_key`;
-      const ssk = `dc${dcID}_server_salt`;
-
-      return window.mtproto.PureStorage.get(akk, ssk).then(function (result) {
-        if (cache[dcID] !== undefined) return cache[dcID];
-
-        const authKeyHex = result[0];
-        let serverSaltHex = result[1];
-        // console.log('ass', dcID, authKeyHex, serverSaltHex)
-        if (authKeyHex && authKeyHex.length === 512) {
-          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
-          const authKey = bytesFromHex(authKeyHex);
-          const serverSalt = bytesFromHex(serverSaltHex);
-
-          return cache[dcID] = window.$rework.MtpNetworkerFactory.getNetworker(dcID, authKey, serverSalt, options);
-        }
-
-        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
-
-        return window.$rework.MtpAuthorizer.auth(dcID).then(function ({ authKey, serverSalt }) {
-          const storeObj = {};
-          storeObj[akk] = bytesToHex(authKey);
-          storeObj[ssk] = bytesToHex(serverSalt);
-          window.mtproto.PureStorage.set(storeObj);
-
-          return cache[dcID] = window.$rework.MtpNetworkerFactory.getNetworker(dcID, authKey, serverSalt, options);
-        }, function (error) {
-          console.log('Get networker error', error, error.stack);
-          return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-        });
-      });
-    };
-  }
-
-}
-/* harmony export (immutable) */ __webpack_exports__["e"] = ApiManager;
-
-
-const api = new ApiManager();
-/* harmony export (immutable) */ __webpack_exports__["d"] = api;
-
-
-/***/ }),
-/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2700,10 +2489,10 @@ function mtpAuth(dcID) {
 }
 
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(15).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(17).setImmediate))
 
 /***/ }),
-/* 18 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2744,9 +2533,9 @@ let updatesProcessor;
 let iii = 0;
 let offlineInited = false;
 let akStopped = false;
-const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/);
-const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false;
-const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30);
+// const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/)
+// const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false
+// const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 class MtpNetworker {
   constructor(dcID, authKey, serverSalt, options = {}) {
     _initialiseProps.call(this);
@@ -3067,7 +2856,7 @@ class MtpNetworker {
 
   parseResponse(responseBuffer) {
     // console.log(dTime(), 'Start parsing response')
-    const self = this;
+    // const self = this
 
     const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](responseBuffer);
 
@@ -3611,7 +3400,9 @@ var _initialiseProps = function () {
       request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key');
       request.storeRawBytes(encryptedResult.bytes, 'encrypted_data');
 
-      const requestData = xhrSendBuffer ? request.getBuffer() : request.getArray();
+      const requestData = /*xhrSendBuffer
+                          ? request.getBuffer()
+                          : */request.getArray();
 
       try {
         options = Object.assign({ responseType: 'arraybuffer' }, options);
@@ -3703,7 +3494,237 @@ const getNetworker = (dcID, authKey, serverSalt, options) => new MtpNetworker(dc
 const setUpdatesProcessor = callback => updatesProcessor = callback;
 /* harmony export (immutable) */ __webpack_exports__["setUpdatesProcessor"] = setUpdatesProcessor;
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(15).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(17).setImmediate))
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(360);
+
+/***/ }),
+/* 18 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__bin__ = __webpack_require__(1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
+  const fullUserAuth = Object.assign({ dcID }, userAuth);
+  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
+    dc: dcID,
+    user_auth: fullUserAuth
+  });
+  onAuth(fullUserAuth, dcID);
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = mtpSetUserAuth;
+
+
+const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
+const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
+
+const cachedExportPromise = {};
+// const cachedUploadNetworkers = {}
+// const cachedNetworkers = {}
+
+let baseDcID = 2;
+
+const mtpClearStorage = function () {
+  const saveKeys = [];
+  for (let dcID = 1; dcID <= 5; dcID++) {
+    saveKeys.push(`dc${dcID}_auth_key`);
+    saveKeys.push(`t_dc${dcID}_auth_key`);
+  }
+  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
+    const restoreObj = {};
+    saveKeys.forEach((key, i) => {
+      const value = values[i];
+      if (value !== false && value !== undefined) restoreObj[key] = value;
+    });
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+    return restoreObj;
+  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
+};
+/* harmony export (immutable) */ __webpack_exports__["c"] = mtpClearStorage;
+
+
+class ApiManager {
+  constructor() {
+    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
+      wildcard: true
+    });
+    this.on = this.emitter.on;
+    this.emit = this.emitter.emit;
+    this.cache = {
+      uploader: {},
+      downloader: {}
+    };
+
+    this.mtpGetNetworker = (dcID, options = {}) => {
+      const cache = options.fileUpload || options.fileDownload ? this.cache.uploader : this.cache.downloader;
+      if (!dcID) throw new Error('get Networker without dcID');
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
+
+      const akk = `dc${dcID}_auth_key`;
+      const ssk = `dc${dcID}_server_salt`;
+
+      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(result => {
+        if (cache[dcID]) return cache[dcID];
+
+        const authKeyHex = result[0];
+        let serverSaltHex = result[1];
+        // console.log('ass', dcID, authKeyHex, serverSaltHex)
+        if (authKeyHex && authKeyHex.length === 512) {
+          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
+          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(authKeyHex);
+          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(serverSaltHex);
+
+          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
+        }
+
+        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
+
+        const onDcAuth = ({ authKey, serverSalt }) => {
+          const storeObj = {};
+          storeObj[akk] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(authKey);
+          storeObj[ssk] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(serverSalt);
+          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
+
+          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
+        };
+
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["auth"])(dcID).then(onDcAuth, netError);
+      });
+    };
+
+    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
+  }
+
+  mtpInvokeApi(method, params, options = {}) {
+    const self = this;
+    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
+    const rejectPromise = error => {
+      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
+      deferred.reject(error);
+
+      if (!options.noErrorBox) {
+        //TODO weird code. `error` changed after `.reject`?
+        error.input = method;
+        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
+        self.emit('error.invoke', error);
+      }
+    };
+    let dcID;
+
+    let cachedNetworker;
+    const stack = new Error().stack || 'empty stack';
+    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
+      const codeEq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('code', __WEBPACK_IMPORTED_MODULE_2_ramda__["__"], error);
+      const dcEq = val => val === dcID;
+      switch (true) {
+        case codeEq(401) && dcEq(baseDcID):
+          {
+            __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].remove('dc', 'user_auth');
+            self.emit('error.401.base');
+            rejectPromise(error);
+            break;
+          }
+        case codeEq(401) && baseDcID && !dcEq(baseDcID):
+          {
+            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cachedExportPromise[dcID])) {
+              const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
+              const importAuth = ({ id, bytes }) => self.mtpInvokeApi('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
+
+              self.mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
+
+              cachedExportPromise[dcID] = exportDeferred.promise;
+            }
+
+            const apiRecall = () => (cachedNetworker = networker).wrapApiCall(method, params, options);
+
+            cachedExportPromise[dcID].then(apiRecall).then(deferred.resolve).catch(rejectPromise);
+
+            break;
+          }
+        case codeEq(303):
+          {
+            const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
+            if (dcEq(newDcID)) break;
+            if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({ dc: baseDcID = newDcID });
+
+            const apiRecall = networker => networker.wrapApiCall(method, params, options);
+
+            self.mtpGetNetworker(newDcID, options).then(apiRecall).then(deferred.resolve).catch(rejectPromise);
+            break;
+          }
+        case !options.rawError && codeEq(420):
+          {
+            const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
+            if (waitTime > (options.timeout || 60)) return rejectPromise(error);
+            setTimeout(() => performRequest(cachedNetworker), waitTime * 1000);
+            break;
+          }
+        case !options.rawError && (codeEq(500) || error.type == 'MSG_WAIT_FAILED'):
+          {
+            const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
+            if (options.stopTime) {
+              if (now >= options.stopTime) return rejectPromise(error);
+            } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propOr"])(10, 'timeout', options) * 1000;
+            options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
+            setTimeout(() => performRequest(cachedNetworker), options.waitTime * 1000);
+            break;
+          }
+        default:
+          rejectPromise(error);
+      }
+    });
+    const getDcNetworker = (baseDcID = 2) => self.mtpGetNetworker(dcID = defDc(baseDcID), options);
+    if (dcID = options.dcID || baseDcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(self.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+
+    return deferred.promise;
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["e"] = ApiManager;
+
+
+const netError = error => {
+  console.log('Get networker error', error, error.stack);
+  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
+};
+
+const api = new ApiManager();
+/* harmony export (immutable) */ __webpack_exports__["d"] = api;
+
+
+const mtpInvokeApi = api.mtpInvokeApi;
+/* harmony export (immutable) */ __webpack_exports__["b"] = mtpInvokeApi;
+
 
 /***/ }),
 /* 19 */
@@ -5338,7 +5359,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_4__bin__["bin"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager__ = __webpack_require__(18);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpSetUserAuth", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpInvokeApi", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["c"]; });
@@ -5350,11 +5371,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_8__service_time_manager__; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__ = __webpack_require__(10);
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_authorizer__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_authorizer__ = __webpack_require__(15);
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpAuthorizer", function() { return __WEBPACK_IMPORTED_MODULE_10__service_authorizer__; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_secure_random__ = __webpack_require__(11);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_11__service_secure_random__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__service_networker__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__service_networker__ = __webpack_require__(16);
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_12__service_networker__; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__tl__ = __webpack_require__(7);
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLSerialization", function() { return __WEBPACK_IMPORTED_MODULE_13__tl__["a"]; });
@@ -5396,6 +5417,735 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 console.debug('source loaded');
 
 /* harmony default export */ __webpack_exports__["default"] = {};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+ * EventEmitter2
+ * https://github.com/hij1nx/EventEmitter2
+ *
+ * Copyright (c) 2013 hij1nx
+ * Licensed under the MIT license.
+ */
+;!function(undefined) {
+
+  var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
+    return Object.prototype.toString.call(obj) === "[object Array]";
+  };
+  var defaultMaxListeners = 10;
+
+  function init() {
+    this._events = {};
+    if (this._conf) {
+      configure.call(this, this._conf);
+    }
+  }
+
+  function configure(conf) {
+    if (conf) {
+      this._conf = conf;
+
+      conf.delimiter && (this.delimiter = conf.delimiter);
+      this._events.maxListeners = conf.maxListeners !== undefined ? conf.maxListeners : defaultMaxListeners;
+      conf.wildcard && (this.wildcard = conf.wildcard);
+      conf.newListener && (this.newListener = conf.newListener);
+      conf.verboseMemoryLeak && (this.verboseMemoryLeak = conf.verboseMemoryLeak);
+
+      if (this.wildcard) {
+        this.listenerTree = {};
+      }
+    } else {
+      this._events.maxListeners = defaultMaxListeners;
+    }
+  }
+
+  function logPossibleMemoryLeak(count, eventName) {
+    var errorMsg = '(node) warning: possible EventEmitter memory ' +
+        'leak detected. %d listeners added. ' +
+        'Use emitter.setMaxListeners() to increase limit.';
+
+    if(this.verboseMemoryLeak){
+      errorMsg += ' Event name: %s.';
+      console.error(errorMsg, count, eventName);
+    } else {
+      console.error(errorMsg, count);
+    }
+
+    if (console.trace){
+      console.trace();
+    }
+  }
+
+  function EventEmitter(conf) {
+    this._events = {};
+    this.newListener = false;
+    this.verboseMemoryLeak = false;
+    configure.call(this, conf);
+  }
+  EventEmitter.EventEmitter2 = EventEmitter; // backwards compatibility for exporting EventEmitter property
+
+  //
+  // Attention, function return type now is array, always !
+  // It has zero elements if no any matches found and one or more
+  // elements (leafs) if there are matches
+  //
+  function searchListenerTree(handlers, type, tree, i) {
+    if (!tree) {
+      return [];
+    }
+    var listeners=[], leaf, len, branch, xTree, xxTree, isolatedBranch, endReached,
+        typeLength = type.length, currentType = type[i], nextType = type[i+1];
+    if (i === typeLength && tree._listeners) {
+      //
+      // If at the end of the event(s) list and the tree has listeners
+      // invoke those listeners.
+      //
+      if (typeof tree._listeners === 'function') {
+        handlers && handlers.push(tree._listeners);
+        return [tree];
+      } else {
+        for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) {
+          handlers && handlers.push(tree._listeners[leaf]);
+        }
+        return [tree];
+      }
+    }
+
+    if ((currentType === '*' || currentType === '**') || tree[currentType]) {
+      //
+      // If the event emitted is '*' at this part
+      // or there is a concrete match at this patch
+      //
+      if (currentType === '*') {
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+1));
+          }
+        }
+        return listeners;
+      } else if(currentType === '**') {
+        endReached = (i+1 === typeLength || (i+2 === typeLength && nextType === '*'));
+        if(endReached && tree._listeners) {
+          // The next element has a _listeners, add it to the handlers.
+          listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength));
+        }
+
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            if(branch === '*' || branch === '**') {
+              if(tree[branch]._listeners && !endReached) {
+                listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength));
+              }
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            } else if(branch === nextType) {
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+2));
+            } else {
+              // No match on this one, shift into the tree but not in the type array.
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            }
+          }
+        }
+        return listeners;
+      }
+
+      listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i+1));
+    }
+
+    xTree = tree['*'];
+    if (xTree) {
+      //
+      // If the listener tree will allow any match for this part,
+      // then recursively explore all branches of the tree
+      //
+      searchListenerTree(handlers, type, xTree, i+1);
+    }
+
+    xxTree = tree['**'];
+    if(xxTree) {
+      if(i < typeLength) {
+        if(xxTree._listeners) {
+          // If we have a listener on a '**', it will catch all, so add its handler.
+          searchListenerTree(handlers, type, xxTree, typeLength);
+        }
+
+        // Build arrays of matching next branches and others.
+        for(branch in xxTree) {
+          if(branch !== '_listeners' && xxTree.hasOwnProperty(branch)) {
+            if(branch === nextType) {
+              // We know the next element will match, so jump twice.
+              searchListenerTree(handlers, type, xxTree[branch], i+2);
+            } else if(branch === currentType) {
+              // Current node matches, move into the tree.
+              searchListenerTree(handlers, type, xxTree[branch], i+1);
+            } else {
+              isolatedBranch = {};
+              isolatedBranch[branch] = xxTree[branch];
+              searchListenerTree(handlers, type, { '**': isolatedBranch }, i+1);
+            }
+          }
+        }
+      } else if(xxTree._listeners) {
+        // We have reached the end and still on a '**'
+        searchListenerTree(handlers, type, xxTree, typeLength);
+      } else if(xxTree['*'] && xxTree['*']._listeners) {
+        searchListenerTree(handlers, type, xxTree['*'], typeLength);
+      }
+    }
+
+    return listeners;
+  }
+
+  function growListenerTree(type, listener) {
+
+    type = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+
+    //
+    // Looks for two consecutive '**', if so, don't add the event at all.
+    //
+    for(var i = 0, len = type.length; i+1 < len; i++) {
+      if(type[i] === '**' && type[i+1] === '**') {
+        return;
+      }
+    }
+
+    var tree = this.listenerTree;
+    var name = type.shift();
+
+    while (name !== undefined) {
+
+      if (!tree[name]) {
+        tree[name] = {};
+      }
+
+      tree = tree[name];
+
+      if (type.length === 0) {
+
+        if (!tree._listeners) {
+          tree._listeners = listener;
+        }
+        else {
+          if (typeof tree._listeners === 'function') {
+            tree._listeners = [tree._listeners];
+          }
+
+          tree._listeners.push(listener);
+
+          if (
+            !tree._listeners.warned &&
+            this._events.maxListeners > 0 &&
+            tree._listeners.length > this._events.maxListeners
+          ) {
+            tree._listeners.warned = true;
+            logPossibleMemoryLeak.call(this, tree._listeners.length, name);
+          }
+        }
+        return true;
+      }
+      name = type.shift();
+    }
+    return true;
+  }
+
+  // By default EventEmitters will print a warning if more than
+  // 10 listeners are added to it. This is a useful default which
+  // helps finding memory leaks.
+  //
+  // Obviously not all Emitters should be limited to 10. This function allows
+  // that to be increased. Set to zero for unlimited.
+
+  EventEmitter.prototype.delimiter = '.';
+
+  EventEmitter.prototype.setMaxListeners = function(n) {
+    if (n !== undefined) {
+      this._events || init.call(this);
+      this._events.maxListeners = n;
+      if (!this._conf) this._conf = {};
+      this._conf.maxListeners = n;
+    }
+  };
+
+  EventEmitter.prototype.event = '';
+
+  EventEmitter.prototype.once = function(event, fn) {
+    this.many(event, 1, fn);
+    return this;
+  };
+
+  EventEmitter.prototype.many = function(event, ttl, fn) {
+    var self = this;
+
+    if (typeof fn !== 'function') {
+      throw new Error('many only accepts instances of Function');
+    }
+
+    function listener() {
+      if (--ttl === 0) {
+        self.off(event, listener);
+      }
+      fn.apply(this, arguments);
+    }
+
+    listener._origin = fn;
+
+    this.on(event, listener);
+
+    return self;
+  };
+
+  EventEmitter.prototype.emit = function() {
+
+    this._events || init.call(this);
+
+    var type = arguments[0];
+
+    if (type === 'newListener' && !this.newListener) {
+      if (!this._events.newListener) {
+        return false;
+      }
+    }
+
+    var al = arguments.length;
+    var args,l,i,j;
+    var handler;
+
+    if (this._all && this._all.length) {
+      handler = this._all.slice();
+      if (al > 3) {
+        args = new Array(al);
+        for (j = 0; j < al; j++) args[j] = arguments[j];
+      }
+
+      for (i = 0, l = handler.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          handler[i].call(this, type);
+          break;
+        case 2:
+          handler[i].call(this, type, arguments[1]);
+          break;
+        case 3:
+          handler[i].call(this, type, arguments[1], arguments[2]);
+          break;
+        default:
+          handler[i].apply(this, args);
+        }
+      }
+    }
+
+    if (this.wildcard) {
+      handler = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    } else {
+      handler = this._events[type];
+      if (typeof handler === 'function') {
+        this.event = type;
+        switch (al) {
+        case 1:
+          handler.call(this);
+          break;
+        case 2:
+          handler.call(this, arguments[1]);
+          break;
+        case 3:
+          handler.call(this, arguments[1], arguments[2]);
+          break;
+        default:
+          args = new Array(al - 1);
+          for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+          handler.apply(this, args);
+        }
+        return true;
+      } else if (handler) {
+        // need to make copy of handlers because list can change in the middle
+        // of emit call
+        handler = handler.slice();
+      }
+    }
+
+    if (handler && handler.length) {
+      if (al > 3) {
+        args = new Array(al - 1);
+        for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+      }
+      for (i = 0, l = handler.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          handler[i].call(this);
+          break;
+        case 2:
+          handler[i].call(this, arguments[1]);
+          break;
+        case 3:
+          handler[i].call(this, arguments[1], arguments[2]);
+          break;
+        default:
+          handler[i].apply(this, args);
+        }
+      }
+      return true;
+    } else if (!this._all && type === 'error') {
+      if (arguments[1] instanceof Error) {
+        throw arguments[1]; // Unhandled 'error' event
+      } else {
+        throw new Error("Uncaught, unspecified 'error' event.");
+      }
+      return false;
+    }
+
+    return !!this._all;
+  };
+
+  EventEmitter.prototype.emitAsync = function() {
+
+    this._events || init.call(this);
+
+    var type = arguments[0];
+
+    if (type === 'newListener' && !this.newListener) {
+        if (!this._events.newListener) { return Promise.resolve([false]); }
+    }
+
+    var promises= [];
+
+    var al = arguments.length;
+    var args,l,i,j;
+    var handler;
+
+    if (this._all) {
+      if (al > 3) {
+        args = new Array(al);
+        for (j = 1; j < al; j++) args[j] = arguments[j];
+      }
+      for (i = 0, l = this._all.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          promises.push(this._all[i].call(this, type));
+          break;
+        case 2:
+          promises.push(this._all[i].call(this, type, arguments[1]));
+          break;
+        case 3:
+          promises.push(this._all[i].call(this, type, arguments[1], arguments[2]));
+          break;
+        default:
+          promises.push(this._all[i].apply(this, args));
+        }
+      }
+    }
+
+    if (this.wildcard) {
+      handler = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    } else {
+      handler = this._events[type];
+    }
+
+    if (typeof handler === 'function') {
+      this.event = type;
+      switch (al) {
+      case 1:
+        promises.push(handler.call(this));
+        break;
+      case 2:
+        promises.push(handler.call(this, arguments[1]));
+        break;
+      case 3:
+        promises.push(handler.call(this, arguments[1], arguments[2]));
+        break;
+      default:
+        args = new Array(al - 1);
+        for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+        promises.push(handler.apply(this, args));
+      }
+    } else if (handler && handler.length) {
+      if (al > 3) {
+        args = new Array(al - 1);
+        for (j = 1; j < al; j++) args[j - 1] = arguments[j];
+      }
+      for (i = 0, l = handler.length; i < l; i++) {
+        this.event = type;
+        switch (al) {
+        case 1:
+          promises.push(handler[i].call(this));
+          break;
+        case 2:
+          promises.push(handler[i].call(this, arguments[1]));
+          break;
+        case 3:
+          promises.push(handler[i].call(this, arguments[1], arguments[2]));
+          break;
+        default:
+          promises.push(handler[i].apply(this, args));
+        }
+      }
+    } else if (!this._all && type === 'error') {
+      if (arguments[1] instanceof Error) {
+        return Promise.reject(arguments[1]); // Unhandled 'error' event
+      } else {
+        return Promise.reject("Uncaught, unspecified 'error' event.");
+      }
+    }
+
+    return Promise.all(promises);
+  };
+
+  EventEmitter.prototype.on = function(type, listener) {
+    if (typeof type === 'function') {
+      this.onAny(type);
+      return this;
+    }
+
+    if (typeof listener !== 'function') {
+      throw new Error('on only accepts instances of Function');
+    }
+    this._events || init.call(this);
+
+    // To avoid recursion in the case that type == "newListeners"! Before
+    // adding it to the listeners, first emit "newListeners".
+    this.emit('newListener', type, listener);
+
+    if (this.wildcard) {
+      growListenerTree.call(this, type, listener);
+      return this;
+    }
+
+    if (!this._events[type]) {
+      // Optimize the case of one listener. Don't need the extra array object.
+      this._events[type] = listener;
+    }
+    else {
+      if (typeof this._events[type] === 'function') {
+        // Change to array.
+        this._events[type] = [this._events[type]];
+      }
+
+      // If we've already got an array, just append.
+      this._events[type].push(listener);
+
+      // Check for listener leak
+      if (
+        !this._events[type].warned &&
+        this._events.maxListeners > 0 &&
+        this._events[type].length > this._events.maxListeners
+      ) {
+        this._events[type].warned = true;
+        logPossibleMemoryLeak.call(this, this._events[type].length, type);
+      }
+    }
+
+    return this;
+  };
+
+  EventEmitter.prototype.onAny = function(fn) {
+    if (typeof fn !== 'function') {
+      throw new Error('onAny only accepts instances of Function');
+    }
+
+    if (!this._all) {
+      this._all = [];
+    }
+
+    // Add the function to the event listener collection.
+    this._all.push(fn);
+    return this;
+  };
+
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+  EventEmitter.prototype.off = function(type, listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('removeListener only takes instances of Function');
+    }
+
+    var handlers,leafs=[];
+
+    if(this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+    }
+    else {
+      // does not use listeners(), so no side effect of creating _events[type]
+      if (!this._events[type]) return this;
+      handlers = this._events[type];
+      leafs.push({_listeners:handlers});
+    }
+
+    for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+      var leaf = leafs[iLeaf];
+      handlers = leaf._listeners;
+      if (isArray(handlers)) {
+
+        var position = -1;
+
+        for (var i = 0, length = handlers.length; i < length; i++) {
+          if (handlers[i] === listener ||
+            (handlers[i].listener && handlers[i].listener === listener) ||
+            (handlers[i]._origin && handlers[i]._origin === listener)) {
+            position = i;
+            break;
+          }
+        }
+
+        if (position < 0) {
+          continue;
+        }
+
+        if(this.wildcard) {
+          leaf._listeners.splice(position, 1);
+        }
+        else {
+          this._events[type].splice(position, 1);
+        }
+
+        if (handlers.length === 0) {
+          if(this.wildcard) {
+            delete leaf._listeners;
+          }
+          else {
+            delete this._events[type];
+          }
+        }
+
+        this.emit("removeListener", type, listener);
+
+        return this;
+      }
+      else if (handlers === listener ||
+        (handlers.listener && handlers.listener === listener) ||
+        (handlers._origin && handlers._origin === listener)) {
+        if(this.wildcard) {
+          delete leaf._listeners;
+        }
+        else {
+          delete this._events[type];
+        }
+
+        this.emit("removeListener", type, listener);
+      }
+    }
+
+    function recursivelyGarbageCollect(root) {
+      if (root === undefined) {
+        return;
+      }
+      var keys = Object.keys(root);
+      for (var i in keys) {
+        var key = keys[i];
+        var obj = root[key];
+        if ((obj instanceof Function) || (typeof obj !== "object") || (obj === null))
+          continue;
+        if (Object.keys(obj).length > 0) {
+          recursivelyGarbageCollect(root[key]);
+        }
+        if (Object.keys(obj).length === 0) {
+          delete root[key];
+        }
+      }
+    }
+    recursivelyGarbageCollect(this.listenerTree);
+
+    return this;
+  };
+
+  EventEmitter.prototype.offAny = function(fn) {
+    var i = 0, l = 0, fns;
+    if (fn && this._all && this._all.length > 0) {
+      fns = this._all;
+      for(i = 0, l = fns.length; i < l; i++) {
+        if(fn === fns[i]) {
+          fns.splice(i, 1);
+          this.emit("removeListenerAny", fn);
+          return this;
+        }
+      }
+    } else {
+      fns = this._all;
+      for(i = 0, l = fns.length; i < l; i++)
+        this.emit("removeListenerAny", fns[i]);
+      this._all = [];
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
+
+  EventEmitter.prototype.removeAllListeners = function(type) {
+    if (arguments.length === 0) {
+      !this._events || init.call(this);
+      return this;
+    }
+
+    if (this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      var leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+
+      for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+        var leaf = leafs[iLeaf];
+        leaf._listeners = null;
+      }
+    }
+    else if (this._events) {
+      this._events[type] = null;
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.listeners = function(type) {
+    if (this.wildcard) {
+      var handlers = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handlers, ns, this.listenerTree, 0);
+      return handlers;
+    }
+
+    this._events || init.call(this);
+
+    if (!this._events[type]) this._events[type] = [];
+    if (!isArray(this._events[type])) {
+      this._events[type] = [this._events[type]];
+    }
+    return this._events[type];
+  };
+
+  EventEmitter.prototype.listenerCount = function(type) {
+    return this.listeners(type).length;
+  };
+
+  EventEmitter.prototype.listenersAny = function() {
+
+    if(this._all) {
+      return this._all;
+    }
+    else {
+      return [];
+    }
+
+  };
+
+  if (true) {
+     // AMD. Register as an anonymous module.
+    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+      return EventEmitter;
+    }.call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = EventEmitter;
+  }
+  else {
+    // Browser global.
+    window.EventEmitter2 = EventEmitter;
+  }
+}();
+
 
 /***/ })
 /******/ ]);
