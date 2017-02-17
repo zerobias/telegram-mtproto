@@ -1,3 +1,5 @@
+import 'setimmediate'
+
 export { smartTimeout } from './smart-timeout'
 export { blueDefer } from './defer'
 export { CryptoWorker } from './crypto'

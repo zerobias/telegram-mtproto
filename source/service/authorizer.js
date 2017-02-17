@@ -1,3 +1,4 @@
+import Promise from 'bluebird'
 import jsbn from 'jsbn'
 const { BigInteger } = jsbn
 
@@ -409,7 +410,7 @@ function mtpAuth(dcID) {
     deferred: blueDefer()
   }
 
-  setZeroTimeout(() => mtpSendReqPQ(auth))
+  setImmediate(() => mtpSendReqPQ(auth))
 
   cached[dcID] = auth.deferred
 

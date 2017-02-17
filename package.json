@@ -8,7 +8,8 @@
     "jsbn": "^1.1.0",
     "pako": "^1.0.4",
     "ramda": "^0.23.0",
-    "rusha": "^0.8.5"
+    "rusha": "^0.8.5",
+    "setimmediate": "^1.0.5"
   },
   "description": "Telegram MTProto library",
   "devDependencies": {

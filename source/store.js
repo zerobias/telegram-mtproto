@@ -1,3 +1,5 @@
+import Promise from 'bluebird'
+
 import { clone, merge, unnest,
   lensPath, unapply, pipe,
   set, split, chain, memoize,

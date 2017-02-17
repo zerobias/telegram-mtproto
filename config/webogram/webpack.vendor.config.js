@@ -18,7 +18,8 @@ const config = {
       'jsbn',
       'axios',
       'ramda',
-      'bluebird'
+      'bluebird',
+      'setimmediate'
     ]
   },
   context: source,

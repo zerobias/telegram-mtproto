@@ -1,3 +1,4 @@
+import Promise from 'bluebird'
 /**
  * Defered promise like in Q and $q
  *

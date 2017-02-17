@@ -1,3 +1,5 @@
+import Promise from 'bluebird'
+
 import { pipeP, is, values } from 'ramda'
 
 import CryptoWorker from '../crypto'
@@ -220,7 +222,7 @@ class MtpNetworker {
       longPoll  : true
     }).then(function() {
       delete self.longPollPending
-      setZeroTimeout(self.checkLongPoll)
+      setImmediate(self.checkLongPoll)
     }, function() {
       console.log('Long-poll failed')
     })
@@ -747,7 +749,7 @@ class MtpNetworker {
       this.nextReqPromise = smartTimeout(
         this.performSheduledRequest, delay)
     else
-      setZeroTimeout(this.performSheduledRequest)
+      setImmediate(this.performSheduledRequest)
 
     this.nextReq = nextReq
   }

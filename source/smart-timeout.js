@@ -1,3 +1,5 @@
+import Promise from 'bluebird'
+
 const cancelToken = Symbol('cancel token')
 
 const timeoutRefs = new WeakSet

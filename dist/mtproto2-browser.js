@@ -7,7 +7,7 @@
 		exports["mtproto"] = factory(require("vendor"));
 	else
 		root["mtproto"] = factory(root["vendor"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_2__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_0__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -73,23 +73,29 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 23);
+/******/ 	return __webpack_require__(__webpack_require__.s = 26);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+module.exports = vendor;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rusha__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(20);
 /* harmony export (immutable) */ __webpack_exports__["c"] = bigint;
 /* harmony export (immutable) */ __webpack_exports__["b"] = bigStringInt;
 /* unused harmony export dHexDump */
@@ -914,22 +920,25 @@ function bytesModPow(x, y, m) {
 }
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(2))(130);
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = vendor;
+module.exports = (__webpack_require__(0))(128);
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(131);
+
+/***/ }),
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
 /**
  * Defered promise like in Q and $q
  *
@@ -937,7 +946,7 @@ module.exports = vendor;
  */
 const blueDefer = () => {
   let resolve, reject;
-  const promise = new Promise((rs, rj) => {
+  const promise = new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a((rs, rj) => {
     resolve = rs;
     reject = rj;
   });
@@ -953,13 +962,13 @@ const blueDefer = () => {
 /* harmony default export */ __webpack_exports__["b"] = blueDefer;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__store__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateID", function() { return generateMessageID; });
 
 
@@ -1018,19 +1027,23 @@ const applyServerTime = (serverTime, localTime) => {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+
+
 
 
 const ValueStore = () => {
   let val = null;
 
   return {
-    get: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["clone"])(val),
+    get: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val),
     set: newVal => val = newVal
   };
 };
@@ -1041,7 +1054,7 @@ const ValueStoreMap = () => {
   const val = new Map();
 
   return {
-    get: key => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["clone"])(val.get(key)),
+    get: key => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val.get(key)),
     set: (key, newVal) => val.set(key, newVal)
   };
 };
@@ -1056,54 +1069,54 @@ const dcList = ValueStoreMap();
 
 
 const PureStorage = {
-  get: (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
-  set: obj => new Promise(rs => ConfigStorage.set(obj, rs)),
-  remove: (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
+  get: (...keys) => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.get(keys, rs)),
+  set: obj => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.set(obj, rs)),
+  remove: (...keys) => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.remove(...keys, rs)),
   noPrefix: () => ConfigStorage.noPrefix(),
-  clear: () => new Promise(rs => ConfigStorage.clear(rs))
+  clear: () => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.clear(rs))
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
 
 
-const flatArgs = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["unapply"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["unnest"]);
-const splitter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["chain"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["split"])('.'));
-const rejecter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["either"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["complement"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(String)), __WEBPACK_IMPORTED_MODULE_0_ramda__["isEmpty"]);
+const flatArgs = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["unnest"]);
+const splitter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["chain"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["split"])('.'));
+const rejecter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["either"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["complement"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(String)), __WEBPACK_IMPORTED_MODULE_1_ramda__["isEmpty"]);
 
-const flatPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["memoize"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(flatArgs, splitter, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["reject"])(rejecter)));
+const flatPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["memoize"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(flatArgs, splitter, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["reject"])(rejecter)));
 
-const pipeWith = (ln, ctx) => (...funcs) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["view"])(ln), ...funcs)(ctx);
+const pipeWith = (ln, ctx) => (...funcs) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["view"])(ln), ...funcs)(ctx);
 
 class SyncStorage {
   constructor(def = {}) {
     this.set = val => this.storage = val;
 
-    this.fpSave = func => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(func, this.set);
+    this.fpSave = func => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(func, this.set);
 
-    this.createOnNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["view"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["__"], this.storage), __WEBPACK_IMPORTED_MODULE_0_ramda__["isNil"]), this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["set"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["__"], {}, this.storage)));
+    this.createOnNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["view"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["__"], this.storage), __WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"]), this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["set"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["__"], {}, this.storage)));
 
     this.subtree = (...pathKeys) => {
       const args = flatPath(...pathKeys);
-      const ln = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["lensPath"])(args);
+      const ln = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["lensPath"])(args);
       this.createOnNil(ln);
       //console.log(this.lensNil(ln))
       const pipeWithLn = pipeWith(ln, this.storage);
-      const overSubtree = fn => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["over"])(ln, fn))(this.storage);
+      const overSubtree = fn => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["over"])(ln, fn))(this.storage);
       return {
         // has   : field => overSubtree( has ( field ) ),
         field: key => ({
-          has: () => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])(key)),
-          view: () => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["prop"])(key)),
-          set: val => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["merge"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["objOf"])(key, val))),
-          pipeWith: (...funcs) => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["prop"])(key), ...funcs),
-          pipeOver: (...funcs) => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["over"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["compose"])(ln, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["lensProp"])(key)), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(...funcs)))(this.storage),
-          remove: () => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["omit"])([key]))
+          has: () => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["has"])(key)),
+          view: () => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["prop"])(key)),
+          set: val => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["merge"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["objOf"])(key, val))),
+          pipeWith: (...funcs) => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["prop"])(key), ...funcs),
+          pipeOver: (...funcs) => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["over"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["compose"])(ln, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["lensProp"])(key)), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(...funcs)))(this.storage),
+          remove: () => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])([key]))
         }),
-        has: key => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])(key)),
-        view: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["view"])(ln, this.storage),
-        set: this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["set"])(ln, __WEBPACK_IMPORTED_MODULE_0_ramda__["__"], this.storage)),
+        has: key => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["has"])(key)),
+        view: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["view"])(ln, this.storage),
+        set: this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["set"])(ln, __WEBPACK_IMPORTED_MODULE_1_ramda__["__"], this.storage)),
         over: overSubtree,
-        remove: () => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["dissocPath"])(args))(this.storage),
-        without: (...keys) => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["omit"])(keys))
+        remove: () => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["dissocPath"])(args))(this.storage),
+        without: (...keys) => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys))
       };
     };
 
@@ -1111,7 +1124,7 @@ class SyncStorage {
   }
 
   set save(val) {
-    this.storage = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["merge"])(this.storage, val);
+    this.storage = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["merge"])(this.storage, val);
   }
 }
 /* unused harmony export SyncStorage */
@@ -1122,13 +1135,13 @@ const innerStore = new SyncStorage();
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(1);
 
 
 
@@ -1799,15 +1812,15 @@ class TLDeserialization {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__smart_timeout__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__smart_timeout__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bin__ = __webpack_require__(1);
 
 
 
@@ -1916,11 +1929,11 @@ const CryptoWorker = {
 /* harmony default export */ __webpack_exports__["b"] = CryptoWorker;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 
 
@@ -1933,7 +1946,7 @@ delete httpClient.defaults.headers.common['Accept'];
 /* harmony default export */ __webpack_exports__["b"] = httpClient;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1973,11 +1986,11 @@ const chooseServer = (dcID, upload) => {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
 
 
@@ -1988,15 +2001,19 @@ const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
 /* harmony default export */ __webpack_exports__["a"] = random;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
+
 const cancelToken = Symbol('cancel token');
 
 const timeoutRefs = new WeakSet();
 
-const pause = delay => new Promise(r => setTimeout(r, delay));
+const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
 
 const smartTimeout = (fn, delay, ...args) => {
   const newToken = Symbol('cancel id');
@@ -2024,17 +2041,17 @@ smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(..
 /* harmony default export */ __webpack_exports__["b"] = smartTimeout;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(2))(128);
+module.exports = (__webpack_require__(0))(129);
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 
 
@@ -2046,15 +2063,25 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 /* harmony default export */ __webpack_exports__["b"] = forEach;
 
 /***/ }),
-/* 14 */
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(360);
+
+/***/ }),
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__time_manager__ = __webpack_require__(5);
+
+
 
 
 
@@ -2063,7 +2090,7 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 
 const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
   const fullUserAuth = Object.assign({ dcID }, userAuth);
-  __WEBPACK_IMPORTED_MODULE_1__store__["a" /* PureStorage */].set({
+  __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].set({
     dc: dcID,
     user_auth: fullUserAuth
   });
@@ -2072,8 +2099,8 @@ const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = mtpSetUserAuth;
 
 
-const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["isNil"]));
-const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["always"])(2));
+const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"]));
+const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["always"])(2));
 
 const cachedExportPromise = {};
 // const cachedUploadNetworkers = {}
@@ -2085,9 +2112,9 @@ const cachedExportPromise = {};
 let baseDcID = 2;
 
 const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function mtpInvokeApi(method, params, options = {}) {
-  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
+  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__defer__["b" /* default */])();
   const rejectPromise = error => {
-    if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Object, error)) error = { message: error };
+    if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, error)) error = { message: error };
     deferred.reject(error);
 
     if (!options.noErrorBox) {
@@ -2103,13 +2130,13 @@ const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function m
   let cachedNetworker;
   const stack = new Error().stack || 'empty stack';
   const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
-    console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
-    const codeEq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["propEq"])('code', __WEBPACK_IMPORTED_MODULE_0_ramda__["__"], error);
+    console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
+    const codeEq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propEq"])('code', __WEBPACK_IMPORTED_MODULE_1_ramda__["__"], error);
     const dcEq = val => val === dcID;
     switch (true) {
       case codeEq(401) && dcEq(baseDcID):
         {
-          __WEBPACK_IMPORTED_MODULE_1__store__["a" /* PureStorage */].remove('dc', 'user_auth');
+          __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].remove('dc', 'user_auth');
           notifyFalse();
           rejectPromise(error);
           break;
@@ -2117,7 +2144,7 @@ const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function m
       case codeEq(401) && baseDcID && !dcEq(baseDcID):
         {
           if (cachedExportPromise[dcID] === undefined) {
-            const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
+            const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__defer__["b" /* default */])();
             const importAuth = ({ id, bytes }) => mtpInvokeApi('auth.importAuthorization', { id, bytes }, { dcID: dcID, noErrorBox: true });
 
             mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
@@ -2135,7 +2162,7 @@ const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function m
         {
           const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
           if (dcEq(newDcID)) break;
-          if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_1__store__["a" /* PureStorage */].set({ dc: baseDcID = newDcID });
+          if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].set({ dc: baseDcID = newDcID });
 
           const apiRecall = networker => networker.wrapApiCall(method, params, options);
 
@@ -2151,10 +2178,10 @@ const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function m
         }
       case !options.rawError && (codeEq(500) || error.type == 'MSG_WAIT_FAILED'):
         {
-          const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])();
+          const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__time_manager__["tsNow"])();
           if (options.stopTime) {
             if (now >= options.stopTime) return rejectPromise(error);
-          } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["propOr"])(10, 'timeout', options) * 1000;
+          } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propOr"])(10, 'timeout', options) * 1000;
           options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
           setTimeout(() => performRequest(cachedNetworker), options.waitTime * 1000);
           break;
@@ -2164,7 +2191,7 @@ const mtpInvokeApi = (onInvokeError, notifyFalse, mtpGetNetworker) => function m
     }
   });
   const getDcNetworker = (baseDcID = 2) => mtpGetNetworker(dcID = defDc(baseDcID), options);
-  if (dcID = options.dcID || baseDcID) Promise.resolve(mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_1__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+  if (dcID = options.dcID || baseDcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_2__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
 
   return deferred.promise;
 };
@@ -2221,7 +2248,7 @@ class ApiManager {
           return cache[dcID] = window.$rework.MtpNetworkerFactory.getNetworker(dcID, authKey, serverSalt, options);
         }
 
-        if (!options.createNetworker) return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
+        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
 
         return window.$rework.MtpAuthorizer.auth(dcID).then(function ({ authKey, serverSalt }) {
           const storeObj = {};
@@ -2232,7 +2259,7 @@ class ApiManager {
           return cache[dcID] = window.$rework.MtpNetworkerFactory.getNetworker(dcID, authKey, serverSalt, options);
         }, function (error) {
           console.log('Get networker error', error, error.stack);
-          return Promise.reject(error);
+          return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
         });
       });
     };
@@ -2247,25 +2274,28 @@ const api = new ApiManager();
 
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__http__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__crypto__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__tl__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__time_manager__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__dc_configurator__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__bin__ = __webpack_require__(0);
+/* WEBPACK VAR INJECTION */(function(setImmediate) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__http__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__crypto__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__secure_random__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__tl__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__rsa_keys_manger__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__bin__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "auth", function() { return mtpAuth; });
 
-const { BigInteger } = __WEBPACK_IMPORTED_MODULE_0_jsbn___default.a;
+
+const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
 
 
 
@@ -2284,9 +2314,9 @@ function mtpSendPlainRequest(dcID, requestBuffer) {
   const requestLength = requestBuffer.byteLength,
         requestArray = new Int32Array(requestBuffer);
 
-  const header = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]();
+  const header = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]();
   header.storeLongP(0, 0, 'auth_key_id'); // Auth key
-  header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["generateID"])(), 'msg_id'); // Msg_id
+  header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["generateID"])(), 'msg_id'); // Msg_id
   header.storeInt(requestLength, 'request_length');
 
   const headerBuffer = header.getBuffer(),
@@ -2301,25 +2331,25 @@ function mtpSendPlainRequest(dcID, requestBuffer) {
 
   const requestData = resultArray;
   let requestPromise;
-  const url = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__dc_configurator__["chooseServer"])(dcID);
+  const url = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(dcID);
   const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
   try {
-    requestPromise = __WEBPACK_IMPORTED_MODULE_2__http__["b" /* default */].post(url, requestData, {
+    requestPromise = __WEBPACK_IMPORTED_MODULE_3__http__["b" /* default */].post(url, requestData, {
       responseType: 'arraybuffer'
     });
   } catch (e) {
-    requestPromise = Promise.reject(Object.assign({ originalError: e }, baseError));
+    requestPromise = __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
   }
   return requestPromise.then(result => {
-    if (!result.data || !result.data.byteLength) return Promise.reject(baseError);
+    if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
     let deserializer;
     try {
-      deserializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["b" /* TLDeserialization */](result.data, { mtproto: true });
+      deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](result.data, { mtproto: true });
       const auth_key_id = deserializer.fetchLong('auth_key_id');
       const msg_id = deserializer.fetchLong('msg_id');
       const msg_len = deserializer.fetchInt('msg_len');
     } catch (e) {
-      return Promise.reject(Object.assign({ originalError: e }, baseError));
+      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
     }
 
     return deserializer;
@@ -2327,7 +2357,7 @@ function mtpSendPlainRequest(dcID, requestBuffer) {
     if (!error.message && !error.type) {
       error = Object.assign({ originalError: error }, baseError);
     }
-    return Promise.reject(error);
+    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
   });
 }
 
@@ -2335,11 +2365,11 @@ function mtpSendReqPQ(auth) {
   console.warn('mtpSendReqPQ');
   const deferred = auth.deferred;
 
-  const request = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+  const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
 
   request.storeMethod('req_pq', { nonce: auth.nonce });
 
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.nonce));
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(auth.nonce));
   mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
     const response = deserializer.fetchObject('ResPQ');
 
@@ -2347,7 +2377,7 @@ function mtpSendReqPQ(auth) {
       throw new Error(`[MT] resPQ response invalid: ${response._}`);
     }
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
       throw new Error('[MT] resPQ nonce mismatch');
     }
 
@@ -2355,37 +2385,37 @@ function mtpSendReqPQ(auth) {
     auth.pq = response.pq;
     auth.fingerprints = response.server_public_key_fingerprints;
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.pq), auth.fingerprints);
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(auth.pq), auth.fingerprints);
 
-    auth.publicKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__["a" /* select */])(auth.fingerprints);
+    auth.publicKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__rsa_keys_manger__["a" /* select */])(auth.fingerprints);
 
     if (!auth.publicKey) throw new Error('[MT] No public key found');
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization start', auth.pq);
-    __WEBPACK_IMPORTED_MODULE_3__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization start', auth.pq);
+    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
       auth.p = p;
       auth.q = q;
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization done', it);
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization done', it);
       mtpSendReqDhParams(auth);
     }, function (error) {
       console.log('Worker error', error, error.stack);
       deferred.reject(error);
     });
   }, function (error) {
-    console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'req_pq error', error.message);
+    console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'req_pq error', error.message);
     deferred.reject(error);
   });
 
-  setTimeout(__WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__["b" /* prepare */], 0);
+  setTimeout(__WEBPACK_IMPORTED_MODULE_9__rsa_keys_manger__["b" /* prepare */], 0);
 }
 
 function mtpSendReqDhParams(auth) {
   const deferred = auth.deferred;
 
   auth.newNonce = new Array(32);
-  __WEBPACK_IMPORTED_MODULE_4__secure_random__["a" /* default */].nextBytes(auth.newNonce);
+  __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.newNonce);
 
-  const data = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+  const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
   data.storeObject({
     _: 'p_q_inner_data',
     pq: auth.pq,
@@ -2396,19 +2426,19 @@ function mtpSendReqDhParams(auth) {
     new_nonce: auth.newNonce
   }, 'P_Q_inner_data', 'DECRYPTED_DATA');
 
-  const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+  const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
-  const request = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+  const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
   request.storeMethod('req_DH_params', {
     nonce: auth.nonce,
     server_nonce: auth.serverNonce,
     p: auth.p,
     q: auth.q,
     public_key_fingerprint: auth.publicKey.fingerprint,
-    encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["w" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
+    encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["w" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
   });
 
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_DH_params');
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_DH_params');
   mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
     const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
 
@@ -2417,19 +2447,19 @@ function mtpSendReqDhParams(auth) {
       return false;
     }
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
       deferred.reject(new Error('[MT] Server_DH_Params nonce mismatch'));
       return false;
     }
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
       deferred.reject(new Error('[MT] Server_DH_Params server_nonce mismatch'));
       return false;
     }
 
     if (response._ == 'server_DH_params_fail') {
-      const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce).slice(-16);
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
+      const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce).slice(-16);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
         deferred.reject(new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'));
         return false;
       }
@@ -2451,33 +2481,33 @@ function mtpSendReqDhParams(auth) {
 }
 
 function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
-  auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["tsNow"])();
+  auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
 
-  auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
-  auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
+  auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
+  auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
 
-  const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["s" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
+  const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["s" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
 
   const hash = answerWithHash.slice(0, 20);
   const answerWithPadding = answerWithHash.slice(20);
-  const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
+  const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
 
-  const deserializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["b" /* TLDeserialization */](buffer, { mtproto: true });
+  const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, { mtproto: true });
   const response = deserializer.fetchObject('Server_DH_inner_data');
 
   if (response._ != 'server_DH_inner_data') {
     throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
   }
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
     throw new Error('[MT] server_DH_inner_data nonce mismatch');
   }
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
     throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
   }
 
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Done decrypting answer');
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Done decrypting answer');
   auth.g = response.g;
   auth.dhPrime = response.dh_prime;
   auth.gA = response.g_a;
@@ -2488,23 +2518,23 @@ function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
 
   const offset = deserializer.getOffset();
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
     throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch');
   }
 
-  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
+  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
 }
 
 function mtpVerifyDhParams(g, dhPrime, gA) {
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Verifying DH params');
-  const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(dhPrime);
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Verifying DH params');
+  const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(dhPrime);
   if (g != 3 || dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
     // The verified value is from https://core.telegram.org/mtproto/security_guidelines
     throw new Error('[MT] DH params are not verified: unknown dhPrime');
   }
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'dhPrime cmp OK');
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'dhPrime cmp OK');
 
-  const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(gA), 16);
+  const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(gA), 16);
   const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
 
   if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
@@ -2514,7 +2544,7 @@ function mtpVerifyDhParams(g, dhPrime, gA) {
   if (gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0) {
     throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1');
   }
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '1 < gA < dhPrime-1 OK');
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), '1 < gA < dhPrime-1 OK');
 
   const two = new BigInteger(null);
   two.fromInt(2);
@@ -2526,20 +2556,20 @@ function mtpVerifyDhParams(g, dhPrime, gA) {
   if (gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0) {
     throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}');
   }
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
 
   return true;
 }
 
 function mtpSendSetClientDhParams(auth) {
   const deferred = auth.deferred;
-  const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(auth.g.toString(16));
+  const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["x" /* bytesFromHex */])(auth.g.toString(16));
 
   auth.b = new Array(256);
-  __WEBPACK_IMPORTED_MODULE_4__secure_random__["a" /* default */].nextBytes(auth.b);
+  __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
 
-  __WEBPACK_IMPORTED_MODULE_3__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(function (gB) {
-    const data = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+  __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(function (gB) {
+    const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
     data.storeObject({
       _: 'client_DH_inner_data',
       nonce: auth.nonce,
@@ -2548,18 +2578,18 @@ function mtpSendSetClientDhParams(auth) {
       g_b: gB
     }, 'Client_DH_Inner_Data');
 
-    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
-    const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["r" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
+    const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["r" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
 
-    const request = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+    const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
     request.storeMethod('set_client_DH_params', {
       nonce: auth.nonce,
       server_nonce: auth.serverNonce,
       encrypted_data: encryptedData
     });
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send set_client_DH_params');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send set_client_DH_params');
     mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
       const response = deserializer.fetchObject('Set_client_DH_params_answer');
 
@@ -2568,33 +2598,33 @@ function mtpSendSetClientDhParams(auth) {
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
         return false;
       }
 
-      __WEBPACK_IMPORTED_MODULE_3__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(function (authKey) {
-        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(authKey),
+      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(function (authKey) {
+        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(authKey),
               authKeyAux = authKeyHash.slice(0, 8),
               authKeyID = authKeyHash.slice(-8);
 
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
         switch (response._) {
           case 'dh_gen_ok':
             {
-              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
+              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
 
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
                 return false;
               }
 
-              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["y" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
+              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["y" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
               // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
 
               auth.authKeyID = authKeyID;
@@ -2606,8 +2636,8 @@ function mtpSendSetClientDhParams(auth) {
             }
           case 'dh_gen_retry':
             {
-              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
+              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
                 return false;
               }
@@ -2616,8 +2646,8 @@ function mtpSendSetClientDhParams(auth) {
             }
           case 'dh_gen_fail':
             {
-              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
+              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
                 return false;
               }
@@ -2647,18 +2677,18 @@ function mtpAuth(dcID) {
   console.warn('mtpAuth');
   const nonce = [];
   for (let i = 0; i < 16; i++) {
-    nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["o" /* nextRandomInt */])(0xFF));
+    nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["o" /* nextRandomInt */])(0xFF));
   }
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__dc_configurator__["chooseServer"])(dcID)) return Promise.reject(new Error(`[MT] No server found for dc ${dcID}`));
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(dcID)) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID}`));
 
   const auth = {
     dcID: dcID,
     nonce: nonce,
-    deferred: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__defer__["b" /* default */])()
+    deferred: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])()
   };
 
-  setZeroTimeout(() => mtpSendReqPQ(auth));
+  setImmediate(() => mtpSendReqPQ(auth));
 
   cached[dcID] = auth.deferred;
 
@@ -2670,26 +2700,31 @@ function mtpAuth(dcID) {
 }
 
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(15).setImmediate))
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__crypto__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__time_manager__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__secure_random__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__for_each__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__tl__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__smart_timeout__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__defer__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__http__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__dc_configurator__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__store__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(0);
+/* WEBPACK VAR INJECTION */(function(setImmediate) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__tl__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__smart_timeout__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__http__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__dc_configurator__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__bin__ = __webpack_require__(1);
+
+
 
 
 
@@ -2720,9 +2755,9 @@ class MtpNetworker {
     this.iii = iii++;
 
     this.authKey = authKey;
-    this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["i" /* convertToUint8Array */])(authKey);
-    this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["j" /* convertToArrayBuffer */])(authKey);
-    this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
+    this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(authKey);
+    this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["j" /* convertToArrayBuffer */])(authKey);
+    this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
 
     this.serverSalt = serverSalt;
 
@@ -2754,7 +2789,7 @@ class MtpNetworker {
     this.seqNo = 0;
     this.prevSessionID = this.sessionID;
     this.sessionID = new Array(8);
-    __WEBPACK_IMPORTED_MODULE_3__secure_random__["a" /* default */].nextBytes(this.sessionID);
+    __WEBPACK_IMPORTED_MODULE_4__secure_random__["a" /* default */].nextBytes(this.sessionID);
   }
 
   updateSentMessage(sentMessageID) {
@@ -2767,11 +2802,11 @@ class MtpNetworker {
         const innerSentMessage = this.updateSentMessage(innerSentMessageID);
         if (innerSentMessage) newInner.push(innerSentMessage.msg_id);
       };
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__for_each__["b" /* default */])(sentMessage.inner, updateInner);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(sentMessage.inner, updateInner);
       sentMessage.inner = newInner;
     }
 
-    sentMessage.msg_id = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])();
+    sentMessage.msg_id = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
     sentMessage.seq_no = this.generateSeqNo(sentMessage.notContentRelated || sentMessage.container);
     this.sentMessages[sentMessage.msg_id] = sentMessage;
     delete this.sentMessages[sentMessageID];
@@ -2791,11 +2826,11 @@ class MtpNetworker {
   }
 
   wrapMtpCall(method, params, options) {
-    const serializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
 
     serializer.storeMethod(method, params);
 
-    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])();
+    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
     const seqNo = this.generateSeqNo();
     const message = {
       msg_id: messageID,
@@ -2804,7 +2839,7 @@ class MtpNetworker {
     };
 
     if (Config.Modes.debug) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'MT call', method, params, messageID, seqNo);
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT call', method, params, messageID, seqNo);
     }
 
     return this.pushMessage(message, options);
@@ -2812,10 +2847,10 @@ class MtpNetworker {
 
   wrapMtpMessage(object, options = {}) {
 
-    const serializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
     serializer.storeObject(object, 'Object');
 
-    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])();
+    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
     const seqNo = this.generateSeqNo(options.notContentRelated);
     const message = {
       msg_id: messageID,
@@ -2824,14 +2859,14 @@ class MtpNetworker {
     };
 
     if (Config.Modes.debug) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'MT message', object, messageID, seqNo);
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT message', object, messageID, seqNo);
     }
 
     return this.pushMessage(message, options);
   }
 
   wrapApiCall(method, params, options) {
-    const serializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */](options);
+    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */](options);
 
     if (!this.connectionInited) {
       serializer.storeInt(0xda9b0d0d, 'invokeWithLayer');
@@ -2851,7 +2886,7 @@ class MtpNetworker {
 
     options.resultType = serializer.storeMethod(method, params);
 
-    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])();
+    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
     const seqNo = this.generateSeqNo();
     const message = {
       msg_id: messageID,
@@ -2861,9 +2896,9 @@ class MtpNetworker {
     };
 
     if (Config.Modes.debug) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Api call', method, params, messageID, seqNo, options);
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method, params, messageID, seqNo, options);
     } else {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Api call', method);
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method);
     }
 
     return this.pushMessage(message, options);
@@ -2873,7 +2908,7 @@ class MtpNetworker {
     const maxWait = 25000;
     const self = this;
 
-    this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["tsNow"])() + maxWait;
+    this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + maxWait;
     // console.log('Set lp', this.longPollPending, tsNow())
 
     this.wrapMtpCall('http_wait', {
@@ -2885,14 +2920,14 @@ class MtpNetworker {
       longPoll: true
     }).then(function () {
       delete self.longPollPending;
-      setZeroTimeout(self.checkLongPoll);
+      setImmediate(self.checkLongPoll);
     }, function () {
       console.log('Long-poll failed');
     });
   }
 
   pushMessage(message, options = {}) {
-    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__defer__["b" /* default */])();
+    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__defer__["b" /* default */])();
 
     this.sentMessages[message.msg_id] = Object.assign({}, message, options, { deferred });
     this.pendingMessages[message.msg_id] = 0;
@@ -2900,7 +2935,7 @@ class MtpNetworker {
     if (!options || !options.noShedule) {
       this.sheduleRequest();
     }
-    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Object, options)) {
+    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, options)) {
       options.messageID = message.msg_id;
     }
 
@@ -2908,7 +2943,7 @@ class MtpNetworker {
   }
 
   pushResend(messageID, delay) {
-    const value = delay ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["tsNow"])() + delay : 0;
+    const value = delay ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay : 0;
     const sentMessage = this.sentMessages[messageID];
     if (sentMessage.container) {
       for (let i = 0; i < sentMessage.inner.length; i++) {
@@ -2934,20 +2969,20 @@ class MtpNetworker {
 
     sha1aText.set(msgKey, 0);
     sha1aText.set(authKey.subarray(x, x + 32), 16);
-    promises.sha1a = __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].sha1Hash(sha1aText);
+    promises.sha1a = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1aText);
 
     sha1bText.set(authKey.subarray(x + 32, x + 48), 0);
     sha1bText.set(msgKey, 16);
     sha1bText.set(authKey.subarray(x + 48, x + 64), 32);
-    promises.sha1b = __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].sha1Hash(sha1bText);
+    promises.sha1b = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1bText);
 
     sha1cText.set(authKey.subarray(x + 64, x + 96), 0);
     sha1cText.set(msgKey, 32);
-    promises.sha1c = __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].sha1Hash(sha1cText);
+    promises.sha1c = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1cText);
 
     sha1dText.set(msgKey, 0);
     sha1dText.set(authKey.subarray(x + 96, x + 128), 16);
-    promises.sha1d = __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].sha1Hash(sha1dText);
+    promises.sha1d = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1dText);
 
     const onAll = result => {
       const aesKey = new Uint8Array(32),
@@ -2969,7 +3004,7 @@ class MtpNetworker {
       return [aesKey, aesIv];
     };
 
-    return Promise.all(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["values"])(promises)).then(onAll);
+    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.all(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["values"])(promises)).then(onAll);
   }
 
   toggleOffline(enabled) {
@@ -2981,14 +3016,14 @@ class MtpNetworker {
     this.offline = enabled;
 
     if (this.offline) {
-      __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
+      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
       delete this.nextReq;
 
       if (this.checkConnectionPeriod < 1.5) {
         this.checkConnectionPeriod = 0;
       }
 
-      this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
+      this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
       this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5);
 
       this.onOnlineCb = this.checkConnection;
@@ -3002,31 +3037,31 @@ class MtpNetworker {
       if (this.onOnlineCb) {
         $(document.body).off('online focus', this.onOnlineCb);
       }
-      __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
     }
   }
 
 
   getEncryptedMessage(bytes) {
     let msgKey;
-    const f1 = __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].sha1Hash;
+    const f1 = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash;
     const f2 = bytesHash => {
       msgKey = new Uint8Array(bytesHash).subarray(4, 20);
       return this.getMsgKeyIv(msgKey, true);
     };
-    const f3 = keyIv => __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].aesEncrypt(bytes, keyIv[0], keyIv[1]);
+    const f3 = keyIv => __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].aesEncrypt(bytes, keyIv[0], keyIv[1]);
     const f4 = encryptedBytes => ({
       bytes: encryptedBytes,
       msgKey: msgKey
     });
-    const encryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipeP"])(f1, f2, f3, f4);
+    const encryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipeP"])(f1, f2, f3, f4);
     return encryptFlow(bytes);
   }
 
   getDecryptedMessage(msgKey, encryptedData) {
     const getKeyCurry = key => this.getMsgKeyIv(key, false);
-    const cryptoAesCurry = keyIv => __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].aesDecrypt(encryptedData, keyIv[0], keyIv[1]);
-    const decryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipeP"])(getKeyCurry, cryptoAesCurry);
+    const cryptoAesCurry = keyIv => __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].aesDecrypt(encryptedData, keyIv[0], keyIv[1]);
+    const decryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipeP"])(getKeyCurry, cryptoAesCurry);
     return decryptFlow(msgKey);
   }
 
@@ -3034,27 +3069,27 @@ class MtpNetworker {
     // console.log(dTime(), 'Start parsing response')
     const self = this;
 
-    const deserializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["b" /* TLDeserialization */](responseBuffer);
+    const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](responseBuffer);
 
     const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id');
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
-      throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(authKeyID)}`);
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
+      throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(authKeyID)}`);
     }
     const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key');
     const encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
 
     const afterDecrypt = dataWithPadding => {
       // console.log(dTime(), 'after decrypt')
-      const deserializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["b" /* TLDeserialization */](dataWithPadding, { mtproto: true });
+      const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](dataWithPadding, { mtproto: true });
 
       const salt = deserializer.fetchIntBytes(64, false, 'salt');
       const sessionID = deserializer.fetchIntBytes(64, false, 'session_id');
       const messageID = deserializer.fetchLong('message_id');
 
-      const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
+      const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
       if (isInvalidSession) {
         console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID);
-        throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(sessionID)}`);
+        throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(sessionID)}`);
       }
 
       const seqNo = deserializer.fetchInt('seq_no');
@@ -3071,17 +3106,17 @@ class MtpNetworker {
       offset = deserializer.getOffset();
       const paddingLength = totalLength - offset;
       if (paddingLength < 0 || paddingLength > 15) throw new Error(`[MT] Invalid padding length: ${paddingLength}`);
-      const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
+      const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
 
       const afterShaHash = dataHash => {
-        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
-          console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
+        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
+          console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
           throw new Error('[MT] server msgKey mismatch');
         }
 
-        const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["h" /* bytesToArrayBuffer */])(messageBody);
+        const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["h" /* bytesToArrayBuffer */])(messageBody);
         const deserializerOptions = getDeserializeOpts(this.getMsgById);
-        const deserializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["b" /* TLDeserialization */](buffer, deserializerOptions);
+        const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, deserializerOptions);
         const response = deserializer.fetchObject('', 'INPUT');
 
         return {
@@ -3091,19 +3126,19 @@ class MtpNetworker {
           seqNo: seqNo
         };
       };
-      return __WEBPACK_IMPORTED_MODULE_1__crypto__["b" /* default */].sha1Hash(hashData).then(afterShaHash);
+      return __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(hashData).then(afterShaHash);
     };
 
     return this.getDecryptedMessage(msgKey, encryptedData).then(afterDecrypt);
   }
 
   applyServerSalt(newServerSalt) {
-    const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["n" /* longToBytes */])(newServerSalt);
+    const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["n" /* longToBytes */])(newServerSalt);
 
     const storeObj = {
-      [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(serverSalt)
+      [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(serverSalt)
     };
-    __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].set(storeObj);
+    __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].set(storeObj);
 
     this.serverSalt = serverSalt;
     return true;
@@ -3111,14 +3146,14 @@ class MtpNetworker {
 
   sheduleRequest(delay = 0) {
     if (this.offline) this.checkConnection('forced shedule');
-    const nextReq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["tsNow"])() + delay;
+    const nextReq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay;
 
     if (delay && this.nextReq && this.nextReq <= nextReq) return false;
 
     // console.log(dTime(), 'shedule req', delay)
     // console.trace()
-    __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
-    if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setZeroTimeout(this.performSheduledRequest);
+    __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
+    if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setImmediate(this.performSheduledRequest);
 
     this.nextReq = nextReq;
   }
@@ -3130,7 +3165,7 @@ class MtpNetworker {
   }
 
   reqResendMessage(msgID) {
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Req resend', msgID);
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Req resend', msgID);
     this.pendingResends.push(msgID);
     this.sheduleRequest(100);
   }
@@ -3157,14 +3192,14 @@ class MtpNetworker {
         notEmpty = true;
       }
     };
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__for_each__["b" /* default */])(this.sentMessages, cleanMessages);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.sentMessages, cleanMessages);
 
     return !notEmpty;
   }
 
   processError(rawError) {
     const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || [];
-    rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* uintToInt */])(rawError.error_code);
+    rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["f" /* uintToInt */])(rawError.error_code);
 
     return {
       code: !rawError.error_code || rawError.error_code <= 0 ? 500 : rawError.error_code,
@@ -3192,7 +3227,7 @@ class MtpNetworker {
         }
       case 'bad_server_salt':
         {
-          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Bad server salt', message);
+          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Bad server salt', message);
           const sentMessage = this.sentMessages[message.bad_msg_id];
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
             console.log(message.bad_msg_id, message.bad_msg_seqno);
@@ -3206,7 +3241,7 @@ class MtpNetworker {
         }
       case 'bad_msg_notification':
         {
-          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Bad msg notification', message);
+          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Bad msg notification', message);
           const sentMessage = this.sentMessages[message.bad_msg_id];
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
             console.log(message.bad_msg_id, message.bad_msg_seqno);
@@ -3214,8 +3249,8 @@ class MtpNetworker {
           }
 
           if (message.error_code == 16 || message.error_code == 17) {
-            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
-              console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Update session');
+            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
+              console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Update session');
               this.updateSession();
             }
             const badMessage = this.updateSentMessage(message.bad_msg_id);
@@ -3249,7 +3284,7 @@ class MtpNetworker {
             const updateCond = baseDcID === this.dcID && !this.upload && updatesProcessor;
             if (updateCond) updatesProcessor(message, true);
           };
-          __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
+          __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
           break;
         }
       case 'msgs_ack':
@@ -3291,18 +3326,18 @@ class MtpNetworker {
           const deferred = sentMessage.deferred;
           if (message.result._ == 'rpc_error') {
             const error = this.processError(message.result);
-            console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Rpc error', error);
+            console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc error', error);
             if (deferred) {
               deferred.reject(error);
             }
           } else {
             if (deferred) {
               if (Config.Modes.debug) {
-                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Rpc response', message.result);
+                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', message.result);
               } else {
                 let dRes = message.result._;
                 if (!dRes) dRes = message.result.length > 5 ? `[..${message.result.length}..]` : message.result;
-                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Rpc response', dRes);
+                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', dRes);
               }
               sentMessage.deferred.resolve(message.result);
             }
@@ -3328,12 +3363,12 @@ var _initialiseProps = function () {
   this.checkLongPoll = force => {
     const isClean = this.cleanupSent();
     // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean)
-    if (this.longPollPending && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["tsNow"])() < this.longPollPending || this.offline || akStopped) {
+    if (this.longPollPending && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() < this.longPollPending || this.offline || akStopped) {
       return false;
     }
     const self = this;
-    __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].get('dc').then(function (baseDcID) {
-      if (isClean && (baseDcID != self.dcID || self.upload || self.sleepAfter && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["tsNow"])() > self.sleepAfter)) {
+    __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(function (baseDcID) {
+      if (isClean && (baseDcID != self.dcID || self.upload || self.sleepAfter && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() > self.sleepAfter)) {
         // console.warn(dTime(), 'Send long-poll for DC is delayed', self.dcID, self.sleepAfter)
         return;
       }
@@ -3342,24 +3377,24 @@ var _initialiseProps = function () {
   };
 
   this.checkConnection = event => {
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Check connection', event);
-    __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Check connection', event);
+    __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
 
-    const serializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
-    const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
+    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+    const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
 
     serializer.storeMethod('ping', { ping_id: pingID });
 
     const pingMessage = {
-      msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])(),
+      msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
       seq_no: this.generateSeqNo(true),
       body: serializer.getBytes()
     };
 
     const self = this;
     this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result => self.toggleOffline(false), () => {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Delay ', self.checkConnectionPeriod * 1000);
-      self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Delay ', self.checkConnectionPeriod * 1000);
+      self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
       self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
     });
   };
@@ -3387,7 +3422,7 @@ var _initialiseProps = function () {
     //TODO extract huge method
     // console.log(dTime(), 'sheduled', this.dcID, this.iii)
     if (this.offline || akStopped) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Cancel sheduled');
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Cancel sheduled');
       return false;
     }
     delete this.nextReq;
@@ -3414,7 +3449,7 @@ var _initialiseProps = function () {
     const messages = [];
     let message,
         messagesByteLen = 0;
-    const currentTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["tsNow"])();
+    const currentTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])();
     let hasApiCall = false;
     let hasHttpWait = false;
     let lengthOverflow = false;
@@ -3445,17 +3480,17 @@ var _initialiseProps = function () {
       delete this.pendingMessages[messageID];
     };
 
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__for_each__["b" /* default */])(this.pendingMessages, onPendingMessage);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.pendingMessages, onPendingMessage);
 
     if (hasApiCall && !hasHttpWait) {
-      const serializer = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true });
+      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
       serializer.storeMethod('http_wait', {
         max_delay: 500,
         wait_after: 150,
         max_wait: 3000
       });
       messages.push({
-        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])(),
+        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
         seq_no: this.generateSeqNo(),
         body: serializer.getBytes()
       });
@@ -3469,7 +3504,7 @@ var _initialiseProps = function () {
     const noResponseMsgs = [];
 
     if (messages.length > 1) {
-      const container = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ mtproto: true, startMaxLength: messagesByteLen + 64 });
+      const container = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true, startMaxLength: messagesByteLen + 64 });
       container.storeInt(0x73f1f8dc, 'CONTAINER[id]');
       container.storeInt(messages.length, 'CONTAINER[count]');
       const onloads = [];
@@ -3486,7 +3521,7 @@ var _initialiseProps = function () {
       }
 
       const containerSentMessage = {
-        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["generateID"])(),
+        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
         seq_no: this.generateSeqNo(true),
         container: true,
         inner: innerMessages
@@ -3497,7 +3532,7 @@ var _initialiseProps = function () {
       this.sentMessages[message.msg_id] = containerSentMessage;
 
       if (Config.Modes.debug) {
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Container', innerMessages, message.msg_id, message.seq_no);
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Container', innerMessages, message.msg_id, message.seq_no);
       }
     } else {
       if (message.noResponse) {
@@ -3513,11 +3548,11 @@ var _initialiseProps = function () {
       this.parseResponse(result.data).then(afterResponseParse);
     };
     const afterResponseParse = response => {
-      if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'Server response', this.dcID, response);
+      if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Server response', this.dcID, response);
 
       this.processMessage(response.response, response.messageID, response.sessionID);
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsg);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsg);
 
       this.checkLongPoll();
 
@@ -3527,11 +3562,11 @@ var _initialiseProps = function () {
       console.log('Encrypted request failed', error);
 
       if (message.container) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__for_each__["b" /* default */])(message.inner, this.resetPendingMessage);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(message.inner, this.resetPendingMessage);
         delete this.sentMessages[message.msg_id];
       } else this.pendingMessages[message.msg_id] = 0;
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsgReject);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsgReject);
 
       this.toggleOffline(true);
     };
@@ -3540,12 +3575,12 @@ var _initialiseProps = function () {
     if (lengthOverflow || singlesCount > 1) this.sheduleRequest();
   };
 
-  this.getRequestUrl = () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__dc_configurator__["chooseServer"])(this.dcID, this.upload);
+  this.getRequestUrl = () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__dc_configurator__["chooseServer"])(this.dcID, this.upload);
 
   this.sendEncryptedRequest = (message, options = {}) => {
     // console.log(dTime(), 'Send encrypted'/*, message*/)
     // console.trace()
-    const data = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ startMaxLength: message.body.length + 64 });
+    const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: message.body.length + 64 });
 
     data.storeIntBytes(this.serverSalt, 64, 'salt');
     data.storeIntBytes(this.sessionID, 64, 'session_id');
@@ -3560,18 +3595,18 @@ var _initialiseProps = function () {
     const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
 
     const afterRequestData = result => {
-      if (!result.data || !result.data.byteLength) return Promise.reject(baseError);
+      if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
       return result;
     };
 
     const afterRequestReject = error => {
       if (!error.message && !error.type) error = Object.assign({ type: 'NETWORK_BAD_REQUEST', originalError: error }, baseError);
-      return Promise.reject(error);
+      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
     };
 
     const onEncryptedResult = encryptedResult => {
       // console.log(dTime(), 'Got encrypted out message'/*, encryptedResult*/)
-      const request = new __WEBPACK_IMPORTED_MODULE_5__tl__["a" /* TLSerialization */]({ startMaxLength: encryptedResult.bytes.byteLength + 256 });
+      const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: encryptedResult.bytes.byteLength + 256 });
       request.storeIntBytes(this.authKeyID, 64, 'auth_key_id');
       request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key');
       request.storeRawBytes(encryptedResult.bytes, 'encrypted_data');
@@ -3580,9 +3615,9 @@ var _initialiseProps = function () {
 
       try {
         options = Object.assign({ responseType: 'arraybuffer' }, options);
-        return __WEBPACK_IMPORTED_MODULE_8__http__["a" /* httpClient */].post(url, requestData, options);
+        return __WEBPACK_IMPORTED_MODULE_9__http__["a" /* httpClient */].post(url, requestData, options);
       } catch (e) {
-        return Promise.reject(e);
+        return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(e);
       }
     };
 
@@ -3622,7 +3657,7 @@ const getDeserializeOpts = msgGetter => ({
       try {
         result.body = this.fetchObject('Object', `${field}[body]`);
       } catch (e) {
-        console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__time_manager__["dTime"])(), 'parse error', e.message, e.stack);
+        console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'parse error', e.message, e.stack);
         result.body = { _: 'parse_error', error: e };
       }
       if (this.offset != offset + result.bytes) {
@@ -3668,9 +3703,16 @@ const getNetworker = (dcID, authKey, serverSalt, options) => new MtpNetworker(dc
 const setUpdatesProcessor = callback => updatesProcessor = callback;
 /* harmony export (immutable) */ __webpack_exports__["setUpdatesProcessor"] = setUpdatesProcessor;
 
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(15).setImmediate))
 
 /***/ }),
-/* 17 */
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(63);
+
+/***/ }),
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5185,12 +5227,12 @@ function mont_(x, y, n, np) {
 }
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__tl__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__tl__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(1);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return prepareRsaKeys; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return selectRsaKeyByFingerPrint; });
 
@@ -5255,68 +5297,72 @@ const selectRsaKeyByFingerPrint = fingerprints => {
 
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(2))(125);
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(2))(126);
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(2))(129);
-
-/***/ }),
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(2))(131);
+module.exports = (__webpack_require__(0))(126);
 
 /***/ }),
 /* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(127);
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(130);
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(132);
+
+/***/ }),
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__smart_timeout__ = __webpack_require__(11);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "smartTimeout", function() { return __WEBPACK_IMPORTED_MODULE_0__smart_timeout__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defer__ = __webpack_require__(3);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "blueDefer", function() { return __WEBPACK_IMPORTED_MODULE_1__defer__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(7);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "CryptoWorker", function() { return __WEBPACK_IMPORTED_MODULE_2__crypto__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bin__ = __webpack_require__(0);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_3__bin__["bin"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__for_each__ = __webpack_require__(13);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_4__for_each__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__service_api_manager__ = __webpack_require__(14);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpSetUserAuth", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpInvokeApi", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager__["c"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager__["d"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager__["e"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__store__ = __webpack_require__(5);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__store__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__service_time_manager__ = __webpack_require__(4);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_7__service_time_manager__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_dc_configurator__ = __webpack_require__(9);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_8__service_dc_configurator__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_authorizer__ = __webpack_require__(15);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpAuthorizer", function() { return __WEBPACK_IMPORTED_MODULE_9__service_authorizer__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_secure_random__ = __webpack_require__(10);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_10__service_secure_random__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_networker__ = __webpack_require__(16);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_11__service_networker__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__tl__ = __webpack_require__(6);
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLSerialization", function() { return __WEBPACK_IMPORTED_MODULE_12__tl__["a"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLDeserialization", function() { return __WEBPACK_IMPORTED_MODULE_12__tl__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__http__ = __webpack_require__(8);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_13__http__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_setimmediate__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__smart_timeout__ = __webpack_require__(12);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "smartTimeout", function() { return __WEBPACK_IMPORTED_MODULE_1__smart_timeout__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "blueDefer", function() { return __WEBPACK_IMPORTED_MODULE_2__defer__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__crypto__ = __webpack_require__(8);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "CryptoWorker", function() { return __WEBPACK_IMPORTED_MODULE_3__crypto__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(1);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_4__bin__["bin"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager__ = __webpack_require__(16);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpSetUserAuth", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpInvokeApi", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["c"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["d"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["e"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__store__ = __webpack_require__(6);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_7__store__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_time_manager__ = __webpack_require__(5);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_8__service_time_manager__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__ = __webpack_require__(10);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_authorizer__ = __webpack_require__(17);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpAuthorizer", function() { return __WEBPACK_IMPORTED_MODULE_10__service_authorizer__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_secure_random__ = __webpack_require__(11);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_11__service_secure_random__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__service_networker__ = __webpack_require__(18);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_12__service_networker__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__tl__ = __webpack_require__(7);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLSerialization", function() { return __WEBPACK_IMPORTED_MODULE_13__tl__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLDeserialization", function() { return __WEBPACK_IMPORTED_MODULE_13__tl__["b"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__http__ = __webpack_require__(9);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_14__http__["a"]; });
+
+
 
 
 

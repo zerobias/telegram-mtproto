@@ -1,3 +1,5 @@
+import Promise from 'bluebird'
+
 import { pathSatisfies, complement, isNil, unless, is, always,
   propEq, __, propOr } from 'ramda'
 

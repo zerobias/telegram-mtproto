@@ -1,6 +1,9 @@
 const test = require('tap').test
 const Nightmare = require('nightmare')
 
+const mtproto = require('telegram-mtproto')
+mtproto.api
+
 const night = Nightmare({
   openDevTools: {
     mode: 'detach'
