@@ -1,0 +1,14 @@
+.DS_Store
+.idea
+.publish
+*.sublime-workspace
+.vscode
+*.*~
+*.swp
+
+debug.log
+node_modules
+npm-debug.log
+cldr
+coverage/
+.nyc_output
