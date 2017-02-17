@@ -1,0 +1,62 @@
+{
+  "author": "Zero Bias",
+  "dependencies": {
+    "@goodmind/node-cryptojs-aes": "^0.4.0",
+    "axios": "^0.15.3",
+    "bluebird": "^3.4.7",
+    "eventemitter2": "^3.0.0",
+    "jsbn": "^1.1.0",
+    "pako": "^1.0.4",
+    "ramda": "^0.23.0",
+    "rusha": "^0.8.5"
+  },
+  "description": "Telegram MTProto library",
+  "devDependencies": {
+    "babel-core": "^6.23.1",
+    "babel-eslint": "^7.1.1",
+    "babel-loader": "^6.3.2",
+    "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "eslint": "^3.15.0",
+    "eslint-plugin-babel": "^4.0.1",
+    "nightmare": "^2.9.1",
+    "tap": "^10.1.1",
+    "webpack": "^2.2.1"
+  },
+  "engines": {
+    "node": ">0.10.30"
+  },
+  "files": [
+    "source/"
+  ],
+  "keywords": [
+    "telegram",
+    "mt",
+    "mtproto",
+    "mobile",
+    "protocol",
+    "library"
+  ],
+  "license": "MIT",
+  "main": "./source/index.js",
+  "maintainers": [
+    {
+      "name": "Zero Bias",
+      "email": "ribkatt@gmail.com"
+    }
+  ],
+  "name": "telegram-mtproto",
+  "readme": "./README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zerobias/telegram-mtproto.git"
+  },
+  "scripts": {
+    "test:watch": "nodemon ./test/smoke.js",
+    "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
+    "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
+    "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
+    "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/auth/** ./test/*.js"
+  },
+  "version": "2.0.0"
+}
