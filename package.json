@@ -17,6 +17,7 @@
     "babel-loader": "^6.3.2",
     "babel-plugin-transform-class-properties": "^6.23.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "cross-env": "^3.1.4",
     "eslint": "^3.15.0",
     "eslint-plugin-babel": "^4.0.1",
     "nightmare": "^2.9.1",
@@ -27,7 +28,10 @@
     "node": ">0.10.30"
   },
   "files": [
-    "source/"
+    "lib",
+    "dist",
+    "source",
+    "index.d.ts"
   ],
   "keywords": [
     "telegram",
@@ -38,7 +42,9 @@
     "library"
   ],
   "license": "MIT",
-  "main": "./source/index.js",
+  "main": "./dist/mtproto2-browser.js",
+  "typings": "./index.d.ts",
+  "jsnext:main": "./source/index.js",
   "maintainers": [
     {
       "name": "Zero Bias",
@@ -52,11 +58,11 @@
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
   "scripts": {
-    "test:watch": "nodemon ./test/smoke.js",
-    "coveralls": "DEBUG=-mocha*,* istanbul cover ./node_modules/gulp/bin/gulp.js cover && cat ./coverage/lcov.info | coveralls && codeclimate < ./coverage/lcov.info && rm -rf ./coverage",
-    "example": "DEBUG=-mocha*,-TypeBuilder,* ./node_modules/gulp/bin/gulp.js example",
-    "test": "set DEBUG=-mocha*,-TypeBuilder,* && gulp test",
-    "zuul": "zuul -- ./test/net/http-connection.test.js ./test/security/** ./test/message/** ./test/auth/** ./test/*.js"
+    "watch": "webpack --watch",
+    "build:webogram:vendor": "webpack --config config/webogram/webpack.vendor.config.js",
+    "build:webogram": "webpack --config config/webogram/webpack.config.js",
+    "rebuild:webogram": "npm run build:webogram:vendor && npm run build:webogram",
+    "test": "node --harmony test/ci-test.js"
   },
   "version": "2.0.0"
 }
