@@ -3503,230 +3503,7 @@ const setUpdatesProcessor = callback => updatesProcessor = callback;
 module.exports = (__webpack_require__(0))(360);
 
 /***/ }),
-/* 18 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__bin__ = __webpack_require__(1);
-
-
-
-
-
-
-
-
-
-
-
-
-
-const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
-  const fullUserAuth = Object.assign({ dcID }, userAuth);
-  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
-    dc: dcID,
-    user_auth: fullUserAuth
-  });
-  onAuth(fullUserAuth, dcID);
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = mtpSetUserAuth;
-
-
-const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
-const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
-
-const cachedExportPromise = {};
-// const cachedUploadNetworkers = {}
-// const cachedNetworkers = {}
-
-let baseDcID = 2;
-
-const mtpClearStorage = function () {
-  const saveKeys = [];
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${dcID}_auth_key`);
-    saveKeys.push(`t_dc${dcID}_auth_key`);
-  }
-  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
-    const restoreObj = {};
-    saveKeys.forEach((key, i) => {
-      const value = values[i];
-      if (value !== false && value !== undefined) restoreObj[key] = value;
-    });
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-    return restoreObj;
-  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
-};
-/* harmony export (immutable) */ __webpack_exports__["c"] = mtpClearStorage;
-
-
-class ApiManager {
-  constructor() {
-    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
-      wildcard: true
-    });
-    this.on = this.emitter.on;
-    this.emit = this.emitter.emit;
-    this.cache = {
-      uploader: {},
-      downloader: {}
-    };
-
-    this.mtpGetNetworker = (dcID, options = {}) => {
-      const cache = options.fileUpload || options.fileDownload ? this.cache.uploader : this.cache.downloader;
-      if (!dcID) throw new Error('get Networker without dcID');
-
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
-
-      const akk = `dc${dcID}_auth_key`;
-      const ssk = `dc${dcID}_server_salt`;
-
-      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(result => {
-        if (cache[dcID]) return cache[dcID];
-
-        const authKeyHex = result[0];
-        let serverSaltHex = result[1];
-        // console.log('ass', dcID, authKeyHex, serverSaltHex)
-        if (authKeyHex && authKeyHex.length === 512) {
-          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
-          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(authKeyHex);
-          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(serverSaltHex);
-
-          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
-        }
-
-        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
-
-        const onDcAuth = ({ authKey, serverSalt }) => {
-          const storeObj = {};
-          storeObj[akk] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(authKey);
-          storeObj[ssk] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(serverSalt);
-          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
-
-          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
-        };
-
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["auth"])(dcID).then(onDcAuth, netError);
-      });
-    };
-
-    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
-  }
-
-  mtpInvokeApi(method, params, options = {}) {
-    const self = this;
-    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
-    const rejectPromise = error => {
-      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
-      deferred.reject(error);
-
-      if (!options.noErrorBox) {
-        //TODO weird code. `error` changed after `.reject`?
-        error.input = method;
-        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
-        self.emit('error.invoke', error);
-      }
-    };
-    let dcID;
-
-    let cachedNetworker;
-    const stack = new Error().stack || 'empty stack';
-    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
-      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
-      const codeEq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('code', __WEBPACK_IMPORTED_MODULE_2_ramda__["__"], error);
-      const dcEq = val => val === dcID;
-      switch (true) {
-        case codeEq(401) && dcEq(baseDcID):
-          {
-            __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].remove('dc', 'user_auth');
-            self.emit('error.401.base');
-            rejectPromise(error);
-            break;
-          }
-        case codeEq(401) && baseDcID && !dcEq(baseDcID):
-          {
-            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cachedExportPromise[dcID])) {
-              const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
-              const importAuth = ({ id, bytes }) => self.mtpInvokeApi('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
-
-              self.mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
-
-              cachedExportPromise[dcID] = exportDeferred.promise;
-            }
-
-            const apiRecall = () => (cachedNetworker = networker).wrapApiCall(method, params, options);
-
-            cachedExportPromise[dcID].then(apiRecall).then(deferred.resolve).catch(rejectPromise);
-
-            break;
-          }
-        case codeEq(303):
-          {
-            const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
-            if (dcEq(newDcID)) break;
-            if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({ dc: baseDcID = newDcID });
-
-            const apiRecall = networker => networker.wrapApiCall(method, params, options);
-
-            self.mtpGetNetworker(newDcID, options).then(apiRecall).then(deferred.resolve).catch(rejectPromise);
-            break;
-          }
-        case !options.rawError && codeEq(420):
-          {
-            const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
-            if (waitTime > (options.timeout || 60)) return rejectPromise(error);
-            setTimeout(() => performRequest(cachedNetworker), waitTime * 1000);
-            break;
-          }
-        case !options.rawError && (codeEq(500) || error.type == 'MSG_WAIT_FAILED'):
-          {
-            const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
-            if (options.stopTime) {
-              if (now >= options.stopTime) return rejectPromise(error);
-            } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propOr"])(10, 'timeout', options) * 1000;
-            options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
-            setTimeout(() => performRequest(cachedNetworker), options.waitTime * 1000);
-            break;
-          }
-        default:
-          rejectPromise(error);
-      }
-    });
-    const getDcNetworker = (baseDcID = 2) => self.mtpGetNetworker(dcID = defDc(baseDcID), options);
-    if (dcID = options.dcID || baseDcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(self.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
-
-    return deferred.promise;
-  }
-}
-/* harmony export (immutable) */ __webpack_exports__["e"] = ApiManager;
-
-
-const netError = error => {
-  console.log('Get networker error', error, error.stack);
-  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-};
-
-const api = new ApiManager();
-/* harmony export (immutable) */ __webpack_exports__["d"] = api;
-
-
-const mtpInvokeApi = api.mtpInvokeApi;
-/* harmony export (immutable) */ __webpack_exports__["b"] = mtpInvokeApi;
-
-
-/***/ }),
+/* 18 */,
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5359,12 +5136,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_4__bin__["bin"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager__ = __webpack_require__(18);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpSetUserAuth", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpInvokeApi", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["c"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["d"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager__["e"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__ = __webpack_require__(28);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpSetUserAuth", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpInvokeApi", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["d"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["e"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__store__ = __webpack_require__(6);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_7__store__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_time_manager__ = __webpack_require__(5);
@@ -6146,6 +5923,373 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
   }
 }();
 
+
+/***/ }),
+/* 28 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__error_cases__ = __webpack_require__(29);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
+  const fullUserAuth = Object.assign({ dcID }, userAuth);
+  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
+    dc: dcID,
+    user_auth: fullUserAuth
+  });
+  onAuth(fullUserAuth, dcID);
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = mtpSetUserAuth;
+
+
+const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
+const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
+
+// const cachedUploadNetworkers = {}
+// const cachedNetworkers = {}
+
+const baseDcID = 2;
+
+const mtpClearStorage = function () {
+  const saveKeys = [];
+  for (let dcID = 1; dcID <= 5; dcID++) {
+    saveKeys.push(`dc${dcID}_auth_key`);
+    saveKeys.push(`t_dc${dcID}_auth_key`);
+  }
+  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
+    const restoreObj = {};
+    saveKeys.forEach((key, i) => {
+      const value = values[i];
+      if (value !== false && value !== undefined) restoreObj[key] = value;
+    });
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+    return restoreObj;
+  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
+};
+/* harmony export (immutable) */ __webpack_exports__["c"] = mtpClearStorage;
+
+
+class ApiManager {
+  constructor() {
+    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
+      wildcard: true
+    });
+    this.on = this.emitter.on;
+    this.emit = this.emitter.emit;
+    this.cache = {
+      uploader: {},
+      downloader: {}
+    };
+
+    this.mtpGetNetworker = (dcID, options = {}) => {
+      const cache = options.fileUpload || options.fileDownload ? this.cache.uploader : this.cache.downloader;
+      if (!dcID) throw new Error('get Networker without dcID');
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
+
+      const akk = `dc${dcID}_auth_key`;
+      const ssk = `dc${dcID}_server_salt`;
+
+      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(result => {
+        if (cache[dcID]) return cache[dcID];
+
+        const authKeyHex = result[0];
+        let serverSaltHex = result[1];
+        // console.log('ass', dcID, authKeyHex, serverSaltHex)
+        if (authKeyHex && authKeyHex.length === 512) {
+          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
+          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(authKeyHex);
+          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(serverSaltHex);
+
+          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
+        }
+
+        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
+
+        const onDcAuth = ({ authKey, serverSalt }) => {
+          const storeObj = {};
+          storeObj[akk] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(authKey);
+          storeObj[ssk] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(serverSalt);
+          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
+
+          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
+        };
+
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["auth"])(dcID).then(onDcAuth, netError);
+      });
+    };
+
+    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
+  }
+
+  mtpInvokeApi(method, params, options = {}) {
+    const self = this;
+    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
+    const rejectPromise = error => {
+      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
+      deferred.reject(error);
+
+      if (!options.noErrorBox) {
+        //TODO weird code. `error` changed after `.reject`?
+        error.input = method;
+        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
+        self.emit('error.invoke', error);
+      }
+    };
+    let dcID, cachedNetworker;
+
+    const cachedNetThunk = () => performRequest(cachedNetworker);
+    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3);
+
+    const stack = new Error().stack || 'empty stack';
+    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
+      // const apiRecall = () => (cachedNetworker = networker)
+      //   .wrapApiCall(method, params, options)
+      const deferResolve = deferred.resolve;
+      const apiSavedNet = () => cachedNetworker = networker;
+      const apiRecall = networker => networker.wrapApiCall(method, params, options);
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
+
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve);
+
+      /*const codeEq = propEq('code', __, error)
+      const dcEq = val => val === dcID
+      switch (true) {
+        case codeEq(401) && dcEq(baseDcID): {
+          PureStorage.remove('dc', 'user_auth')
+          self.emit('error.401.base')
+          rejectPromise(error)
+          break
+        }
+        case codeEq(401) &&
+              baseDcID &&
+              !dcEq(baseDcID)
+        : {
+          if (isNil(cachedExportPromise[dcID])) {
+            const exportDeferred = blueDefer()
+            const importAuth = ({ id, bytes }) =>
+              self.mtpInvokeApi(
+                'auth.importAuthorization',
+                { id, bytes },
+                { dcID, noErrorBox: true })
+              self.mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true })
+              .then(importAuth)
+              .then(exportDeferred.resolve)
+              .catch(exportDeferred.reject)
+              cachedExportPromise[dcID] = exportDeferred.promise
+          }
+            cachedExportPromise[dcID]
+            .then(apiRecall)
+            .then(deferred.resolve)
+            .catch(rejectPromise)
+            break
+        }
+        case codeEq(303): {
+          const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2]
+          if (dcEq(newDcID)) break
+          if (options.dcID)
+            options.dcID = newDcID
+          else
+            PureStorage.set({ dc: baseDcID = newDcID })
+            const apiRecall = networker => networker.wrapApiCall(method, params, options)
+            self.mtpGetNetworker(newDcID, options)
+            .then(apiRecall)
+            .then(deferred.resolve)
+            .catch(rejectPromise)
+          break
+        }
+        case !options.rawError &&
+              codeEq(420)
+        : {
+          const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10
+          if (waitTime > (options.timeout || 60))
+            return rejectPromise(error)
+          setTimeout(() =>
+            performRequest(cachedNetworker)
+          , waitTime * 1000)
+          break
+        }
+        case !options.rawError && (
+                codeEq(500) ||
+                error.type == 'MSG_WAIT_FAILED'
+        ): {
+          const now = tsNow()
+          if (options.stopTime) {
+            if (now >= options.stopTime)
+              return rejectPromise(error)
+          } else
+            options.stopTime = now + propOr(10, 'timeout', options) * 1000
+          options.waitTime = options.waitTime
+            ? Math.min(60, options.waitTime * 1.5)
+            : 1
+          setTimeout(() =>
+            performRequest(cachedNetworker)
+          , options.waitTime * 1000)
+          break
+        }
+        default: rejectPromise(error)
+      }*/
+    });
+    const getDcNetworker = (baseDcID = 2) => self.mtpGetNetworker(dcID = defDc(baseDcID), options);
+    if (dcID = options.dcID || baseDcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(self.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+
+    return deferred.promise;
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["e"] = ApiManager;
+
+
+const netError = error => {
+  console.log('Get networker error', error, error.stack);
+  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
+};
+
+const api = new ApiManager();
+/* harmony export (immutable) */ __webpack_exports__["d"] = api;
+
+
+const mtpInvokeApi = api.mtpInvokeApi;
+/* harmony export (immutable) */ __webpack_exports__["b"] = mtpInvokeApi;
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
+
+
+
+
+
+
+
+
+
+const cachedExportPromise = {};
+/* unused harmony export cachedExportPromise */
+
+
+const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) => ({ code, type, dcID, base: baseDcID, rawError });
+
+const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve) => matched({ error, options, emit,
+  reject: rejectPromise, requestThunk,
+  apiRecall, throwNext: () => rejectPromise(error),
+  deferResolve });
+
+const patterns = {
+  noBaseAuth: ({ code, dcID, base }) => code === 401 && dcID === base,
+  noDcAuth: ({ code, dcID, base }) => code === 401 && dcID !== base,
+  migrate: ({ code }) => code === 303,
+  floodWait: ({ code, rawError }) => !rawError && code === 420,
+  waitFail: ({ code, type, rawError }) => !rawError && (code === 500 || type === 'MSG_WAIT_FAILED'),
+  _: () => true
+};
+
+const noBaseAuth = ({ emit, throwNext }) => {
+  __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].remove('dc', 'user_auth');
+  emit('error.401.base');
+  throwNext();
+};
+
+const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve }) => {
+  if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"])(cachedExportPromise[dcID])) {
+    const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
+    const importAuth = ({ id, bytes }) => self.mtpInvokeApi('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
+
+    self.mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
+
+    cachedExportPromise[dcID] = exportDeferred.promise;
+  }
+
+  cachedExportPromise[dcID].then(apiSavedNet).then(apiRecall).then(deferResolve).catch(reject);
+};
+
+const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve }) => {
+  const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
+  if (newDcID === dcID) return;
+  if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].set({ dc: /*baseDcID =*/newDcID });
+
+  self.mtpGetNetworker(newDcID, options).then(apiRecall).then(deferResolve).catch(reject);
+};
+
+const floodWait = ({ error, options, throwNext, requestThunk }) => {
+  const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
+  if (waitTime > (options.timeout || 60)) return throwNext();
+  requestThunk(waitTime);
+};
+
+const waitFail = ({ options, throwNext, requestThunk }) => {
+  const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__time_manager__["tsNow"])();
+  if (options.stopTime) {
+    if (now >= options.stopTime) return throwNext();
+  } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propOr"])(10, 'timeout', options) * 1000;
+  options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
+  requestThunk(options.waitTime);
+};
+
+const def = ({ throwNext }) => throwNext();
+
+const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__["a" /* default */])(patterns, protect)({
+  noBaseAuth,
+  noDcAuth,
+  migrate,
+  floodWait,
+  waitFail,
+  _: def
+}, matchProtect);
+/* harmony export (immutable) */ __webpack_exports__["a"] = switchErrors;
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const Switch = (patterns, protector = e => e) => (matches, mProtector = e => e) => (...data) => {
+  const keyList = Object.keys(patterns);
+  const normalized = protector(...data);
+  for (const key of keyList) if (patterns[key](normalized)) return mProtector(matches[key]);
+};
+/* unused harmony export Switch */
+
+
+/* harmony default export */ __webpack_exports__["a"] = Switch;
 
 /***/ })
 /******/ ]);

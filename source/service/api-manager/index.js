@@ -4,13 +4,15 @@ import EventEmitter from 'eventemitter2'
 import { pathSatisfies, complement, isNil, unless, is, always,
   propEq, __, propOr } from 'ramda'
 
-import { getNetworker } from './networker'
-import { auth } from './authorizer'
-import { PureStorage } from '../store'
-import blueDefer from '../defer'
-import { dTime, tsNow } from './time-manager'
+import { getNetworker } from '../networker'
+import { auth } from '../authorizer'
+import { PureStorage } from '../../store'
+import blueDefer from '../../defer'
+import { dTime, tsNow } from '../time-manager'
 
-import { bytesFromHex, bytesToHex } from '../bin'
+import { bytesFromHex, bytesToHex } from '../../bin'
+
+import { cachedExportPromise, switchErrors } from './error-cases'
 
 export const mtpSetUserAuth = onAuth =>
   function mtpSetUserAuth(dcID, userAuth) {
@@ -25,11 +27,11 @@ export const mtpSetUserAuth = onAuth =>
 const hasPath = pathSatisfies( complement( isNil ) )
 const defDc = unless( is(Number), always(2) )
 
-const cachedExportPromise = {}
+
 // const cachedUploadNetworkers = {}
 // const cachedNetworkers = {}
 
-let baseDcID = 2
+const baseDcID = 2
 
 export const mtpClearStorage = function() {
   const saveKeys = []
@@ -129,10 +131,12 @@ export class ApiManager {
         self.emit('error.invoke', error)
       }
     }
-    let dcID
+    let dcID,
+        cachedNetworker
 
+    const cachedNetThunk = () => performRequest(cachedNetworker)
+    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3)
 
-    let cachedNetworker
     const stack = (new Error()).stack || 'empty stack'
     const performRequest = networker =>
       (cachedNetworker = networker)
@@ -140,8 +144,17 @@ export class ApiManager {
         .then(
           deferred.resolve,
           error => {
+            // const apiRecall = () => (cachedNetworker = networker)
+            //   .wrapApiCall(method, params, options)
+            const deferResolve = deferred.resolve
+            const apiSavedNet = () => cachedNetworker = networker
+            const apiRecall = networker => networker.wrapApiCall(method, params, options)
             console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
-            const codeEq = propEq('code', __, error)
+
+            return switchErrors(error, options, this.emit, rejectPromise, requestThunk,
+                                apiSavedNet, apiRecall, deferResolve)
+
+            /*const codeEq = propEq('code', __, error)
             const dcEq = val => val === dcID
             switch (true) {
               case codeEq(401) && dcEq(baseDcID): {
@@ -169,9 +182,6 @@ export class ApiManager {
 
                   cachedExportPromise[dcID] = exportDeferred.promise
                 }
-
-                const apiRecall = () => (cachedNetworker = networker)
-                  .wrapApiCall(method, params, options)
 
                 cachedExportPromise[dcID]
                   .then(apiRecall)
@@ -226,7 +236,7 @@ export class ApiManager {
                 break
               }
               default: rejectPromise(error)
-            }
+            }*/
           })
     const getDcNetworker = (baseDcID = 2) =>
       self.mtpGetNetworker(dcID = defDc(baseDcID), options)
