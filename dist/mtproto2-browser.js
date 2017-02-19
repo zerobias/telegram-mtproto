@@ -1155,10 +1155,10 @@ class TLSerialization {
   constructor({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) {
     this.storeIntString = (value, field) => {
       const valType = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["type"])(value);
-      switch (valType) {
-        case 'string':
+      switch (true) {
+        case __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(String, value):
           return this.storeString(value, field);
-        case 'number':
+        case __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Number, value):
           return this.storeInt(value, field);
         default:
           throw new Error(`tl storeIntString field ${field} value type ${valType}`);

@@ -74,9 +74,9 @@ export class TLSerialization {
 
   storeIntString = (value, field) => {
     const valType = type(value)
-    switch (valType) {
-      case 'string': return this.storeString(value, field)
-      case 'number': return this.storeInt(value, field)
+    switch (true) {
+      case is(String, value): return this.storeString(value, field)
+      case is(Number, value): return this.storeInt(value, field)
       default: throw new Error(`tl storeIntString field ${field} value type ${valType}`)
     }
   }
