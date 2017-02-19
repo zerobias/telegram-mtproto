@@ -9,27 +9,55 @@ import { tsNow } from '../time-manager'
 
 const cachedExportPromise = {}
 
-const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) =>
-  ({ code, type, dcID, base: baseDcID, rawError })
-
-const matchProtect = matched =>
-  (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall,
-  deferResolve) =>
-    matched({ error, options, emit,
-              reject   : rejectPromise, requestThunk,
-              apiRecall, throwNext: () => rejectPromise(error),
-              deferResolve })
+const protect = (
+    { code = NaN, type = '' },
+    { rawError = null },
+    dcID,
+    baseDcID
+  ) => ({
+    base: baseDcID,
+    errR: rawError,
+    code,
+    type,
+    dcID
+  })
 
 const patterns = {
-  noBaseAuth: ({ code, dcID, base })     => code === 401 && dcID === base,
-  noDcAuth  : ({ code, dcID, base })     => code === 401 && dcID !== base,
-  migrate   : ({ code })                 => code === 303,
-  floodWait : ({ code, rawError })       => !rawError && code === 420,
-  waitFail  : ({ code, type, rawError }) => !rawError && (code === 500 || type === 'MSG_WAIT_FAILED'),
-  _         : ()                         => true
+  noBaseAuth: ({ code, dcID, base })  =>  code === 401 && dcID === base,
+  noDcAuth  : ({ code, dcID, base })  =>  code === 401 && dcID !== base,
+  migrate   : ({ code })              =>  code === 303,
+  floodWait : ({ code, errR })        =>  !errR && code === 420,
+  waitFail  : ({ code, type, errR })  =>  !errR && (code === 500 || type === 'MSG_WAIT_FAILED'),
+  _         : ()                      =>  true
 }
 
 
+const matchProtect =
+  matched => (
+      error,
+      options,
+      emit,
+      rejectPromise,
+      requestThunk,
+      apiSavedNet,
+      apiRecall,
+      deferResolve,
+      mtpInvokeApi,
+      mtpGetNetworker
+    ) =>
+      matched({
+        invoke   : mtpInvokeApi,
+        throwNext: () => rejectPromise(error),
+        reject   : rejectPromise,
+        getNet   : mtpGetNetworker,
+        error,
+        options,
+        emit,
+        requestThunk,
+        apiRecall,
+        deferResolve,
+        apiSavedNet
+      })
 
 
 const noBaseAuth = ({ emit, throwNext }) => {
@@ -38,16 +66,17 @@ const noBaseAuth = ({ emit, throwNext }) => {
   throwNext()
 }
 
-const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve }) => {
+const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }) => {
+  const importAuth = ({ id, bytes }) => invoke(
+    'auth.importAuthorization',
+    { id, bytes },
+    { dcID, noErrorBox: true })
+
+
   if (isNil(cachedExportPromise[dcID])) {
     const exportDeferred = blueDefer()
-    const importAuth = ({ id, bytes }) =>
-      self.mtpInvokeApi(
-        'auth.importAuthorization',
-        { id, bytes },
-        { dcID, noErrorBox: true })
 
-    self.mtpInvokeApi(
+    invoke(
       'auth.exportAuthorization',
       { dc_id: dcID },
       { noErrorBox: true })
@@ -68,7 +97,7 @@ const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve }) => {
     .catch(reject)
 }
 
-const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve }) => {
+const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve, getNet }) => {
   const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2]
   if (newDcID === dcID) return
   if (options.dcID)
@@ -76,7 +105,7 @@ const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve }) => {
   else
     PureStorage.set({ dc: /*baseDcID =*/ newDcID })
 
-  self.mtpGetNetworker(newDcID, options)
+  getNet(newDcID, options)
     .then(apiRecall)
     .then(deferResolve)
     .catch(reject)

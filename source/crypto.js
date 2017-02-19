@@ -13,6 +13,7 @@ let taskID = 0
 const awaiting = {}
 const webCrypto = isNode
   ? false
+  //eslint-disable-next-line
   : window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
   /* || window.msCrypto && window.msCrypto.subtle*/
 let useSha1Crypto = true//webCrypto && webCrypto.digest !== undefined
@@ -21,14 +22,15 @@ const finalizeTask = (taskID, result) => {
   const deferred = awaiting[taskID]
   if (deferred !== undefined) {
     // console.log(rework_d_T(), 'CW done')
-    deferred.resolve(result)
-    delete awaiting[taskID]
-  }
-}
+    deferred.resolve(result) //TODO Possibly, can be used as
+    delete awaiting[taskID]  //
+  }                          //    deferred = Promise.resolve()
+}                            //    deferred.resolve( result )
 // window.Worker
 const workerEnable = false
 if (workerEnable) { //TODO worker disabled here
-  const tmpWorker = new Worker('js/lib/crypto_worker.js')
+  //eslint-disable-next-line
+  const tmpWorker = new Worker('js/lib/crypto_worker.js')``
   tmpWorker.onmessage = e =>
     webWorker
       ? finalizeTask(e.data.taskID, e.data.result)

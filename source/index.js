@@ -5,7 +5,7 @@ export { blueDefer } from './defer'
 export { CryptoWorker } from './crypto'
 export { bin } from './bin'
 export { forEach } from './for-each'
-export { mtpInvokeApi, mtpClearStorage, api, ApiManager } from './service/api-manager/index.js'
+export { mtpClearStorage, api, ApiManager } from './service/api-manager/index.js'
 export { PureStorage } from './store'
 
 import * as MtpTimeManager from './service/time-manager'

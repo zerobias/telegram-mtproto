@@ -1,4 +1,4 @@
-import { is } from 'ramda'
+import { is, isNil, type } from 'ramda'
 import { bigint, bigStringInt, uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer } from './bin'
 
@@ -72,7 +72,16 @@ export class TLSerialization {
     this.offset += 4
   }
 
-  storeInt(i, field = '') {
+  storeIntString = (value, field) => {
+    const valType = type(value)
+    switch (valType) {
+      case 'string': return this.storeString(value, field)
+      case 'number': return this.storeInt(value, field)
+      default: throw new Error(`tl storeIntString field ${field} value type ${valType}`)
+    }
+  }
+
+  storeInt = (i, field = '') => {
     this.writeInt(i, `${ field }:int`)
   }
 
@@ -90,19 +99,15 @@ export class TLSerialization {
   }
 
   storeLong(sLong, field = '') {
-    if (angular.isArray(sLong)) {
-      if (sLong.length == 2) {
-        return this.storeLongP(sLong[0], sLong[1], field)
-      } else {
-        return this.storeIntBytes(sLong, 64, field)
-      }
-    }
+    if (is(Array, sLong))
+      return sLong.length === 2
+        ? this.storeLongP(sLong[0], sLong[1], field)
+        : this.storeIntBytes(sLong, 64, field)
 
-    if (typeof sLong != 'string') {
+    if (typeof sLong !== 'string')
       sLong = sLong
         ? sLong.toString()
         : '0'
-    }
     const divRem = bigStringInt(sLong).divideAndRemainder(bigint(0x100000000))
 
     this.writeInt(intToUint(divRem[1].intValue()), `${ field }:long[low]`)
@@ -183,7 +188,7 @@ export class TLSerialization {
       bytes = new Uint8Array(bytes)
     }
     const len = bytes.length
-    if ((bits % 32) || (len * 8) != bits) {
+    if (bits % 32 || len * 8 != bits) {
       throw new Error(`Invalid bits: ${  bits  }, ${  bytes.length}`)
     }
 
@@ -235,7 +240,7 @@ export class TLSerialization {
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
         fieldBit = condType[0].split('.')
-        if (!(params[fieldBit[0]] & (1 << fieldBit[1]))) {
+        if (!(params[fieldBit[0]] & 1 << fieldBit[1])) {
           continue
         }
         type = condType[1]
@@ -300,7 +305,7 @@ export class TLSerialization {
     let isBare = false
     let constructorData = false
 
-    if (isBare = (type.charAt(0) == '%'))
+    if (isBare = type.charAt(0) == '%')
       type = type.substr(1)
 
     for (let i = 0; i < schema.constructors.length; i++) {
@@ -328,7 +333,7 @@ export class TLSerialization {
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
         fieldBit = condType[0].split('.')
-        if (!(obj[fieldBit[0]] & (1 << fieldBit[1]))) {
+        if (!(obj[fieldBit[0]] & 1 << fieldBit[1])) {
           continue
         }
         type = condType[1]
@@ -414,8 +419,8 @@ export class TLDeserialization {
 
     if (len == 254) {
       len = this.byteView[this.offset++] |
-          (this.byteView[this.offset++] << 8) |
-          (this.byteView[this.offset++] << 16)
+          this.byteView[this.offset++] << 8 |
+          this.byteView[this.offset++] << 16
     }
 
     let sUTF8 = ''
@@ -444,17 +449,16 @@ export class TLDeserialization {
 
     if (len == 254) {
       len = this.byteView[this.offset++] |
-          (this.byteView[this.offset++] << 8) |
-          (this.byteView[this.offset++] << 16)
+          this.byteView[this.offset++] << 8 |
+          this.byteView[this.offset++] << 16
     }
 
     const bytes = this.byteView.subarray(this.offset, this.offset + len)
     this.offset += len
 
-      // Padding
-    while (this.offset % 4) {
+    // Padding
+    while (this.offset % 4)
       this.offset++
-    }
 
     this.debug && console.log('<<<', bytesToHex(bytes), `${ field }:bytes`)
 
@@ -462,9 +466,8 @@ export class TLDeserialization {
   }
 
   fetchIntBytes(bits, typed, field = '') {
-    if (bits % 32) {
+    if (bits % 32)
       throw new Error(`Invalid bits: ${  bits}`)
-    }
 
     const len = bits / 8
     if (typed) {
@@ -542,7 +545,7 @@ export class TLDeserialization {
           const compressed = this.fetchBytes(`${field  }[packed_string]`)
           const uncompressed = gzipUncompress(compressed)
           const buffer = bytesToArrayBuffer(uncompressed)
-          const newDeserializer = (new TLDeserialization(buffer))
+          const newDeserializer = new TLDeserialization(buffer)
 
           return newDeserializer.fetchObject(type, field)
         }
@@ -597,7 +600,7 @@ export class TLDeserialization {
         const compressed = this.fetchBytes(`${field  }[packed_string]`)
         const uncompressed = gzipUncompress(compressed)
         const buffer = bytesToArrayBuffer(uncompressed)
-        const newDeserializer = (new TLDeserialization(buffer))
+        const newDeserializer = new TLDeserialization(buffer)
 
         return newDeserializer.fetchObject(type, field)
       }
@@ -636,7 +639,6 @@ export class TLDeserialization {
 
     const result = { '_': predicate }
     const overrideKey = (this.mtproto ? 'mt_' : '') + predicate
-    const self = this
 
     if (this.override[overrideKey]) {
       this.override[overrideKey].apply(this, [result, `${field  }[${  predicate  }]`])
@@ -648,31 +650,29 @@ export class TLDeserialization {
       for (let i = 0; i < len; i++) {
         param = constructorData.params[i]
         type = param.type
-        if (type == '#' && result.pFlags === undefined) {
+        if (type === '#' && isNil(result.pFlags))
           result.pFlags = {}
-        }
-        if (isCond = (type.indexOf('?') !== -1)) {
+
+        isCond = type.indexOf('?') !== -1
+        if (isCond) {
           condType = type.split('?')
           fieldBit = condType[0].split('.')
-          if (!(result[fieldBit[0]] & (1 << fieldBit[1]))) {
+          if (!(result[fieldBit[0]] & 1 << fieldBit[1]))
             continue
-          }
           type = condType[1]
         }
 
-        value = self.fetchObject(type, `${field  }[${  predicate  }][${  param.name  }]`)
+        value = this.fetchObject(type, `${field  }[${  predicate  }][${  param.name  }]`)
 
-        if (isCond && type === 'true') {
+        if (isCond && type === 'true')
           result.pFlags[param.name] = value
-        } else {
+        else
           result[param.name] = value
-        }
       }
     }
 
-    if (fallback) {
+    if (fallback)
       this.mtproto = true
-    }
 
     return result
   }
@@ -682,9 +682,8 @@ export class TLDeserialization {
   }
 
   fetchEnd() {
-    if (this.offset != this.byteView.length) {
+    if (this.offset !== this.byteView.length)
       throw new Error('Fetch end with non-empty buffer')
-    }
     return true
   }
 

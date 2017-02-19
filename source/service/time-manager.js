@@ -5,6 +5,7 @@ import { nextRandomInt, longFromInts } from '../bin'
 
 export const tsNow = seconds => {
   let t = +new Date()
+  //eslint-disable-next-line
   if (!isNode) t += window.tsOffset || 0
   return seconds
     ? Math.floor(t / 1000)

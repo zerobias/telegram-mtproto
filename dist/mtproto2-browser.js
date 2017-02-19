@@ -979,6 +979,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 const tsNow = seconds => {
   let t = +new Date();
+  //eslint-disable-next-line
   if (!__WEBPACK_IMPORTED_MODULE_0_detect_node___default.a) t += window.tsOffset || 0;
   return seconds ? Math.floor(t / 1000) : t;
 };
@@ -1152,6 +1153,22 @@ const innerStore = new SyncStorage();
 
 class TLSerialization {
   constructor({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) {
+    this.storeIntString = (value, field) => {
+      const valType = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["type"])(value);
+      switch (valType) {
+        case 'string':
+          return this.storeString(value, field);
+        case 'number':
+          return this.storeInt(value, field);
+        default:
+          throw new Error(`tl storeIntString field ${field} value type ${valType}`);
+      }
+    };
+
+    this.storeInt = (i, field = '') => {
+      this.writeInt(i, `${field}:int`);
+    };
+
     this.maxLength = startMaxLength;
     this.offset = 0; // in bytes
 
@@ -1220,10 +1237,6 @@ class TLSerialization {
     this.offset += 4;
   }
 
-  storeInt(i, field = '') {
-    this.writeInt(i, `${field}:int`);
-  }
-
   storeBool(i, field = '') {
     if (i) {
       this.writeInt(0x997275b5, `${field}:bool`);
@@ -1238,17 +1251,9 @@ class TLSerialization {
   }
 
   storeLong(sLong, field = '') {
-    if (angular.isArray(sLong)) {
-      if (sLong.length == 2) {
-        return this.storeLongP(sLong[0], sLong[1], field);
-      } else {
-        return this.storeIntBytes(sLong, 64, field);
-      }
-    }
+    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array, sLong)) return sLong.length === 2 ? this.storeLongP(sLong[0], sLong[1], field) : this.storeIntBytes(sLong, 64, field);
 
-    if (typeof sLong != 'string') {
-      sLong = sLong ? sLong.toString() : '0';
-    }
+    if (typeof sLong !== 'string') sLong = sLong ? sLong.toString() : '0';
     const divRem = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["b" /* bigStringInt */])(sLong).divideAndRemainder(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["c" /* bigint */])(0x100000000));
 
     this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["d" /* intToUint */])(divRem[1].intValue()), `${field}:long[low]`);
@@ -1580,9 +1585,7 @@ class TLDeserialization {
     this.offset += len;
 
     // Padding
-    while (this.offset % 4) {
-      this.offset++;
-    }
+    while (this.offset % 4) this.offset++;
 
     this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), `${field}:bytes`);
 
@@ -1590,9 +1593,7 @@ class TLDeserialization {
   }
 
   fetchIntBytes(bits, typed, field = '') {
-    if (bits % 32) {
-      throw new Error(`Invalid bits: ${bits}`);
-    }
+    if (bits % 32) throw new Error(`Invalid bits: ${bits}`);
 
     const len = bits / 8;
     if (typed) {
@@ -1760,7 +1761,6 @@ class TLDeserialization {
 
     const result = { '_': predicate };
     const overrideKey = (this.mtproto ? 'mt_' : '') + predicate;
-    const self = this;
 
     if (this.override[overrideKey]) {
       this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`]);
@@ -1772,31 +1772,23 @@ class TLDeserialization {
       for (let i = 0; i < len; i++) {
         param = constructorData.params[i];
         type = param.type;
-        if (type == '#' && result.pFlags === undefined) {
-          result.pFlags = {};
-        }
-        if (isCond = type.indexOf('?') !== -1) {
+        if (type === '#' && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["isNil"])(result.pFlags)) result.pFlags = {};
+
+        isCond = type.indexOf('?') !== -1;
+        if (isCond) {
           condType = type.split('?');
           fieldBit = condType[0].split('.');
-          if (!(result[fieldBit[0]] & 1 << fieldBit[1])) {
-            continue;
-          }
+          if (!(result[fieldBit[0]] & 1 << fieldBit[1])) continue;
           type = condType[1];
         }
 
-        value = self.fetchObject(type, `${field}[${predicate}][${param.name}]`);
+        value = this.fetchObject(type, `${field}[${predicate}][${param.name}]`);
 
-        if (isCond && type === 'true') {
-          result.pFlags[param.name] = value;
-        } else {
-          result[param.name] = value;
-        }
+        if (isCond && type === 'true') result.pFlags[param.name] = value;else result[param.name] = value;
       }
     }
 
-    if (fallback) {
-      this.mtproto = true;
-    }
+    if (fallback) this.mtproto = true;
 
     return result;
   }
@@ -1806,9 +1798,7 @@ class TLDeserialization {
   }
 
   fetchEnd() {
-    if (this.offset != this.byteView.length) {
-      throw new Error('Fetch end with non-empty buffer');
-    }
+    if (this.offset !== this.byteView.length) throw new Error('Fetch end with non-empty buffer');
     return true;
   }
 
@@ -1839,7 +1829,9 @@ const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__
 let webWorker = false;
 let taskID = 0;
 const awaiting = {};
-const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false : window.crypto.subtle || window.crypto.webkitSubtle; //TODO remove browser depends
+const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false
+//eslint-disable-next-line
+: window.crypto.subtle || window.crypto.webkitSubtle; //TODO remove browser depends
 /* || window.msCrypto && window.msCrypto.subtle*/
 let useSha1Crypto = true; //webCrypto && webCrypto.digest !== undefined
 let useSha256Crypto = true; //webCrypto && webCrypto.digest !== undefined
@@ -1847,15 +1839,16 @@ const finalizeTask = (taskID, result) => {
   const deferred = awaiting[taskID];
   if (deferred !== undefined) {
     // console.log(rework_d_T(), 'CW done')
-    deferred.resolve(result);
-    delete awaiting[taskID];
-  }
-};
+    deferred.resolve(result); //TODO Possibly, can be used as
+    delete awaiting[taskID]; //
+  } //    deferred = Promise.resolve()
+}; //    deferred.resolve( result )
 // window.Worker
 const workerEnable = false;
 if (workerEnable) {
   //TODO worker disabled here
-  const tmpWorker = new Worker('js/lib/crypto_worker.js');
+  //eslint-disable-next-line
+  const tmpWorker = new Worker('js/lib/crypto_worker.js')``;
   tmpWorker.onmessage = e => webWorker ? finalizeTask(e.data.taskID, e.data.result) : webWorker = tmpWorker;
   tmpWorker.onerror = error => {
     console.error('CW error', error, error.stack);
@@ -2545,909 +2538,908 @@ let akStopped = false;
 // const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/)
 // const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
-class MtpNetworker {
-  constructor(dcID, authKey, serverSalt, options = {}) {
-    _initialiseProps.call(this);
 
-    this.dcID = dcID;
-    this.iii = iii++;
 
-    this.authKey = authKey;
-    this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(authKey);
-    this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["j" /* convertToArrayBuffer */])(authKey);
-    this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
+const NetworkerFabric = (appConfig, emit) => {
+  var _class, _temp, _initialiseProps;
 
-    this.serverSalt = serverSalt;
+  return _temp = _class = class NetworkerThread {
+    constructor(dc, authKey, serverSalt, options = {}) {
+      _initialiseProps.call(this);
 
-    this.upload = options.fileUpload || options.fileDownload || false;
+      this.dcID = dc;
+      this.iii = iii++;
 
-    this.updateSession();
+      this.authKey = authKey;
+      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(authKey);
+      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["j" /* convertToArrayBuffer */])(authKey);
+      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
 
-    this.lastServerMessages = [];
+      this.serverSalt = serverSalt;
 
-    this.currentRequests = 0;
-    this.checkConnectionPeriod = 0;
+      this.upload = options.fileUpload || options.fileDownload || false;
 
-    this.sentMessages = {};
-    this.clientMessages = [];
+      this.updateSession();
 
-    this.pendingMessages = {};
-    this.pendingAcks = [];
-    this.pendingResends = [];
-    this.connectionInited = false;
+      this.lastServerMessages = [];
 
-    this.pendingTimeouts = [];
+      this.currentRequests = 0;
+      this.checkConnectionPeriod = 0;
 
-    setInterval(this.checkLongPoll, 10000);
-    this.checkLongPoll();
+      this.sentMessages = {};
+      this.clientMessages = [];
 
-    if (!offlineInited) offlineInited = true;
-  }
-  updateSession() {
-    this.seqNo = 0;
-    this.prevSessionID = this.sessionID;
-    this.sessionID = new Array(8);
-    __WEBPACK_IMPORTED_MODULE_4__secure_random__["a" /* default */].nextBytes(this.sessionID);
-  }
+      this.pendingMessages = {};
+      this.pendingAcks = [];
+      this.pendingResends = [];
+      this.connectionInited = false;
 
-  updateSentMessage(sentMessageID) {
-    const sentMessage = this.sentMessages[sentMessageID];
-    if (!sentMessage) return false;
+      this.pendingTimeouts = [];
 
-    if (sentMessage.container) {
-      const newInner = [];
-      const updateInner = innerSentMessageID => {
-        const innerSentMessage = this.updateSentMessage(innerSentMessageID);
-        if (innerSentMessage) newInner.push(innerSentMessage.msg_id);
-      };
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(sentMessage.inner, updateInner);
-      sentMessage.inner = newInner;
-    }
-
-    sentMessage.msg_id = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
-    sentMessage.seq_no = this.generateSeqNo(sentMessage.notContentRelated || sentMessage.container);
-    this.sentMessages[sentMessage.msg_id] = sentMessage;
-    delete this.sentMessages[sentMessageID];
-
-    return sentMessage;
-  }
-
-  generateSeqNo(notContentRelated) {
-    let seqNo = this.seqNo * 2;
-
-    if (!notContentRelated) {
-      seqNo++;
-      this.seqNo++;
-    }
-
-    return seqNo;
-  }
-
-  wrapMtpCall(method, params, options) {
-    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-
-    serializer.storeMethod(method, params);
-
-    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
-    const seqNo = this.generateSeqNo();
-    const message = {
-      msg_id: messageID,
-      seq_no: seqNo,
-      body: serializer.getBytes()
-    };
-
-    if (Config.Modes.debug) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT call', method, params, messageID, seqNo);
-    }
-
-    return this.pushMessage(message, options);
-  }
-
-  wrapMtpMessage(object, options = {}) {
-
-    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-    serializer.storeObject(object, 'Object');
-
-    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
-    const seqNo = this.generateSeqNo(options.notContentRelated);
-    const message = {
-      msg_id: messageID,
-      seq_no: seqNo,
-      body: serializer.getBytes()
-    };
-
-    if (Config.Modes.debug) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT message', object, messageID, seqNo);
-    }
-
-    return this.pushMessage(message, options);
-  }
-
-  wrapApiCall(method, params, options) {
-    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */](options);
-
-    if (!this.connectionInited) {
-      serializer.storeInt(0xda9b0d0d, 'invokeWithLayer');
-      serializer.storeInt(Config.Schema.API.layer, 'layer');
-      serializer.storeInt(0x69796de9, 'initConnection');
-      serializer.storeInt(Config.App.id, 'api_id');
-      serializer.storeString(navigator.userAgent || 'Unknown UserAgent', 'device_model');
-      serializer.storeString(navigator.platform || 'Unknown Platform', 'system_version');
-      serializer.storeString(Config.App.version, 'app_version');
-      serializer.storeString(navigator.language || 'en', 'lang_code');
-    }
-
-    if (options.afterMessageID) {
-      serializer.storeInt(0xcb9f372d, 'invokeAfterMsg');
-      serializer.storeLong(options.afterMessageID, 'msg_id');
-    }
-
-    options.resultType = serializer.storeMethod(method, params);
-
-    const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
-    const seqNo = this.generateSeqNo();
-    const message = {
-      msg_id: messageID,
-      seq_no: seqNo,
-      body: serializer.getBytes(true),
-      isAPI: true
-    };
-
-    if (Config.Modes.debug) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method, params, messageID, seqNo, options);
-    } else {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method);
-    }
-
-    return this.pushMessage(message, options);
-  }
-
-  sendLongPoll() {
-    const maxWait = 25000;
-    const self = this;
-
-    this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + maxWait;
-    // console.log('Set lp', this.longPollPending, tsNow())
-
-    this.wrapMtpCall('http_wait', {
-      max_delay: 500,
-      wait_after: 150,
-      max_wait: maxWait
-    }, {
-      noResponse: true,
-      longPoll: true
-    }).then(function () {
-      delete self.longPollPending;
-      setImmediate(self.checkLongPoll);
-    }, function () {
-      console.log('Long-poll failed');
-    });
-  }
-
-  pushMessage(message, options = {}) {
-    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__defer__["b" /* default */])();
-
-    this.sentMessages[message.msg_id] = Object.assign({}, message, options, { deferred });
-    this.pendingMessages[message.msg_id] = 0;
-
-    if (!options || !options.noShedule) {
-      this.sheduleRequest();
-    }
-    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, options)) {
-      options.messageID = message.msg_id;
-    }
-
-    return deferred.promise;
-  }
-
-  pushResend(messageID, delay) {
-    const value = delay ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay : 0;
-    const sentMessage = this.sentMessages[messageID];
-    if (sentMessage.container) {
-      for (let i = 0; i < sentMessage.inner.length; i++) {
-        this.pendingMessages[sentMessage.inner[i]] = value;
-      }
-    } else {
-      this.pendingMessages[messageID] = value;
-    }
-
-    // console.log('Resend due', messageID, this.pendingMessages)
-
-    this.sheduleRequest(delay);
-  }
-
-  getMsgKeyIv(msgKey, isOut) {
-    const authKey = this.authKeyUint8;
-    const x = isOut ? 0 : 8;
-    const sha1aText = new Uint8Array(48);
-    const sha1bText = new Uint8Array(48);
-    const sha1cText = new Uint8Array(48);
-    const sha1dText = new Uint8Array(48);
-    const promises = {};
-
-    sha1aText.set(msgKey, 0);
-    sha1aText.set(authKey.subarray(x, x + 32), 16);
-    promises.sha1a = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1aText);
-
-    sha1bText.set(authKey.subarray(x + 32, x + 48), 0);
-    sha1bText.set(msgKey, 16);
-    sha1bText.set(authKey.subarray(x + 48, x + 64), 32);
-    promises.sha1b = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1bText);
-
-    sha1cText.set(authKey.subarray(x + 64, x + 96), 0);
-    sha1cText.set(msgKey, 32);
-    promises.sha1c = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1cText);
-
-    sha1dText.set(msgKey, 0);
-    sha1dText.set(authKey.subarray(x + 96, x + 128), 16);
-    promises.sha1d = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1dText);
-
-    const onAll = result => {
-      const aesKey = new Uint8Array(32),
-            aesIv = new Uint8Array(32),
-            sha1a = new Uint8Array(result[0]),
-            sha1b = new Uint8Array(result[1]),
-            sha1c = new Uint8Array(result[2]),
-            sha1d = new Uint8Array(result[3]);
-
-      aesKey.set(sha1a.subarray(0, 8));
-      aesKey.set(sha1b.subarray(8, 20), 8);
-      aesKey.set(sha1c.subarray(4, 16), 20);
-
-      aesIv.set(sha1a.subarray(8, 20));
-      aesIv.set(sha1b.subarray(0, 8), 12);
-      aesIv.set(sha1c.subarray(16, 20), 20);
-      aesIv.set(sha1d.subarray(0, 8), 24);
-
-      return [aesKey, aesIv];
-    };
-
-    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.all(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["values"])(promises)).then(onAll);
-  }
-
-  toggleOffline(enabled) {
-    // console.log('toggle ', enabled, this.dcID, this.iii)
-    if (this.offline !== undefined && this.offline == enabled) {
-      return false;
-    }
-
-    this.offline = enabled;
-
-    if (this.offline) {
-      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
-      delete this.nextReq;
-
-      if (this.checkConnectionPeriod < 1.5) {
-        this.checkConnectionPeriod = 0;
-      }
-
-      this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
-      this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5);
-
-      this.onOnlineCb = this.checkConnection;
-
-      $(document.body).on('online focus', this.onOnlineCb);
-    } else {
-      delete this.longPollPending;
+      setInterval(this.checkLongPoll, 10000);
       this.checkLongPoll();
-      this.sheduleRequest();
 
-      if (this.onOnlineCb) {
-        $(document.body).off('online focus', this.onOnlineCb);
-      }
-      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+      if (!offlineInited) offlineInited = true;
     }
-  }
-
-
-  getEncryptedMessage(bytes) {
-    let msgKey;
-    const f1 = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash;
-    const f2 = bytesHash => {
-      msgKey = new Uint8Array(bytesHash).subarray(4, 20);
-      return this.getMsgKeyIv(msgKey, true);
-    };
-    const f3 = keyIv => __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].aesEncrypt(bytes, keyIv[0], keyIv[1]);
-    const f4 = encryptedBytes => ({
-      bytes: encryptedBytes,
-      msgKey: msgKey
-    });
-    const encryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipeP"])(f1, f2, f3, f4);
-    return encryptFlow(bytes);
-  }
-
-  getDecryptedMessage(msgKey, encryptedData) {
-    const getKeyCurry = key => this.getMsgKeyIv(key, false);
-    const cryptoAesCurry = keyIv => __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].aesDecrypt(encryptedData, keyIv[0], keyIv[1]);
-    const decryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipeP"])(getKeyCurry, cryptoAesCurry);
-    return decryptFlow(msgKey);
-  }
-
-  parseResponse(responseBuffer) {
-    // console.log(dTime(), 'Start parsing response')
-    // const self = this
-
-    const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](responseBuffer);
-
-    const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id');
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
-      throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(authKeyID)}`);
+    updateSession() {
+      this.seqNo = 0;
+      this.prevSessionID = this.sessionID;
+      this.sessionID = new Array(8);
+      __WEBPACK_IMPORTED_MODULE_4__secure_random__["a" /* default */].nextBytes(this.sessionID);
     }
-    const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key');
-    const encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
 
-    const afterDecrypt = dataWithPadding => {
-      // console.log(dTime(), 'after decrypt')
-      const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](dataWithPadding, { mtproto: true });
+    updateSentMessage(sentMessageID) {
+      const sentMessage = this.sentMessages[sentMessageID];
+      if (!sentMessage) return false;
 
-      const salt = deserializer.fetchIntBytes(64, false, 'salt');
-      const sessionID = deserializer.fetchIntBytes(64, false, 'session_id');
-      const messageID = deserializer.fetchLong('message_id');
-
-      const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
-      if (isInvalidSession) {
-        console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID);
-        throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(sessionID)}`);
-      }
-
-      const seqNo = deserializer.fetchInt('seq_no');
-
-      let offset = deserializer.getOffset();
-      const totalLength = dataWithPadding.byteLength;
-
-      const messageBodyLength = deserializer.fetchInt('message_data[length]');
-      if (messageBodyLength % 4 || messageBodyLength > totalLength - offset) {
-        throw new Error(`[MT] Invalid body length: ${messageBodyLength}`);
-      }
-      const messageBody = deserializer.fetchRawBytes(messageBodyLength, true, 'message_data');
-
-      offset = deserializer.getOffset();
-      const paddingLength = totalLength - offset;
-      if (paddingLength < 0 || paddingLength > 15) throw new Error(`[MT] Invalid padding length: ${paddingLength}`);
-      const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
-
-      const afterShaHash = dataHash => {
-        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
-          console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
-          throw new Error('[MT] server msgKey mismatch');
-        }
-
-        const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["h" /* bytesToArrayBuffer */])(messageBody);
-        const deserializerOptions = getDeserializeOpts(this.getMsgById);
-        const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, deserializerOptions);
-        const response = deserializer.fetchObject('', 'INPUT');
-
-        return {
-          response: response,
-          messageID: messageID,
-          sessionID: sessionID,
-          seqNo: seqNo
+      if (sentMessage.container) {
+        const newInner = [];
+        const updateInner = innerSentMessageID => {
+          const innerSentMessage = this.updateSentMessage(innerSentMessageID);
+          if (innerSentMessage) newInner.push(innerSentMessage.msg_id);
         };
-      };
-      return __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(hashData).then(afterShaHash);
-    };
-
-    return this.getDecryptedMessage(msgKey, encryptedData).then(afterDecrypt);
-  }
-
-  applyServerSalt(newServerSalt) {
-    const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["n" /* longToBytes */])(newServerSalt);
-
-    const storeObj = {
-      [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(serverSalt)
-    };
-    __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].set(storeObj);
-
-    this.serverSalt = serverSalt;
-    return true;
-  }
-
-  sheduleRequest(delay = 0) {
-    if (this.offline) this.checkConnection('forced shedule');
-    const nextReq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay;
-
-    if (delay && this.nextReq && this.nextReq <= nextReq) return false;
-
-    // console.log(dTime(), 'shedule req', delay)
-    // console.trace()
-    __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
-    if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setImmediate(this.performSheduledRequest);
-
-    this.nextReq = nextReq;
-  }
-
-  ackMessage(msgID) {
-    // console.log('ack message', msgID)
-    this.pendingAcks.push(msgID);
-    this.sheduleRequest(30000);
-  }
-
-  reqResendMessage(msgID) {
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Req resend', msgID);
-    this.pendingResends.push(msgID);
-    this.sheduleRequest(100);
-  }
-
-  cleanupSent() {
-    let notEmpty = false;
-    // console.log('clean start', this.dcID/*, this.sentMessages*/)
-    const cleanMessages = (message, msgID) => {
-      // console.log('clean iter', msgID, message)
-      if (message.notContentRelated && this.pendingMessages[msgID] === undefined) {
-        // console.log('clean notContentRelated', msgID)
-        delete this.sentMessages[msgID];
-      } else if (message.container) {
-        for (let i = 0; i < message.inner.length; i++) {
-          if (this.sentMessages[message.inner[i]] !== undefined) {
-            // console.log('clean failed, found', msgID, message.inner[i], this.sentMessages[message.inner[i]].seq_no)
-            notEmpty = true;
-            return;
-          }
-        }
-        // console.log('clean container', msgID)
-        delete this.sentMessages[msgID];
-      } else {
-        notEmpty = true;
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(sentMessage.inner, updateInner);
+        sentMessage.inner = newInner;
       }
-    };
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.sentMessages, cleanMessages);
 
-    return !notEmpty;
-  }
+      sentMessage.msg_id = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
+      sentMessage.seq_no = this.generateSeqNo(sentMessage.notContentRelated || sentMessage.container);
+      this.sentMessages[sentMessage.msg_id] = sentMessage;
+      delete this.sentMessages[sentMessageID];
 
-  processError(rawError) {
-    const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || [];
-    rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["f" /* uintToInt */])(rawError.error_code);
-
-    return {
-      code: !rawError.error_code || rawError.error_code <= 0 ? 500 : rawError.error_code,
-      type: matches[1] || 'UNKNOWN',
-      description: matches[3] || `CODE#${rawError.error_code} ${rawError.error_message}`,
-      originalError: rawError
-    };
-  }
-
-  processMessage(message, messageID, sessionID) {
-    const msgidInt = parseInt(messageID.toString(10).substr(0, -10), 10);
-    if (msgidInt % 2) {
-      console.warn('[MT] Server even message id: ', messageID, message);
-      return;
+      return sentMessage;
     }
-    // console.log('process message', message, messageID, sessionID)
-    switch (message._) {
-      case 'msg_container':
-        {
-          const len = message.messages.length;
-          for (let i = 0; i < len; i++) {
-            this.processMessage(message.messages[i], message.messages[i].msg_id, sessionID);
-          }
-          break;
-        }
-      case 'bad_server_salt':
-        {
-          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Bad server salt', message);
-          const sentMessage = this.sentMessages[message.bad_msg_id];
-          if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-            console.log(message.bad_msg_id, message.bad_msg_seqno);
-            throw new Error('[MT] Bad server salt for invalid message');
-          }
 
-          this.applyServerSalt(message.new_server_salt);
-          this.pushResend(message.bad_msg_id);
-          this.ackMessage(messageID);
-          break;
-        }
-      case 'bad_msg_notification':
-        {
-          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Bad msg notification', message);
-          const sentMessage = this.sentMessages[message.bad_msg_id];
-          if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-            console.log(message.bad_msg_id, message.bad_msg_seqno);
-            throw new Error('[MT] Bad msg notification for invalid message');
-          }
+    generateSeqNo(notContentRelated) {
+      let seqNo = this.seqNo * 2;
 
-          if (message.error_code == 16 || message.error_code == 17) {
-            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
-              console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Update session');
-              this.updateSession();
-            }
-            const badMessage = this.updateSentMessage(message.bad_msg_id);
-            this.pushResend(badMessage.msg_id);
-            this.ackMessage(messageID);
-          }
-          break;
-        }
-      case 'message':
-        {
-          if (this.lastServerMessages.indexOf(messageID) != -1) {
-            // console.warn('[MT] Server same messageID: ', messageID)
-            this.ackMessage(messageID);
-            return;
-          }
-          this.lastServerMessages.push(messageID);
-          if (this.lastServerMessages.length > 100) {
-            this.lastServerMessages.shift();
-          }
-          this.processMessage(message.body, message.msg_id, sessionID);
-          break;
-        }
-      case 'new_session_created':
-        {
-          this.ackMessage(messageID);
-
-          this.processMessageAck(message.first_msg_id);
-          this.applyServerSalt(message.server_salt);
-
-          const onBaseDc = baseDcID => {
-            const updateCond = baseDcID === this.dcID && !this.upload && updatesProcessor;
-            if (updateCond) updatesProcessor(message, true);
-          };
-          __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
-          break;
-        }
-      case 'msgs_ack':
-        {
-          message.msg_ids.forEach(this.processMessageAck);
-          break;
-        }
-      case 'msg_detailed_info':
-        {
-          if (!this.sentMessages[message.msg_id]) {
-            this.ackMessage(message.answer_msg_id);
-            break;
-          }
-          break;
-        }
-      case 'msg_new_detailed_info':
-        {
-          // this.ackMessage(message.answer_msg_id)
-          this.reqResendMessage(message.answer_msg_id);
-          break;
-        }
-      case 'msgs_state_info':
-        {
-          this.ackMessage(message.answer_msg_id);
-          const spliceCond = this.lastResendReq && this.lastResendReq.req_msg_id == message.req_msg_id && this.pendingResends.length;
-          if (spliceCond) this.lastResendReq.resend_msg_ids.forEach(this.spliceMessage);
-          break;
-        }
-      case 'rpc_result':
-        {
-          this.ackMessage(messageID);
-
-          const sentMessageID = message.req_msg_id;
-          const sentMessage = this.sentMessages[sentMessageID];
-
-          this.processMessageAck(sentMessageID);
-          if (!sentMessage) break;
-
-          const deferred = sentMessage.deferred;
-          if (message.result._ == 'rpc_error') {
-            const error = this.processError(message.result);
-            console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc error', error);
-            if (deferred) {
-              deferred.reject(error);
-            }
-          } else {
-            if (deferred) {
-              if (Config.Modes.debug) {
-                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', message.result);
-              } else {
-                let dRes = message.result._;
-                if (!dRes) dRes = message.result.length > 5 ? `[..${message.result.length}..]` : message.result;
-                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', dRes);
-              }
-              sentMessage.deferred.resolve(message.result);
-            }
-            if (sentMessage.isAPI) this.connectionInited = true;
-          }
-
-          delete this.sentMessages[sentMessageID];
-          break;
-        }
-      default:
-        {
-          this.ackMessage(messageID);
-
-          // console.log('Update', message)
-          if (updatesProcessor) updatesProcessor(message, true);
-          break;
-        }
-    }
-  }
-}
-
-var _initialiseProps = function () {
-  this.checkLongPoll = force => {
-    const isClean = this.cleanupSent();
-    // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean)
-    if (this.longPollPending && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() < this.longPollPending || this.offline || akStopped) {
-      return false;
-    }
-    const self = this;
-    __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(function (baseDcID) {
-      if (isClean && (baseDcID != self.dcID || self.upload || self.sleepAfter && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() > self.sleepAfter)) {
-        // console.warn(dTime(), 'Send long-poll for DC is delayed', self.dcID, self.sleepAfter)
-        return;
+      if (!notContentRelated) {
+        seqNo++;
+        this.seqNo++;
       }
-      self.sendLongPoll();
-    });
-  };
 
-  this.checkConnection = event => {
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Check connection', event);
-    __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
-
-    const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-    const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
-
-    serializer.storeMethod('ping', { ping_id: pingID });
-
-    const pingMessage = {
-      msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
-      seq_no: this.generateSeqNo(true),
-      body: serializer.getBytes()
-    };
-
-    const self = this;
-    this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result => self.toggleOffline(false), () => {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Delay ', self.checkConnectionPeriod * 1000);
-      self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
-      self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
-    });
-  };
-
-  this.onNoResponseMsg = msgID => {
-    if (this.sentMessages[msgID]) {
-      const deferred = this.sentMessages[msgID].deferred;
-      delete this.sentMessages[msgID];
-      return deferred.resolve();
-    }
-  };
-
-  this.onNoResponseMsgReject = msgID => {
-    if (this.sentMessages[msgID]) {
-      const deferred = this.sentMessages[msgID].deferred;
-      delete this.sentMessages[msgID];
-      delete this.pendingMessages[msgID];
-      return deferred.reject();
-    }
-  };
-
-  this.resetPendingMessage = msgID => this.pendingMessages[msgID] = 0;
-
-  this.performSheduledRequest = () => {
-    //TODO extract huge method
-    // console.log(dTime(), 'sheduled', this.dcID, this.iii)
-    if (this.offline || akStopped) {
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Cancel sheduled');
-      return false;
-    }
-    delete this.nextReq;
-    if (this.pendingAcks.length) {
-      const ackMsgIDs = [];
-      for (let i = 0; i < this.pendingAcks.length; i++) {
-        ackMsgIDs.push(this.pendingAcks[i]);
-      }
-      // console.log('acking messages', ackMsgIDs)
-      this.wrapMtpMessage({ _: 'msgs_ack', msg_ids: ackMsgIDs }, { notContentRelated: true, noShedule: true });
+      return seqNo;
     }
 
-    if (this.pendingResends.length) {
-      const resendMsgIDs = [];
-      const resendOpts = { noShedule: true, notContentRelated: true };
-      for (let i = 0; i < this.pendingResends.length; i++) {
-        resendMsgIDs.push(this.pendingResends[i]);
-      }
-      // console.log('resendReq messages', resendMsgIDs)
-      this.wrapMtpMessage({ _: 'msg_resend_req', msg_ids: resendMsgIDs }, resendOpts);
-      this.lastResendReq = { req_msg_id: resendOpts.messageID, resend_msg_ids: resendMsgIDs };
-    }
-
-    const messages = [];
-    let message,
-        messagesByteLen = 0;
-    const currentTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])();
-    let hasApiCall = false;
-    let hasHttpWait = false;
-    let lengthOverflow = false;
-    let singlesCount = 0;
-
-    const onPendingMessage = (value, messageID) => {
-      if (!(!value || value >= currentTime)) return;
-      message = this.sentMessages[messageID];
-      if (message) {
-        const messageByteLength = (message.body.byteLength || message.body.length) + 32;
-        const cond1 = !message.notContentRelated && lengthOverflow;
-        const cond2 = !message.notContentRelated && messagesByteLen && messagesByteLen + messageByteLength > 655360; // 640 Kb
-        if (cond1) return;
-        if (cond2) {
-          lengthOverflow = true;
-          return;
-        }
-        if (message.singleInRequest) {
-          singlesCount++;
-          if (singlesCount > 1) return;
-        }
-        messages.push(message);
-        messagesByteLen += messageByteLength;
-        if (message.isAPI) hasApiCall = true;else if (message.longPoll) hasHttpWait = true;
-      } else {
-        // console.log(message, messageID)
-      }
-      delete this.pendingMessages[messageID];
-    };
-
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.pendingMessages, onPendingMessage);
-
-    if (hasApiCall && !hasHttpWait) {
+    wrapMtpCall(method, params, options) {
       const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-      serializer.storeMethod('http_wait', {
-        max_delay: 500,
-        wait_after: 150,
-        max_wait: 3000
-      });
-      messages.push({
-        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
-        seq_no: this.generateSeqNo(),
+
+      serializer.storeMethod(method, params);
+
+      const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
+      const seqNo = this.generateSeqNo();
+      const message = {
+        msg_id: messageID,
+        seq_no: seqNo,
         body: serializer.getBytes()
-      });
-    }
-
-    if (!messages.length) {
-      // console.log('no sheduled messages')
-      return;
-    }
-
-    const noResponseMsgs = [];
-
-    if (messages.length > 1) {
-      const container = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true, startMaxLength: messagesByteLen + 64 });
-      container.storeInt(0x73f1f8dc, 'CONTAINER[id]');
-      container.storeInt(messages.length, 'CONTAINER[count]');
-      const onloads = [];
-      const innerMessages = [];
-      for (let i = 0; i < messages.length; i++) {
-        container.storeLong(messages[i].msg_id, `CONTAINER[${i}][msg_id]`);
-        innerMessages.push(messages[i].msg_id);
-        container.storeInt(messages[i].seq_no, `CONTAINER[${i}][seq_no]`);
-        container.storeInt(messages[i].body.length, `CONTAINER[${i}][bytes]`);
-        container.storeRawBytes(messages[i].body, `CONTAINER[${i}][body]`);
-        if (messages[i].noResponse) {
-          noResponseMsgs.push(messages[i].msg_id);
-        }
-      }
-
-      const containerSentMessage = {
-        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
-        seq_no: this.generateSeqNo(true),
-        container: true,
-        inner: innerMessages
       };
-
-      message = Object.assign({ body: container.getBytes(true) }, containerSentMessage);
-
-      this.sentMessages[message.msg_id] = containerSentMessage;
 
       if (Config.Modes.debug) {
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Container', innerMessages, message.msg_id, message.seq_no);
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT call', method, params, messageID, seqNo);
       }
-    } else {
-      if (message.noResponse) {
-        noResponseMsgs.push(message.msg_id);
-      }
-      this.sentMessages[message.msg_id] = message;
+
+      return this.pushMessage(message, options);
     }
 
-    this.pendingAcks = [];
-    const afterSendRequest = result => {
-      this.toggleOffline(false);
-      // console.log('parse for', message)
-      this.parseResponse(result.data).then(afterResponseParse);
-    };
-    const afterResponseParse = response => {
-      if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Server response', this.dcID, response);
+    wrapMtpMessage(object, options = {}) {
 
-      this.processMessage(response.response, response.messageID, response.sessionID);
+      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+      serializer.storeObject(object, 'Object');
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsg);
+      const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
+      const seqNo = this.generateSeqNo(options.notContentRelated);
+      const message = {
+        msg_id: messageID,
+        seq_no: seqNo,
+        body: serializer.getBytes()
+      };
 
-      this.checkLongPoll();
+      if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT message', object, messageID, seqNo);
 
-      this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod));
-    };
-    const onRequestFail = error => {
-      console.log('Encrypted request failed', error);
+      return this.pushMessage(message, options);
+    }
 
-      if (message.container) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(message.inner, this.resetPendingMessage);
-        delete this.sentMessages[message.msg_id];
-      } else this.pendingMessages[message.msg_id] = 0;
+    wrapApiCall(method, params, options) {
+      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */](options);
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsgReject);
-
-      this.toggleOffline(true);
-    };
-    this.sendEncryptedRequest(message).then(afterSendRequest).catch(onRequestFail);
-
-    if (lengthOverflow || singlesCount > 1) this.sheduleRequest();
-  };
-
-  this.getRequestUrl = () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__dc_configurator__["chooseServer"])(this.dcID, this.upload);
-
-  this.sendEncryptedRequest = (message, options = {}) => {
-    // console.log(dTime(), 'Send encrypted'/*, message*/)
-    // console.trace()
-    const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: message.body.length + 64 });
-
-    data.storeIntBytes(this.serverSalt, 64, 'salt');
-    data.storeIntBytes(this.sessionID, 64, 'session_id');
-
-    data.storeLong(message.msg_id, 'message_id');
-    data.storeInt(message.seq_no, 'seq_no');
-
-    data.storeInt(message.body.length, 'message_data_length');
-    data.storeRawBytes(message.body, 'message_data');
-
-    const url = this.getRequestUrl();
-    const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
-
-    const afterRequestData = result => {
-      if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
-      return result;
-    };
-
-    const afterRequestReject = error => {
-      if (!error.message && !error.type) error = Object.assign({ type: 'NETWORK_BAD_REQUEST', originalError: error }, baseError);
-      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-    };
-
-    const onEncryptedResult = encryptedResult => {
-      // console.log(dTime(), 'Got encrypted out message'/*, encryptedResult*/)
-      const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: encryptedResult.bytes.byteLength + 256 });
-      request.storeIntBytes(this.authKeyID, 64, 'auth_key_id');
-      request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key');
-      request.storeRawBytes(encryptedResult.bytes, 'encrypted_data');
-
-      const requestData = /*xhrSendBuffer
-                          ? request.getBuffer()
-                          : */request.getArray();
-
-      try {
-        options = Object.assign({ responseType: 'arraybuffer' }, options);
-        return __WEBPACK_IMPORTED_MODULE_9__http__["a" /* httpClient */].post(url, requestData, options);
-      } catch (e) {
-        return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(e);
+      if (!this.connectionInited) {
+        // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
+        // serializer.storeInt(Config.Schema.API.layer, 'layer')
+        // serializer.storeInt(0x69796de9, 'initConnection')
+        // serializer.storeInt(Config.App.id, 'api_id')
+        // serializer.storeString(navigator.userAgent || 'Unknown UserAgent', 'device_model')
+        // serializer.storeString(navigator.platform || 'Unknown Platform', 'system_version')
+        // serializer.storeString(Config.App.version, 'app_version')
+        // serializer.storeString(navigator.language || 'en', 'lang_code')
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["mapObjIndexed"])(serializer.storeIntString, appConfig);
       }
-    };
 
-    return this.getEncryptedMessage(data.getBuffer()).then(onEncryptedResult).then(afterRequestData, afterRequestReject);
-  };
+      if (options.afterMessageID) {
+        serializer.storeInt(0xcb9f372d, 'invokeAfterMsg');
+        serializer.storeLong(options.afterMessageID, 'msg_id');
+      }
 
-  this.getMsgById = ({ req_msg_id }) => this.sentMessages[req_msg_id];
+      options.resultType = serializer.storeMethod(method, params);
 
-  this.processMessageAck = messageID => {
-    const sentMessage = this.sentMessages[messageID];
-    if (sentMessage && !sentMessage.acked) {
-      delete sentMessage.body;
-      sentMessage.acked = true;
+      const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
+      const seqNo = this.generateSeqNo();
+      const message = {
+        msg_id: messageID,
+        seq_no: seqNo,
+        body: serializer.getBytes(true),
+        isAPI: true
+      };
 
+      if (Config.Modes.debug) {
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method, params, messageID, seqNo, options);
+      } else {
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method);
+      }
+
+      return this.pushMessage(message, options);
+    }
+
+    sendLongPoll() {
+      const maxWait = 25000;
+      const self = this;
+
+      this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + maxWait;
+      // console.log('Set lp', this.longPollPending, tsNow())
+
+      this.wrapMtpCall('http_wait', {
+        max_delay: 500,
+        wait_after: 150,
+        max_wait: maxWait
+      }, {
+        noResponse: true,
+        longPoll: true
+      }).then(() => {
+        delete self.longPollPending;
+        setImmediate(self.checkLongPoll);
+      }, () => {
+        console.log('Long-poll failed');
+      });
+    }
+
+    pushMessage(message, options = {}) {
+      const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__defer__["b" /* default */])();
+
+      this.sentMessages[message.msg_id] = Object.assign({}, message, options, { deferred });
+      this.pendingMessages[message.msg_id] = 0;
+
+      if (!options || !options.noShedule) {
+        this.sheduleRequest();
+      }
+      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, options)) {
+        options.messageID = message.msg_id;
+      }
+
+      return deferred.promise;
+    }
+
+    pushResend(messageID, delay) {
+      const value = delay ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay : 0;
+      const sentMessage = this.sentMessages[messageID];
+      if (sentMessage.container) {
+        for (let i = 0; i < sentMessage.inner.length; i++) {
+          this.pendingMessages[sentMessage.inner[i]] = value;
+        }
+      } else {
+        this.pendingMessages[messageID] = value;
+      }
+
+      // console.log('Resend due', messageID, this.pendingMessages)
+
+      this.sheduleRequest(delay);
+    }
+
+    getMsgKeyIv(msgKey, isOut) {
+      const authKey = this.authKeyUint8;
+      const x = isOut ? 0 : 8;
+      const sha1aText = new Uint8Array(48);
+      const sha1bText = new Uint8Array(48);
+      const sha1cText = new Uint8Array(48);
+      const sha1dText = new Uint8Array(48);
+      const promises = {};
+
+      sha1aText.set(msgKey, 0);
+      sha1aText.set(authKey.subarray(x, x + 32), 16);
+      promises.sha1a = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1aText);
+
+      sha1bText.set(authKey.subarray(x + 32, x + 48), 0);
+      sha1bText.set(msgKey, 16);
+      sha1bText.set(authKey.subarray(x + 48, x + 64), 32);
+      promises.sha1b = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1bText);
+
+      sha1cText.set(authKey.subarray(x + 64, x + 96), 0);
+      sha1cText.set(msgKey, 32);
+      promises.sha1c = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1cText);
+
+      sha1dText.set(msgKey, 0);
+      sha1dText.set(authKey.subarray(x + 96, x + 128), 16);
+      promises.sha1d = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(sha1dText);
+
+      const onAll = result => {
+        const aesKey = new Uint8Array(32),
+              aesIv = new Uint8Array(32),
+              sha1a = new Uint8Array(result[0]),
+              sha1b = new Uint8Array(result[1]),
+              sha1c = new Uint8Array(result[2]),
+              sha1d = new Uint8Array(result[3]);
+
+        aesKey.set(sha1a.subarray(0, 8));
+        aesKey.set(sha1b.subarray(8, 20), 8);
+        aesKey.set(sha1c.subarray(4, 16), 20);
+
+        aesIv.set(sha1a.subarray(8, 20));
+        aesIv.set(sha1b.subarray(0, 8), 12);
+        aesIv.set(sha1c.subarray(16, 20), 20);
+        aesIv.set(sha1d.subarray(0, 8), 24);
+
+        return [aesKey, aesIv];
+      };
+
+      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.all(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["values"])(promises)).then(onAll);
+    }
+
+    toggleOffline(enabled) {
+      // console.log('toggle ', enabled, this.dcID, this.iii)
+      if (this.offline !== undefined && this.offline == enabled) return false;
+
+      this.offline = enabled;
+
+      if (this.offline) {
+        __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
+        delete this.nextReq;
+
+        if (this.checkConnectionPeriod < 1.5) this.checkConnectionPeriod = 0;
+
+        this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
+        this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5);
+
+        this.onOnlineCb = this.checkConnection;
+        emit('net.offline', this.onOnlineCb);
+      } else {
+        delete this.longPollPending;
+        this.checkLongPoll();
+        this.sheduleRequest();
+
+        if (this.onOnlineCb) emit('net.online', this.onOnlineCb);
+
+        __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+      }
+    }
+
+
+    getEncryptedMessage(bytes) {
+      let msgKey;
+      const f1 = __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash;
+      const f2 = bytesHash => {
+        msgKey = new Uint8Array(bytesHash).subarray(4, 20);
+        return this.getMsgKeyIv(msgKey, true);
+      };
+      const f3 = keyIv => __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].aesEncrypt(bytes, keyIv[0], keyIv[1]);
+      const f4 = encryptedBytes => ({
+        bytes: encryptedBytes,
+        msgKey
+      });
+      const encryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipeP"])(f1, f2, f3, f4);
+      return encryptFlow(bytes);
+    }
+
+    getDecryptedMessage(msgKey, encryptedData) {
+      const getKeyCurry = key => this.getMsgKeyIv(key, false);
+      const cryptoAesCurry = keyIv => __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].aesDecrypt(encryptedData, keyIv[0], keyIv[1]);
+      const decryptFlow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipeP"])(getKeyCurry, cryptoAesCurry);
+      return decryptFlow(msgKey);
+    }
+
+    parseResponse(responseBuffer) {
+      // console.log(dTime(), 'Start parsing response')
+      // const self = this
+
+      const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](responseBuffer);
+
+      const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id');
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
+        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(authKeyID)}`);
+      }
+      const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key');
+      const encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
+
+      const afterDecrypt = dataWithPadding => {
+        // console.log(dTime(), 'after decrypt')
+        const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](dataWithPadding, { mtproto: true });
+
+        const salt = deserializer.fetchIntBytes(64, false, 'salt');
+        const sessionID = deserializer.fetchIntBytes(64, false, 'session_id');
+        const messageID = deserializer.fetchLong('message_id');
+
+        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
+        if (isInvalidSession) {
+          console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID);
+          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(sessionID)}`);
+        }
+
+        const seqNo = deserializer.fetchInt('seq_no');
+
+        let offset = deserializer.getOffset();
+        const totalLength = dataWithPadding.byteLength;
+
+        const messageBodyLength = deserializer.fetchInt('message_data[length]');
+        if (messageBodyLength % 4 || messageBodyLength > totalLength - offset) {
+          throw new Error(`[MT] Invalid body length: ${messageBodyLength}`);
+        }
+        const messageBody = deserializer.fetchRawBytes(messageBodyLength, true, 'message_data');
+
+        offset = deserializer.getOffset();
+        const paddingLength = totalLength - offset;
+        if (paddingLength < 0 || paddingLength > 15) throw new Error(`[MT] Invalid padding length: ${paddingLength}`);
+        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
+
+        const afterShaHash = dataHash => {
+          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
+            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
+            throw new Error('[MT] server msgKey mismatch');
+          }
+
+          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["h" /* bytesToArrayBuffer */])(messageBody);
+          const deserializerOptions = getDeserializeOpts(this.getMsgById);
+          const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, deserializerOptions);
+          const response = deserializer.fetchObject('', 'INPUT');
+
+          return {
+            response,
+            messageID,
+            sessionID,
+            seqNo
+          };
+        };
+        return __WEBPACK_IMPORTED_MODULE_2__crypto__["b" /* default */].sha1Hash(hashData).then(afterShaHash);
+      };
+
+      return this.getDecryptedMessage(msgKey, encryptedData).then(afterDecrypt);
+    }
+
+    applyServerSalt(newServerSalt) {
+      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["n" /* longToBytes */])(newServerSalt);
+
+      const storeObj = {
+        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(serverSalt)
+      };
+      __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].set(storeObj);
+
+      this.serverSalt = serverSalt;
       return true;
     }
 
-    return false;
-  };
+    sheduleRequest(delay = 0) {
+      if (this.offline) this.checkConnection('forced shedule');
+      const nextReq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay;
 
-  this.spliceMessage = badMsgID => {
-    const pos = this.pendingResends.indexOf(badMsgID);
-    if (pos !== -1) this.pendingResends.splice(pos, 1);
-  };
+      if (delay && this.nextReq && this.nextReq <= nextReq) return false;
+
+      // console.log(dTime(), 'shedule req', delay)
+      // console.trace()
+      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
+      if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setImmediate(this.performSheduledRequest);
+
+      this.nextReq = nextReq;
+    }
+
+    ackMessage(msgID) {
+      // console.log('ack message', msgID)
+      this.pendingAcks.push(msgID);
+      this.sheduleRequest(30000);
+    }
+
+    reqResendMessage(msgID) {
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Req resend', msgID);
+      this.pendingResends.push(msgID);
+      this.sheduleRequest(100);
+    }
+
+    cleanupSent() {
+      let notEmpty = false;
+      // console.log('clean start', this.dcID/*, this.sentMessages*/)
+      const cleanMessages = (message, msgID) => {
+        // console.log('clean iter', msgID, message)
+        if (message.notContentRelated && this.pendingMessages[msgID] === undefined) {
+          // console.log('clean notContentRelated', msgID)
+          delete this.sentMessages[msgID];
+        } else if (message.container) {
+          for (let i = 0; i < message.inner.length; i++) {
+            if (this.sentMessages[message.inner[i]] !== undefined) {
+              // console.log('clean failed, found', msgID, message.inner[i], this.sentMessages[message.inner[i]].seq_no)
+              notEmpty = true;
+              return;
+            }
+          }
+          // console.log('clean container', msgID)
+          delete this.sentMessages[msgID];
+        } else {
+          notEmpty = true;
+        }
+      };
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.sentMessages, cleanMessages);
+
+      return !notEmpty;
+    }
+
+    processError(rawError) {
+      const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || [];
+      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["f" /* uintToInt */])(rawError.error_code);
+
+      return {
+        code: !rawError.error_code || rawError.error_code <= 0 ? 500 : rawError.error_code,
+        type: matches[1] || 'UNKNOWN',
+        description: matches[3] || `CODE#${rawError.error_code} ${rawError.error_message}`,
+        originalError: rawError
+      };
+    }
+
+    processMessage(message, messageID, sessionID) {
+      const msgidInt = parseInt(messageID.toString(10).substr(0, -10), 10);
+      if (msgidInt % 2) {
+        console.warn('[MT] Server even message id: ', messageID, message);
+        return;
+      }
+      // console.log('process message', message, messageID, sessionID)
+      switch (message._) {
+        case 'msg_container':
+          {
+            const len = message.messages.length;
+            for (let i = 0; i < len; i++) {
+              this.processMessage(message.messages[i], message.messages[i].msg_id, sessionID);
+            }
+            break;
+          }
+        case 'bad_server_salt':
+          {
+            console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Bad server salt', message);
+            const sentMessage = this.sentMessages[message.bad_msg_id];
+            if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
+              console.log(message.bad_msg_id, message.bad_msg_seqno);
+              throw new Error('[MT] Bad server salt for invalid message');
+            }
+
+            this.applyServerSalt(message.new_server_salt);
+            this.pushResend(message.bad_msg_id);
+            this.ackMessage(messageID);
+            break;
+          }
+        case 'bad_msg_notification':
+          {
+            console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Bad msg notification', message);
+            const sentMessage = this.sentMessages[message.bad_msg_id];
+            if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
+              console.log(message.bad_msg_id, message.bad_msg_seqno);
+              throw new Error('[MT] Bad msg notification for invalid message');
+            }
+
+            if (message.error_code == 16 || message.error_code == 17) {
+              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
+                console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Update session');
+                this.updateSession();
+              }
+              const badMessage = this.updateSentMessage(message.bad_msg_id);
+              this.pushResend(badMessage.msg_id);
+              this.ackMessage(messageID);
+            }
+            break;
+          }
+        case 'message':
+          {
+            if (this.lastServerMessages.indexOf(messageID) != -1) {
+              // console.warn('[MT] Server same messageID: ', messageID)
+              this.ackMessage(messageID);
+              return;
+            }
+            this.lastServerMessages.push(messageID);
+            if (this.lastServerMessages.length > 100) {
+              this.lastServerMessages.shift();
+            }
+            this.processMessage(message.body, message.msg_id, sessionID);
+            break;
+          }
+        case 'new_session_created':
+          {
+            this.ackMessage(messageID);
+
+            this.processMessageAck(message.first_msg_id);
+            this.applyServerSalt(message.server_salt);
+
+            const onBaseDc = baseDcID => {
+              const updateCond = baseDcID === this.dcID && !this.upload && updatesProcessor;
+              if (updateCond) updatesProcessor(message, true);
+            };
+            __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
+            break;
+          }
+        case 'msgs_ack':
+          {
+            message.msg_ids.forEach(this.processMessageAck);
+            break;
+          }
+        case 'msg_detailed_info':
+          {
+            if (!this.sentMessages[message.msg_id]) {
+              this.ackMessage(message.answer_msg_id);
+              break;
+            }
+            break;
+          }
+        case 'msg_new_detailed_info':
+          {
+            // this.ackMessage(message.answer_msg_id)
+            this.reqResendMessage(message.answer_msg_id);
+            break;
+          }
+        case 'msgs_state_info':
+          {
+            this.ackMessage(message.answer_msg_id);
+            const spliceCond = this.lastResendReq && this.lastResendReq.req_msg_id == message.req_msg_id && this.pendingResends.length;
+            if (spliceCond) this.lastResendReq.resend_msg_ids.forEach(this.spliceMessage);
+            break;
+          }
+        case 'rpc_result':
+          {
+            this.ackMessage(messageID);
+
+            const sentMessageID = message.req_msg_id;
+            const sentMessage = this.sentMessages[sentMessageID];
+
+            this.processMessageAck(sentMessageID);
+            if (!sentMessage) break;
+
+            const deferred = sentMessage.deferred;
+            if (message.result._ == 'rpc_error') {
+              const error = this.processError(message.result);
+              console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc error', error);
+              if (deferred) {
+                deferred.reject(error);
+              }
+            } else {
+              if (deferred) {
+                if (Config.Modes.debug) {
+                  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', message.result);
+                } else {
+                  let dRes = message.result._;
+                  if (!dRes) dRes = message.result.length > 5 ? `[..${message.result.length}..]` : message.result;
+                  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', dRes);
+                }
+                sentMessage.deferred.resolve(message.result);
+              }
+              if (sentMessage.isAPI) this.connectionInited = true;
+            }
+
+            delete this.sentMessages[sentMessageID];
+            break;
+          }
+        default:
+          {
+            this.ackMessage(messageID);
+
+            // console.log('Update', message)
+            if (updatesProcessor) updatesProcessor(message, true);
+            break;
+          }
+      }
+    }
+  }, _initialiseProps = function () {
+    this.checkLongPollCond = () => this.longPollPending && this.longPollPending > __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() || !!this.offline || akStopped;
+
+    this.checkLongPollAfterDcCond = (isClean, baseDc) => isClean && (this.dcID !== baseDc || this.upload || this.sleepAfter && this.sleepAfter < __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])());
+
+    this.checkLongPoll = force => {
+      const isClean = this.cleanupSent();
+      // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean)
+      if (this.checkLongPollCond()) return false;
+
+      const afterGetDc = baseDc => {
+        if (this.checkLongPollAfterDcCond(isClean, baseDc))
+          // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
+          return;
+
+        this.sendLongPoll();
+      };
+
+      __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
+    };
+
+    this.checkConnection = event => {
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Check connection', event);
+      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+
+      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
+
+      serializer.storeMethod('ping', { ping_id: pingID });
+
+      const pingMessage = {
+        msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
+        seq_no: this.generateSeqNo(true),
+        body: serializer.getBytes()
+      };
+
+      const self = this;
+      this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result => self.toggleOffline(false), () => {
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Delay ', self.checkConnectionPeriod * 1000);
+        self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
+        self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
+      });
+    };
+
+    this.onNoResponseMsg = msgID => {
+      if (this.sentMessages[msgID]) {
+        const deferred = this.sentMessages[msgID].deferred;
+        delete this.sentMessages[msgID];
+        return deferred.resolve();
+      }
+    };
+
+    this.onNoResponseMsgReject = msgID => {
+      if (this.sentMessages[msgID]) {
+        const deferred = this.sentMessages[msgID].deferred;
+        delete this.sentMessages[msgID];
+        delete this.pendingMessages[msgID];
+        return deferred.reject();
+      }
+    };
+
+    this.resetPendingMessage = msgID => this.pendingMessages[msgID] = 0;
+
+    this.performSheduledRequest = () => {
+      //TODO extract huge method
+      // console.log(dTime(), 'sheduled', this.dcID, this.iii)
+      if (this.offline || akStopped) {
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Cancel sheduled');
+        return false;
+      }
+      delete this.nextReq;
+      if (this.pendingAcks.length) {
+        const ackMsgIDs = [];
+        for (let i = 0; i < this.pendingAcks.length; i++) {
+          ackMsgIDs.push(this.pendingAcks[i]);
+        }
+        // console.log('acking messages', ackMsgIDs)
+        this.wrapMtpMessage({ _: 'msgs_ack', msg_ids: ackMsgIDs }, { notContentRelated: true, noShedule: true });
+      }
+
+      if (this.pendingResends.length) {
+        const resendMsgIDs = [];
+        const resendOpts = { noShedule: true, notContentRelated: true };
+        for (let i = 0; i < this.pendingResends.length; i++) {
+          resendMsgIDs.push(this.pendingResends[i]);
+        }
+        // console.log('resendReq messages', resendMsgIDs)
+        this.wrapMtpMessage({ _: 'msg_resend_req', msg_ids: resendMsgIDs }, resendOpts);
+        this.lastResendReq = { req_msg_id: resendOpts.messageID, resend_msg_ids: resendMsgIDs };
+      }
+
+      const messages = [];
+      let message,
+          messagesByteLen = 0;
+      const currentTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])();
+      let hasApiCall = false;
+      let hasHttpWait = false;
+      let lengthOverflow = false;
+      let singlesCount = 0;
+
+      const onPendingMessage = (value, messageID) => {
+        if (!(!value || value >= currentTime)) return;
+        message = this.sentMessages[messageID];
+        if (message) {
+          const messageByteLength = (message.body.byteLength || message.body.length) + 32;
+          const cond1 = !message.notContentRelated && lengthOverflow;
+          const cond2 = !message.notContentRelated && messagesByteLen && messagesByteLen + messageByteLength > 655360; // 640 Kb
+          if (cond1) return;
+          if (cond2) {
+            lengthOverflow = true;
+            return;
+          }
+          if (message.singleInRequest) {
+            singlesCount++;
+            if (singlesCount > 1) return;
+          }
+          messages.push(message);
+          messagesByteLen += messageByteLength;
+          if (message.isAPI) hasApiCall = true;else if (message.longPoll) hasHttpWait = true;
+        } else {
+          // console.log(message, messageID)
+        }
+        delete this.pendingMessages[messageID];
+      };
+
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.pendingMessages, onPendingMessage);
+
+      if (hasApiCall && !hasHttpWait) {
+        const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+        serializer.storeMethod('http_wait', {
+          max_delay: 500,
+          wait_after: 150,
+          max_wait: 3000
+        });
+        messages.push({
+          msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
+          seq_no: this.generateSeqNo(),
+          body: serializer.getBytes()
+        });
+      }
+
+      if (!messages.length) {
+        // console.log('no sheduled messages')
+        return;
+      }
+
+      const noResponseMsgs = [];
+
+      if (messages.length > 1) {
+        const container = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true, startMaxLength: messagesByteLen + 64 });
+        container.storeInt(0x73f1f8dc, 'CONTAINER[id]');
+        container.storeInt(messages.length, 'CONTAINER[count]');
+        const onloads = [];
+        const innerMessages = [];
+        for (let i = 0; i < messages.length; i++) {
+          container.storeLong(messages[i].msg_id, `CONTAINER[${i}][msg_id]`);
+          innerMessages.push(messages[i].msg_id);
+          container.storeInt(messages[i].seq_no, `CONTAINER[${i}][seq_no]`);
+          container.storeInt(messages[i].body.length, `CONTAINER[${i}][bytes]`);
+          container.storeRawBytes(messages[i].body, `CONTAINER[${i}][body]`);
+          if (messages[i].noResponse) {
+            noResponseMsgs.push(messages[i].msg_id);
+          }
+        }
+
+        const containerSentMessage = {
+          msg_id: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])(),
+          seq_no: this.generateSeqNo(true),
+          container: true,
+          inner: innerMessages
+        };
+
+        message = Object.assign({ body: container.getBytes(true) }, containerSentMessage);
+
+        this.sentMessages[message.msg_id] = containerSentMessage;
+
+        if (Config.Modes.debug) {
+          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Container', innerMessages, message.msg_id, message.seq_no);
+        }
+      } else {
+        if (message.noResponse) noResponseMsgs.push(message.msg_id);
+        this.sentMessages[message.msg_id] = message;
+      }
+
+      this.pendingAcks = [];
+      const afterSendRequest = result => {
+        this.toggleOffline(false);
+        // console.log('parse for', message)
+        this.parseResponse(result.data).then(afterResponseParse);
+      };
+      const afterResponseParse = response => {
+        if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Server response', this.dcID, response);
+
+        this.processMessage(response.response, response.messageID, response.sessionID);
+
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsg);
+
+        this.checkLongPoll();
+
+        this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod));
+      };
+      const onRequestFail = error => {
+        console.log('Encrypted request failed', error);
+
+        if (message.container) {
+          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(message.inner, this.resetPendingMessage);
+          delete this.sentMessages[message.msg_id];
+        } else this.pendingMessages[message.msg_id] = 0;
+
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(noResponseMsgs, this.onNoResponseMsgReject);
+
+        this.toggleOffline(true);
+      };
+      this.sendEncryptedRequest(message).then(afterSendRequest).catch(onRequestFail);
+
+      if (lengthOverflow || singlesCount > 1) this.sheduleRequest();
+    };
+
+    this.getRequestUrl = () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__dc_configurator__["chooseServer"])(this.dcID, this.upload);
+
+    this.sendEncryptedRequest = (message, options = {}) => {
+      // console.log(dTime(), 'Send encrypted'/*, message*/)
+      // console.trace()
+      const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: message.body.length + 64 });
+
+      data.storeIntBytes(this.serverSalt, 64, 'salt');
+      data.storeIntBytes(this.sessionID, 64, 'session_id');
+
+      data.storeLong(message.msg_id, 'message_id');
+      data.storeInt(message.seq_no, 'seq_no');
+
+      data.storeInt(message.body.length, 'message_data_length');
+      data.storeRawBytes(message.body, 'message_data');
+
+      const url = this.getRequestUrl();
+      const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url };
+
+      const afterRequestData = result => {
+        if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
+        return result;
+      };
+
+      const afterRequestReject = error => {
+        if (!error.message && !error.type) error = Object.assign({ type: 'NETWORK_BAD_REQUEST', originalError: error }, baseError);
+        return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
+      };
+
+      const onEncryptedResult = encryptedResult => {
+        // console.log(dTime(), 'Got encrypted out message'/*, encryptedResult*/)
+        const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: encryptedResult.bytes.byteLength + 256 });
+        request.storeIntBytes(this.authKeyID, 64, 'auth_key_id');
+        request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key');
+        request.storeRawBytes(encryptedResult.bytes, 'encrypted_data');
+
+        const requestData = /*xhrSendBuffer
+                            ? request.getBuffer()
+                            : */request.getArray();
+
+        try {
+          options = Object.assign({ responseType: 'arraybuffer' }, options);
+          return __WEBPACK_IMPORTED_MODULE_9__http__["a" /* httpClient */].post(url, requestData, options);
+        } catch (e) {
+          return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(e);
+        }
+      };
+
+      return this.getEncryptedMessage(data.getBuffer()).then(onEncryptedResult).then(afterRequestData, afterRequestReject);
+    };
+
+    this.getMsgById = ({ req_msg_id }) => this.sentMessages[req_msg_id];
+
+    this.processMessageAck = messageID => {
+      const sentMessage = this.sentMessages[messageID];
+      if (sentMessage && !sentMessage.acked) {
+        delete sentMessage.body;
+        sentMessage.acked = true;
+
+        return true;
+      }
+
+      return false;
+    };
+
+    this.spliceMessage = badMsgID => {
+      const pos = this.pendingResends.indexOf(badMsgID);
+      if (pos !== -1) this.pendingResends.splice(pos, 1);
+    };
+  }, _temp;
 };
 
 const getDeserializeOpts = msgGetter => ({
   mtproto: true,
   override: {
-    mt_message: function (result, field) {
+    mt_message(result, field) {
       result.msg_id = this.fetchLong(`${field}[msg_id]`);
       result.seqno = this.fetchInt(`${field}[seqno]`);
       result.bytes = this.fetchInt(`${field}[bytes]`);
@@ -3467,7 +3459,7 @@ const getDeserializeOpts = msgGetter => ({
       }
       // console.log(dTime(), 'override message', result)
     },
-    mt_rpc_result: function (result, field) {
+    mt_rpc_result(result, field) {
       result.req_msg_id = this.fetchLong(`${field}[req_msg_id]`);
 
       const sentMessage = msgGetter(result);
@@ -3496,9 +3488,11 @@ const stopAll = () => akStopped = true;
 /* harmony export (immutable) */ __webpack_exports__["stopAll"] = stopAll;
 
 
-const getNetworker = (dcID, authKey, serverSalt, options) => new MtpNetworker(dcID, authKey, serverSalt, options);
+const getNetworker = (appConfig, emit) => {
+  const Networker = NetworkerFabric(appConfig, emit);
+  return (dc, authKey, serverSalt, options) => new Networker(dc, authKey, serverSalt, options);
+};
 /* harmony export (immutable) */ __webpack_exports__["getNetworker"] = getNetworker;
-
 
 const setUpdatesProcessor = callback => updatesProcessor = callback;
 /* harmony export (immutable) */ __webpack_exports__["setUpdatesProcessor"] = setUpdatesProcessor;
@@ -5146,10 +5140,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__ = __webpack_require__(28);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpInvokeApi", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["d"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__store__ = __webpack_require__(6);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_7__store__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_time_manager__ = __webpack_require__(5);
@@ -5965,19 +5958,19 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 
-const mtpSetUserAuth = onAuth => function mtpSetUserAuth(dcID, userAuth) {
-  const fullUserAuth = Object.assign({ dcID }, userAuth);
-  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
-    dc: dcID,
-    user_auth: fullUserAuth
-  });
-  onAuth(fullUserAuth, dcID);
-};
-/* unused harmony export mtpSetUserAuth */
-
+// export const mtpSetUserAuth = onAuth =>
+//   function mtpSetUserAuth(dcID, userAuth) {
+//     const fullUserAuth = { dcID, ...userAuth }
+//     PureStorage.set({
+//       dc       : dcID,
+//       user_auth: fullUserAuth
+//     })
+//     onAuth(fullUserAuth, dcID)
+//   }
 
 const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
 const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
+const withoutNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]);
 
 const baseDcID = 2;
 
@@ -5998,11 +5991,13 @@ const mtpClearStorage = function () {
     return restoreObj;
   }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
 };
-/* harmony export (immutable) */ __webpack_exports__["b"] = mtpClearStorage;
+/* harmony export (immutable) */ __webpack_exports__["a"] = mtpClearStorage;
 
+
+const Ln = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length');
 
 class ApiManager {
-  constructor() {
+  constructor(appSettings = {}) {
     this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
       wildcard: true
     });
@@ -6028,12 +6023,12 @@ class ApiManager {
         const authKeyHex = result[0];
         let serverSaltHex = result[1];
         // console.log('ass', dcID, authKeyHex, serverSaltHex)
-        if (authKeyHex && authKeyHex.length === 512) {
+        if (Ln(512, authKeyHex)) {
           if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
           const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(authKeyHex);
           const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(serverSaltHex);
 
-          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
+          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
         }
 
         if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
@@ -6045,7 +6040,7 @@ class ApiManager {
           };
           __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
 
-          return cache[dcID] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(dcID, authKey, serverSalt, options);
+          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
         };
 
         return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["auth"])(dcID).then(onDcAuth, netError);
@@ -6055,10 +6050,14 @@ class ApiManager {
     };
 
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
+    this.setUserAuth = this.setUserAuth.bind(this);
+
+    this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
+    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.emit);
   }
 
   mtpInvokeApi(method, params, options = {}) {
-    const self = this;
+    // const self = this
     const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
     const rejectPromise = error => {
       if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
@@ -6068,7 +6067,7 @@ class ApiManager {
         //TODO weird code. `error` changed after `.reject`?
         error.input = method;
         error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
-        self.emit('error.invoke', error);
+        this.emit('error.invoke', error);
       }
     };
     let dcID, cachedNetworker;
@@ -6083,28 +6082,48 @@ class ApiManager {
       const apiRecall = networker => networker.wrapApiCall(method, params, options);
       console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
 
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve);
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
     });
-    const getDcNetworker = (baseDcID = 2) => self.mtpGetNetworker(dcID = defDc(baseDcID), options);
-    if (dcID = options.dcID || baseDcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(self.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+    const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
+
+    dcID = options.dcID || baseDcID;
+    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
 
     return deferred.promise;
   }
+  setUserAuth(dcID, userAuth) {
+    const fullUserAuth = Object.assign({ dcID }, userAuth);
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
+      dc: dcID,
+      user_auth: fullUserAuth
+    });
+    this.emit('auth.dc', { dc: dcID, auth: userAuth });
+  }
 }
-/* harmony export (immutable) */ __webpack_exports__["d"] = ApiManager;
+/* harmony export (immutable) */ __webpack_exports__["c"] = ApiManager;
 
 
+ApiManager.appSettings = {
+  invokeWithLayer: 0xda9b0d0d,
+  layer: NaN,
+  initConnection: 0x69796de9,
+  api_id: '',
+  device_model: 'Unknown UserAgent',
+  system_version: 'Unknown Platform',
+  app_version: '',
+  lang_code: 'en'
+};
 const netError = error => {
   console.log('Get networker error', error, error.stack);
   return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
 };
 
 const api = new ApiManager();
-/* harmony export (immutable) */ __webpack_exports__["c"] = api;
+/* harmony export (immutable) */ __webpack_exports__["b"] = api;
 
 
 const mtpInvokeApi = api.mtpInvokeApi;
-/* harmony export (immutable) */ __webpack_exports__["a"] = mtpInvokeApi;
+/* unused harmony export mtpInvokeApi */
 
 
 /***/ }),
@@ -6131,21 +6150,36 @@ const mtpInvokeApi = api.mtpInvokeApi;
 
 const cachedExportPromise = {};
 
-const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) => ({ code, type, dcID, base: baseDcID, rawError });
-
-const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve) => matched({ error, options, emit,
-  reject: rejectPromise, requestThunk,
-  apiRecall, throwNext: () => rejectPromise(error),
-  deferResolve });
+const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) => ({
+  base: baseDcID,
+  errR: rawError,
+  code,
+  type,
+  dcID
+});
 
 const patterns = {
   noBaseAuth: ({ code, dcID, base }) => code === 401 && dcID === base,
   noDcAuth: ({ code, dcID, base }) => code === 401 && dcID !== base,
   migrate: ({ code }) => code === 303,
-  floodWait: ({ code, rawError }) => !rawError && code === 420,
-  waitFail: ({ code, type, rawError }) => !rawError && (code === 500 || type === 'MSG_WAIT_FAILED'),
+  floodWait: ({ code, errR }) => !errR && code === 420,
+  waitFail: ({ code, type, errR }) => !errR && (code === 500 || type === 'MSG_WAIT_FAILED'),
   _: () => true
 };
+
+const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, mtpInvokeApi, mtpGetNetworker) => matched({
+  invoke: mtpInvokeApi,
+  throwNext: () => rejectPromise(error),
+  reject: rejectPromise,
+  getNet: mtpGetNetworker,
+  error,
+  options,
+  emit,
+  requestThunk,
+  apiRecall,
+  deferResolve,
+  apiSavedNet
+});
 
 const noBaseAuth = ({ emit, throwNext }) => {
   __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].remove('dc', 'user_auth');
@@ -6153,12 +6187,13 @@ const noBaseAuth = ({ emit, throwNext }) => {
   throwNext();
 };
 
-const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve }) => {
+const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }) => {
+  const importAuth = ({ id, bytes }) => invoke('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
+
   if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"])(cachedExportPromise[dcID])) {
     const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
-    const importAuth = ({ id, bytes }) => self.mtpInvokeApi('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
 
-    self.mtpInvokeApi('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
+    invoke('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
 
     cachedExportPromise[dcID] = exportDeferred.promise;
   }
@@ -6166,12 +6201,12 @@ const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve }) => {
   cachedExportPromise[dcID].then(apiSavedNet).then(apiRecall).then(deferResolve).catch(reject);
 };
 
-const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve }) => {
+const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve, getNet }) => {
   const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
   if (newDcID === dcID) return;
   if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].set({ dc: /*baseDcID =*/newDcID });
 
-  self.mtpGetNetworker(newDcID, options).then(apiRecall).then(deferResolve).catch(reject);
+  getNet(newDcID, options).then(apiRecall).then(deferResolve).catch(reject);
 };
 
 const floodWait = ({ error, options, throwNext, requestThunk }) => {

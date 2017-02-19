@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 import EventEmitter from 'eventemitter2'
 
-import { pathSatisfies, complement, isNil, unless, is, always } from 'ramda'
+import { pathSatisfies, complement, isNil, unless, is, always, propEq, reject } from 'ramda'
 
 import { getNetworker } from '../networker'
 import { auth } from '../authorizer'
@@ -13,19 +13,19 @@ import { bytesFromHex, bytesToHex } from '../../bin'
 
 import { switchErrors } from './error-cases'
 
-export const mtpSetUserAuth = onAuth =>
-  function mtpSetUserAuth(dcID, userAuth) {
-    const fullUserAuth = { dcID, ...userAuth }
-    PureStorage.set({
-      dc       : dcID,
-      user_auth: fullUserAuth
-    })
-    onAuth(fullUserAuth, dcID)
-  }
+// export const mtpSetUserAuth = onAuth =>
+//   function mtpSetUserAuth(dcID, userAuth) {
+//     const fullUserAuth = { dcID, ...userAuth }
+//     PureStorage.set({
+//       dc       : dcID,
+//       user_auth: fullUserAuth
+//     })
+//     onAuth(fullUserAuth, dcID)
+//   }
 
 const hasPath = pathSatisfies( complement( isNil ) )
 const defDc = unless( is(Number), always(2) )
-
+const withoutNil = reject( isNil )
 
 const baseDcID = 2
 
@@ -52,6 +52,8 @@ export const mtpClearStorage = function() {
     .then(PureStorage.set)
 }
 
+const Ln = propEq('length')
+
 export class ApiManager {
   emitter = new EventEmitter({
     wildcard: true
@@ -62,8 +64,22 @@ export class ApiManager {
     uploader  : {},
     downloader: {}
   }
-  constructor() {
+  static appSettings = {
+    invokeWithLayer: 0xda9b0d0d,
+    layer          : NaN,
+    initConnection : 0x69796de9,
+    api_id         : '',
+    device_model   : 'Unknown UserAgent',
+    system_version : 'Unknown Platform',
+    app_version    : '',
+    lang_code      : 'en'
+  }
+  constructor(appSettings = {}) {
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
+    this.setUserAuth = this.setUserAuth.bind(this)
+
+    this.appSettings = { ...ApiManager.appSettings, ...withoutNil(appSettings) }
+    this.networkFabric = getNetworker(this.appSettings, this.emit)
   }
   mtpGetNetworker = (dcID, options = {}) => {
     const cache = options.fileUpload || options.fileDownload
@@ -82,13 +98,13 @@ export class ApiManager {
       const authKeyHex = result[0]
       let serverSaltHex = result[1]
       // console.log('ass', dcID, authKeyHex, serverSaltHex)
-      if (authKeyHex && authKeyHex.length === 512) {
+      if (Ln(512, authKeyHex)) {
         if (!serverSaltHex || serverSaltHex.length !== 16)
           serverSaltHex = 'AAAAAAAAAAAAAAAA'
         const authKey = bytesFromHex(authKeyHex)
         const serverSalt = bytesFromHex(serverSaltHex)
 
-        return cache[dcID] = getNetworker(dcID, authKey, serverSalt, options)
+        return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options)
       }
 
       if (!options.createNetworker)
@@ -101,7 +117,7 @@ export class ApiManager {
         }
         PureStorage.set(storeObj)
 
-        return cache[dcID] = getNetworker(dcID, authKey, serverSalt, options)
+        return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options)
       }
 
       return auth(dcID)
@@ -113,7 +129,7 @@ export class ApiManager {
       .then(networkGetter)
   }
   mtpInvokeApi(method, params, options = {}) {
-    const self = this
+    // const self = this
     const deferred = blueDefer()
     const rejectPromise = error => {
       if (!error)
@@ -129,7 +145,7 @@ export class ApiManager {
           hasPath(['originalError', 'stack'], error) ||
           error.stack ||
           (new Error()).stack
-        self.emit('error.invoke', error)
+        this.emit('error.invoke', error)
       }
     }
     let dcID,
@@ -151,13 +167,16 @@ export class ApiManager {
             console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
 
             return switchErrors(error, options, this.emit, rejectPromise, requestThunk,
-                                apiSavedNet, apiRecall, deferResolve)
+                                apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
+                                this.mtpGetNetworker)
 
           })
     const getDcNetworker = (baseDcID = 2) =>
-      self.mtpGetNetworker(dcID = defDc(baseDcID), options)
-    if (dcID = options.dcID || baseDcID)
-      Promise.resolve(self.mtpGetNetworker(dcID, options))
+      this.mtpGetNetworker(dcID = defDc(baseDcID), options)
+
+    dcID = options.dcID || baseDcID
+    if (dcID)
+      Promise.resolve(this.mtpGetNetworker(dcID, options))
         .then(performRequest)
         .catch(rejectPromise)
     else
@@ -167,6 +186,14 @@ export class ApiManager {
         .catch(rejectPromise)
 
     return deferred.promise
+  }
+  setUserAuth(dcID, userAuth) {
+    const fullUserAuth = { dcID, ...userAuth }
+    PureStorage.set({
+      dc       : dcID,
+      user_auth: fullUserAuth
+    })
+    this.emit('auth.dc', { dc: dcID, auth: userAuth })
   }
 }
 

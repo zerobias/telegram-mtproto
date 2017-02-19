@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 
-import { pipeP, is, values } from 'ramda'
+import { pipeP, is, values, mapObjIndexed } from 'ramda'
 
 import CryptoWorker from '../crypto'
 import { dTime, tsNow, generateID, applyServerTime } from './time-manager'
@@ -24,9 +24,11 @@ let akStopped = false
 // const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/)
 // const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
-class MtpNetworker {
-  constructor(dcID, authKey, serverSalt, options = {}) {
-    this.dcID = dcID
+
+
+const NetworkerFabric = (appConfig, emit) => class NetworkerThread {
+  constructor(dc, authKey, serverSalt, options = {}) {
+    this.dcID = dc
     this.iii = iii++
 
     this.authKey = authKey
@@ -138,9 +140,8 @@ class MtpNetworker {
       body  : serializer.getBytes()
     }
 
-    if (Config.Modes.debug) {
+    if (Config.Modes.debug)
       console.log(dTime(), 'MT message', object, messageID, seqNo)
-    }
 
     return this.pushMessage(message, options)
   }
@@ -149,14 +150,15 @@ class MtpNetworker {
     const serializer = new TLSerialization(options)
 
     if (!this.connectionInited) {
-      serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
-      serializer.storeInt(Config.Schema.API.layer, 'layer')
-      serializer.storeInt(0x69796de9, 'initConnection')
-      serializer.storeInt(Config.App.id, 'api_id')
-      serializer.storeString(navigator.userAgent || 'Unknown UserAgent', 'device_model')
-      serializer.storeString(navigator.platform || 'Unknown Platform', 'system_version')
-      serializer.storeString(Config.App.version, 'app_version')
-      serializer.storeString(navigator.language || 'en', 'lang_code')
+      // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
+      // serializer.storeInt(Config.Schema.API.layer, 'layer')
+      // serializer.storeInt(0x69796de9, 'initConnection')
+      // serializer.storeInt(Config.App.id, 'api_id')
+      // serializer.storeString(navigator.userAgent || 'Unknown UserAgent', 'device_model')
+      // serializer.storeString(navigator.platform || 'Unknown Platform', 'system_version')
+      // serializer.storeString(Config.App.version, 'app_version')
+      // serializer.storeString(navigator.language || 'en', 'lang_code')
+      mapObjIndexed(serializer.storeIntString, appConfig)
     }
 
     if (options.afterMessageID) {
@@ -184,26 +186,35 @@ class MtpNetworker {
     return this.pushMessage(message, options)
   }
 
+  checkLongPollCond = () =>
+    this.longPollPending &&
+      this.longPollPending > tsNow() ||
+    !!this.offline ||
+    akStopped
+
+  checkLongPollAfterDcCond = (isClean, baseDc) => isClean && (
+    this.dcID !== baseDc ||
+    this.upload ||
+    this.sleepAfter &&
+      this.sleepAfter < tsNow()
+  )
+
   checkLongPoll = force => {
     const isClean = this.cleanupSent()
     // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean)
-    if (this.longPollPending && tsNow() < this.longPollPending ||
-      this.offline ||
-      akStopped) {
+    if (this.checkLongPollCond())
       return false
-    }
-    const self = this
-    PureStorage.get('dc').then(function(baseDcID) {
-      if (isClean && (
-        baseDcID != self.dcID ||
-        self.upload ||
-        self.sleepAfter && tsNow() > self.sleepAfter
-        )) {
-        // console.warn(dTime(), 'Send long-poll for DC is delayed', self.dcID, self.sleepAfter)
+
+    const afterGetDc = baseDc => {
+      if (this.checkLongPollAfterDcCond(isClean, baseDc))
+        // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
         return
-      }
-      self.sendLongPoll()
-    })
+
+      this.sendLongPoll()
+    }
+
+    PureStorage.get('dc')
+      .then(afterGetDc)
   }
 
   sendLongPoll() {
@@ -220,10 +231,10 @@ class MtpNetworker {
     }, {
       noResponse: true,
       longPoll  : true
-    }).then(function() {
+    }).then(() => {
       delete self.longPollPending
       setImmediate(self.checkLongPoll)
-    }, function() {
+    }, () => {
       console.log('Long-poll failed')
     })
   }
@@ -341,9 +352,8 @@ class MtpNetworker {
 
   toggleOffline(enabled) {
     // console.log('toggle ', enabled, this.dcID, this.iii)
-    if (this.offline !== undefined && this.offline == enabled) {
+    if (this.offline !== undefined && this.offline == enabled)
       return false
-    }
 
     this.offline = enabled
 
@@ -351,25 +361,24 @@ class MtpNetworker {
       smartTimeout.cancel(this.nextReqPromise)
       delete this.nextReq
 
-      if (this.checkConnectionPeriod < 1.5) {
+      if (this.checkConnectionPeriod < 1.5)
         this.checkConnectionPeriod = 0
-      }
+
 
       this.checkConnectionPromise = smartTimeout(
         this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
       this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5)
 
       this.onOnlineCb = this.checkConnection
-
-      $(document.body).on('online focus', this.onOnlineCb)
+      emit('net.offline', this.onOnlineCb)
     } else {
       delete this.longPollPending
       this.checkLongPoll()
       this.sheduleRequest()
 
-      if (this.onOnlineCb) {
-        $(document.body).off('online focus', this.onOnlineCb)
-      }
+      if (this.onOnlineCb)
+        emit('net.online', this.onOnlineCb)
+
       smartTimeout.cancel(this.checkConnectionPromise)
     }
   }
@@ -511,9 +520,8 @@ class MtpNetworker {
         console.log(dTime(), 'Container', innerMessages, message.msg_id, message.seq_no)
       }
     } else {
-      if (message.noResponse) {
+      if (message.noResponse)
         noResponseMsgs.push(message.msg_id)
-      }
       this.sentMessages[message.msg_id] = message
     }
 
@@ -569,8 +577,8 @@ class MtpNetworker {
     }
     const f3 = keyIv => CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
     const f4 = encryptedBytes => ({
-      bytes : encryptedBytes,
-      msgKey: msgKey
+      bytes: encryptedBytes,
+      msgKey
     })
     const encryptFlow = pipeP(f1, f2, f3, f4)
     return encryptFlow(bytes)
@@ -600,7 +608,7 @@ class MtpNetworker {
     data.storeRawBytes(message.body, 'message_data')
 
     const url = this.getRequestUrl()
-    const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url }
+    const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url }
 
     const afterRequestData = result => {
       if (!result.data || !result.data.byteLength)
@@ -682,7 +690,7 @@ class MtpNetworker {
       const totalLength = dataWithPadding.byteLength
 
       const messageBodyLength = deserializer.fetchInt('message_data[length]')
-      if ((messageBodyLength % 4) ||
+      if (messageBodyLength % 4 ||
           messageBodyLength > totalLength - offset) {
         throw new Error(`[MT] Invalid body length: ${  messageBodyLength}`)
       }
@@ -706,10 +714,10 @@ class MtpNetworker {
         const response = deserializer.fetchObject('', 'INPUT')
 
         return {
-          response : response,
-          messageID: messageID,
-          sessionID: sessionID,
-          seqNo    : seqNo
+          response,
+          messageID,
+          sessionID,
+          seqNo
         }
       }
       return CryptoWorker
@@ -815,7 +823,7 @@ class MtpNetworker {
         ? 500
         : rawError.error_code,
       type         : matches[1] || 'UNKNOWN',
-      description  : matches[3] || (`CODE#${  rawError.error_code  } ${  rawError.error_message}`),
+      description  : matches[3] || `CODE#${  rawError.error_code  } ${  rawError.error_message}`,
       originalError: rawError
     }
   }
@@ -982,7 +990,7 @@ class MtpNetworker {
 const getDeserializeOpts = msgGetter => ({
   mtproto : true,
   override: {
-    mt_message: function(result, field) {
+    mt_message(result, field) {
       result.msg_id = this.fetchLong(`${field  }[msg_id]`)
       result.seqno = this.fetchInt(`${field  }[seqno]`)
       result.bytes = this.fetchInt(`${field  }[bytes]`)
@@ -1002,7 +1010,7 @@ const getDeserializeOpts = msgGetter => ({
       }
       // console.log(dTime(), 'override message', result)
     },
-    mt_rpc_result: function(result, field) {
+    mt_rpc_result(result, field) {
       result.req_msg_id = this.fetchLong(`${ field }[req_msg_id]`)
 
       const sentMessage = msgGetter(result)
@@ -1027,8 +1035,10 @@ export const startAll = () => {
 
 export const stopAll = () => akStopped = true
 
-export const getNetworker = (dcID, authKey, serverSalt, options) =>
-  new MtpNetworker(dcID, authKey, serverSalt, options)
-
+export const getNetworker = (appConfig, emit) => {
+  const Networker = NetworkerFabric(appConfig, emit)
+  return (dc, authKey, serverSalt, options) =>
+    new Networker(dc, authKey, serverSalt, options)
+}
 export const setUpdatesProcessor = callback =>
   updatesProcessor = callback

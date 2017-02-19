@@ -23,7 +23,9 @@ export const chooseServer = (dcID, upload) => {
 
     if (Config.Modes.ssl || !Config.Modes.http) {
       const subdomain = sslSubdomains[dcID - 1] + (upload ? '-1' : '')
-      const path = Config.Modes.test ? 'apiw_test1' : 'apiw1'
+      const path = Config.Modes.test
+        ? 'apiw_test1'
+        : 'apiw1'
       chosenServer = `https://${  subdomain  }.web.telegram.org/${  path}`
       return chosenServer
     }
