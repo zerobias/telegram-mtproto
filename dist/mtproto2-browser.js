@@ -1104,62 +1104,6 @@ const PureStorage = AsyncStorage();
                                            clear   : () => new Promise(rs => ConfigStorage.clear(rs))
                                            }*/
 
-const flatArgs = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["unnest"]);
-const splitter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["chain"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["split"])('.'));
-const rejecter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["either"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["complement"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(String)), __WEBPACK_IMPORTED_MODULE_1_ramda__["isEmpty"]);
-
-const flatPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["memoize"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(flatArgs, splitter, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["reject"])(rejecter)));
-
-const pipeWith = (ln, ctx) => (...funcs) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["view"])(ln), ...funcs)(ctx);
-
-class SyncStorage {
-  constructor(def = {}) {
-    this.set = val => this.storage = val;
-
-    this.fpSave = func => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(func, this.set);
-
-    this.createOnNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["view"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["__"], this.storage), __WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"]), this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["set"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["__"], {}, this.storage)));
-
-    this.subtree = (...pathKeys) => {
-      const args = flatPath(...pathKeys);
-      const ln = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["lensPath"])(args);
-      this.createOnNil(ln);
-      //console.log(this.lensNil(ln))
-      const pipeWithLn = pipeWith(ln, this.storage);
-      const overSubtree = fn => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["over"])(ln, fn))(this.storage);
-      return {
-        // has   : field => overSubtree( has ( field ) ),
-        field: key => ({
-          has: () => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["has"])(key)),
-          view: () => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["prop"])(key)),
-          set: val => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["merge"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["objOf"])(key, val))),
-          pipeWith: (...funcs) => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["prop"])(key), ...funcs),
-          pipeOver: (...funcs) => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["over"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["compose"])(ln, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["lensProp"])(key)), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(...funcs)))(this.storage),
-          remove: () => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])([key]))
-        }),
-        has: key => pipeWithLn(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["has"])(key)),
-        view: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["view"])(ln, this.storage),
-        set: this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["set"])(ln, __WEBPACK_IMPORTED_MODULE_1_ramda__["__"], this.storage)),
-        over: overSubtree,
-        remove: () => this.fpSave(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["dissocPath"])(args))(this.storage),
-        without: (...keys) => overSubtree(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys))
-      };
-    };
-
-    this.storage = def;
-  }
-
-  set save(val) {
-    this.storage = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["merge"])(this.storage, val);
-  }
-}
-/* unused harmony export SyncStorage */
-
-
-const innerStore = new SyncStorage();
-/* unused harmony export innerStore */
-
-
 /***/ }),
 /* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -1454,7 +1398,6 @@ const chooseServer = (chosenServers, {
 
 
 
-// import { chooseServer } from './dc-configurator'
 
 
 
@@ -1621,54 +1564,23 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       return this.pushMessage(message, options);
     }
 
-    sendLongPoll() {
-      const maxWait = 25000;
-      const self = this;
-
-      this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + maxWait;
-      // console.log('Set lp', this.longPollPending, tsNow())
-
-      this.wrapMtpCall('http_wait', {
-        max_delay: 500,
-        wait_after: 150,
-        max_wait: maxWait
-      }, {
-        noResponse: true,
-        longPoll: true
-      }).then(() => {
-        delete self.longPollPending;
-        setImmediate(self.checkLongPoll);
-      }, () => {
-        console.log('Long-poll failed');
-      });
-    }
-
     pushMessage(message, options = {}) {
       const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__defer__["b" /* default */])();
 
       this.sentMessages[message.msg_id] = Object.assign({}, message, options, { deferred });
       this.pendingMessages[message.msg_id] = 0;
 
-      if (!options || !options.noShedule) {
-        this.sheduleRequest();
-      }
-      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, options)) {
-        options.messageID = message.msg_id;
-      }
+      if (!options || !options.noShedule) this.sheduleRequest();
+      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, options)) options.messageID = message.msg_id;
 
       return deferred.promise;
     }
 
     pushResend(messageID, delay) {
       const value = delay ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + delay : 0;
+      const innerMap = innerMsg => this.pendingMessages[innerMsg] = value;
       const sentMessage = this.sentMessages[messageID];
-      if (sentMessage.container) {
-        for (let i = 0; i < sentMessage.inner.length; i++) {
-          this.pendingMessages[sentMessage.inner[i]] = value;
-        }
-      } else {
-        this.pendingMessages[messageID] = value;
-      }
+      if (sentMessage.container) sentMessage.inner.forEach(innerMap);else this.pendingMessages[messageID] = value;
 
       // console.log('Resend due', messageID, this.pendingMessages)
 
@@ -2089,6 +2001,28 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
     };
 
+    this.onHttpWait = () => {
+      delete this.longPollPending;
+      setImmediate(this.checkLongPoll);
+    };
+
+    this.sendLongPoll = () => {
+      const maxWait = 25000;
+      this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + maxWait;
+      // console.log('Set lp', this.longPollPending, tsNow())
+
+      this.wrapMtpCall('http_wait', {
+        max_delay: 500,
+        wait_after: 150,
+        max_wait: maxWait
+      }, {
+        noResponse: true,
+        longPoll: true
+      }).then(this.onHttpWait, () => {
+        console.log('Long-poll failed');
+      });
+    };
+
     this.checkConnection = event => {
       console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Check connection', event);
       __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
@@ -2104,11 +2038,10 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         body: serializer.getBytes()
       };
 
-      const self = this;
-      this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result => self.toggleOffline(false), () => {
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Delay ', self.checkConnectionPeriod * 1000);
-        self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
-        self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
+      this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result => this.toggleOffline(false), () => {
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Delay ', this.checkConnectionPeriod * 1000);
+        this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
+        this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5);
       });
     };
 
@@ -4322,6 +4255,8 @@ const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
 
 
 
+const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' + '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' + '8705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4a' + 'c8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba7' + '4d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9c' + 'a3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851' + 'f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b';
+
 const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
   function mtpSendPlainRequest(url, requestBuffer) {
     const requestLength = requestBuffer.byteLength,
@@ -4366,9 +4301,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 
       return deserializer;
     }, error => {
-      if (!error.message && !error.type) {
-        error = Object.assign({ originalError: error }, baseError);
-      }
+      if (!error.message && !error.type) error = Object.assign({ originalError: error }, baseError);
       return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
     });
   }
@@ -4501,17 +4434,11 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     const deserializer = new Deserialization(buffer, { mtproto: true });
     const response = deserializer.fetchObject('Server_DH_inner_data');
 
-    if (response._ != 'server_DH_inner_data') {
-      throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
-    }
+    if (response._ != 'server_DH_inner_data') throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
-      throw new Error('[MT] server_DH_inner_data nonce mismatch');
-    }
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] server_DH_inner_data nonce mismatch');
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
-      throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
-    }
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
 
     console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Done decrypting answer');
     auth.g = response.g;
@@ -4534,12 +4461,9 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
   function mtpVerifyDhParams(g, dhPrime, gA) {
     console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Verifying DH params');
     const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(dhPrime);
-    if (g != 3 ||
-    //eslint-disable-next-line
-    dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
+    if (g !== 3 || dhPrimeHex !== primeHex)
       // The verified value is from https://core.telegram.org/mtproto/security_guidelines
       throw new Error('[MT] DH params are not verified: unknown dhPrime');
-    }
     console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'dhPrime cmp OK');
 
     const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(gA), 16);
@@ -4576,7 +4500,76 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     auth.b = new Array(256);
     __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
 
-    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(function (gB) {
+    const afterPlainRequest = deserializer => {
+      const response = deserializer.fetchObject('Set_client_DH_params_answer');
+
+      if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
+        deferred.reject(new Error(`[MT] Set_client_DH_params_answer response invalid: ${response._}`));
+        return false;
+      }
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+        deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
+        return false;
+      }
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+        deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
+        return false;
+      }
+
+      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(authKey => {
+        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(authKey),
+              authKeyAux = authKeyHash.slice(0, 8),
+              authKeyID = authKeyHash.slice(-8);
+
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
+        switch (response._) {
+          case 'dh_gen_ok':
+            {
+              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
+
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
+                return false;
+              }
+
+              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
+              // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
+
+              auth.authKeyID = authKeyID;
+              auth.authKey = authKey;
+              auth.serverSalt = serverSalt;
+
+              deferred.resolve(auth);
+              break;
+            }
+          case 'dh_gen_retry':
+            {
+              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
+                return false;
+              }
+
+              return mtpSendSetClientDhParams(auth);
+            }
+          case 'dh_gen_fail':
+            {
+              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
+                return false;
+              }
+
+              deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'));
+              return false;
+            }
+        }
+      }, deferred.reject);
+    };
+
+    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(gB => {
       const data = new Serialization({ mtproto: true });
       data.storeObject({
         _: 'client_DH_inner_data',
@@ -4598,81 +4591,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       });
 
       console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send set_client_DH_params');
-      mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(function (deserializer) {
-        const response = deserializer.fetchObject('Set_client_DH_params_answer');
-
-        if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
-          deferred.reject(new Error(`[MT] Set_client_DH_params_answer response invalid: ${response._}`));
-          return false;
-        }
-
-        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
-          deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
-          return false;
-        }
-
-        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
-          deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
-          return false;
-        }
-
-        __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(function (authKey) {
-          const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(authKey),
-                authKeyAux = authKeyHash.slice(0, 8),
-                authKeyID = authKeyHash.slice(-8);
-
-          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
-          switch (response._) {
-            case 'dh_gen_ok':
-              {
-                const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
-
-                if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
-                  deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
-                  return false;
-                }
-
-                const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
-                // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
-
-                auth.authKeyID = authKeyID;
-                auth.authKey = authKey;
-                auth.serverSalt = serverSalt;
-
-                deferred.resolve(auth);
-                break;
-              }
-            case 'dh_gen_retry':
-              {
-                const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
-                if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
-                  deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
-                  return false;
-                }
-
-                return mtpSendSetClientDhParams(auth);
-              }
-            case 'dh_gen_fail':
-              {
-                const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
-                if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
-                  deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
-                  return false;
-                }
-
-                deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'));
-                return false;
-              }
-          }
-        }, function (error) {
-          deferred.reject(error);
-        });
-      }, function (error) {
-        deferred.reject(error);
-      });
-    }, error => {
-      deferred.reject(error);
-    });
+      mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(afterPlainRequest, deferred.reject);
+    }, deferred.reject);
   }
 
   function mtpAuth(dcID, cached, dcUrl) {
@@ -4828,14 +4748,6 @@ const toUint32 = buf => {
     res = new Uint32Array(ln);
     for (let i = 0; i < ln; i++) res[i] = data.getUint32(i * 4, true);
   }
-  return res;
-};
-
-const toUint8 = buf => {
-  const data = new DataView(buf);
-  const ln = data.byteLength;
-  const res = new Uint8Array(ln);
-  for (let i = 0; i < ln; i++) res[i] = data.getUint8(i, true);
   return res;
 };
 
@@ -5342,13 +5254,13 @@ const TL = (api, mtApi) => {
       }
       let fallback;
       field = field || type || 'Object';
-
-      if (type.substr(0, 6) == 'Vector' || type.substr(0, 6) == 'vector') {
-        if (type.charAt(0) == 'V') {
+      const subpart = type.substr(0, 6);
+      if (subpart === 'Vector' || subpart === 'vector') {
+        if (type.charAt(0) === 'V') {
           const constructor = this.readInt(`${field}[id]`);
           const constructorCmp = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["j" /* uintToInt */])(constructor);
 
-          if (constructorCmp == 0x3072cfa1) {
+          if (constructorCmp === 0x3072cfa1) {
             // Gzip packed
             const compressed = this.fetchBytes(`${field}[packed_string]`);
             const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* gzipUncompress */])(compressed);
@@ -5357,9 +5269,7 @@ const TL = (api, mtApi) => {
 
             return newDeserializer.fetchObject(type, field);
           }
-          if (constructorCmp != 0x1cb5c415) {
-            throw new Error(`Invalid vector constructor ${constructor}`);
-          }
+          if (constructorCmp !== 0x1cb5c415) throw new Error(`Invalid vector constructor ${constructor}`);
         }
         const len = this.readInt(`${field}[count]`);
         const result = [];
@@ -5393,9 +5303,7 @@ const TL = (api, mtApi) => {
             break;
           }
         }
-        if (!constructorData) {
-          throw new Error(`Constructor not found for predicate: ${type}`);
-        }
+        if (!constructorData) throw new Error(`Constructor not found for predicate: ${type}`);
       } else {
         const constructor = this.readInt(`${field}[id]`);
         const constructorCmp = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["j" /* uintToInt */])(constructor);
@@ -5413,14 +5321,10 @@ const TL = (api, mtApi) => {
         let index = schema.constructorsIndex;
         if (!index) {
           schema.constructorsIndex = index = {};
-          for (let i = 0; i < schema.constructors.length; i++) {
-            index[schema.constructors[i].id] = i;
-          }
+          for (let i = 0; i < schema.constructors.length; i++) index[schema.constructors[i].id] = i;
         }
         let i = index[constructorCmp];
-        if (i) {
-          constructorData = schema.constructors[i];
-        }
+        if (i) constructorData = schema.constructors[i];
 
         fallback = false;
         if (!constructorData && this.mtproto) {
@@ -17578,25 +17482,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-// import * as MtpRsaKeysManager from './service/rsa-keys-manger'
-// export { MtpRsaKeysManager }
-
-// import * as MtpAuthorizer from './service/authorizer'
-// export { MtpAuthorizer }
 
 
 
 
 
-
-
-// export * from './tl'
 
 
 
 console.info('source loaded');
 
-/* harmony default export */ __webpack_exports__["default"] = {};
+
+/* harmony default export */ __webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c" /* ApiManager */];
 
 /***/ })
 /******/ ]);

@@ -22,15 +22,6 @@ const toUint32 = buf => {
   return res
 }
 
-const toUint8 = buf => {
-  const data = new DataView( buf )
-  const ln = data.byteLength
-  const res = new Uint8Array( ln )
-  for (let i = 0; i < ln; i++)
-    res[i] = data.getUint8( i, true )
-  return res
-}
-
 export const TL = (api, mtApi) => {
 
   class Serialization {
@@ -561,25 +552,24 @@ export const TL = (api, mtApi) => {
       }
       let fallback
       field = field || type || 'Object'
-
-      if (type.substr(0, 6) == 'Vector' || type.substr(0, 6) == 'vector') {
-        if (type.charAt(0) == 'V') {
-          const constructor = this.readInt(`${field  }[id]`)
+      const subpart = type.substr(0, 6)
+      if (subpart === 'Vector' || subpart === 'vector') {
+        if (type.charAt(0) === 'V') {
+          const constructor = this.readInt(`${field}[id]`)
           const constructorCmp = uintToInt(constructor)
 
-          if (constructorCmp == 0x3072cfa1) { // Gzip packed
-            const compressed = this.fetchBytes(`${field  }[packed_string]`)
+          if (constructorCmp === 0x3072cfa1) { // Gzip packed
+            const compressed = this.fetchBytes(`${field}[packed_string]`)
             const uncompressed = gzipUncompress(compressed)
             const buffer = bytesToArrayBuffer(uncompressed)
             const newDeserializer = new Deserialization(buffer)
 
             return newDeserializer.fetchObject(type, field)
           }
-          if (constructorCmp != 0x1cb5c415) {
-            throw new Error(`Invalid vector constructor ${  constructor}`)
-          }
+          if (constructorCmp !== 0x1cb5c415)
+            throw new Error(`Invalid vector constructor ${constructor}`)
         }
-        const len = this.readInt(`${field  }[count]`)
+        const len = this.readInt(`${field}[count]`)
         const result = []
         if (len > 0) {
           const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
@@ -615,9 +605,8 @@ export const TL = (api, mtApi) => {
             break
           }
         }
-        if (!constructorData) {
+        if (!constructorData)
           throw new Error(`Constructor not found for predicate: ${  type}`)
-        }
       } else {
         const constructor = this.readInt(`${field  }[id]`)
         const constructorCmp = uintToInt(constructor)
@@ -634,14 +623,12 @@ export const TL = (api, mtApi) => {
         let index = schema.constructorsIndex
         if (!index) {
           schema.constructorsIndex = index = {}
-          for (let i = 0; i < schema.constructors.length; i++) {
+          for (let i = 0; i < schema.constructors.length; i++)
             index[schema.constructors[i].id] = i
-          }
         }
         let i = index[constructorCmp]
-        if (i) {
+        if (i)
           constructorData = schema.constructors[i]
-        }
 
         fallback = false
         if (!constructorData && this.mtproto) {

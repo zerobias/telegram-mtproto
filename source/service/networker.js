@@ -9,7 +9,6 @@ import forEach from '../for-each'
 import smartTimeout from '../smart-timeout'
 import blueDefer from '../defer'
 import { httpClient } from '../http'
-// import { chooseServer } from './dc-configurator'
 import { PureStorage } from '../store'
 
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
@@ -215,10 +214,13 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         .then(afterGetDc)
     }
 
-    sendLongPoll() {
-      const maxWait = 25000
-      const self = this
+    onHttpWait = () => {
+      delete this.longPollPending
+      setImmediate(this.checkLongPoll)
+    }
 
+    sendLongPoll = () => {
+      const maxWait = 25000
       this.longPollPending = tsNow() + maxWait
       // console.log('Set lp', this.longPollPending, tsNow())
 
@@ -229,10 +231,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       }, {
         noResponse: true,
         longPoll  : true
-      }).then(() => {
-        delete self.longPollPending
-        setImmediate(self.checkLongPoll)
-      }, () => {
+      }).then(this.onHttpWait, () => {
         console.log('Long-poll failed')
       })
     }
@@ -243,12 +242,10 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       this.sentMessages[message.msg_id] = { ...message, ...options, deferred }
       this.pendingMessages[message.msg_id] = 0
 
-      if (!options || !options.noShedule) {
+      if (!options || !options.noShedule)
         this.sheduleRequest()
-      }
-      if (is(Object, options)) {
+      if (is(Object, options))
         options.messageID = message.msg_id
-      }
 
       return deferred.promise
     }
@@ -257,14 +254,12 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       const value = delay
         ? tsNow() + delay
         : 0
+      const innerMap = innerMsg => this.pendingMessages[innerMsg] = value
       const sentMessage = this.sentMessages[messageID]
-      if (sentMessage.container) {
-        for (let i = 0; i < sentMessage.inner.length; i++) {
-          this.pendingMessages[sentMessage.inner[i]] = value
-        }
-      } else {
+      if (sentMessage.container)
+        sentMessage.inner.forEach(innerMap)
+      else
         this.pendingMessages[messageID] = value
-      }
 
       // console.log('Resend due', messageID, this.pendingMessages)
 
@@ -337,14 +332,13 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         body  : serializer.getBytes()
       }
 
-      const self = this
       this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result =>
-        self.toggleOffline(false)
+        this.toggleOffline(false)
       , () => {
-        console.log(dTime(), 'Delay ', self.checkConnectionPeriod * 1000)
-        self.checkConnectionPromise = smartTimeout(
-          self.checkConnection, parseInt(self.checkConnectionPeriod * 1000))
-        self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5)
+        console.log(dTime(), 'Delay ', this.checkConnectionPeriod * 1000)
+        this.checkConnectionPromise = smartTimeout(
+          this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
+        this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
       })
     }
 

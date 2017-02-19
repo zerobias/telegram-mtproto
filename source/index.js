@@ -14,23 +14,15 @@ export { MtpTimeManager }
 import * as MtpDcConfigurator from './service/dc-configurator'
 export { MtpDcConfigurator }
 
-// import * as MtpRsaKeysManager from './service/rsa-keys-manger'
-// export { MtpRsaKeysManager }
-
-// import * as MtpAuthorizer from './service/authorizer'
-// export { MtpAuthorizer }
-
 import MtpSecureRandom from './service/secure-random'
 export { MtpSecureRandom }
 
 import * as MtpNetworker from './service/networker'
 export { MtpNetworker }
 
-// export * from './tl'
-
 export { httpClient } from './http'
 
 console.info('source loaded')
 
-
-export default {}
+import { ApiManager } from './service/api-manager/index.js'
+export default ApiManager
