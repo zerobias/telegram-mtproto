@@ -5,7 +5,8 @@ import { clone, merge, unnest,
   set, split, chain, memoize,
   complement, is, isEmpty, either, reject, over,
   isNil, view, when, __, dissocPath, has, curry,
-  objOf, prop, compose, lensProp, omit } from 'ramda'
+  objOf, prop, compose, lensProp, omit,
+  flip, props } from 'ramda'
 
 export const ValueStore = () => {
   let val = null
@@ -29,13 +30,31 @@ export const TimeOffset = ValueStore()
 export const dcList = ValueStoreMap()
 
 
-export const PureStorage = {
+const flatProps = pipe(flip(props), unapply)
+
+export const AsyncStorage = () => {
+  let store = {}
+
+  const flatGet = flatProps(store)
+  const set = obj => store = { ...store, ...obj }
+  const remove = keys => store = omit(keys, store)
+  const clr = () => store = {}
+  return {
+    get     : (...keys) => Promise.resolve(flatGet(...keys)),
+    set     : obj => Promise.resolve(set(obj)),
+    remove  : (...keys) => Promise.resolve(remove(keys)),
+    clear   : () => Promise.resolve(clr()),
+    noPrefix: () => ({}),
+  }
+}
+
+export const PureStorage = AsyncStorage() /*{
   get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
   set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
   remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
   noPrefix: () => ConfigStorage.noPrefix(),
   clear   : () => new Promise(rs => ConfigStorage.clear(rs))
-}
+}*/
 
 const flatArgs = unapply( unnest )
 const splitter = chain(split('.'))

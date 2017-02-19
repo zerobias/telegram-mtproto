@@ -26,11 +26,11 @@ export { MtpSecureRandom }
 import * as MtpNetworker from './service/networker'
 export { MtpNetworker }
 
-export * from './tl'
+// export * from './tl'
 
 export { httpClient } from './http'
 
-console.debug('source loaded')
+console.info('source loaded')
 
 
 export default {}

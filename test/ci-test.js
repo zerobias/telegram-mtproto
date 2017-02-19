@@ -70,7 +70,7 @@ test('try login', t => {
       .wait(2e3)
       .type(data.sel1.code, data.code)
       .wait(data.sel1.end)
-      .wait(6e3)
+      .wait(9e3)
     const text = await night
       .evaluate(function(sel){
         return document.querySelector(sel).innerText

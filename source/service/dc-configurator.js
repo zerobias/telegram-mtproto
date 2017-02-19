@@ -34,6 +34,7 @@ export const chooseServer = (chosenServers, {
     if (has(dcID, chosenServers)) return choosen(chosenServers)
     let chosenServer = false
 
+
     if (webogram) {
       const subdomain = sslSubdomains[dcID - 1] + (upload ? '-1' : '')
       const path = dev

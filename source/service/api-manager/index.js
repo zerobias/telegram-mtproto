@@ -1,18 +1,23 @@
 import Promise from 'bluebird'
 import EventEmitter from 'eventemitter2'
 
-import { pathSatisfies, complement, isNil, unless, is, always, propEq, reject } from 'ramda'
+import { pathSatisfies, complement, isNil, unless, is, always, propEq, reject, type, both } from 'ramda'
 
 import { getNetworker } from '../networker'
-import { auth } from '../authorizer'
+import Auth from '../authorizer'
 import { PureStorage } from '../../store'
 import blueDefer from '../../defer'
 import { dTime } from '../time-manager'
 import { chooseServer } from '../dc-configurator'
+import TL from '../../tl'
+import KeyManager from '../rsa-keys-manger'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
 import { switchErrors } from './error-cases'
+
+const api57 = require('../../../schema/api-57.json')
+const mtproto57 = require('../../../schema/mtproto-57.json')
 
 const hasPath = pathSatisfies( complement( isNil ) )
 const defDc = unless( is(Number), always(2) )
@@ -43,14 +48,14 @@ export const mtpClearStorage = function() {
     .then(PureStorage.set)
 }
 
-const Ln = propEq('length')
+const Ln = (length, obj) => obj && propEq('length', length, obj)
 
 export class ApiManager {
   emitter = new EventEmitter({
     wildcard: true
   })
-  on = this.emitter.on
-  emit = this.emitter.emit
+  on = this.emitter.on.bind(this.emitter)
+  emit = this.emitter.emit.bind(this.emitter)
   cache = {
     uploader  : {},
     downloader: {},
@@ -67,14 +72,29 @@ export class ApiManager {
     app_version    : '',
     lang_code      : 'en'
   }
-  constructor({ serverConfig = {}, appSettings = {} } = {}) {
+
+  constructor({ serverConfig = {}, appSettings = {}, schema = api57, mtSchema = mtproto57, debug = false } = {}) {
     this.serverConfig = serverConfig
+    this.debug = debug
+    this.schema = schema
+    this.mtSchema = mtSchema
     this.chooseServer = chooseServer(this.cache.servers, serverConfig)
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     this.setUserAuth = this.setUserAuth.bind(this)
 
+    this.TL = TL(schema, mtSchema)
+    this.keyManager = KeyManager(this.TL.Serialization)
+    this.auth = Auth(this.TL, this.keyManager)
     this.appSettings = { ...ApiManager.appSettings, ...withoutNil(appSettings) }
-    this.networkFabric = getNetworker(this.appSettings, this.chooseServer, this.emit)
+    this.networkFabric = getNetworker(this.appSettings, this.chooseServer, this.TL, this.emit, debug)
+
+    return new Proxy(this, {
+      get(ctx, name) {
+        const result = Reflect.get(ctx, name)
+        console.info('get', name, type(result))
+        return result
+      }
+    })
   }
   mtpGetNetworker = (dcID, options = {}) => {
     const isUpload = options.fileUpload || options.fileDownload
@@ -118,7 +138,7 @@ export class ApiManager {
         return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options)
       }
 
-      return auth(dcID, this.cache.auth, dcUrl)
+      return this.auth(dcID, this.cache.auth, dcUrl)
         .then(onDcAuth, netError)
     }
 
@@ -152,7 +172,8 @@ export class ApiManager {
     const cachedNetThunk = () => performRequest(cachedNetworker)
     const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3)
 
-    const stack = (new Error()).stack || 'empty stack'
+    const defError = new Error()
+    const stack = defError.stack || 'empty stack'
     const performRequest = networker =>
       (cachedNetworker = networker)
         .wrapApiCall(method, params, options)

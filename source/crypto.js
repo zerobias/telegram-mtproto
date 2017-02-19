@@ -15,12 +15,14 @@ const webCrypto = isNode
   ? false
   //eslint-disable-next-line
   : window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
-  /* || window.msCrypto && window.msCrypto.subtle*/
-let useSha1Crypto = true//webCrypto && webCrypto.digest !== undefined
-let useSha256Crypto = true//webCrypto && webCrypto.digest !== undefined
+  //eslint-disable-next-line
+  || window.msCrypto && window.msCrypto.subtle
+const useWebCrypto = webCrypto && !!webCrypto.digest
+let useSha1Crypto = useWebCrypto
+let useSha256Crypto = useWebCrypto
 const finalizeTask = (taskID, result) => {
   const deferred = awaiting[taskID]
-  if (deferred !== undefined) {
+  if (deferred) {
     // console.log(rework_d_T(), 'CW done')
     deferred.resolve(result) //TODO Possibly, can be used as
     delete awaiting[taskID]  //
@@ -70,7 +72,7 @@ const sha1Hash = bytes => {
       return sha1HashSync(bytes)
     })
   }
-  return smartTimeout.promise(sha1HashSync, 0, bytes)
+  return smartTimeout.promise(() => sha1HashSync(bytes), 0)
 }
 
 const sha256Hash = bytes => {
@@ -86,7 +88,7 @@ const sha256Hash = bytes => {
           return sha256HashSync(bytes)
         })
   }
-  return smartTimeout.promise(sha256HashSync, 0, bytes)
+  return smartTimeout.promise(() => sha256HashSync(bytes), 0)
 }
 
 const aesEncrypt = (bytes, keyBytes, ivBytes) =>

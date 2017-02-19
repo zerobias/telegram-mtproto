@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 26);
+/******/ 	return __webpack_require__(__webpack_require__.s = 33);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -87,52 +87,52 @@ module.exports = vendor;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rusha__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(20);
-/* harmony export (immutable) */ __webpack_exports__["c"] = bigint;
-/* harmony export (immutable) */ __webpack_exports__["b"] = bigStringInt;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(19);
+/* harmony export (immutable) */ __webpack_exports__["x"] = bigint;
+/* harmony export (immutable) */ __webpack_exports__["k"] = bigStringInt;
 /* unused harmony export dHexDump */
-/* harmony export (immutable) */ __webpack_exports__["e"] = bytesToHex;
-/* harmony export (immutable) */ __webpack_exports__["x"] = bytesFromHex;
+/* harmony export (immutable) */ __webpack_exports__["f"] = bytesToHex;
+/* harmony export (immutable) */ __webpack_exports__["u"] = bytesFromHex;
 /* unused harmony export bytesToBase64 */
 /* unused harmony export uint6ToBase64 */
-/* harmony export (immutable) */ __webpack_exports__["l"] = bytesCmp;
-/* harmony export (immutable) */ __webpack_exports__["z"] = bytesXor;
+/* harmony export (immutable) */ __webpack_exports__["e"] = bytesCmp;
+/* harmony export (immutable) */ __webpack_exports__["w"] = bytesXor;
 /* unused harmony export bytesToWords */
 /* unused harmony export bytesFromWords */
 /* unused harmony export bytesFromBigInt */
 /* unused harmony export bytesFromLeemonBigInt */
 /* harmony export (immutable) */ __webpack_exports__["h"] = bytesToArrayBuffer;
-/* harmony export (immutable) */ __webpack_exports__["j"] = convertToArrayBuffer;
-/* harmony export (immutable) */ __webpack_exports__["i"] = convertToUint8Array;
-/* harmony export (immutable) */ __webpack_exports__["t"] = convertToByteArray;
-/* harmony export (immutable) */ __webpack_exports__["m"] = bytesFromArrayBuffer;
+/* harmony export (immutable) */ __webpack_exports__["c"] = convertToArrayBuffer;
+/* harmony export (immutable) */ __webpack_exports__["b"] = convertToUint8Array;
+/* harmony export (immutable) */ __webpack_exports__["q"] = convertToByteArray;
+/* harmony export (immutable) */ __webpack_exports__["g"] = bytesFromArrayBuffer;
 /* unused harmony export bufferConcat */
 /* unused harmony export longToInts */
-/* harmony export (immutable) */ __webpack_exports__["n"] = longToBytes;
-/* harmony export (immutable) */ __webpack_exports__["w"] = longFromInts;
-/* harmony export (immutable) */ __webpack_exports__["d"] = intToUint;
-/* harmony export (immutable) */ __webpack_exports__["f"] = uintToInt;
-/* harmony export (immutable) */ __webpack_exports__["p"] = sha1HashSync;
-/* harmony export (immutable) */ __webpack_exports__["k"] = sha1BytesSync;
-/* harmony export (immutable) */ __webpack_exports__["q"] = sha256HashSync;
-/* harmony export (immutable) */ __webpack_exports__["y"] = rsaEncrypt;
+/* harmony export (immutable) */ __webpack_exports__["i"] = longToBytes;
+/* harmony export (immutable) */ __webpack_exports__["t"] = longFromInts;
+/* harmony export (immutable) */ __webpack_exports__["y"] = intToUint;
+/* harmony export (immutable) */ __webpack_exports__["j"] = uintToInt;
+/* harmony export (immutable) */ __webpack_exports__["m"] = sha1HashSync;
+/* harmony export (immutable) */ __webpack_exports__["d"] = sha1BytesSync;
+/* harmony export (immutable) */ __webpack_exports__["n"] = sha256HashSync;
+/* harmony export (immutable) */ __webpack_exports__["v"] = rsaEncrypt;
 /* unused harmony export addPadding */
-/* harmony export (immutable) */ __webpack_exports__["r"] = aesEncryptSync;
-/* harmony export (immutable) */ __webpack_exports__["s"] = aesDecryptSync;
-/* harmony export (immutable) */ __webpack_exports__["g"] = gzipUncompress;
-/* harmony export (immutable) */ __webpack_exports__["o"] = nextRandomInt;
-/* harmony export (immutable) */ __webpack_exports__["u"] = pqPrimeFactorization;
+/* harmony export (immutable) */ __webpack_exports__["o"] = aesEncryptSync;
+/* harmony export (immutable) */ __webpack_exports__["p"] = aesDecryptSync;
+/* harmony export (immutable) */ __webpack_exports__["z"] = gzipUncompress;
+/* harmony export (immutable) */ __webpack_exports__["l"] = nextRandomInt;
+/* harmony export (immutable) */ __webpack_exports__["r"] = pqPrimeFactorization;
 /* unused harmony export pqPrimeJsbn */
 /* unused harmony export pqPrimeLeemon */
-/* harmony export (immutable) */ __webpack_exports__["v"] = bytesModPow;
+/* harmony export (immutable) */ __webpack_exports__["s"] = bytesModPow;
 
 
 
@@ -923,20 +923,20 @@ function bytesModPow(x, y, m) {
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(128);
+module.exports = (__webpack_require__(0))(131);
 
 /***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(131);
+module.exports = (__webpack_require__(0))(128);
 
 /***/ }),
 /* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 
 /**
@@ -967,7 +967,7 @@ const blueDefer = () => {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(1);
@@ -1002,7 +1002,7 @@ const generateMessageID = () => {
   const timeTicks = tsNow(),
         timeSec = Math.floor(timeTicks / 1000) + timerOffset,
         timeMSec = timeTicks % 1000,
-        random = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["o" /* nextRandomInt */])(0xFFFF);
+        random = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["l" /* nextRandomInt */])(0xFFFF);
 
   let messageID = [timeSec, timeMSec << 21 | random << 3 | 4];
   if (lastMessageID[0] > messageID[0] || lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
@@ -1013,7 +1013,7 @@ const generateMessageID = () => {
 
   // console.log('generated msg id', messageID, timerOffset)
 
-  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["w" /* longFromInts */])(messageID[0], messageID[1]);
+  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["t" /* longFromInts */])(messageID[0], messageID[1]);
 };
 
 const applyServerTime = (serverTime, localTime) => {
@@ -1037,9 +1037,9 @@ const applyServerTime = (serverTime, localTime) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 
 
@@ -1074,15 +1074,35 @@ const dcList = ValueStoreMap();
 /* unused harmony export dcList */
 
 
-const PureStorage = {
-  get: (...keys) => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.get(keys, rs)),
-  set: obj => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.set(obj, rs)),
-  remove: (...keys) => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.remove(...keys, rs)),
-  noPrefix: () => ConfigStorage.noPrefix(),
-  clear: () => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(rs => ConfigStorage.clear(rs))
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
+const flatProps = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["flip"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["props"]), __WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"]);
 
+const AsyncStorage = () => {
+  let store = {};
+
+  const flatGet = flatProps(store);
+  const set = obj => store = Object.assign({}, store, obj);
+  const remove = keys => store = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys, store);
+  const clr = () => store = {};
+  return {
+    get: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(flatGet(...keys)),
+    set: obj => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(set(obj)),
+    remove: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(remove(keys)),
+    clear: () => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(clr()),
+    noPrefix: () => ({})
+  };
+};
+/* unused harmony export AsyncStorage */
+
+
+const PureStorage = AsyncStorage();
+/* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
+ /*{
+                                           get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
+                                           set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
+                                           remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
+                                           noPrefix: () => ConfigStorage.noPrefix(),
+                                           clear   : () => new Promise(rs => ConfigStorage.clear(rs))
+                                           }*/
 
 const flatArgs = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["unnest"]);
 const splitter = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["chain"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["split"])('.'));
@@ -1145,678 +1165,12 @@ const innerStore = new SyncStorage();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(1);
-
-
-
-class TLSerialization {
-  constructor({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) {
-    this.storeIntString = (value, field) => {
-      const valType = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["type"])(value);
-      switch (true) {
-        case __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(String, value):
-          return this.storeString(value, field);
-        case __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Number, value):
-          return this.storeInt(value, field);
-        default:
-          throw new Error(`tl storeIntString field ${field} value type ${valType}`);
-      }
-    };
-
-    this.storeInt = (i, field = '') => {
-      this.writeInt(i, `${field}:int`);
-    };
-
-    this.maxLength = startMaxLength;
-    this.offset = 0; // in bytes
-
-    this.createBuffer();
-
-    // this.debug = options.debug !== undefined ? options.debug : Config.Modes.debug
-    this.mtproto = mtproto;
-  }
-
-  createBuffer() {
-    this.buffer = new ArrayBuffer(this.maxLength);
-    this.intView = new Int32Array(this.buffer);
-    this.byteView = new Uint8Array(this.buffer);
-  }
-
-  getArray() {
-    const resultBuffer = new ArrayBuffer(this.offset);
-    const resultArray = new Int32Array(resultBuffer);
-
-    resultArray.set(this.intView.subarray(0, this.offset / 4));
-
-    return resultArray;
-  }
-
-  getBuffer() {
-    return this.getArray().buffer;
-  }
-
-  getBytes(typed) {
-    if (typed) {
-      const resultBuffer = new ArrayBuffer(this.offset);
-      const resultArray = new Uint8Array(resultBuffer);
-
-      resultArray.set(this.byteView.subarray(0, this.offset));
-
-      return resultArray;
-    }
-
-    const bytes = [];
-    for (let i = 0; i < this.offset; i++) {
-      bytes.push(this.byteView[i]);
-    }
-    return bytes;
-  }
-
-  checkLength(needBytes) {
-    if (this.offset + needBytes < this.maxLength) {
-      return;
-    }
-
-    console.trace('Increase buffer', this.offset, needBytes, this.maxLength);
-    this.maxLength = Math.ceil(Math.max(this.maxLength * 2, this.offset + needBytes + 16) / 4) * 4;
-    const previousBuffer = this.buffer;
-    const previousArray = new Int32Array(previousBuffer);
-
-    this.createBuffer();
-
-    new Int32Array(this.buffer).set(previousArray);
-  }
-
-  writeInt(i, field) {
-    this.debug && console.log('>>>', i.toString(16), i, field);
-
-    this.checkLength(4);
-    this.intView[this.offset / 4] = i;
-    this.offset += 4;
-  }
-
-  storeBool(i, field = '') {
-    if (i) {
-      this.writeInt(0x997275b5, `${field}:bool`);
-    } else {
-      this.writeInt(0xbc799737, `${field}:bool`);
-    }
-  }
-
-  storeLongP(iHigh, iLow, field) {
-    this.writeInt(iLow, `${field}:long[low]`);
-    this.writeInt(iHigh, `${field}:long[high]`);
-  }
-
-  storeLong(sLong, field = '') {
-    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array, sLong)) return sLong.length === 2 ? this.storeLongP(sLong[0], sLong[1], field) : this.storeIntBytes(sLong, 64, field);
-
-    if (typeof sLong !== 'string') sLong = sLong ? sLong.toString() : '0';
-    const divRem = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["b" /* bigStringInt */])(sLong).divideAndRemainder(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["c" /* bigint */])(0x100000000));
-
-    this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["d" /* intToUint */])(divRem[1].intValue()), `${field}:long[low]`);
-    this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["d" /* intToUint */])(divRem[0].intValue()), `${field}:long[high]`);
-  }
-
-  storeDouble(f, field = '') {
-    const buffer = new ArrayBuffer(8);
-    const intView = new Int32Array(buffer);
-    const doubleView = new Float64Array(buffer);
-
-    doubleView[0] = f;
-
-    this.writeInt(intView[0], `${field}:double[low]`);
-    this.writeInt(intView[1], `${field}:double[high]`);
-  }
-
-  storeString(s, field = '') {
-    this.debug && console.log('>>>', s, `${field}:string`);
-
-    if (s === undefined) {
-      s = '';
-    }
-    const sUTF8 = unescape(encodeURIComponent(s));
-
-    this.checkLength(sUTF8.length + 8);
-
-    const len = sUTF8.length;
-    if (len <= 253) {
-      this.byteView[this.offset++] = len;
-    } else {
-      this.byteView[this.offset++] = 254;
-      this.byteView[this.offset++] = len & 0xFF;
-      this.byteView[this.offset++] = (len & 0xFF00) >> 8;
-      this.byteView[this.offset++] = (len & 0xFF0000) >> 16;
-    }
-    for (let i = 0; i < len; i++) {
-      this.byteView[this.offset++] = sUTF8.charCodeAt(i);
-    }
-
-    // Padding
-    while (this.offset % 4) {
-      this.byteView[this.offset++] = 0;
-    }
-  }
-
-  storeBytes(bytes, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes);
-    } else if (bytes === undefined) {
-      bytes = [];
-    }
-    this.debug && console.log('>>>', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), `${field}:bytes`);
-
-    const len = bytes.byteLength || bytes.length;
-    this.checkLength(len + 8);
-    if (len <= 253) {
-      this.byteView[this.offset++] = len;
-    } else {
-      this.byteView[this.offset++] = 254;
-      this.byteView[this.offset++] = len & 0xFF;
-      this.byteView[this.offset++] = (len & 0xFF00) >> 8;
-      this.byteView[this.offset++] = (len & 0xFF0000) >> 16;
-    }
-
-    this.byteView.set(bytes, this.offset);
-    this.offset += len;
-
-    // Padding
-    while (this.offset % 4) {
-      this.byteView[this.offset++] = 0;
-    }
-  }
-
-  storeIntBytes(bytes, bits, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes);
-    }
-    const len = bytes.length;
-    if (bits % 32 || len * 8 != bits) {
-      throw new Error(`Invalid bits: ${bits}, ${bytes.length}`);
-    }
-
-    this.debug && console.log('>>>', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), `${field}:int${bits}`);
-    this.checkLength(len);
-
-    this.byteView.set(bytes, this.offset);
-    this.offset += len;
-  }
-
-  storeRawBytes(bytes, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes);
-    }
-    const len = bytes.length;
-
-    this.debug && console.log('>>>', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), field);
-    this.checkLength(len);
-
-    this.byteView.set(bytes, this.offset);
-    this.offset += len;
-  }
-
-  storeMethod(methodName, params) {
-    const schema = this.mtproto ? Config.Schema.MTProto : Config.Schema.API;
-    let methodData = false;
-
-    for (let i = 0; i < schema.methods.length; i++) {
-      if (schema.methods[i].method == methodName) {
-        methodData = schema.methods[i];
-        break;
-      }
-    }
-    if (!methodData) {
-      throw new Error(`No method ${methodName} found`);
-    }
-
-    this.storeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["d" /* intToUint */])(methodData.id), `${methodName}[id]`);
-
-    let param, type;
-    let condType;
-    let fieldBit;
-    const len = methodData.params.length;
-    for (let i = 0; i < len; i++) {
-      param = methodData.params[i];
-      type = param.type;
-      if (type.indexOf('?') !== -1) {
-        condType = type.split('?');
-        fieldBit = condType[0].split('.');
-        if (!(params[fieldBit[0]] & 1 << fieldBit[1])) {
-          continue;
-        }
-        type = condType[1];
-      }
-
-      this.storeObject(params[param.name], type, `${methodName}[${param.name}]`);
-    }
-
-    return methodData.type;
-  }
-
-  storeObject(obj, type, field) {
-    switch (type) {
-      case '#':
-      case 'int':
-        return this.storeInt(obj, field);
-      case 'long':
-        return this.storeLong(obj, field);
-      case 'int128':
-        return this.storeIntBytes(obj, 128, field);
-      case 'int256':
-        return this.storeIntBytes(obj, 256, field);
-      case 'int512':
-        return this.storeIntBytes(obj, 512, field);
-      case 'string':
-        return this.storeString(obj, field);
-      case 'bytes':
-        return this.storeBytes(obj, field);
-      case 'double':
-        return this.storeDouble(obj, field);
-      case 'Bool':
-        return this.storeBool(obj, field);
-      case 'true':
-        return;
-    }
-
-    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array, obj)) {
-      if (type.substr(0, 6) == 'Vector') {
-        this.writeInt(0x1cb5c415, `${field}[id]`);
-      } else if (type.substr(0, 6) != 'vector') {
-        throw new Error(`Invalid vector type ${type}`);
-      }
-      const itemType = type.substr(7, type.length - 8); // for "Vector<itemType>"
-      this.writeInt(obj.length, `${field}[count]`);
-      for (let i = 0; i < obj.length; i++) {
-        this.storeObject(obj[i], itemType, `${field}[${i}]`);
-      }
-      return true;
-    } else if (type.substr(0, 6).toLowerCase() == 'vector') {
-      throw new Error('Invalid vector object');
-    }
-
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Object, obj)) throw new Error(`Invalid object for type ${type}`);
-
-    const schema = this.mtproto ? Config.Schema.MTProto : Config.Schema.API;
-    const predicate = obj['_'];
-    let isBare = false;
-    let constructorData = false;
-
-    if (isBare = type.charAt(0) == '%') type = type.substr(1);
-
-    for (let i = 0; i < schema.constructors.length; i++) {
-      if (schema.constructors[i].predicate == predicate) {
-        constructorData = schema.constructors[i];
-        break;
-      }
-    }
-    if (!constructorData) throw new Error(`No predicate ${predicate} found`);
-
-    if (predicate == type) isBare = true;
-
-    if (!isBare) this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["d" /* intToUint */])(constructorData.id), `${field}[${predicate}][id]`);
-
-    let param;
-    let condType;
-    let fieldBit;
-    const len = constructorData.params.length;
-    for (let i = 0; i < len; i++) {
-      param = constructorData.params[i];
-      type = param.type;
-      if (type.indexOf('?') !== -1) {
-        condType = type.split('?');
-        fieldBit = condType[0].split('.');
-        if (!(obj[fieldBit[0]] & 1 << fieldBit[1])) {
-          continue;
-        }
-        type = condType[1];
-      }
-
-      this.storeObject(obj[param.name], type, `${field}[${predicate}][${param.name}]`);
-    }
-
-    return constructorData.type;
-  }
-
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = TLSerialization;
-
-
-class TLDeserialization {
-  constructor(buffer, { mtproto = false, override = {} } = {}) {
-    this.offset = 0; // in bytes
-    this.override = override;
-
-    this.buffer = buffer;
-    this.intView = new Uint32Array(this.buffer);
-    this.byteView = new Uint8Array(this.buffer);
-
-    // this.debug = options.debug !== undefined ? options.debug : Config.Modes.debug
-    this.mtproto = mtproto;
-    return this;
-  }
-
-  readInt(field) {
-    if (this.offset >= this.intView.length * 4) {
-      throw new Error(`Nothing to fetch: ${field}`);
-    }
-
-    const i = this.intView[this.offset / 4];
-
-    this.debug && console.log('<<<', i.toString(16), i, field);
-
-    this.offset += 4;
-
-    return i;
-  }
-
-  fetchInt(field = '') {
-    return this.readInt(`${field}:int`);
-  }
-
-  fetchDouble(field = '') {
-    const buffer = new ArrayBuffer(8);
-    const intView = new Int32Array(buffer);
-    const doubleView = new Float64Array(buffer);
-
-    intView[0] = this.readInt(`${field}:double[low]`), intView[1] = this.readInt(`${field}:double[high]`);
-
-    return doubleView[0];
-  }
-
-  fetchLong(field = '') {
-    const iLow = this.readInt(`${field}:long[low]`);
-    const iHigh = this.readInt(`${field}:long[high]`);
-
-    const longDec = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["c" /* bigint */])(iHigh).shiftLeft(32).add(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["c" /* bigint */])(iLow)).toString();
-
-    return longDec;
-  }
-
-  fetchBool(field = '') {
-    const i = this.readInt(`${field}:bool`);
-    if (i == 0x997275b5) {
-      return true;
-    } else if (i == 0xbc799737) {
-      return false;
-    }
-
-    this.offset -= 4;
-    return this.fetchObject('Object', field);
-  }
-
-  fetchString(field = '') {
-    let len = this.byteView[this.offset++];
-
-    if (len == 254) {
-      len = this.byteView[this.offset++] | this.byteView[this.offset++] << 8 | this.byteView[this.offset++] << 16;
-    }
-
-    let sUTF8 = '';
-    for (let i = 0; i < len; i++) {
-      sUTF8 += String.fromCharCode(this.byteView[this.offset++]);
-    }
-
-    // Padding
-    while (this.offset % 4) {
-      this.offset++;
-    }
-    let s;
-    try {
-      s = decodeURIComponent(escape(sUTF8));
-    } catch (e) {
-      s = sUTF8;
-    }
-
-    this.debug && console.log('<<<', s, `${field}:string`);
-
-    return s;
-  }
-
-  fetchBytes(field = '') {
-    let len = this.byteView[this.offset++];
-
-    if (len == 254) {
-      len = this.byteView[this.offset++] | this.byteView[this.offset++] << 8 | this.byteView[this.offset++] << 16;
-    }
-
-    const bytes = this.byteView.subarray(this.offset, this.offset + len);
-    this.offset += len;
-
-    // Padding
-    while (this.offset % 4) this.offset++;
-
-    this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), `${field}:bytes`);
-
-    return bytes;
-  }
-
-  fetchIntBytes(bits, typed, field = '') {
-    if (bits % 32) throw new Error(`Invalid bits: ${bits}`);
-
-    const len = bits / 8;
-    if (typed) {
-      const result = this.byteView.subarray(this.offset, this.offset + len);
-      this.offset += len;
-      return result;
-    }
-
-    const bytes = [];
-    for (let i = 0; i < len; i++) {
-      bytes.push(this.byteView[this.offset++]);
-    }
-
-    this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), `${field}:int${bits}`);
-
-    return bytes;
-  }
-
-  fetchRawBytes(len, typed, field = '') {
-    if (len === false) {
-      len = this.readInt(`${field}_length`);
-      if (len > this.byteView.byteLength) throw new Error(`Invalid raw bytes length: ${len}, buffer len: ${this.byteView.byteLength}`);
-    }
-    let bytes;
-    if (typed) {
-      bytes = new Uint8Array(len);
-      bytes.set(this.byteView.subarray(this.offset, this.offset + len));
-      this.offset += len;
-      return bytes;
-    }
-
-    bytes = [];
-    for (let i = 0; i < len; i++) bytes.push(this.byteView[this.offset++]);
-
-    this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(bytes), field);
-
-    return bytes;
-  }
-
-  fetchObject(type, field) {
-    switch (type) {
-      case '#':
-      case 'int':
-        return this.fetchInt(field);
-      case 'long':
-        return this.fetchLong(field);
-      case 'int128':
-        return this.fetchIntBytes(128, false, field);
-      case 'int256':
-        return this.fetchIntBytes(256, false, field);
-      case 'int512':
-        return this.fetchIntBytes(512, false, field);
-      case 'string':
-        return this.fetchString(field);
-      case 'bytes':
-        return this.fetchBytes(field);
-      case 'double':
-        return this.fetchDouble(field);
-      case 'Bool':
-        return this.fetchBool(field);
-      case 'true':
-        return true;
-    }
-    let fallback;
-    field = field || type || 'Object';
-
-    if (type.substr(0, 6) == 'Vector' || type.substr(0, 6) == 'vector') {
-      if (type.charAt(0) == 'V') {
-        const constructor = this.readInt(`${field}[id]`);
-        const constructorCmp = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["f" /* uintToInt */])(constructor);
-
-        if (constructorCmp == 0x3072cfa1) {
-          // Gzip packed
-          const compressed = this.fetchBytes(`${field}[packed_string]`);
-          const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["g" /* gzipUncompress */])(compressed);
-          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["h" /* bytesToArrayBuffer */])(uncompressed);
-          const newDeserializer = new TLDeserialization(buffer);
-
-          return newDeserializer.fetchObject(type, field);
-        }
-        if (constructorCmp != 0x1cb5c415) {
-          throw new Error(`Invalid vector constructor ${constructor}`);
-        }
-      }
-      const len = this.readInt(`${field}[count]`);
-      const result = [];
-      if (len > 0) {
-        const itemType = type.substr(7, type.length - 8); // for "Vector<itemType>"
-        for (let i = 0; i < len; i++) result.push(this.fetchObject(itemType, `${field}[${i}]`));
-      }
-
-      return result;
-    }
-
-    const schema = this.mtproto ? Config.Schema.MTProto : Config.Schema.API;
-    let predicate = false;
-    let constructorData = false;
-
-    if (type.charAt(0) == '%') {
-      const checkType = type.substr(1);
-      for (let i = 0; i < schema.constructors.length; i++) {
-        if (schema.constructors[i].type == checkType) {
-          constructorData = schema.constructors[i];
-          break;
-        }
-      }
-      if (!constructorData) {
-        throw new Error(`Constructor not found for type: ${type}`);
-      }
-    } else if (type.charAt(0) >= 97 && type.charAt(0) <= 122) {
-      for (let i = 0; i < schema.constructors.length; i++) {
-        if (schema.constructors[i].predicate == type) {
-          constructorData = schema.constructors[i];
-          break;
-        }
-      }
-      if (!constructorData) {
-        throw new Error(`Constructor not found for predicate: ${type}`);
-      }
-    } else {
-      const constructor = this.readInt(`${field}[id]`);
-      const constructorCmp = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["f" /* uintToInt */])(constructor);
-
-      if (constructorCmp == 0x3072cfa1) {
-        // Gzip packed
-        const compressed = this.fetchBytes(`${field}[packed_string]`);
-        const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["g" /* gzipUncompress */])(compressed);
-        const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["h" /* bytesToArrayBuffer */])(uncompressed);
-        const newDeserializer = new TLDeserialization(buffer);
-
-        return newDeserializer.fetchObject(type, field);
-      }
-
-      let index = schema.constructorsIndex;
-      if (!index) {
-        schema.constructorsIndex = index = {};
-        for (let i = 0; i < schema.constructors.length; i++) {
-          index[schema.constructors[i].id] = i;
-        }
-      }
-      let i = index[constructorCmp];
-      if (i) {
-        constructorData = schema.constructors[i];
-      }
-
-      fallback = false;
-      if (!constructorData && this.mtproto) {
-        const schemaFallback = Config.Schema.API;
-        for (i = 0; i < schemaFallback.constructors.length; i++) {
-          if (schemaFallback.constructors[i].id == constructorCmp) {
-            constructorData = schemaFallback.constructors[i];
-
-            delete this.mtproto;
-            fallback = true;
-            break;
-          }
-        }
-      }
-      if (!constructorData) {
-        throw new Error(`Constructor not found: ${constructor} ${this.fetchInt()} ${this.fetchInt()}`);
-      }
-    }
-
-    predicate = constructorData.predicate;
-
-    const result = { '_': predicate };
-    const overrideKey = (this.mtproto ? 'mt_' : '') + predicate;
-
-    if (this.override[overrideKey]) {
-      this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`]);
-    } else {
-      let param, isCond;
-      let condType, fieldBit;
-      let value;
-      const len = constructorData.params.length;
-      for (let i = 0; i < len; i++) {
-        param = constructorData.params[i];
-        type = param.type;
-        if (type === '#' && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["isNil"])(result.pFlags)) result.pFlags = {};
-
-        isCond = type.indexOf('?') !== -1;
-        if (isCond) {
-          condType = type.split('?');
-          fieldBit = condType[0].split('.');
-          if (!(result[fieldBit[0]] & 1 << fieldBit[1])) continue;
-          type = condType[1];
-        }
-
-        value = this.fetchObject(type, `${field}[${predicate}][${param.name}]`);
-
-        if (isCond && type === 'true') result.pFlags[param.name] = value;else result[param.name] = value;
-      }
-    }
-
-    if (fallback) this.mtproto = true;
-
-    return result;
-  }
-
-  getOffset() {
-    return this.offset;
-  }
-
-  fetchEnd() {
-    if (this.offset !== this.byteView.length) throw new Error('Fetch end with non-empty buffer');
-    return true;
-  }
-
-}
-/* harmony export (immutable) */ __webpack_exports__["b"] = TLDeserialization;
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_detect_node__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(1);
 
 
@@ -1825,19 +1179,21 @@ class TLDeserialization {
 
 
 
-const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), __WEBPACK_IMPORTED_MODULE_4__bin__["i" /* convertToUint8Array */]);
+const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), __WEBPACK_IMPORTED_MODULE_4__bin__["b" /* convertToUint8Array */]);
 let webWorker = false;
 let taskID = 0;
 const awaiting = {};
 const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false
 //eslint-disable-next-line
-: window.crypto.subtle || window.crypto.webkitSubtle; //TODO remove browser depends
-/* || window.msCrypto && window.msCrypto.subtle*/
-let useSha1Crypto = true; //webCrypto && webCrypto.digest !== undefined
-let useSha256Crypto = true; //webCrypto && webCrypto.digest !== undefined
+: window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
+//eslint-disable-next-line
+|| window.msCrypto && window.msCrypto.subtle;
+const useWebCrypto = webCrypto && !!webCrypto.digest;
+let useSha1Crypto = useWebCrypto;
+let useSha256Crypto = useWebCrypto;
 const finalizeTask = (taskID, result) => {
   const deferred = awaiting[taskID];
-  if (deferred !== undefined) {
+  if (deferred) {
     // console.log(rework_d_T(), 'CW done')
     deferred.resolve(result); //TODO Possibly, can be used as
     delete awaiting[taskID]; //
@@ -1881,10 +1237,10 @@ const sha1Hash = bytes => {
     digest, e => {
       console.error('Crypto digest error', e);
       useSha1Crypto = false;
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* sha1HashSync */])(bytes);
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes);
     });
   }
-  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* sha1HashSync */], 0, bytes);
+  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes), 0);
 };
 
 const sha256Hash = bytes => {
@@ -1896,26 +1252,26 @@ const sha256Hash = bytes => {
     , e => {
       console.error('Crypto digest error', e);
       useSha256Crypto = false;
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* sha256HashSync */])(bytes);
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes);
     });
   }
-  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* sha256HashSync */], 0, bytes);
+  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes), 0);
 };
 
-const aesEncrypt = (bytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["j" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["r" /* aesEncryptSync */])(bytes, keyBytes, ivBytes)));
+const aesEncrypt = (bytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["o" /* aesEncryptSync */])(bytes, keyBytes, ivBytes)));
 
-const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["j" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["s" /* aesDecryptSync */])(encryptedBytes, keyBytes, ivBytes)));
+const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* aesDecryptSync */])(encryptedBytes, keyBytes, ivBytes)));
 
 const factorize = bytes => {
-  bytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["t" /* convertToByteArray */])(bytes);
-  return webWorker ? performTaskWorker('factorize', { bytes }) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["u" /* pqPrimeFactorization */])(bytes));
+  bytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* convertToByteArray */])(bytes);
+  return webWorker ? performTaskWorker('factorize', { bytes }) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["r" /* pqPrimeFactorization */])(bytes));
 };
 
 const modPow = (x, y, m) => webWorker ? performTaskWorker('mod-pow', {
   x,
   y,
   m
-}) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["v" /* bytesModPow */])(x, y, m));
+}) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["s" /* bytesModPow */])(x, y, m));
 
 const CryptoWorker = {
   sha1Hash,
@@ -1931,11 +1287,11 @@ const CryptoWorker = {
 /* harmony default export */ __webpack_exports__["b"] = CryptoWorker;
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 
 
@@ -1948,12 +1304,89 @@ delete httpClient.defaults.headers.common['Accept'];
 /* harmony default export */ __webpack_exports__["b"] = httpClient;
 
 /***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
+
+
+const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
+/* unused harmony export random */
+
+
+/* harmony default export */ __webpack_exports__["a"] = random;
+
+/***/ }),
 /* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
+
+const cancelToken = Symbol('cancel token');
+
+const timeoutRefs = new WeakSet();
+
+const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
+
+const smartTimeout = (fn, delay, ...args) => {
+  const newToken = Symbol('cancel id');
+  const checkRun = () => {
+    if (timeoutRefs.has(newToken)) {
+      timeoutRefs.delete(newToken);
+      return fn(...args);
+    } else return false;
+  };
+  const promise = pause(delay).then(checkRun);
+  promise[cancelToken] = newToken;
+  return promise;
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = smartTimeout;
+
+
+smartTimeout.cancel = promise => {
+  if (!promise || !promise[cancelToken]) return false;
+  const token = promise[cancelToken];
+  return timeoutRefs.has(token) ? timeoutRefs.delete(token) : false;
+};
+
+smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(...args));
+
+/* harmony default export */ __webpack_exports__["b"] = smartTimeout;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(0))(129);
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
+
+
+const indexedMap = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["addIndex"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["map"]);
+const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["isNil"]), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["ifElse"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), indexedMap(func), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["mapObjIndexed"])(func)))(data);
+/* harmony export (immutable) */ __webpack_exports__["a"] = forEach;
+
+
+/* harmony default export */ __webpack_exports__["b"] = forEach;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 
 
@@ -1992,517 +1425,24 @@ const chooseServer = (chosenServers, {
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-
-
-const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
-/* unused harmony export random */
-
-
-/* harmony default export */ __webpack_exports__["a"] = random;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-
-
-const cancelToken = Symbol('cancel token');
-
-const timeoutRefs = new WeakSet();
-
-const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
-
-const smartTimeout = (fn, delay, ...args) => {
-  const newToken = Symbol('cancel id');
-  const checkRun = () => {
-    if (timeoutRefs.has(newToken)) {
-      timeoutRefs.delete(newToken);
-      return fn(...args);
-    } else return false;
-  };
-  const promise = pause(delay).then(checkRun);
-  promise[cancelToken] = newToken;
-  return promise;
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = smartTimeout;
-
-
-smartTimeout.cancel = promise => {
-  if (!promise || !promise[cancelToken]) return false;
-  const token = promise[cancelToken];
-  return timeoutRefs.has(token) ? timeoutRefs.delete(token) : false;
-};
-
-smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(...args));
-
-/* harmony default export */ __webpack_exports__["b"] = smartTimeout;
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(129);
-
-/***/ }),
 /* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-
-
-const indexedMap = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["addIndex"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["map"]);
-const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_0_ramda__["isNil"]), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["ifElse"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), indexedMap(func), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["mapObjIndexed"])(func)))(data);
-/* harmony export (immutable) */ __webpack_exports__["a"] = forEach;
-
-
-/* harmony default export */ __webpack_exports__["b"] = forEach;
-
-/***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(setImmediate) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__http__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__crypto__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__secure_random__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__tl__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__bin__ = __webpack_require__(1);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return mtpAuth; });
-
-
-const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
-
-
-
-
-
-
-
-
-
-
-
-
-
-function mtpSendPlainRequest(url, requestBuffer) {
-  const requestLength = requestBuffer.byteLength,
-        requestArray = new Int32Array(requestBuffer);
-
-  const header = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]();
-  header.storeLongP(0, 0, 'auth_key_id'); // Auth key
-  header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["generateID"])(), 'msg_id'); // Msg_id
-  header.storeInt(requestLength, 'request_length');
-
-  const headerBuffer = header.getBuffer(),
-        headerArray = new Int32Array(headerBuffer);
-  const headerLength = headerBuffer.byteLength;
-
-  const resultBuffer = new ArrayBuffer(headerLength + requestLength),
-        resultArray = new Int32Array(resultBuffer);
-
-  resultArray.set(headerArray);
-  resultArray.set(requestArray, headerArray.length);
-
-  const requestData = resultArray;
-  let requestPromise;
-  const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url };
-  try {
-    requestPromise = __WEBPACK_IMPORTED_MODULE_3__http__["b" /* default */].post(url, requestData, {
-      responseType: 'arraybuffer'
-    });
-  } catch (e) {
-    requestPromise = __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
-  }
-  return requestPromise.then(result => {
-    if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
-    let deserializer;
-    try {
-      deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](result.data, { mtproto: true });
-      const auth_key_id = deserializer.fetchLong('auth_key_id');
-      const msg_id = deserializer.fetchLong('msg_id');
-      const msg_len = deserializer.fetchInt('msg_len');
-    } catch (e) {
-      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
-    }
-
-    return deserializer;
-  }, error => {
-    if (!error.message && !error.type) {
-      error = Object.assign({ originalError: error }, baseError);
-    }
-    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-  });
-}
-
-function mtpSendReqPQ(auth) {
-  console.warn('mtpSendReqPQ');
-  const deferred = auth.deferred;
-
-  const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-
-  request.storeMethod('req_pq', { nonce: auth.nonce });
-
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.nonce));
-  mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
-    const response = deserializer.fetchObject('ResPQ');
-
-    if (response._ != 'resPQ') throw new Error(`[MT] resPQ response invalid: ${response._}`);
-
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
-
-    auth.serverNonce = response.server_nonce;
-    auth.pq = response.pq;
-    auth.fingerprints = response.server_public_key_fingerprints;
-
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.pq), auth.fingerprints);
-
-    auth.publicKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__["a" /* select */])(auth.fingerprints);
-
-    if (!auth.publicKey) throw new Error('[MT] No public key found');
-
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization start', auth.pq);
-    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
-      auth.p = p;
-      auth.q = q;
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization done', it);
-      mtpSendReqDhParams(auth);
-    }, error => {
-      console.log('Worker error', error, error.stack);
-      deferred.reject(error);
-    });
-  }, error => {
-    console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'req_pq error', error.message);
-    deferred.reject(error);
-  });
-
-  setTimeout(__WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__["b" /* prepare */], 0);
-}
-
-function mtpSendReqDhParams(auth) {
-  const deferred = auth.deferred;
-
-  auth.newNonce = new Array(32);
-  __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.newNonce);
-
-  const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-  data.storeObject({
-    _: 'p_q_inner_data',
-    pq: auth.pq,
-    p: auth.p,
-    q: auth.q,
-    nonce: auth.nonce,
-    server_nonce: auth.serverNonce,
-    new_nonce: auth.newNonce
-  }, 'P_Q_inner_data', 'DECRYPTED_DATA');
-
-  const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
-
-  const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-  request.storeMethod('req_DH_params', {
-    nonce: auth.nonce,
-    server_nonce: auth.serverNonce,
-    p: auth.p,
-    q: auth.q,
-    public_key_fingerprint: auth.publicKey.fingerprint,
-    encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["y" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
-  });
-
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_DH_params');
-  mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
-    const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
-
-    if (response._ != 'server_DH_params_fail' && response._ != 'server_DH_params_ok') {
-      deferred.reject(new Error(`[MT] Server_DH_Params response invalid: ${response._}`));
-      return false;
-    }
-
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
-      deferred.reject(new Error('[MT] Server_DH_Params nonce mismatch'));
-      return false;
-    }
-
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
-      deferred.reject(new Error('[MT] Server_DH_Params server_nonce mismatch'));
-      return false;
-    }
-
-    if (response._ == 'server_DH_params_fail') {
-      const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce).slice(-16);
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
-        deferred.reject(new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'));
-        return false;
-      }
-      deferred.reject(new Error('[MT] server_DH_params_fail'));
-      return false;
-    }
-
-    try {
-      mtpDecryptServerDhDataAnswer(auth, response.encrypted_answer);
-    } catch (e) {
-      deferred.reject(e);
-      return false;
-    }
-
-    mtpSendSetClientDhParams(auth);
-  }, deferred.reject);
-}
-
-function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
-  auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
-
-  auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
-  auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
-
-  const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["s" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
-
-  const hash = answerWithHash.slice(0, 20);
-  const answerWithPadding = answerWithHash.slice(20);
-  const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
-
-  const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, { mtproto: true });
-  const response = deserializer.fetchObject('Server_DH_inner_data');
-
-  if (response._ != 'server_DH_inner_data') {
-    throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
-  }
-
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
-    throw new Error('[MT] server_DH_inner_data nonce mismatch');
-  }
-
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
-    throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
-  }
-
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Done decrypting answer');
-  auth.g = response.g;
-  auth.dhPrime = response.dh_prime;
-  auth.gA = response.g_a;
-  auth.serverTime = response.server_time;
-  auth.retry = 0;
-
-  mtpVerifyDhParams(auth.g, auth.dhPrime, auth.gA);
-
-  const offset = deserializer.getOffset();
-
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
-    throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch');
-  }
-
-  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
-}
-
-function mtpVerifyDhParams(g, dhPrime, gA) {
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Verifying DH params');
-  const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(dhPrime);
-  if (g != 3 || dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
-    // The verified value is from https://core.telegram.org/mtproto/security_guidelines
-    throw new Error('[MT] DH params are not verified: unknown dhPrime');
-  }
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'dhPrime cmp OK');
-
-  const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(gA), 16);
-  const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
-
-  if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
-    throw new Error('[MT] DH params are not verified: gA <= 1');
-  }
-
-  if (gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0) {
-    throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1');
-  }
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), '1 < gA < dhPrime-1 OK');
-
-  const two = new BigInteger(null);
-  two.fromInt(2);
-  const twoPow = two.pow(2048 - 64);
-
-  if (gABigInt.compareTo(twoPow) < 0) {
-    throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}');
-  }
-  if (gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0) {
-    throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}');
-  }
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
-
-  return true;
-}
-
-function mtpSendSetClientDhParams(auth) {
-  const deferred = auth.deferred;
-  const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(auth.g.toString(16));
-
-  auth.b = new Array(256);
-  __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
-
-  __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(function (gB) {
-    const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-    data.storeObject({
-      _: 'client_DH_inner_data',
-      nonce: auth.nonce,
-      server_nonce: auth.serverNonce,
-      retry_id: [0, auth.retry++],
-      g_b: gB
-    }, 'Client_DH_Inner_Data');
-
-    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
-
-    const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["r" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
-
-    const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-    request.storeMethod('set_client_DH_params', {
-      nonce: auth.nonce,
-      server_nonce: auth.serverNonce,
-      encrypted_data: encryptedData
-    });
-
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send set_client_DH_params');
-    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(function (deserializer) {
-      const response = deserializer.fetchObject('Set_client_DH_params_answer');
-
-      if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
-        deferred.reject(new Error(`[MT] Set_client_DH_params_answer response invalid: ${response._}`));
-        return false;
-      }
-
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
-        deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
-        return false;
-      }
-
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
-        deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
-        return false;
-      }
-
-      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(function (authKey) {
-        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(authKey),
-              authKeyAux = authKeyHash.slice(0, 8),
-              authKeyID = authKeyHash.slice(-8);
-
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
-        switch (response._) {
-          case 'dh_gen_ok':
-            {
-              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
-
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
-                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
-                return false;
-              }
-
-              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["z" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
-              // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
-
-              auth.authKeyID = authKeyID;
-              auth.authKey = authKey;
-              auth.serverSalt = serverSalt;
-
-              deferred.resolve(auth);
-              break;
-            }
-          case 'dh_gen_retry':
-            {
-              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
-                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
-                return false;
-              }
-
-              return mtpSendSetClientDhParams(auth);
-            }
-          case 'dh_gen_fail':
-            {
-              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
-                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
-                return false;
-              }
-
-              deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'));
-              return false;
-            }
-        }
-      }, function (error) {
-        deferred.reject(error);
-      });
-    }, function (error) {
-      deferred.reject(error);
-    });
-  }, error => {
-    deferred.reject(error);
-  });
-}
-
-function mtpAuth(dcID, cached, dcUrl) {
-  console.count('mtpAuth');
-  if (cached[dcID]) return cached[dcID].promise;
-  console.warn('mtpAuth');
-  const nonce = [];
-  for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["o" /* nextRandomInt */])(0xFF));
-
-  if (!dcUrl) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`));
-
-  const auth = {
-    dcID,
-    dcUrl,
-    nonce,
-    deferred: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])()
-  };
-
-  setImmediate(() => mtpSendReqPQ(auth));
-
-  cached[dcID] = auth.deferred;
-
-  cached[dcID].promise.catch(() => {
-    delete cached[dcID];
-  });
-
-  return cached[dcID].promise;
-}
-
-
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(17).setImmediate))
-
-/***/ }),
-/* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* WEBPACK VAR INJECTION */(function(setImmediate) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__tl__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__smart_timeout__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__http__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(1);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__smart_timeout__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__http__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__bin__ = __webpack_require__(1);
 
 
 
@@ -2528,7 +1468,7 @@ let akStopped = false;
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 
 
-const NetworkerFabric = (appConfig, chooseServer, emit) => {
+const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, emit, debug) => {
   var _class, _temp, _initialiseProps;
 
   return _temp = _class = class NetworkerThread {
@@ -2539,9 +1479,9 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
       this.iii = iii++;
 
       this.authKey = authKey;
-      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["i" /* convertToUint8Array */])(authKey);
-      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["j" /* convertToArrayBuffer */])(authKey);
-      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
+      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["b" /* convertToUint8Array */])(authKey);
+      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["c" /* convertToArrayBuffer */])(authKey);
+      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["d" /* sha1BytesSync */])(authKey).slice(-8);
 
       this.serverSalt = serverSalt;
 
@@ -2610,7 +1550,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
     }
 
     wrapMtpCall(method, params, options) {
-      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+      const serializer = new Serialization({ mtproto: true });
 
       serializer.storeMethod(method, params);
 
@@ -2622,16 +1562,14 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
         body: serializer.getBytes()
       };
 
-      if (Config.Modes.debug) {
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT call', method, params, messageID, seqNo);
-      }
+      if (debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT call', method, params, messageID, seqNo);
 
       return this.pushMessage(message, options);
     }
 
     wrapMtpMessage(object, options = {}) {
 
-      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+      const serializer = new Serialization({ mtproto: true });
       serializer.storeObject(object, 'Object');
 
       const messageID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["generateID"])();
@@ -2642,13 +1580,13 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
         body: serializer.getBytes()
       };
 
-      if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT message', object, messageID, seqNo);
+      if (debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'MT message', object, messageID, seqNo);
 
       return this.pushMessage(message, options);
     }
 
     wrapApiCall(method, params, options) {
-      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */](options);
+      const serializer = new Serialization(options);
 
       if (!this.connectionInited) {
         // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
@@ -2678,11 +1616,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
         isAPI: true
       };
 
-      if (Config.Modes.debug) {
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method, params, messageID, seqNo, options);
-      } else {
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method);
-      }
+      if (debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method, params, messageID, seqNo, options);else console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Api call', method);
 
       return this.pushMessage(message, options);
     }
@@ -2710,7 +1644,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
     }
 
     pushMessage(message, options = {}) {
-      const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__defer__["b" /* default */])();
+      const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__defer__["b" /* default */])();
 
       this.sentMessages[message.msg_id] = Object.assign({}, message, options, { deferred });
       this.pendingMessages[message.msg_id] = 0;
@@ -2797,12 +1731,12 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
       this.offline = enabled;
 
       if (this.offline) {
-        __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
+        __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
         delete this.nextReq;
 
         if (this.checkConnectionPeriod < 1.5) this.checkConnectionPeriod = 0;
 
-        this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
+        this.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.checkConnection, parseInt(this.checkConnectionPeriod * 1000));
         this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5);
 
         this.onOnlineCb = this.checkConnection;
@@ -2814,7 +1748,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
 
         if (this.onOnlineCb) emit('net.online', this.onOnlineCb);
 
-        __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+        __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
       }
     }
 
@@ -2846,27 +1780,27 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
       // console.log(dTime(), 'Start parsing response')
       // const self = this
 
-      const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](responseBuffer);
+      const deserializer = new Deserialization(responseBuffer);
 
       const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id');
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
-        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(authKeyID)}`);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(authKeyID, this.authKeyID)) {
+        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["f" /* bytesToHex */])(authKeyID)}`);
       }
       const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key');
       const encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
 
       const afterDecrypt = dataWithPadding => {
         // console.log(dTime(), 'after decrypt')
-        const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](dataWithPadding, { mtproto: true });
+        const deserializer = new Deserialization(dataWithPadding, { mtproto: true });
 
         const salt = deserializer.fetchIntBytes(64, false, 'salt');
         const sessionID = deserializer.fetchIntBytes(64, false, 'session_id');
         const messageID = deserializer.fetchLong('message_id');
 
-        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
+        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(sessionID, this.prevSessionID));
         if (isInvalidSession) {
           console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID);
-          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(sessionID)}`);
+          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["f" /* bytesToHex */])(sessionID)}`);
         }
 
         const seqNo = deserializer.fetchInt('seq_no');
@@ -2883,17 +1817,17 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
         offset = deserializer.getOffset();
         const paddingLength = totalLength - offset;
         if (paddingLength < 0 || paddingLength > 15) throw new Error(`[MT] Invalid padding length: ${paddingLength}`);
-        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
+        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["b" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
 
         const afterShaHash = dataHash => {
-          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
-            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
+          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["g" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
+            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["g" /* bytesFromArrayBuffer */])(dataHash));
             throw new Error('[MT] server msgKey mismatch');
           }
 
-          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["h" /* bytesToArrayBuffer */])(messageBody);
+          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["h" /* bytesToArrayBuffer */])(messageBody);
           const deserializerOptions = getDeserializeOpts(this.getMsgById);
-          const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, deserializerOptions);
+          const deserializer = new Deserialization(buffer, deserializerOptions);
           const response = deserializer.fetchObject('', 'INPUT');
 
           return {
@@ -2910,12 +1844,12 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
     }
 
     applyServerSalt(newServerSalt) {
-      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["n" /* longToBytes */])(newServerSalt);
+      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["i" /* longToBytes */])(newServerSalt);
 
       const storeObj = {
-        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(serverSalt)
+        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["f" /* bytesToHex */])(serverSalt)
       };
-      __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].set(storeObj);
+      __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].set(storeObj);
 
       this.serverSalt = serverSalt;
       return true;
@@ -2929,8 +1863,8 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
 
       // console.log(dTime(), 'shedule req', delay)
       // console.trace()
-      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
-      if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setImmediate(this.performSheduledRequest);
+      __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
+      if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setImmediate(this.performSheduledRequest);
 
       this.nextReq = nextReq;
     }
@@ -2976,7 +1910,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
 
     processError(rawError) {
       const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || [];
-      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* uintToInt */])(rawError.error_code);
+      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["j" /* uintToInt */])(rawError.error_code);
 
       return {
         code: !rawError.error_code || rawError.error_code <= 0 ? 500 : rawError.error_code,
@@ -3026,7 +1960,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
             }
 
             if (message.error_code == 16 || message.error_code == 17) {
-              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
+              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
                 console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Update session');
                 this.updateSession();
               }
@@ -3061,7 +1995,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
               const updateCond = baseDcID === this.dcID && !this.upload && updatesProcessor;
               if (updateCond) updatesProcessor(message, true);
             };
-            __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
+            __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
             break;
           }
         case 'msgs_ack':
@@ -3109,7 +2043,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
               }
             } else {
               if (deferred) {
-                if (Config.Modes.debug) {
+                if (debug) {
                   console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Rpc response', message.result);
                 } else {
                   let dRes = message.result._;
@@ -3152,15 +2086,15 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
         this.sendLongPoll();
       };
 
-      __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
+      __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
     };
 
     this.checkConnection = event => {
       console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Check connection', event);
-      __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
+      __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
 
-      const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
+      const serializer = new Serialization({ mtproto: true });
+      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* nextRandomInt */])(0xFFFFFFFF)];
 
       serializer.storeMethod('ping', { ping_id: pingID });
 
@@ -3173,7 +2107,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
       const self = this;
       this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result => self.toggleOffline(false), () => {
         console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Delay ', self.checkConnectionPeriod * 1000);
-        self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
+        self.checkConnectionPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(self.checkConnection, parseInt(self.checkConnectionPeriod * 1000));
         self.checkConnectionPeriod = Math.min(60, self.checkConnectionPeriod * 1.5);
       });
     };
@@ -3262,7 +2196,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
       __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__for_each__["b" /* default */])(this.pendingMessages, onPendingMessage);
 
       if (hasApiCall && !hasHttpWait) {
-        const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
+        const serializer = new Serialization({ mtproto: true });
         serializer.storeMethod('http_wait', {
           max_delay: 500,
           wait_after: 150,
@@ -3283,7 +2217,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
       const noResponseMsgs = [];
 
       if (messages.length > 1) {
-        const container = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true, startMaxLength: messagesByteLen + 64 });
+        const container = new Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 });
         container.storeInt(0x73f1f8dc, 'CONTAINER[id]');
         container.storeInt(messages.length, 'CONTAINER[count]');
         const onloads = [];
@@ -3310,9 +2244,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
 
         this.sentMessages[message.msg_id] = containerSentMessage;
 
-        if (Config.Modes.debug) {
-          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Container', innerMessages, message.msg_id, message.seq_no);
-        }
+        if (debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Container', innerMessages, message.msg_id, message.seq_no);
       } else {
         if (message.noResponse) noResponseMsgs.push(message.msg_id);
         this.sentMessages[message.msg_id] = message;
@@ -3325,7 +2257,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
         this.parseResponse(result.data).then(afterResponseParse);
       };
       const afterResponseParse = response => {
-        if (Config.Modes.debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Server response', this.dcID, response);
+        if (debug) console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Server response', this.dcID, response);
 
         this.processMessage(response.response, response.messageID, response.sessionID);
 
@@ -3357,7 +2289,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
     this.sendEncryptedRequest = (message, options = {}) => {
       // console.log(dTime(), 'Send encrypted'/*, message*/)
       // console.trace()
-      const data = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: message.body.length + 64 });
+      const data = new Serialization({ startMaxLength: message.body.length + 64 });
 
       data.storeIntBytes(this.serverSalt, 64, 'salt');
       data.storeIntBytes(this.sessionID, 64, 'session_id');
@@ -3383,7 +2315,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
 
       const onEncryptedResult = encryptedResult => {
         // console.log(dTime(), 'Got encrypted out message'/*, encryptedResult*/)
-        const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ startMaxLength: encryptedResult.bytes.byteLength + 256 });
+        const request = new Serialization({ startMaxLength: encryptedResult.bytes.byteLength + 256 });
         request.storeIntBytes(this.authKeyID, 64, 'auth_key_id');
         request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key');
         request.storeRawBytes(encryptedResult.bytes, 'encrypted_data');
@@ -3394,7 +2326,7 @@ const NetworkerFabric = (appConfig, chooseServer, emit) => {
 
         try {
           options = Object.assign({ responseType: 'arraybuffer' }, options);
-          return __WEBPACK_IMPORTED_MODULE_9__http__["a" /* httpClient */].post(url, requestData, options);
+          return __WEBPACK_IMPORTED_MODULE_8__http__["a" /* httpClient */].post(url, requestData, options);
         } catch (e) {
           return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(e);
         }
@@ -3476,8 +2408,8 @@ const stopAll = () => akStopped = true;
 /* harmony export (immutable) */ __webpack_exports__["stopAll"] = stopAll;
 
 
-const getNetworker = (appConfig, chooseServer, emit) => {
-  const Networker = NetworkerFabric(appConfig, chooseServer, emit);
+const getNetworker = (appConfig, chooseServer, { Serialization, Deserialization }, emit, debug) => {
+  const Networker = NetworkerFabric(appConfig, chooseServer, { Serialization, Deserialization }, emit, debug);
   return (dc, authKey, serverSalt, options) => new Networker(dc, authKey, serverSalt, options);
 };
 /* harmony export (immutable) */ __webpack_exports__["getNetworker"] = getNetworker;
@@ -3485,23 +2417,258 @@ const getNetworker = (appConfig, chooseServer, emit) => {
 const setUpdatesProcessor = callback => updatesProcessor = callback;
 /* harmony export (immutable) */ __webpack_exports__["setUpdatesProcessor"] = setUpdatesProcessor;
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(17).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(16).setImmediate))
 
 /***/ }),
-/* 17 */
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = false;
+
+// Only Node.JS has a process variable that is of [[Class]] process
+try {
+ module.exports = Object.prototype.toString.call(global.process) === '[object process]' 
+} catch(e) {}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(32)))
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = (__webpack_require__(0))(360);
 
 /***/ }),
-/* 18 */,
-/* 19 */
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__tl__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__error_cases__ = __webpack_require__(20);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const api57 = __webpack_require__(26);
+const mtproto57 = __webpack_require__(27);
+
+const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
+const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
+const withoutNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]);
+
+const baseDcID = 2;
+
+const mtpClearStorage = function () {
+  const saveKeys = [];
+  for (let dcID = 1; dcID <= 5; dcID++) {
+    saveKeys.push(`dc${dcID}_auth_key`);
+    saveKeys.push(`t_dc${dcID}_auth_key`);
+  }
+  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
+    const restoreObj = {};
+    saveKeys.forEach((key, i) => {
+      const value = values[i];
+      if (value !== false && value !== undefined) restoreObj[key] = value;
+    });
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+    return restoreObj;
+  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = mtpClearStorage;
+
+
+const Ln = (length, obj) => obj && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length', length, obj);
+
+class ApiManager {
+
+  constructor({ serverConfig = {}, appSettings = {}, schema = api57, mtSchema = mtproto57, debug = false } = {}) {
+    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
+      wildcard: true
+    });
+    this.on = this.emitter.on.bind(this.emitter);
+    this.emit = this.emitter.emit.bind(this.emitter);
+    this.cache = {
+      uploader: {},
+      downloader: {},
+      auth: {},
+      servers: {}
+    };
+
+    this.mtpGetNetworker = (dcID, options = {}) => {
+      const isUpload = options.fileUpload || options.fileDownload;
+      const cache = isUpload ? this.cache.uploader : this.cache.downloader;
+      if (!dcID) throw new Error('get Networker without dcID');
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
+
+      const akk = `dc${dcID}_auth_key`;
+      const ssk = `dc${dcID}_server_salt`;
+
+      const dcUrl = this.chooseServer(dcID, isUpload);
+
+      const networkGetter = result => {
+        if (cache[dcID]) return cache[dcID];
+
+        const authKeyHex = result[0];
+        let serverSaltHex = result[1];
+        // console.log('ass', dcID, authKeyHex, serverSaltHex)
+        if (Ln(512, authKeyHex)) {
+          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
+          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(authKeyHex);
+          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(serverSaltHex);
+
+          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+        }
+
+        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
+
+        const onDcAuth = ({ authKey, serverSalt }) => {
+          const storeObj = {
+            [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(authKey),
+            [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(serverSalt)
+          };
+          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
+
+          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+        };
+
+        return this.auth(dcID, this.cache.auth, dcUrl).then(onDcAuth, netError);
+      };
+
+      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(networkGetter);
+    };
+
+    this.serverConfig = serverConfig;
+    this.debug = debug;
+    this.schema = schema;
+    this.mtSchema = mtSchema;
+    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, serverConfig);
+    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
+    this.setUserAuth = this.setUserAuth.bind(this);
+
+    this.TL = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__tl__["a" /* default */])(schema, mtSchema);
+    this.keyManager = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__["a" /* default */])(this.TL.Serialization);
+    this.auth = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["a" /* default */])(this.TL, this.keyManager);
+    this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
+    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.chooseServer, this.TL, this.emit, debug);
+
+    return new Proxy(this, {
+      get(ctx, name) {
+        const result = Reflect.get(ctx, name);
+        console.info('get', name, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["type"])(result));
+        return result;
+      }
+    });
+  }
+
+  mtpInvokeApi(method, params, options = {}) {
+    // const self = this
+    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
+    const rejectPromise = error => {
+      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
+      deferred.reject(error);
+
+      if (!options.noErrorBox) {
+        //TODO weird code. `error` changed after `.reject`?
+        error.input = method;
+        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
+        this.emit('error.invoke', error);
+      }
+    };
+    let dcID, cachedNetworker;
+
+    const cachedNetThunk = () => performRequest(cachedNetworker);
+    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3);
+
+    const defError = new Error();
+    const stack = defError.stack || 'empty stack';
+    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
+      const deferResolve = deferred.resolve;
+      const apiSavedNet = () => cachedNetworker = networker;
+      const apiRecall = networker => networker.wrapApiCall(method, params, options);
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
+
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
+    });
+    const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
+
+    dcID = options.dcID || baseDcID;
+    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+
+    return deferred.promise;
+  }
+  setUserAuth(dcID, userAuth) {
+    const fullUserAuth = Object.assign({ dcID }, userAuth);
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
+      dc: dcID,
+      user_auth: fullUserAuth
+    });
+    this.emit('auth.dc', { dc: dcID, auth: userAuth });
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["c"] = ApiManager;
+
+
+ApiManager.appSettings = {
+  invokeWithLayer: 0xda9b0d0d,
+  layer: NaN,
+  initConnection: 0x69796de9,
+  api_id: '',
+  device_model: 'Unknown UserAgent',
+  system_version: 'Unknown Platform',
+  app_version: '',
+  lang_code: 'en'
+};
+const netError = error => {
+  console.log('Get networker error', error, error.stack);
+  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
+};
+
+const api = new ApiManager();
+/* harmony export (immutable) */ __webpack_exports__["b"] = api;
+
+
+const mtpInvokeApi = api.mtpInvokeApi;
+/* unused harmony export mtpInvokeApi */
+
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = (__webpack_require__(0))(63);
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5016,16 +4183,538 @@ function mont_(x, y, n, np) {
 }
 
 /***/ }),
+/* 20 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
+
+
+
+
+
+
+
+
+
+const cachedExportPromise = {};
+
+const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) => ({
+  base: baseDcID,
+  errR: rawError,
+  code,
+  type,
+  dcID
+});
+
+const patterns = {
+  noBaseAuth: ({ code, dcID, base }) => code === 401 && dcID === base,
+  noDcAuth: ({ code, dcID, base }) => code === 401 && dcID !== base,
+  migrate: ({ code }) => code === 303,
+  floodWait: ({ code, errR }) => !errR && code === 420,
+  waitFail: ({ code, type, errR }) => !errR && (code === 500 || type === 'MSG_WAIT_FAILED'),
+  _: () => true
+};
+
+const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, mtpInvokeApi, mtpGetNetworker) => matched({
+  invoke: mtpInvokeApi,
+  throwNext: () => rejectPromise(error),
+  reject: rejectPromise,
+  getNet: mtpGetNetworker,
+  error,
+  options,
+  emit,
+  requestThunk,
+  apiRecall,
+  deferResolve,
+  apiSavedNet
+});
+
+const noBaseAuth = ({ emit, throwNext }) => {
+  __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].remove('dc', 'user_auth');
+  emit('error.401.base');
+  throwNext();
+};
+
+const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }) => {
+  const importAuth = ({ id, bytes }) => invoke('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
+
+  if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"])(cachedExportPromise[dcID])) {
+    const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
+
+    invoke('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
+
+    cachedExportPromise[dcID] = exportDeferred.promise;
+  }
+
+  cachedExportPromise[dcID].then(apiSavedNet).then(apiRecall).then(deferResolve).catch(reject);
+};
+
+const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve, getNet }) => {
+  const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
+  if (newDcID === dcID) return;
+  if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].set({ dc: /*baseDcID =*/newDcID });
+
+  getNet(newDcID, options).then(apiRecall).then(deferResolve).catch(reject);
+};
+
+const floodWait = ({ error, options, throwNext, requestThunk }) => {
+  const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
+  if (waitTime > (options.timeout || 60)) return throwNext();
+  requestThunk(waitTime);
+};
+
+const waitFail = ({ options, throwNext, requestThunk }) => {
+  const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__time_manager__["tsNow"])();
+  if (options.stopTime) {
+    if (now >= options.stopTime) return throwNext();
+  } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propOr"])(10, 'timeout', options) * 1000;
+  options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
+  requestThunk(options.waitTime);
+};
+
+const def = ({ throwNext }) => throwNext();
+
+const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__["a" /* default */])(patterns, protect)({
+  noBaseAuth,
+  noDcAuth,
+  migrate,
+  floodWait,
+  waitFail,
+  _: def
+}, matchProtect);
+/* harmony export (immutable) */ __webpack_exports__["a"] = switchErrors;
+
+
+/***/ }),
 /* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__tl__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(1);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return prepareRsaKeys; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return selectRsaKeyByFingerPrint; });
+/* WEBPACK VAR INJECTION */(function(setImmediate) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__http__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__crypto__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__secure_random__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__bin__ = __webpack_require__(1);
 
 
+const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
+
+
+
+
+
+
+
+
+
+
+
+const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
+  function mtpSendPlainRequest(url, requestBuffer) {
+    const requestLength = requestBuffer.byteLength,
+          requestArray = new Int32Array(requestBuffer);
+
+    const header = new Serialization();
+    header.storeLongP(0, 0, 'auth_key_id'); // Auth key
+    header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["generateID"])(), 'msg_id'); // Msg_id
+    header.storeInt(requestLength, 'request_length');
+
+    const headerBuffer = header.getBuffer(),
+          headerArray = new Int32Array(headerBuffer);
+    const headerLength = headerBuffer.byteLength;
+
+    const resultBuffer = new ArrayBuffer(headerLength + requestLength),
+          resultArray = new Int32Array(resultBuffer);
+
+    resultArray.set(headerArray);
+    resultArray.set(requestArray, headerArray.length);
+
+    const requestData = resultArray;
+    let requestPromise;
+    const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url };
+    try {
+      requestPromise = __WEBPACK_IMPORTED_MODULE_3__http__["b" /* default */].post(url, requestData, {
+        responseType: 'arraybuffer'
+      });
+    } catch (e) {
+      requestPromise = __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
+    }
+    return requestPromise.then(result => {
+      if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
+      let deserializer;
+      try {
+        deserializer = new Deserialization(result.data, { mtproto: true });
+        const auth_key_id = deserializer.fetchLong('auth_key_id');
+        const msg_id = deserializer.fetchLong('msg_id');
+        const msg_len = deserializer.fetchInt('msg_len');
+      } catch (e) {
+        return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
+      }
+
+      return deserializer;
+    }, error => {
+      if (!error.message && !error.type) {
+        error = Object.assign({ originalError: error }, baseError);
+      }
+      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
+    });
+  }
+
+  function mtpSendReqPQ(auth) {
+    console.warn('mtpSendReqPQ');
+    const deferred = auth.deferred;
+
+    const request = new Serialization({ mtproto: true });
+
+    request.storeMethod('req_pq', { nonce: auth.nonce });
+
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.nonce));
+    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
+      const response = deserializer.fetchObject('ResPQ');
+
+      if (response._ != 'resPQ') throw new Error(`[MT] resPQ response invalid: ${response._}`);
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
+
+      auth.serverNonce = response.server_nonce;
+      auth.pq = response.pq;
+      auth.fingerprints = response.server_public_key_fingerprints;
+
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.pq), auth.fingerprints);
+
+      auth.publicKey = select(auth.fingerprints);
+
+      if (!auth.publicKey) throw new Error('[MT] No public key found');
+
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization start', auth.pq);
+      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
+        auth.p = p;
+        auth.q = q;
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization done', it);
+        mtpSendReqDhParams(auth);
+      }, error => {
+        console.log('Worker error', error, error.stack);
+        deferred.reject(error);
+      });
+    }, error => {
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'req_pq error', error.message);
+      deferred.reject(error);
+    });
+
+    setTimeout(prepare, 0);
+  }
+
+  function mtpSendReqDhParams(auth) {
+    const deferred = auth.deferred;
+
+    auth.newNonce = new Array(32);
+    __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.newNonce);
+
+    const data = new Serialization({ mtproto: true });
+    data.storeObject({
+      _: 'p_q_inner_data',
+      pq: auth.pq,
+      p: auth.p,
+      q: auth.q,
+      nonce: auth.nonce,
+      server_nonce: auth.serverNonce,
+      new_nonce: auth.newNonce
+    }, 'P_Q_inner_data', 'DECRYPTED_DATA');
+
+    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+
+    const request = new Serialization({ mtproto: true });
+    request.storeMethod('req_DH_params', {
+      nonce: auth.nonce,
+      server_nonce: auth.serverNonce,
+      p: auth.p,
+      q: auth.q,
+      public_key_fingerprint: auth.publicKey.fingerprint,
+      encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["v" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
+    });
+
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_DH_params');
+    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
+      const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
+
+      if (response._ != 'server_DH_params_fail' && response._ != 'server_DH_params_ok') {
+        deferred.reject(new Error(`[MT] Server_DH_Params response invalid: ${response._}`));
+        return false;
+      }
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+        deferred.reject(new Error('[MT] Server_DH_Params nonce mismatch'));
+        return false;
+      }
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+        deferred.reject(new Error('[MT] Server_DH_Params server_nonce mismatch'));
+        return false;
+      }
+
+      if (response._ == 'server_DH_params_fail') {
+        const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce).slice(-16);
+        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
+          deferred.reject(new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'));
+          return false;
+        }
+        deferred.reject(new Error('[MT] server_DH_params_fail'));
+        return false;
+      }
+
+      try {
+        mtpDecryptServerDhDataAnswer(auth, response.encrypted_answer);
+      } catch (e) {
+        deferred.reject(e);
+        return false;
+      }
+
+      mtpSendSetClientDhParams(auth);
+    }, deferred.reject);
+  }
+
+  function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
+    auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["tsNow"])();
+
+    auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
+    auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
+
+    const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["p" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
+
+    const hash = answerWithHash.slice(0, 20);
+    const answerWithPadding = answerWithHash.slice(20);
+    const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
+
+    const deserializer = new Deserialization(buffer, { mtproto: true });
+    const response = deserializer.fetchObject('Server_DH_inner_data');
+
+    if (response._ != 'server_DH_inner_data') {
+      throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
+    }
+
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      throw new Error('[MT] server_DH_inner_data nonce mismatch');
+    }
+
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
+    }
+
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Done decrypting answer');
+    auth.g = response.g;
+    auth.dhPrime = response.dh_prime;
+    auth.gA = response.g_a;
+    auth.serverTime = response.server_time;
+    auth.retry = 0;
+
+    mtpVerifyDhParams(auth.g, auth.dhPrime, auth.gA);
+
+    const offset = deserializer.getOffset();
+
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
+      throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch');
+    }
+
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
+  }
+
+  function mtpVerifyDhParams(g, dhPrime, gA) {
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Verifying DH params');
+    const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(dhPrime);
+    if (g != 3 ||
+    //eslint-disable-next-line
+    dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
+      // The verified value is from https://core.telegram.org/mtproto/security_guidelines
+      throw new Error('[MT] DH params are not verified: unknown dhPrime');
+    }
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'dhPrime cmp OK');
+
+    const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(gA), 16);
+    const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
+
+    if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
+      throw new Error('[MT] DH params are not verified: gA <= 1');
+    }
+
+    if (gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0) {
+      throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1');
+    }
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '1 < gA < dhPrime-1 OK');
+
+    const two = new BigInteger(null);
+    two.fromInt(2);
+    const twoPow = two.pow(2048 - 64);
+
+    if (gABigInt.compareTo(twoPow) < 0) {
+      throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}');
+    }
+    if (gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0) {
+      throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}');
+    }
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
+
+    return true;
+  }
+
+  function mtpSendSetClientDhParams(auth) {
+    const deferred = auth.deferred;
+    const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["u" /* bytesFromHex */])(auth.g.toString(16));
+
+    auth.b = new Array(256);
+    __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
+
+    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(function (gB) {
+      const data = new Serialization({ mtproto: true });
+      data.storeObject({
+        _: 'client_DH_inner_data',
+        nonce: auth.nonce,
+        server_nonce: auth.serverNonce,
+        retry_id: [0, auth.retry++],
+        g_b: gB
+      }, 'Client_DH_Inner_Data');
+
+      const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+
+      const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["o" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
+
+      const request = new Serialization({ mtproto: true });
+      request.storeMethod('set_client_DH_params', {
+        nonce: auth.nonce,
+        server_nonce: auth.serverNonce,
+        encrypted_data: encryptedData
+      });
+
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send set_client_DH_params');
+      mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(function (deserializer) {
+        const response = deserializer.fetchObject('Set_client_DH_params_answer');
+
+        if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
+          deferred.reject(new Error(`[MT] Set_client_DH_params_answer response invalid: ${response._}`));
+          return false;
+        }
+
+        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+          deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
+          return false;
+        }
+
+        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+          deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
+          return false;
+        }
+
+        __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(function (authKey) {
+          const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(authKey),
+                authKeyAux = authKeyHash.slice(0, 8),
+                authKeyID = authKeyHash.slice(-8);
+
+          console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
+          switch (response._) {
+            case 'dh_gen_ok':
+              {
+                const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
+
+                if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
+                  deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
+                  return false;
+                }
+
+                const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
+                // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
+
+                auth.authKeyID = authKeyID;
+                auth.authKey = authKey;
+                auth.serverSalt = serverSalt;
+
+                deferred.resolve(auth);
+                break;
+              }
+            case 'dh_gen_retry':
+              {
+                const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
+                if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
+                  deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
+                  return false;
+                }
+
+                return mtpSendSetClientDhParams(auth);
+              }
+            case 'dh_gen_fail':
+              {
+                const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
+                if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
+                  deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
+                  return false;
+                }
+
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'));
+                return false;
+              }
+          }
+        }, function (error) {
+          deferred.reject(error);
+        });
+      }, function (error) {
+        deferred.reject(error);
+      });
+    }, error => {
+      deferred.reject(error);
+    });
+  }
+
+  function mtpAuth(dcID, cached, dcUrl) {
+    console.count('mtpAuth');
+    if (cached[dcID]) return cached[dcID].promise;
+    console.warn('mtpAuth');
+    const nonce = [];
+    for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["l" /* nextRandomInt */])(0xFF));
+
+    if (!dcUrl) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`));
+
+    const auth = {
+      dcID,
+      dcUrl,
+      nonce,
+      deferred: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])()
+    };
+
+    setImmediate(() => mtpSendReqPQ(auth));
+
+    cached[dcID] = auth.deferred;
+
+    cached[dcID].promise.catch(() => {
+      delete cached[dcID];
+    });
+
+    return cached[dcID].promise;
+  }
+
+  return mtpAuth;
+};
+/* unused harmony export Auth */
+
+/* harmony default export */ __webpack_exports__["a"] = Auth;
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(16).setImmediate))
+
+/***/ }),
+/* 22 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bin__ = __webpack_require__(1);
 
 
 /**
@@ -5042,6 +4731,7 @@ function mont_(x, y, n, np) {
 */
 
 const publisKeysHex = [{
+  //eslint-disable-next-line
   modulus: 'c150023e2f70db7985ded064759cfecf0af328e69a41daf4d6f01b538135a6f91f8f8b2a0ec9ba9720ce352efcf6c5680ffc424bd634864902de0b4bd6d49f4e580230e3ae97d95c8b19442b3c0a10d8f5633fecedd6926a7f6dab0ddb7d457f9ea81b8465fcd6fffeed114011df91c059caedaf97625f6c96ecc74725556934ef781d866b34f011fce4d835a090196e9a5f0e4449af7eb697ddb9076494ca5f81104a305b6dd27665722c46b60e5df680fb16b210607ef217652e60236c255f6a28315f4083a96791d7214bf64c1df4fd0db1944fb26a2a57031b32eee64ad15a8ba68885cde74a5bfc920f6abf59ba5c75506373e7130f9042da922179251f',
   exponent: '010001'
 }];
@@ -5049,141 +4739,763 @@ const publisKeysHex = [{
 const publicKeysParsed = {};
 let prepared = false;
 
-const mapPrepare = keyParsed => {
-  const RSAPublicKey = new __WEBPACK_IMPORTED_MODULE_0__tl__["a" /* TLSerialization */]();
-  RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["x" /* bytesFromHex */])(keyParsed.modulus), 'n');
-  RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["x" /* bytesFromHex */])(keyParsed.exponent), 'e');
+const KeyManager = Serialization => {
 
-  const buffer = RSAPublicKey.getBuffer();
+  const mapPrepare = ({ modulus, exponent }) => {
+    const RSAPublicKey = new Serialization();
+    RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["u" /* bytesFromHex */])(modulus), 'n');
+    RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["u" /* bytesFromHex */])(exponent), 'e');
 
-  const fingerprintBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["k" /* sha1BytesSync */])(buffer).slice(-8);
-  fingerprintBytes.reverse();
+    const buffer = RSAPublicKey.getBuffer();
 
-  publicKeysParsed[__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["e" /* bytesToHex */])(fingerprintBytes)] = {
-    modulus: keyParsed.modulus,
-    exponent: keyParsed.exponent
+    const fingerprintBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["d" /* sha1BytesSync */])(buffer).slice(-8);
+    fingerprintBytes.reverse();
+
+    publicKeysParsed[__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["f" /* bytesToHex */])(fingerprintBytes)] = {
+      modulus,
+      exponent
+    };
+  };
+  const prepareRsaKeys = () => {
+    if (prepared) return;
+    publisKeysHex.forEach(mapPrepare);
+    prepared = true;
+  };
+
+  const selectRsaKeyByFingerPrint = fingerprints => {
+    prepareRsaKeys();
+
+    let fingerprintHex, foundKey;
+    for (let i = 0; i < fingerprints.length; i++) {
+      fingerprintHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["k" /* bigStringInt */])(fingerprints[i]).toString(16);
+      foundKey = publicKeysParsed[fingerprintHex];
+      if (foundKey) return Object.assign({ fingerprint: fingerprints[i] }, foundKey);
+    }
+
+    return false;
+  };
+
+  return {
+    prepare: prepareRsaKeys,
+    select: selectRsaKeyByFingerPrint
   };
 };
-const prepareRsaKeys = () => {
-  if (prepared) return;
-  publisKeysHex.forEach(mapPrepare);
-  prepared = true;
-};
-
-const selectRsaKeyByFingerPrint = fingerprints => {
-  prepareRsaKeys();
-
-  let fingerprintHex, foundKey;
-  for (let i = 0; i < fingerprints.length; i++) {
-    fingerprintHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["b" /* bigStringInt */])(fingerprints[i]).toString(16);
-    if (foundKey = publicKeysParsed[fingerprintHex]) return Object.assign({ fingerprint: fingerprints[i] }, foundKey);
-  }
-
-  return false;
-};
+/* unused harmony export KeyManager */
 
 
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(126);
+/* harmony default export */ __webpack_exports__["a"] = KeyManager;
 
 /***/ }),
 /* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(127);
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(130);
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(132);
-
-/***/ }),
-/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_setimmediate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__smart_timeout__ = __webpack_require__(12);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "smartTimeout", function() { return __WEBPACK_IMPORTED_MODULE_1__smart_timeout__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "blueDefer", function() { return __WEBPACK_IMPORTED_MODULE_2__defer__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__crypto__ = __webpack_require__(8);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "CryptoWorker", function() { return __WEBPACK_IMPORTED_MODULE_3__crypto__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(1);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_4__bin__["bin"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(14);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__ = __webpack_require__(28);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__store__ = __webpack_require__(6);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_7__store__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_time_manager__ = __webpack_require__(5);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_8__service_time_manager__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__ = __webpack_require__(10);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_secure_random__ = __webpack_require__(11);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_10__service_secure_random__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_networker__ = __webpack_require__(16);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_11__service_networker__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__tl__ = __webpack_require__(7);
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLSerialization", function() { return __WEBPACK_IMPORTED_MODULE_12__tl__["a"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLDeserialization", function() { return __WEBPACK_IMPORTED_MODULE_12__tl__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__http__ = __webpack_require__(9);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_13__http__["a"]; });
+const Switch = (patterns, protector = e => e) => (matches, mProtector = e => e) => (...data) => {
+  const keyList = Object.keys(patterns);
+  const normalized = protector(...data);
+  for (const key of keyList) if (patterns[key](normalized)) return mProtector(matches[key]);
+};
+/* unused harmony export Switch */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import * as MtpRsaKeysManager from './service/rsa-keys-manger'
-// export { MtpRsaKeysManager }
-
-// import * as MtpAuthorizer from './service/authorizer'
-// export { MtpAuthorizer }
-
-
-
-
-
-
-
-
-
-
-
-console.debug('source loaded');
-
-/* harmony default export */ __webpack_exports__["default"] = {};
+/* harmony default export */ __webpack_exports__["a"] = Switch;
 
 /***/ }),
-/* 27 */
+/* 24 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(1);
+
+
+
+
+const toUint32 = buf => {
+  let ln, res;
+  if (!__WEBPACK_IMPORTED_MODULE_0_detect_node___default.a) //TODO browser behavior not equals, why?
+    return new Uint32Array(buf);
+  if (buf.readUInt32LE) {
+    ln = buf.byteLength / 4;
+    res = new Uint32Array(ln);
+    for (let i = 0; i < ln; i++) res[i] = buf.readUInt32LE(i * 4);
+  } else {
+    const data = new DataView(buf);
+    ln = data.byteLength / 4;
+    res = new Uint32Array(ln);
+    for (let i = 0; i < ln; i++) res[i] = data.getUint32(i * 4, true);
+  }
+  return res;
+};
+
+const toUint8 = buf => {
+  const data = new DataView(buf);
+  const ln = data.byteLength;
+  const res = new Uint8Array(ln);
+  for (let i = 0; i < ln; i++) res[i] = data.getUint8(i, true);
+  return res;
+};
+
+const TL = (api, mtApi) => {
+
+  class Serialization {
+    constructor({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) {
+      this.storeIntString = (value, field) => {
+        const valType = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["type"])(value);
+        switch (true) {
+          case __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(String, value):
+            return this.storeString(value, field);
+          case __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Number, value):
+            return this.storeInt(value, field);
+          default:
+            throw new Error(`tl storeIntString field ${field} value type ${valType}`);
+        }
+      };
+
+      this.storeInt = (i, field = '') => {
+        this.writeInt(i, `${field}:int`);
+      };
+
+      this.maxLength = startMaxLength;
+      this.offset = 0; // in bytes
+
+      this.createBuffer();
+      this.mtproto = mtproto;
+    }
+
+    createBuffer() {
+      this.buffer = new ArrayBuffer(this.maxLength);
+      this.intView = new Int32Array(this.buffer);
+      this.byteView = new Uint8Array(this.buffer);
+    }
+
+    getArray() {
+      const resultBuffer = new ArrayBuffer(this.offset);
+      const resultArray = new Int32Array(resultBuffer);
+
+      resultArray.set(this.intView.subarray(0, this.offset / 4));
+
+      return resultArray;
+    }
+
+    getBuffer() {
+      return this.getArray().buffer;
+    }
+
+    getBytes(typed) {
+      if (typed) {
+        const resultBuffer = new ArrayBuffer(this.offset);
+        const resultArray = new Uint8Array(resultBuffer);
+
+        resultArray.set(this.byteView.subarray(0, this.offset));
+
+        return resultArray;
+      }
+
+      const bytes = [];
+      for (let i = 0; i < this.offset; i++) {
+        bytes.push(this.byteView[i]);
+      }
+      return bytes;
+    }
+
+    checkLength(needBytes) {
+      if (this.offset + needBytes < this.maxLength) {
+        return;
+      }
+
+      console.trace('Increase buffer', this.offset, needBytes, this.maxLength);
+      this.maxLength = Math.ceil(Math.max(this.maxLength * 2, this.offset + needBytes + 16) / 4) * 4;
+      const previousBuffer = this.buffer;
+      const previousArray = new Int32Array(previousBuffer);
+
+      this.createBuffer();
+
+      new Int32Array(this.buffer).set(previousArray);
+    }
+
+    writeInt(i, field) {
+      this.debug && console.log('>>>', i.toString(16), i, field);
+
+      this.checkLength(4);
+      this.intView[this.offset / 4] = i;
+      this.offset += 4;
+    }
+
+    storeBool(i, field = '') {
+      if (i) {
+        this.writeInt(0x997275b5, `${field}:bool`);
+      } else {
+        this.writeInt(0xbc799737, `${field}:bool`);
+      }
+    }
+
+    storeLongP(iHigh, iLow, field) {
+      this.writeInt(iLow, `${field}:long[low]`);
+      this.writeInt(iHigh, `${field}:long[high]`);
+    }
+
+    storeLong(sLong, field = '') {
+      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Array, sLong)) return sLong.length === 2 ? this.storeLongP(sLong[0], sLong[1], field) : this.storeIntBytes(sLong, 64, field);
+
+      if (typeof sLong !== 'string') sLong = sLong ? sLong.toString() : '0';
+      const divRem = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["k" /* bigStringInt */])(sLong).divideAndRemainder(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["x" /* bigint */])(0x100000000));
+
+      this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(divRem[1].intValue()), `${field}:long[low]`);
+      this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(divRem[0].intValue()), `${field}:long[high]`);
+    }
+
+    storeDouble(f, field = '') {
+      const buffer = new ArrayBuffer(8);
+      const intView = new Int32Array(buffer);
+      const doubleView = new Float64Array(buffer);
+
+      doubleView[0] = f;
+
+      this.writeInt(intView[0], `${field}:double[low]`);
+      this.writeInt(intView[1], `${field}:double[high]`);
+    }
+
+    storeString(s, field = '') {
+      this.debug && console.log('>>>', s, `${field}:string`);
+
+      if (s === undefined) {
+        s = '';
+      }
+      const sUTF8 = unescape(encodeURIComponent(s));
+
+      this.checkLength(sUTF8.length + 8);
+
+      const len = sUTF8.length;
+      if (len <= 253) {
+        this.byteView[this.offset++] = len;
+      } else {
+        this.byteView[this.offset++] = 254;
+        this.byteView[this.offset++] = len & 0xFF;
+        this.byteView[this.offset++] = (len & 0xFF00) >> 8;
+        this.byteView[this.offset++] = (len & 0xFF0000) >> 16;
+      }
+      for (let i = 0; i < len; i++) {
+        this.byteView[this.offset++] = sUTF8.charCodeAt(i);
+      }
+
+      // Padding
+      while (this.offset % 4) {
+        this.byteView[this.offset++] = 0;
+      }
+    }
+
+    storeBytes(bytes, field = '') {
+      if (bytes instanceof ArrayBuffer) {
+        bytes = new Uint8Array(bytes);
+      } else if (bytes === undefined) {
+        bytes = [];
+      }
+      this.debug && console.log('>>>', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["f" /* bytesToHex */])(bytes), `${field}:bytes`);
+
+      const len = bytes.byteLength || bytes.length;
+      this.checkLength(len + 8);
+      if (len <= 253) {
+        this.byteView[this.offset++] = len;
+      } else {
+        this.byteView[this.offset++] = 254;
+        this.byteView[this.offset++] = len & 0xFF;
+        this.byteView[this.offset++] = (len & 0xFF00) >> 8;
+        this.byteView[this.offset++] = (len & 0xFF0000) >> 16;
+      }
+
+      this.byteView.set(bytes, this.offset);
+      this.offset += len;
+
+      // Padding
+      while (this.offset % 4) {
+        this.byteView[this.offset++] = 0;
+      }
+    }
+
+    storeIntBytes(bytes, bits, field = '') {
+      if (bytes instanceof ArrayBuffer) {
+        bytes = new Uint8Array(bytes);
+      }
+      const len = bytes.length;
+      if (bits % 32 || len * 8 != bits) {
+        throw new Error(`Invalid bits: ${bits}, ${bytes.length}`);
+      }
+
+      this.debug && console.log('>>>', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["f" /* bytesToHex */])(bytes), `${field}:int${bits}`);
+      this.checkLength(len);
+
+      this.byteView.set(bytes, this.offset);
+      this.offset += len;
+    }
+
+    storeRawBytes(bytes, field = '') {
+      if (bytes instanceof ArrayBuffer) {
+        bytes = new Uint8Array(bytes);
+      }
+      const len = bytes.length;
+
+      this.debug && console.log('>>>', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["f" /* bytesToHex */])(bytes), field);
+      this.checkLength(len);
+
+      this.byteView.set(bytes, this.offset);
+      this.offset += len;
+    }
+
+    storeMethod(methodName, params) {
+      const schema = this.mtproto ? mtApi : api;
+      let methodData = false;
+
+      for (let i = 0; i < schema.methods.length; i++) {
+        if (schema.methods[i].method == methodName) {
+          methodData = schema.methods[i];
+          break;
+        }
+      }
+      if (!methodData) {
+        throw new Error(`No method ${methodName} found`);
+      }
+
+      this.storeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(methodData.id), `${methodName}[id]`);
+
+      let param, type;
+      let condType;
+      let fieldBit;
+      const len = methodData.params.length;
+      for (let i = 0; i < len; i++) {
+        param = methodData.params[i];
+        type = param.type;
+        if (type.indexOf('?') !== -1) {
+          condType = type.split('?');
+          fieldBit = condType[0].split('.');
+          if (!(params[fieldBit[0]] & 1 << fieldBit[1])) {
+            continue;
+          }
+          type = condType[1];
+        }
+
+        this.storeObject(params[param.name], type, `${methodName}[${param.name}]`);
+      }
+
+      return methodData.type;
+    }
+
+    storeObject(obj, type, field) {
+      switch (type) {
+        case '#':
+        case 'int':
+          return this.storeInt(obj, field);
+        case 'long':
+          return this.storeLong(obj, field);
+        case 'int128':
+          return this.storeIntBytes(obj, 128, field);
+        case 'int256':
+          return this.storeIntBytes(obj, 256, field);
+        case 'int512':
+          return this.storeIntBytes(obj, 512, field);
+        case 'string':
+          return this.storeString(obj, field);
+        case 'bytes':
+          return this.storeBytes(obj, field);
+        case 'double':
+          return this.storeDouble(obj, field);
+        case 'Bool':
+          return this.storeBool(obj, field);
+        case 'true':
+          return;
+      }
+
+      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Array, obj)) {
+        if (type.substr(0, 6) == 'Vector') {
+          this.writeInt(0x1cb5c415, `${field}[id]`);
+        } else if (type.substr(0, 6) != 'vector') {
+          throw new Error(`Invalid vector type ${type}`);
+        }
+        const itemType = type.substr(7, type.length - 8); // for "Vector<itemType>"
+        this.writeInt(obj.length, `${field}[count]`);
+        for (let i = 0; i < obj.length; i++) {
+          this.storeObject(obj[i], itemType, `${field}[${i}]`);
+        }
+        return true;
+      } else if (type.substr(0, 6).toLowerCase() == 'vector') {
+        throw new Error('Invalid vector object');
+      }
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Object, obj)) throw new Error(`Invalid object for type ${type}`);
+
+      const schema = this.mtproto ? mtApi : api;
+      const predicate = obj['_'];
+      let isBare = false;
+      let constructorData = false;
+
+      if (isBare = type.charAt(0) == '%') type = type.substr(1);
+
+      for (let i = 0; i < schema.constructors.length; i++) {
+        if (schema.constructors[i].predicate == predicate) {
+          constructorData = schema.constructors[i];
+          break;
+        }
+      }
+      if (!constructorData) throw new Error(`No predicate ${predicate} found`);
+
+      if (predicate == type) isBare = true;
+
+      if (!isBare) this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(constructorData.id), `${field}[${predicate}][id]`);
+
+      let param;
+      let condType;
+      let fieldBit;
+      const len = constructorData.params.length;
+      for (let i = 0; i < len; i++) {
+        param = constructorData.params[i];
+        type = param.type;
+        if (type.indexOf('?') !== -1) {
+          condType = type.split('?');
+          fieldBit = condType[0].split('.');
+          if (!(obj[fieldBit[0]] & 1 << fieldBit[1])) {
+            continue;
+          }
+          type = condType[1];
+        }
+
+        this.storeObject(obj[param.name], type, `${field}[${predicate}][${param.name}]`);
+      }
+
+      return constructorData.type;
+    }
+
+  }
+
+  class Deserialization {
+    constructor(buffer, { mtproto = false, override = {} } = {}) {
+      this.offset = 0; // in bytes
+      this.override = override;
+
+      this.buffer = buffer;
+      this.intView = toUint32(this.buffer);
+      this.byteView = new Uint8Array(this.buffer);
+      this.mtproto = mtproto;
+    }
+
+    readInt(field) {
+      if (this.offset >= this.intView.length * 4) {
+        throw new Error(`Nothing to fetch: ${field}`);
+      }
+
+      const i = this.intView[this.offset / 4];
+
+      this.debug && console.log('<<<', i.toString(16), i, field);
+
+      this.offset += 4;
+
+      return i;
+    }
+
+    fetchInt(field = '') {
+      return this.readInt(`${field}:int`);
+    }
+
+    fetchDouble(field = '') {
+      const buffer = new ArrayBuffer(8);
+      const intView = new Int32Array(buffer);
+      const doubleView = new Float64Array(buffer);
+
+      intView[0] = this.readInt(`${field}:double[low]`), intView[1] = this.readInt(`${field}:double[high]`);
+
+      return doubleView[0];
+    }
+
+    fetchLong(field = '') {
+      const iLow = this.readInt(`${field}:long[low]`);
+      const iHigh = this.readInt(`${field}:long[high]`);
+
+      const longDec = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["x" /* bigint */])(iHigh).shiftLeft(32).add(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["x" /* bigint */])(iLow)).toString();
+
+      return longDec;
+    }
+
+    fetchBool(field = '') {
+      const i = this.readInt(`${field}:bool`);
+      if (i == 0x997275b5) {
+        return true;
+      } else if (i == 0xbc799737) {
+        return false;
+      }
+
+      this.offset -= 4;
+      return this.fetchObject('Object', field);
+    }
+
+    fetchString(field = '') {
+      let len = this.byteView[this.offset++];
+
+      if (len == 254) {
+        len = this.byteView[this.offset++] | this.byteView[this.offset++] << 8 | this.byteView[this.offset++] << 16;
+      }
+
+      let sUTF8 = '';
+      for (let i = 0; i < len; i++) {
+        sUTF8 += String.fromCharCode(this.byteView[this.offset++]);
+      }
+
+      // Padding
+      while (this.offset % 4) {
+        this.offset++;
+      }
+      let s;
+      try {
+        s = decodeURIComponent(escape(sUTF8));
+      } catch (e) {
+        s = sUTF8;
+      }
+
+      this.debug && console.log('<<<', s, `${field}:string`);
+
+      return s;
+    }
+
+    fetchBytes(field = '') {
+      let len = this.byteView[this.offset++];
+
+      if (len == 254) {
+        len = this.byteView[this.offset++] | this.byteView[this.offset++] << 8 | this.byteView[this.offset++] << 16;
+      }
+
+      const bytes = this.byteView.subarray(this.offset, this.offset + len);
+      this.offset += len;
+
+      // Padding
+      while (this.offset % 4) this.offset++;
+
+      this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["f" /* bytesToHex */])(bytes), `${field}:bytes`);
+
+      return bytes;
+    }
+
+    fetchIntBytes(bits, typed, field = '') {
+      if (bits % 32) throw new Error(`Invalid bits: ${bits}`);
+
+      const len = bits / 8;
+      if (typed) {
+        const result = this.byteView.subarray(this.offset, this.offset + len);
+        this.offset += len;
+        return result;
+      }
+
+      const bytes = [];
+      for (let i = 0; i < len; i++) {
+        bytes.push(this.byteView[this.offset++]);
+      }
+
+      this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["f" /* bytesToHex */])(bytes), `${field}:int${bits}`);
+
+      return bytes;
+    }
+
+    fetchRawBytes(len, typed, field = '') {
+      if (len === false) {
+        len = this.readInt(`${field}_length`);
+        if (len > this.byteView.byteLength) throw new Error(`Invalid raw bytes length: ${len}, buffer len: ${this.byteView.byteLength}`);
+      }
+      let bytes;
+      if (typed) {
+        bytes = new Uint8Array(len);
+        bytes.set(this.byteView.subarray(this.offset, this.offset + len));
+        this.offset += len;
+        return bytes;
+      }
+
+      bytes = [];
+      for (let i = 0; i < len; i++) bytes.push(this.byteView[this.offset++]);
+
+      this.debug && console.log('<<<', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["f" /* bytesToHex */])(bytes), field);
+
+      return bytes;
+    }
+
+    fetchObject(type, field) {
+      switch (type) {
+        case '#':
+        case 'int':
+          return this.fetchInt(field);
+        case 'long':
+          return this.fetchLong(field);
+        case 'int128':
+          return this.fetchIntBytes(128, false, field);
+        case 'int256':
+          return this.fetchIntBytes(256, false, field);
+        case 'int512':
+          return this.fetchIntBytes(512, false, field);
+        case 'string':
+          return this.fetchString(field);
+        case 'bytes':
+          return this.fetchBytes(field);
+        case 'double':
+          return this.fetchDouble(field);
+        case 'Bool':
+          return this.fetchBool(field);
+        case 'true':
+          return true;
+      }
+      let fallback;
+      field = field || type || 'Object';
+
+      if (type.substr(0, 6) == 'Vector' || type.substr(0, 6) == 'vector') {
+        if (type.charAt(0) == 'V') {
+          const constructor = this.readInt(`${field}[id]`);
+          const constructorCmp = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["j" /* uintToInt */])(constructor);
+
+          if (constructorCmp == 0x3072cfa1) {
+            // Gzip packed
+            const compressed = this.fetchBytes(`${field}[packed_string]`);
+            const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* gzipUncompress */])(compressed);
+            const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["h" /* bytesToArrayBuffer */])(uncompressed);
+            const newDeserializer = new Deserialization(buffer);
+
+            return newDeserializer.fetchObject(type, field);
+          }
+          if (constructorCmp != 0x1cb5c415) {
+            throw new Error(`Invalid vector constructor ${constructor}`);
+          }
+        }
+        const len = this.readInt(`${field}[count]`);
+        const result = [];
+        if (len > 0) {
+          const itemType = type.substr(7, type.length - 8); // for "Vector<itemType>"
+          for (let i = 0; i < len; i++) result.push(this.fetchObject(itemType, `${field}[${i}]`));
+        }
+
+        return result;
+      }
+
+      const schema = this.mtproto ? mtApi : api;
+      let predicate = false;
+      let constructorData = false;
+
+      if (type.charAt(0) == '%') {
+        const checkType = type.substr(1);
+        for (let i = 0; i < schema.constructors.length; i++) {
+          if (schema.constructors[i].type == checkType) {
+            constructorData = schema.constructors[i];
+            break;
+          }
+        }
+        if (!constructorData) {
+          throw new Error(`Constructor not found for type: ${type}`);
+        }
+      } else if (type.charAt(0) >= 97 && type.charAt(0) <= 122) {
+        for (let i = 0; i < schema.constructors.length; i++) {
+          if (schema.constructors[i].predicate == type) {
+            constructorData = schema.constructors[i];
+            break;
+          }
+        }
+        if (!constructorData) {
+          throw new Error(`Constructor not found for predicate: ${type}`);
+        }
+      } else {
+        const constructor = this.readInt(`${field}[id]`);
+        const constructorCmp = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["j" /* uintToInt */])(constructor);
+
+        if (constructorCmp == 0x3072cfa1) {
+          // Gzip packed
+          const compressed = this.fetchBytes(`${field}[packed_string]`);
+          const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* gzipUncompress */])(compressed);
+          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["h" /* bytesToArrayBuffer */])(uncompressed);
+          const newDeserializer = new Deserialization(buffer);
+
+          return newDeserializer.fetchObject(type, field);
+        }
+
+        let index = schema.constructorsIndex;
+        if (!index) {
+          schema.constructorsIndex = index = {};
+          for (let i = 0; i < schema.constructors.length; i++) {
+            index[schema.constructors[i].id] = i;
+          }
+        }
+        let i = index[constructorCmp];
+        if (i) {
+          constructorData = schema.constructors[i];
+        }
+
+        fallback = false;
+        if (!constructorData && this.mtproto) {
+          const schemaFallback = api;
+          for (i = 0; i < schemaFallback.constructors.length; i++) {
+            if (schemaFallback.constructors[i].id == constructorCmp) {
+              constructorData = schemaFallback.constructors[i];
+
+              delete this.mtproto;
+              fallback = true;
+              break;
+            }
+          }
+        }
+        if (!constructorData) {
+          throw new Error(`Constructor not found: ${constructor} ${this.fetchInt()} ${this.fetchInt()}`);
+        }
+      }
+
+      predicate = constructorData.predicate;
+
+      const result = { '_': predicate };
+      const overrideKey = (this.mtproto ? 'mt_' : '') + predicate;
+
+      if (this.override[overrideKey]) {
+        this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`]);
+      } else {
+        let param, isCond;
+        let condType, fieldBit;
+        let value;
+        const len = constructorData.params.length;
+        for (let i = 0; i < len; i++) {
+          param = constructorData.params[i];
+          type = param.type;
+          if (type === '#' && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"])(result.pFlags)) result.pFlags = {};
+
+          isCond = type.indexOf('?') !== -1;
+          if (isCond) {
+            condType = type.split('?');
+            fieldBit = condType[0].split('.');
+            if (!(result[fieldBit[0]] & 1 << fieldBit[1])) continue;
+            type = condType[1];
+          }
+
+          value = this.fetchObject(type, `${field}[${predicate}][${param.name}]`);
+
+          if (isCond && type === 'true') result.pFlags[param.name] = value;else result[param.name] = value;
+        }
+      }
+
+      if (fallback) this.mtproto = true;
+
+      return result;
+    }
+
+    getOffset() {
+      return this.offset;
+    }
+
+    fetchEnd() {
+      if (this.offset !== this.byteView.length) throw new Error('Fetch end with non-empty buffer');
+      return true;
+    }
+
+  }
+
+  return { Serialization, Deserialization };
+};
+/* unused harmony export TL */
+
+
+/* harmony default export */ __webpack_exports__["a"] = TL;
+
+/***/ }),
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -5912,349 +6224,11379 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+module.exports = {
+	"constructors": [
+		{
+			"id": "-1132882121",
+			"predicate": "boolFalse",
+			"params": [],
+			"type": "Bool"
+		},
+		{
+			"id": "-1720552011",
+			"predicate": "boolTrue",
+			"params": [],
+			"type": "Bool"
+		},
+		{
+			"id": "1072550713",
+			"predicate": "true",
+			"params": [],
+			"type": "True"
+		},
+		{
+			"id": "481674261",
+			"predicate": "vector",
+			"params": [],
+			"type": "Vector t"
+		},
+		{
+			"id": "-994444869",
+			"predicate": "error",
+			"params": [
+				{
+					"name": "code",
+					"type": "int"
+				},
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "Error"
+		},
+		{
+			"id": "1450380236",
+			"predicate": "null",
+			"params": [],
+			"type": "Null"
+		},
+		{
+			"id": "2134579434",
+			"predicate": "inputPeerEmpty",
+			"params": [],
+			"type": "InputPeer"
+		},
+		{
+			"id": "2107670217",
+			"predicate": "inputPeerSelf",
+			"params": [],
+			"type": "InputPeer"
+		},
+		{
+			"id": "396093539",
+			"predicate": "inputPeerChat",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "InputPeer"
+		},
+		{
+			"id": "-1182234929",
+			"predicate": "inputUserEmpty",
+			"params": [],
+			"type": "InputUser"
+		},
+		{
+			"id": "-138301121",
+			"predicate": "inputUserSelf",
+			"params": [],
+			"type": "InputUser"
+		},
+		{
+			"id": "-208488460",
+			"predicate": "inputPhoneContact",
+			"params": [
+				{
+					"name": "client_id",
+					"type": "long"
+				},
+				{
+					"name": "phone",
+					"type": "string"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				}
+			],
+			"type": "InputContact"
+		},
+		{
+			"id": "-181407105",
+			"predicate": "inputFile",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "parts",
+					"type": "int"
+				},
+				{
+					"name": "name",
+					"type": "string"
+				},
+				{
+					"name": "md5_checksum",
+					"type": "string"
+				}
+			],
+			"type": "InputFile"
+		},
+		{
+			"id": "-1771768449",
+			"predicate": "inputMediaEmpty",
+			"params": [],
+			"type": "InputMedia"
+		},
+		{
+			"id": "1661770481",
+			"predicate": "inputMediaUploadedPhoto",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "file",
+					"type": "InputFile"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				},
+				{
+					"name": "stickers",
+					"type": "flags.0?Vector<InputDocument>"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "-373312269",
+			"predicate": "inputMediaPhoto",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputPhoto"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "-104578748",
+			"predicate": "inputMediaGeoPoint",
+			"params": [
+				{
+					"name": "geo_point",
+					"type": "InputGeoPoint"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "-1494984313",
+			"predicate": "inputMediaContact",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "480546647",
+			"predicate": "inputChatPhotoEmpty",
+			"params": [],
+			"type": "InputChatPhoto"
+		},
+		{
+			"id": "-1837345356",
+			"predicate": "inputChatUploadedPhoto",
+			"params": [
+				{
+					"name": "file",
+					"type": "InputFile"
+				}
+			],
+			"type": "InputChatPhoto"
+		},
+		{
+			"id": "-1991004873",
+			"predicate": "inputChatPhoto",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputPhoto"
+				}
+			],
+			"type": "InputChatPhoto"
+		},
+		{
+			"id": "-457104426",
+			"predicate": "inputGeoPointEmpty",
+			"params": [],
+			"type": "InputGeoPoint"
+		},
+		{
+			"id": "-206066487",
+			"predicate": "inputGeoPoint",
+			"params": [
+				{
+					"name": "lat",
+					"type": "double"
+				},
+				{
+					"name": "long",
+					"type": "double"
+				}
+			],
+			"type": "InputGeoPoint"
+		},
+		{
+			"id": "483901197",
+			"predicate": "inputPhotoEmpty",
+			"params": [],
+			"type": "InputPhoto"
+		},
+		{
+			"id": "-74070332",
+			"predicate": "inputPhoto",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputPhoto"
+		},
+		{
+			"id": "342061462",
+			"predicate": "inputFileLocation",
+			"params": [
+				{
+					"name": "volume_id",
+					"type": "long"
+				},
+				{
+					"name": "local_id",
+					"type": "int"
+				},
+				{
+					"name": "secret",
+					"type": "long"
+				}
+			],
+			"type": "InputFileLocation"
+		},
+		{
+			"id": "1996904104",
+			"predicate": "inputAppEvent",
+			"params": [
+				{
+					"name": "time",
+					"type": "double"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "peer",
+					"type": "long"
+				},
+				{
+					"name": "data",
+					"type": "string"
+				}
+			],
+			"type": "InputAppEvent"
+		},
+		{
+			"id": "-1649296275",
+			"predicate": "peerUser",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				}
+			],
+			"type": "Peer"
+		},
+		{
+			"id": "-1160714821",
+			"predicate": "peerChat",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "Peer"
+		},
+		{
+			"id": "-1432995067",
+			"predicate": "storage.fileUnknown",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "8322574",
+			"predicate": "storage.fileJpeg",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "-891180321",
+			"predicate": "storage.fileGif",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "172975040",
+			"predicate": "storage.filePng",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "-1373745011",
+			"predicate": "storage.filePdf",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "1384777335",
+			"predicate": "storage.fileMp3",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "1258941372",
+			"predicate": "storage.fileMov",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "1086091090",
+			"predicate": "storage.filePartial",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "-1278304028",
+			"predicate": "storage.fileMp4",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "276907596",
+			"predicate": "storage.fileWebp",
+			"params": [],
+			"type": "storage.FileType"
+		},
+		{
+			"id": "2086234950",
+			"predicate": "fileLocationUnavailable",
+			"params": [
+				{
+					"name": "volume_id",
+					"type": "long"
+				},
+				{
+					"name": "local_id",
+					"type": "int"
+				},
+				{
+					"name": "secret",
+					"type": "long"
+				}
+			],
+			"type": "FileLocation"
+		},
+		{
+			"id": "1406570614",
+			"predicate": "fileLocation",
+			"params": [
+				{
+					"name": "dc_id",
+					"type": "int"
+				},
+				{
+					"name": "volume_id",
+					"type": "long"
+				},
+				{
+					"name": "local_id",
+					"type": "int"
+				},
+				{
+					"name": "secret",
+					"type": "long"
+				}
+			],
+			"type": "FileLocation"
+		},
+		{
+			"id": "537022650",
+			"predicate": "userEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "User"
+		},
+		{
+			"id": "1326562017",
+			"predicate": "userProfilePhotoEmpty",
+			"params": [],
+			"type": "UserProfilePhoto"
+		},
+		{
+			"id": "-715532088",
+			"predicate": "userProfilePhoto",
+			"params": [
+				{
+					"name": "photo_id",
+					"type": "long"
+				},
+				{
+					"name": "photo_small",
+					"type": "FileLocation"
+				},
+				{
+					"name": "photo_big",
+					"type": "FileLocation"
+				}
+			],
+			"type": "UserProfilePhoto"
+		},
+		{
+			"id": "164646985",
+			"predicate": "userStatusEmpty",
+			"params": [],
+			"type": "UserStatus"
+		},
+		{
+			"id": "-306628279",
+			"predicate": "userStatusOnline",
+			"params": [
+				{
+					"name": "expires",
+					"type": "int"
+				}
+			],
+			"type": "UserStatus"
+		},
+		{
+			"id": "9203775",
+			"predicate": "userStatusOffline",
+			"params": [
+				{
+					"name": "was_online",
+					"type": "int"
+				}
+			],
+			"type": "UserStatus"
+		},
+		{
+			"id": "-1683826688",
+			"predicate": "chatEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "Chat"
+		},
+		{
+			"id": "-652419756",
+			"predicate": "chat",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "creator",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "kicked",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "left",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "admins_enabled",
+					"type": "flags.3?true"
+				},
+				{
+					"name": "admin",
+					"type": "flags.4?true"
+				},
+				{
+					"name": "deactivated",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "photo",
+					"type": "ChatPhoto"
+				},
+				{
+					"name": "participants_count",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				},
+				{
+					"name": "migrated_to",
+					"type": "flags.6?InputChannel"
+				}
+			],
+			"type": "Chat"
+		},
+		{
+			"id": "120753115",
+			"predicate": "chatForbidden",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "Chat"
+		},
+		{
+			"id": "771925524",
+			"predicate": "chatFull",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "participants",
+					"type": "ChatParticipants"
+				},
+				{
+					"name": "chat_photo",
+					"type": "Photo"
+				},
+				{
+					"name": "notify_settings",
+					"type": "PeerNotifySettings"
+				},
+				{
+					"name": "exported_invite",
+					"type": "ExportedChatInvite"
+				},
+				{
+					"name": "bot_info",
+					"type": "Vector<BotInfo>"
+				}
+			],
+			"type": "ChatFull"
+		},
+		{
+			"id": "-925415106",
+			"predicate": "chatParticipant",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "inviter_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChatParticipant"
+		},
+		{
+			"id": "-57668565",
+			"predicate": "chatParticipantsForbidden",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "self_participant",
+					"type": "flags.0?ChatParticipant"
+				}
+			],
+			"type": "ChatParticipants"
+		},
+		{
+			"id": "1061556205",
+			"predicate": "chatParticipants",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "participants",
+					"type": "Vector<ChatParticipant>"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				}
+			],
+			"type": "ChatParticipants"
+		},
+		{
+			"id": "935395612",
+			"predicate": "chatPhotoEmpty",
+			"params": [],
+			"type": "ChatPhoto"
+		},
+		{
+			"id": "1632839530",
+			"predicate": "chatPhoto",
+			"params": [
+				{
+					"name": "photo_small",
+					"type": "FileLocation"
+				},
+				{
+					"name": "photo_big",
+					"type": "FileLocation"
+				}
+			],
+			"type": "ChatPhoto"
+		},
+		{
+			"id": "-2082087340",
+			"predicate": "messageEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "Message"
+		},
+		{
+			"id": "-1063525281",
+			"predicate": "message",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "out",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "mentioned",
+					"type": "flags.4?true"
+				},
+				{
+					"name": "media_unread",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.13?true"
+				},
+				{
+					"name": "post",
+					"type": "flags.14?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "from_id",
+					"type": "flags.8?int"
+				},
+				{
+					"name": "to_id",
+					"type": "Peer"
+				},
+				{
+					"name": "fwd_from",
+					"type": "flags.2?MessageFwdHeader"
+				},
+				{
+					"name": "via_bot_id",
+					"type": "flags.11?int"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.3?int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "media",
+					"type": "flags.9?MessageMedia"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.6?ReplyMarkup"
+				},
+				{
+					"name": "entities",
+					"type": "flags.7?Vector<MessageEntity>"
+				},
+				{
+					"name": "views",
+					"type": "flags.10?int"
+				},
+				{
+					"name": "edit_date",
+					"type": "flags.15?int"
+				}
+			],
+			"type": "Message"
+		},
+		{
+			"id": "-1642487306",
+			"predicate": "messageService",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "out",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "mentioned",
+					"type": "flags.4?true"
+				},
+				{
+					"name": "media_unread",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.13?true"
+				},
+				{
+					"name": "post",
+					"type": "flags.14?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "from_id",
+					"type": "flags.8?int"
+				},
+				{
+					"name": "to_id",
+					"type": "Peer"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.3?int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "action",
+					"type": "MessageAction"
+				}
+			],
+			"type": "Message"
+		},
+		{
+			"id": "1038967584",
+			"predicate": "messageMediaEmpty",
+			"params": [],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "1032643901",
+			"predicate": "messageMediaPhoto",
+			"params": [
+				{
+					"name": "photo",
+					"type": "Photo"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "1457575028",
+			"predicate": "messageMediaGeo",
+			"params": [
+				{
+					"name": "geo",
+					"type": "GeoPoint"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "1585262393",
+			"predicate": "messageMediaContact",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "-1618676578",
+			"predicate": "messageMediaUnsupported",
+			"params": [],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "-1230047312",
+			"predicate": "messageActionEmpty",
+			"params": [],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-1503425638",
+			"predicate": "messageActionChatCreate",
+			"params": [
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "users",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-1247687078",
+			"predicate": "messageActionChatEditTitle",
+			"params": [
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "2144015272",
+			"predicate": "messageActionChatEditPhoto",
+			"params": [
+				{
+					"name": "photo",
+					"type": "Photo"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-1780220945",
+			"predicate": "messageActionChatDeletePhoto",
+			"params": [],
+			"type": "MessageAction"
+		},
+		{
+			"id": "1217033015",
+			"predicate": "messageActionChatAddUser",
+			"params": [
+				{
+					"name": "users",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-1297179892",
+			"predicate": "messageActionChatDeleteUser",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "1728035348",
+			"predicate": "dialog",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "top_message",
+					"type": "int"
+				},
+				{
+					"name": "read_inbox_max_id",
+					"type": "int"
+				},
+				{
+					"name": "read_outbox_max_id",
+					"type": "int"
+				},
+				{
+					"name": "unread_count",
+					"type": "int"
+				},
+				{
+					"name": "notify_settings",
+					"type": "PeerNotifySettings"
+				},
+				{
+					"name": "pts",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "draft",
+					"type": "flags.1?DraftMessage"
+				}
+			],
+			"type": "Dialog"
+		},
+		{
+			"id": "590459437",
+			"predicate": "photoEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				}
+			],
+			"type": "Photo"
+		},
+		{
+			"id": "-1836524247",
+			"predicate": "photo",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "has_stickers",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "sizes",
+					"type": "Vector<PhotoSize>"
+				}
+			],
+			"type": "Photo"
+		},
+		{
+			"id": "236446268",
+			"predicate": "photoSizeEmpty",
+			"params": [
+				{
+					"name": "type",
+					"type": "string"
+				}
+			],
+			"type": "PhotoSize"
+		},
+		{
+			"id": "2009052699",
+			"predicate": "photoSize",
+			"params": [
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "location",
+					"type": "FileLocation"
+				},
+				{
+					"name": "w",
+					"type": "int"
+				},
+				{
+					"name": "h",
+					"type": "int"
+				},
+				{
+					"name": "size",
+					"type": "int"
+				}
+			],
+			"type": "PhotoSize"
+		},
+		{
+			"id": "-374917894",
+			"predicate": "photoCachedSize",
+			"params": [
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "location",
+					"type": "FileLocation"
+				},
+				{
+					"name": "w",
+					"type": "int"
+				},
+				{
+					"name": "h",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "PhotoSize"
+		},
+		{
+			"id": "286776671",
+			"predicate": "geoPointEmpty",
+			"params": [],
+			"type": "GeoPoint"
+		},
+		{
+			"id": "541710092",
+			"predicate": "geoPoint",
+			"params": [
+				{
+					"name": "long",
+					"type": "double"
+				},
+				{
+					"name": "lat",
+					"type": "double"
+				}
+			],
+			"type": "GeoPoint"
+		},
+		{
+			"id": "-2128698738",
+			"predicate": "auth.checkedPhone",
+			"params": [
+				{
+					"name": "phone_registered",
+					"type": "Bool"
+				}
+			],
+			"type": "auth.CheckedPhone"
+		},
+		{
+			"id": "1577067778",
+			"predicate": "auth.sentCode",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "phone_registered",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "type",
+					"type": "auth.SentCodeType"
+				},
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				},
+				{
+					"name": "next_type",
+					"type": "flags.1?auth.CodeType"
+				},
+				{
+					"name": "timeout",
+					"type": "flags.2?int"
+				}
+			],
+			"type": "auth.SentCode"
+		},
+		{
+			"id": "-855308010",
+			"predicate": "auth.authorization",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "tmp_sessions",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "user",
+					"type": "User"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "-543777747",
+			"predicate": "auth.exportedAuthorization",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "auth.ExportedAuthorization"
+		},
+		{
+			"id": "-1195615476",
+			"predicate": "inputNotifyPeer",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				}
+			],
+			"type": "InputNotifyPeer"
+		},
+		{
+			"id": "423314455",
+			"predicate": "inputNotifyUsers",
+			"params": [],
+			"type": "InputNotifyPeer"
+		},
+		{
+			"id": "1251338318",
+			"predicate": "inputNotifyChats",
+			"params": [],
+			"type": "InputNotifyPeer"
+		},
+		{
+			"id": "-1540769658",
+			"predicate": "inputNotifyAll",
+			"params": [],
+			"type": "InputNotifyPeer"
+		},
+		{
+			"id": "-265263912",
+			"predicate": "inputPeerNotifyEventsEmpty",
+			"params": [],
+			"type": "InputPeerNotifyEvents"
+		},
+		{
+			"id": "-395694988",
+			"predicate": "inputPeerNotifyEventsAll",
+			"params": [],
+			"type": "InputPeerNotifyEvents"
+		},
+		{
+			"id": "949182130",
+			"predicate": "inputPeerNotifySettings",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "show_previews",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "mute_until",
+					"type": "int"
+				},
+				{
+					"name": "sound",
+					"type": "string"
+				}
+			],
+			"type": "InputPeerNotifySettings"
+		},
+		{
+			"id": "-1378534221",
+			"predicate": "peerNotifyEventsEmpty",
+			"params": [],
+			"type": "PeerNotifyEvents"
+		},
+		{
+			"id": "1830677896",
+			"predicate": "peerNotifyEventsAll",
+			"params": [],
+			"type": "PeerNotifyEvents"
+		},
+		{
+			"id": "1889961234",
+			"predicate": "peerNotifySettingsEmpty",
+			"params": [],
+			"type": "PeerNotifySettings"
+		},
+		{
+			"id": "-1697798976",
+			"predicate": "peerNotifySettings",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "show_previews",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "mute_until",
+					"type": "int"
+				},
+				{
+					"name": "sound",
+					"type": "string"
+				}
+			],
+			"type": "PeerNotifySettings"
+		},
+		{
+			"id": "-2122045747",
+			"predicate": "peerSettings",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "report_spam",
+					"type": "flags.0?true"
+				}
+			],
+			"type": "PeerSettings"
+		},
+		{
+			"id": "-860866985",
+			"predicate": "wallPaper",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "sizes",
+					"type": "Vector<PhotoSize>"
+				},
+				{
+					"name": "color",
+					"type": "int"
+				}
+			],
+			"type": "WallPaper"
+		},
+		{
+			"id": "1490799288",
+			"predicate": "inputReportReasonSpam",
+			"params": [],
+			"type": "ReportReason"
+		},
+		{
+			"id": "505595789",
+			"predicate": "inputReportReasonViolence",
+			"params": [],
+			"type": "ReportReason"
+		},
+		{
+			"id": "777640226",
+			"predicate": "inputReportReasonPornography",
+			"params": [],
+			"type": "ReportReason"
+		},
+		{
+			"id": "-512463606",
+			"predicate": "inputReportReasonOther",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "ReportReason"
+		},
+		{
+			"id": "1496513539",
+			"predicate": "userFull",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "blocked",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "user",
+					"type": "User"
+				},
+				{
+					"name": "about",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "link",
+					"type": "contacts.Link"
+				},
+				{
+					"name": "profile_photo",
+					"type": "flags.2?Photo"
+				},
+				{
+					"name": "notify_settings",
+					"type": "PeerNotifySettings"
+				},
+				{
+					"name": "bot_info",
+					"type": "flags.3?BotInfo"
+				}
+			],
+			"type": "UserFull"
+		},
+		{
+			"id": "-116274796",
+			"predicate": "contact",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "mutual",
+					"type": "Bool"
+				}
+			],
+			"type": "Contact"
+		},
+		{
+			"id": "-805141448",
+			"predicate": "importedContact",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "client_id",
+					"type": "long"
+				}
+			],
+			"type": "ImportedContact"
+		},
+		{
+			"id": "1444661369",
+			"predicate": "contactBlocked",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ContactBlocked"
+		},
+		{
+			"id": "-748155807",
+			"predicate": "contactStatus",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "status",
+					"type": "UserStatus"
+				}
+			],
+			"type": "ContactStatus"
+		},
+		{
+			"id": "986597452",
+			"predicate": "contacts.link",
+			"params": [
+				{
+					"name": "my_link",
+					"type": "ContactLink"
+				},
+				{
+					"name": "foreign_link",
+					"type": "ContactLink"
+				},
+				{
+					"name": "user",
+					"type": "User"
+				}
+			],
+			"type": "contacts.Link"
+		},
+		{
+			"id": "-1219778094",
+			"predicate": "contacts.contactsNotModified",
+			"params": [],
+			"type": "contacts.Contacts"
+		},
+		{
+			"id": "1871416498",
+			"predicate": "contacts.contacts",
+			"params": [
+				{
+					"name": "contacts",
+					"type": "Vector<Contact>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.Contacts"
+		},
+		{
+			"id": "-1387117803",
+			"predicate": "contacts.importedContacts",
+			"params": [
+				{
+					"name": "imported",
+					"type": "Vector<ImportedContact>"
+				},
+				{
+					"name": "retry_contacts",
+					"type": "Vector<long>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.ImportedContacts"
+		},
+		{
+			"id": "471043349",
+			"predicate": "contacts.blocked",
+			"params": [
+				{
+					"name": "blocked",
+					"type": "Vector<ContactBlocked>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.Blocked"
+		},
+		{
+			"id": "-1878523231",
+			"predicate": "contacts.blockedSlice",
+			"params": [
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "blocked",
+					"type": "Vector<ContactBlocked>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.Blocked"
+		},
+		{
+			"id": "364538944",
+			"predicate": "messages.dialogs",
+			"params": [
+				{
+					"name": "dialogs",
+					"type": "Vector<Dialog>"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.Dialogs"
+		},
+		{
+			"id": "1910543603",
+			"predicate": "messages.dialogsSlice",
+			"params": [
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "dialogs",
+					"type": "Vector<Dialog>"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.Dialogs"
+		},
+		{
+			"id": "-1938715001",
+			"predicate": "messages.messages",
+			"params": [
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "189033187",
+			"predicate": "messages.messagesSlice",
+			"params": [
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "1694474197",
+			"predicate": "messages.chats",
+			"params": [
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				}
+			],
+			"type": "messages.Chats"
+		},
+		{
+			"id": "-438840932",
+			"predicate": "messages.chatFull",
+			"params": [
+				{
+					"name": "full_chat",
+					"type": "ChatFull"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.ChatFull"
+		},
+		{
+			"id": "-1269012015",
+			"predicate": "messages.affectedHistory",
+			"params": [
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				}
+			],
+			"type": "messages.AffectedHistory"
+		},
+		{
+			"id": "1474492012",
+			"predicate": "inputMessagesFilterEmpty",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "-1777752804",
+			"predicate": "inputMessagesFilterPhotos",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "-1614803355",
+			"predicate": "inputMessagesFilterVideo",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "1458172132",
+			"predicate": "inputMessagesFilterPhotoVideo",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "-648121413",
+			"predicate": "inputMessagesFilterPhotoVideoDocuments",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "-1629621880",
+			"predicate": "inputMessagesFilterDocument",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "2129714567",
+			"predicate": "inputMessagesFilterUrl",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "-3644025",
+			"predicate": "inputMessagesFilterGif",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "522914557",
+			"predicate": "updateNewMessage",
+			"params": [
+				{
+					"name": "message",
+					"type": "Message"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1318109142",
+			"predicate": "updateMessageID",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1576161051",
+			"predicate": "updateDeleteMessages",
+			"params": [
+				{
+					"name": "messages",
+					"type": "Vector<int>"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1548249383",
+			"predicate": "updateUserTyping",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "action",
+					"type": "SendMessageAction"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1704596961",
+			"predicate": "updateChatUserTyping",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "action",
+					"type": "SendMessageAction"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "125178264",
+			"predicate": "updateChatParticipants",
+			"params": [
+				{
+					"name": "participants",
+					"type": "ChatParticipants"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "469489699",
+			"predicate": "updateUserStatus",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "status",
+					"type": "UserStatus"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1489818765",
+			"predicate": "updateUserName",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				},
+				{
+					"name": "username",
+					"type": "string"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1791935732",
+			"predicate": "updateUserPhoto",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "photo",
+					"type": "UserProfilePhoto"
+				},
+				{
+					"name": "previous",
+					"type": "Bool"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "628472761",
+			"predicate": "updateContactRegistered",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1657903163",
+			"predicate": "updateContactLink",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "my_link",
+					"type": "ContactLink"
+				},
+				{
+					"name": "foreign_link",
+					"type": "ContactLink"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1895411046",
+			"predicate": "updateNewAuthorization",
+			"params": [
+				{
+					"name": "auth_key_id",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "device",
+					"type": "string"
+				},
+				{
+					"name": "location",
+					"type": "string"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1519637954",
+			"predicate": "updates.state",
+			"params": [
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "qts",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "seq",
+					"type": "int"
+				},
+				{
+					"name": "unread_count",
+					"type": "int"
+				}
+			],
+			"type": "updates.State"
+		},
+		{
+			"id": "1567990072",
+			"predicate": "updates.differenceEmpty",
+			"params": [
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "seq",
+					"type": "int"
+				}
+			],
+			"type": "updates.Difference"
+		},
+		{
+			"id": "16030880",
+			"predicate": "updates.difference",
+			"params": [
+				{
+					"name": "new_messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "new_encrypted_messages",
+					"type": "Vector<EncryptedMessage>"
+				},
+				{
+					"name": "other_updates",
+					"type": "Vector<Update>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				},
+				{
+					"name": "state",
+					"type": "updates.State"
+				}
+			],
+			"type": "updates.Difference"
+		},
+		{
+			"id": "-1459938943",
+			"predicate": "updates.differenceSlice",
+			"params": [
+				{
+					"name": "new_messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "new_encrypted_messages",
+					"type": "Vector<EncryptedMessage>"
+				},
+				{
+					"name": "other_updates",
+					"type": "Vector<Update>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				},
+				{
+					"name": "intermediate_state",
+					"type": "updates.State"
+				}
+			],
+			"type": "updates.Difference"
+		},
+		{
+			"id": "-484987010",
+			"predicate": "updatesTooLong",
+			"params": [],
+			"type": "Updates"
+		},
+		{
+			"id": "-1857044719",
+			"predicate": "updateShortMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "out",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "mentioned",
+					"type": "flags.4?true"
+				},
+				{
+					"name": "media_unread",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.13?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "fwd_from",
+					"type": "flags.2?MessageFwdHeader"
+				},
+				{
+					"name": "via_bot_id",
+					"type": "flags.11?int"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.3?int"
+				},
+				{
+					"name": "entities",
+					"type": "flags.7?Vector<MessageEntity>"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "377562760",
+			"predicate": "updateShortChatMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "out",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "mentioned",
+					"type": "flags.4?true"
+				},
+				{
+					"name": "media_unread",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.13?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "from_id",
+					"type": "int"
+				},
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "fwd_from",
+					"type": "flags.2?MessageFwdHeader"
+				},
+				{
+					"name": "via_bot_id",
+					"type": "flags.11?int"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.3?int"
+				},
+				{
+					"name": "entities",
+					"type": "flags.7?Vector<MessageEntity>"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "2027216577",
+			"predicate": "updateShort",
+			"params": [
+				{
+					"name": "update",
+					"type": "Update"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "1918567619",
+			"predicate": "updatesCombined",
+			"params": [
+				{
+					"name": "updates",
+					"type": "Vector<Update>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "seq_start",
+					"type": "int"
+				},
+				{
+					"name": "seq",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "1957577280",
+			"predicate": "updates",
+			"params": [
+				{
+					"name": "updates",
+					"type": "Vector<Update>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "seq",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1916114267",
+			"predicate": "photos.photos",
+			"params": [
+				{
+					"name": "photos",
+					"type": "Vector<Photo>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "photos.Photos"
+		},
+		{
+			"id": "352657236",
+			"predicate": "photos.photosSlice",
+			"params": [
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "photos",
+					"type": "Vector<Photo>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "photos.Photos"
+		},
+		{
+			"id": "539045032",
+			"predicate": "photos.photo",
+			"params": [
+				{
+					"name": "photo",
+					"type": "Photo"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "photos.Photo"
+		},
+		{
+			"id": "157948117",
+			"predicate": "upload.file",
+			"params": [
+				{
+					"name": "type",
+					"type": "storage.FileType"
+				},
+				{
+					"name": "mtime",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "upload.File"
+		},
+		{
+			"id": "98092748",
+			"predicate": "dcOption",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "ipv6",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "media_only",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "tcpo_only",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "ip_address",
+					"type": "string"
+				},
+				{
+					"name": "port",
+					"type": "int"
+				}
+			],
+			"type": "DcOption"
+		},
+		{
+			"id": "-1704251862",
+			"predicate": "config",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "expires",
+					"type": "int"
+				},
+				{
+					"name": "test_mode",
+					"type": "Bool"
+				},
+				{
+					"name": "this_dc",
+					"type": "int"
+				},
+				{
+					"name": "dc_options",
+					"type": "Vector<DcOption>"
+				},
+				{
+					"name": "chat_size_max",
+					"type": "int"
+				},
+				{
+					"name": "megagroup_size_max",
+					"type": "int"
+				},
+				{
+					"name": "forwarded_count_max",
+					"type": "int"
+				},
+				{
+					"name": "online_update_period_ms",
+					"type": "int"
+				},
+				{
+					"name": "offline_blur_timeout_ms",
+					"type": "int"
+				},
+				{
+					"name": "offline_idle_timeout_ms",
+					"type": "int"
+				},
+				{
+					"name": "online_cloud_timeout_ms",
+					"type": "int"
+				},
+				{
+					"name": "notify_cloud_delay_ms",
+					"type": "int"
+				},
+				{
+					"name": "notify_default_delay_ms",
+					"type": "int"
+				},
+				{
+					"name": "chat_big_size",
+					"type": "int"
+				},
+				{
+					"name": "push_chat_period_ms",
+					"type": "int"
+				},
+				{
+					"name": "push_chat_limit",
+					"type": "int"
+				},
+				{
+					"name": "saved_gifs_limit",
+					"type": "int"
+				},
+				{
+					"name": "edit_time_limit",
+					"type": "int"
+				},
+				{
+					"name": "rating_e_decay",
+					"type": "int"
+				},
+				{
+					"name": "stickers_recent_limit",
+					"type": "int"
+				},
+				{
+					"name": "tmp_sessions",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "disabled_features",
+					"type": "Vector<DisabledFeature>"
+				}
+			],
+			"type": "Config"
+		},
+		{
+			"id": "-1910892683",
+			"predicate": "nearestDc",
+			"params": [
+				{
+					"name": "country",
+					"type": "string"
+				},
+				{
+					"name": "this_dc",
+					"type": "int"
+				},
+				{
+					"name": "nearest_dc",
+					"type": "int"
+				}
+			],
+			"type": "NearestDc"
+		},
+		{
+			"id": "-1987579119",
+			"predicate": "help.appUpdate",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "critical",
+					"type": "Bool"
+				},
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "help.AppUpdate"
+		},
+		{
+			"id": "-1000708810",
+			"predicate": "help.noAppUpdate",
+			"params": [],
+			"type": "help.AppUpdate"
+		},
+		{
+			"id": "415997816",
+			"predicate": "help.inviteText",
+			"params": [
+				{
+					"name": "message",
+					"type": "string"
+				}
+			],
+			"type": "help.InviteText"
+		},
+		{
+			"id": "1662091044",
+			"predicate": "wallPaperSolid",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "bg_color",
+					"type": "int"
+				},
+				{
+					"name": "color",
+					"type": "int"
+				}
+			],
+			"type": "WallPaper"
+		},
+		{
+			"id": "314359194",
+			"predicate": "updateNewEncryptedMessage",
+			"params": [
+				{
+					"name": "message",
+					"type": "EncryptedMessage"
+				},
+				{
+					"name": "qts",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "386986326",
+			"predicate": "updateEncryptedChatTyping",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1264392051",
+			"predicate": "updateEncryption",
+			"params": [
+				{
+					"name": "chat",
+					"type": "EncryptedChat"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "956179895",
+			"predicate": "updateEncryptedMessagesRead",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "max_date",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1417756512",
+			"predicate": "encryptedChatEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "1006044124",
+			"predicate": "encryptedChatWaiting",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "admin_id",
+					"type": "int"
+				},
+				{
+					"name": "participant_id",
+					"type": "int"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "-931638658",
+			"predicate": "encryptedChatRequested",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "admin_id",
+					"type": "int"
+				},
+				{
+					"name": "participant_id",
+					"type": "int"
+				},
+				{
+					"name": "g_a",
+					"type": "bytes"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "-94974410",
+			"predicate": "encryptedChat",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "admin_id",
+					"type": "int"
+				},
+				{
+					"name": "participant_id",
+					"type": "int"
+				},
+				{
+					"name": "g_a_or_b",
+					"type": "bytes"
+				},
+				{
+					"name": "key_fingerprint",
+					"type": "long"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "332848423",
+			"predicate": "encryptedChatDiscarded",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "-247351839",
+			"predicate": "inputEncryptedChat",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputEncryptedChat"
+		},
+		{
+			"id": "-1038136962",
+			"predicate": "encryptedFileEmpty",
+			"params": [],
+			"type": "EncryptedFile"
+		},
+		{
+			"id": "1248893260",
+			"predicate": "encryptedFile",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "size",
+					"type": "int"
+				},
+				{
+					"name": "dc_id",
+					"type": "int"
+				},
+				{
+					"name": "key_fingerprint",
+					"type": "int"
+				}
+			],
+			"type": "EncryptedFile"
+		},
+		{
+			"id": "406307684",
+			"predicate": "inputEncryptedFileEmpty",
+			"params": [],
+			"type": "InputEncryptedFile"
+		},
+		{
+			"id": "1690108678",
+			"predicate": "inputEncryptedFileUploaded",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "parts",
+					"type": "int"
+				},
+				{
+					"name": "md5_checksum",
+					"type": "string"
+				},
+				{
+					"name": "key_fingerprint",
+					"type": "int"
+				}
+			],
+			"type": "InputEncryptedFile"
+		},
+		{
+			"id": "1511503333",
+			"predicate": "inputEncryptedFile",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputEncryptedFile"
+		},
+		{
+			"id": "-182231723",
+			"predicate": "inputEncryptedFileLocation",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputFileLocation"
+		},
+		{
+			"id": "-317144808",
+			"predicate": "encryptedMessage",
+			"params": [
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				},
+				{
+					"name": "file",
+					"type": "EncryptedFile"
+				}
+			],
+			"type": "EncryptedMessage"
+		},
+		{
+			"id": "594758406",
+			"predicate": "encryptedMessageService",
+			"params": [
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "EncryptedMessage"
+		},
+		{
+			"id": "-1058912715",
+			"predicate": "messages.dhConfigNotModified",
+			"params": [
+				{
+					"name": "random",
+					"type": "bytes"
+				}
+			],
+			"type": "messages.DhConfig"
+		},
+		{
+			"id": "740433629",
+			"predicate": "messages.dhConfig",
+			"params": [
+				{
+					"name": "g",
+					"type": "int"
+				},
+				{
+					"name": "p",
+					"type": "bytes"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				},
+				{
+					"name": "random",
+					"type": "bytes"
+				}
+			],
+			"type": "messages.DhConfig"
+		},
+		{
+			"id": "1443858741",
+			"predicate": "messages.sentEncryptedMessage",
+			"params": [
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "messages.SentEncryptedMessage"
+		},
+		{
+			"id": "-1802240206",
+			"predicate": "messages.sentEncryptedFile",
+			"params": [
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "file",
+					"type": "EncryptedFile"
+				}
+			],
+			"type": "messages.SentEncryptedMessage"
+		},
+		{
+			"id": "-95482955",
+			"predicate": "inputFileBig",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "parts",
+					"type": "int"
+				},
+				{
+					"name": "name",
+					"type": "string"
+				}
+			],
+			"type": "InputFile"
+		},
+		{
+			"id": "767652808",
+			"predicate": "inputEncryptedFileBigUploaded",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "parts",
+					"type": "int"
+				},
+				{
+					"name": "key_fingerprint",
+					"type": "int"
+				}
+			],
+			"type": "InputEncryptedFile"
+		},
+		{
+			"id": "-364179876",
+			"predicate": "updateChatParticipantAdd",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "inviter_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1851755554",
+			"predicate": "updateChatParticipantDelete",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1906403213",
+			"predicate": "updateDcOptions",
+			"params": [
+				{
+					"name": "dc_options",
+					"type": "Vector<DcOption>"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-797904407",
+			"predicate": "inputMediaUploadedDocument",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "file",
+					"type": "InputFile"
+				},
+				{
+					"name": "mime_type",
+					"type": "string"
+				},
+				{
+					"name": "attributes",
+					"type": "Vector<DocumentAttribute>"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				},
+				{
+					"name": "stickers",
+					"type": "flags.0?Vector<InputDocument>"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "1356369070",
+			"predicate": "inputMediaUploadedThumbDocument",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "file",
+					"type": "InputFile"
+				},
+				{
+					"name": "thumb",
+					"type": "InputFile"
+				},
+				{
+					"name": "mime_type",
+					"type": "string"
+				},
+				{
+					"name": "attributes",
+					"type": "Vector<DocumentAttribute>"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				},
+				{
+					"name": "stickers",
+					"type": "flags.0?Vector<InputDocument>"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "444068508",
+			"predicate": "inputMediaDocument",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputDocument"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "-203411800",
+			"predicate": "messageMediaDocument",
+			"params": [
+				{
+					"name": "document",
+					"type": "Document"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "1928391342",
+			"predicate": "inputDocumentEmpty",
+			"params": [],
+			"type": "InputDocument"
+		},
+		{
+			"id": "410618194",
+			"predicate": "inputDocument",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputDocument"
+		},
+		{
+			"id": "1125058340",
+			"predicate": "inputDocumentFileLocation",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				}
+			],
+			"type": "InputFileLocation"
+		},
+		{
+			"id": "922273905",
+			"predicate": "documentEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				}
+			],
+			"type": "Document"
+		},
+		{
+			"id": "-2027738169",
+			"predicate": "document",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "mime_type",
+					"type": "string"
+				},
+				{
+					"name": "size",
+					"type": "int"
+				},
+				{
+					"name": "thumb",
+					"type": "PhotoSize"
+				},
+				{
+					"name": "dc_id",
+					"type": "int"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				},
+				{
+					"name": "attributes",
+					"type": "Vector<DocumentAttribute>"
+				}
+			],
+			"type": "Document"
+		},
+		{
+			"id": "398898678",
+			"predicate": "help.support",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "user",
+					"type": "User"
+				}
+			],
+			"type": "help.Support"
+		},
+		{
+			"id": "-1613493288",
+			"predicate": "notifyPeer",
+			"params": [
+				{
+					"name": "peer",
+					"type": "Peer"
+				}
+			],
+			"type": "NotifyPeer"
+		},
+		{
+			"id": "-1261946036",
+			"predicate": "notifyUsers",
+			"params": [],
+			"type": "NotifyPeer"
+		},
+		{
+			"id": "-1073230141",
+			"predicate": "notifyChats",
+			"params": [],
+			"type": "NotifyPeer"
+		},
+		{
+			"id": "1959820384",
+			"predicate": "notifyAll",
+			"params": [],
+			"type": "NotifyPeer"
+		},
+		{
+			"id": "-2131957734",
+			"predicate": "updateUserBlocked",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "blocked",
+					"type": "Bool"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1094555409",
+			"predicate": "updateNotifySettings",
+			"params": [
+				{
+					"name": "peer",
+					"type": "NotifyPeer"
+				},
+				{
+					"name": "notify_settings",
+					"type": "PeerNotifySettings"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "381645902",
+			"predicate": "sendMessageTypingAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-44119819",
+			"predicate": "sendMessageCancelAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-1584933265",
+			"predicate": "sendMessageRecordVideoAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-378127636",
+			"predicate": "sendMessageUploadVideoAction",
+			"params": [
+				{
+					"name": "progress",
+					"type": "int"
+				}
+			],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-718310409",
+			"predicate": "sendMessageRecordAudioAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-212740181",
+			"predicate": "sendMessageUploadAudioAction",
+			"params": [
+				{
+					"name": "progress",
+					"type": "int"
+				}
+			],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-774682074",
+			"predicate": "sendMessageUploadPhotoAction",
+			"params": [
+				{
+					"name": "progress",
+					"type": "int"
+				}
+			],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-1441998364",
+			"predicate": "sendMessageUploadDocumentAction",
+			"params": [
+				{
+					"name": "progress",
+					"type": "int"
+				}
+			],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "393186209",
+			"predicate": "sendMessageGeoLocationAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "1653390447",
+			"predicate": "sendMessageChooseContactAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "446822276",
+			"predicate": "contacts.found",
+			"params": [
+				{
+					"name": "results",
+					"type": "Vector<Peer>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.Found"
+		},
+		{
+			"id": "942527460",
+			"predicate": "updateServiceNotification",
+			"params": [
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "media",
+					"type": "MessageMedia"
+				},
+				{
+					"name": "popup",
+					"type": "Bool"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-496024847",
+			"predicate": "userStatusRecently",
+			"params": [],
+			"type": "UserStatus"
+		},
+		{
+			"id": "129960444",
+			"predicate": "userStatusLastWeek",
+			"params": [],
+			"type": "UserStatus"
+		},
+		{
+			"id": "2011940674",
+			"predicate": "userStatusLastMonth",
+			"params": [],
+			"type": "UserStatus"
+		},
+		{
+			"id": "-298113238",
+			"predicate": "updatePrivacy",
+			"params": [
+				{
+					"name": "key",
+					"type": "PrivacyKey"
+				},
+				{
+					"name": "rules",
+					"type": "Vector<PrivacyRule>"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1335282456",
+			"predicate": "inputPrivacyKeyStatusTimestamp",
+			"params": [],
+			"type": "InputPrivacyKey"
+		},
+		{
+			"id": "-1137792208",
+			"predicate": "privacyKeyStatusTimestamp",
+			"params": [],
+			"type": "PrivacyKey"
+		},
+		{
+			"id": "218751099",
+			"predicate": "inputPrivacyValueAllowContacts",
+			"params": [],
+			"type": "InputPrivacyRule"
+		},
+		{
+			"id": "407582158",
+			"predicate": "inputPrivacyValueAllowAll",
+			"params": [],
+			"type": "InputPrivacyRule"
+		},
+		{
+			"id": "320652927",
+			"predicate": "inputPrivacyValueAllowUsers",
+			"params": [
+				{
+					"name": "users",
+					"type": "Vector<InputUser>"
+				}
+			],
+			"type": "InputPrivacyRule"
+		},
+		{
+			"id": "195371015",
+			"predicate": "inputPrivacyValueDisallowContacts",
+			"params": [],
+			"type": "InputPrivacyRule"
+		},
+		{
+			"id": "-697604407",
+			"predicate": "inputPrivacyValueDisallowAll",
+			"params": [],
+			"type": "InputPrivacyRule"
+		},
+		{
+			"id": "-1877932953",
+			"predicate": "inputPrivacyValueDisallowUsers",
+			"params": [
+				{
+					"name": "users",
+					"type": "Vector<InputUser>"
+				}
+			],
+			"type": "InputPrivacyRule"
+		},
+		{
+			"id": "-123988",
+			"predicate": "privacyValueAllowContacts",
+			"params": [],
+			"type": "PrivacyRule"
+		},
+		{
+			"id": "1698855810",
+			"predicate": "privacyValueAllowAll",
+			"params": [],
+			"type": "PrivacyRule"
+		},
+		{
+			"id": "1297858060",
+			"predicate": "privacyValueAllowUsers",
+			"params": [
+				{
+					"name": "users",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "PrivacyRule"
+		},
+		{
+			"id": "-125240806",
+			"predicate": "privacyValueDisallowContacts",
+			"params": [],
+			"type": "PrivacyRule"
+		},
+		{
+			"id": "-1955338397",
+			"predicate": "privacyValueDisallowAll",
+			"params": [],
+			"type": "PrivacyRule"
+		},
+		{
+			"id": "209668535",
+			"predicate": "privacyValueDisallowUsers",
+			"params": [
+				{
+					"name": "users",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "PrivacyRule"
+		},
+		{
+			"id": "1430961007",
+			"predicate": "account.privacyRules",
+			"params": [
+				{
+					"name": "rules",
+					"type": "Vector<PrivacyRule>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "account.PrivacyRules"
+		},
+		{
+			"id": "-1194283041",
+			"predicate": "accountDaysTTL",
+			"params": [
+				{
+					"name": "days",
+					"type": "int"
+				}
+			],
+			"type": "AccountDaysTTL"
+		},
+		{
+			"id": "314130811",
+			"predicate": "updateUserPhone",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "phone",
+					"type": "string"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1815593308",
+			"predicate": "documentAttributeImageSize",
+			"params": [
+				{
+					"name": "w",
+					"type": "int"
+				},
+				{
+					"name": "h",
+					"type": "int"
+				}
+			],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "297109817",
+			"predicate": "documentAttributeAnimated",
+			"params": [],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "1662637586",
+			"predicate": "documentAttributeSticker",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "mask",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "alt",
+					"type": "string"
+				},
+				{
+					"name": "stickerset",
+					"type": "InputStickerSet"
+				},
+				{
+					"name": "mask_coords",
+					"type": "flags.0?MaskCoords"
+				}
+			],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "1494273227",
+			"predicate": "documentAttributeVideo",
+			"params": [
+				{
+					"name": "duration",
+					"type": "int"
+				},
+				{
+					"name": "w",
+					"type": "int"
+				},
+				{
+					"name": "h",
+					"type": "int"
+				}
+			],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "-1739392570",
+			"predicate": "documentAttributeAudio",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "voice",
+					"type": "flags.10?true"
+				},
+				{
+					"name": "duration",
+					"type": "int"
+				},
+				{
+					"name": "title",
+					"type": "flags.0?string"
+				},
+				{
+					"name": "performer",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "waveform",
+					"type": "flags.2?bytes"
+				}
+			],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "358154344",
+			"predicate": "documentAttributeFilename",
+			"params": [
+				{
+					"name": "file_name",
+					"type": "string"
+				}
+			],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "-244016606",
+			"predicate": "messages.stickersNotModified",
+			"params": [],
+			"type": "messages.Stickers"
+		},
+		{
+			"id": "-1970352846",
+			"predicate": "messages.stickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "string"
+				},
+				{
+					"name": "stickers",
+					"type": "Vector<Document>"
+				}
+			],
+			"type": "messages.Stickers"
+		},
+		{
+			"id": "313694676",
+			"predicate": "stickerPack",
+			"params": [
+				{
+					"name": "emoticon",
+					"type": "string"
+				},
+				{
+					"name": "documents",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "StickerPack"
+		},
+		{
+			"id": "-395967805",
+			"predicate": "messages.allStickersNotModified",
+			"params": [],
+			"type": "messages.AllStickers"
+		},
+		{
+			"id": "-302170017",
+			"predicate": "messages.allStickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				},
+				{
+					"name": "sets",
+					"type": "Vector<StickerSet>"
+				}
+			],
+			"type": "messages.AllStickers"
+		},
+		{
+			"id": "-1369215196",
+			"predicate": "disabledFeature",
+			"params": [
+				{
+					"name": "feature",
+					"type": "string"
+				},
+				{
+					"name": "description",
+					"type": "string"
+				}
+			],
+			"type": "DisabledFeature"
+		},
+		{
+			"id": "-1721631396",
+			"predicate": "updateReadHistoryInbox",
+			"params": [
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "791617983",
+			"predicate": "updateReadHistoryOutbox",
+			"params": [
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-2066640507",
+			"predicate": "messages.affectedMessages",
+			"params": [
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "messages.AffectedMessages"
+		},
+		{
+			"id": "1599050311",
+			"predicate": "contactLinkUnknown",
+			"params": [],
+			"type": "ContactLink"
+		},
+		{
+			"id": "-17968211",
+			"predicate": "contactLinkNone",
+			"params": [],
+			"type": "ContactLink"
+		},
+		{
+			"id": "646922073",
+			"predicate": "contactLinkHasPhone",
+			"params": [],
+			"type": "ContactLink"
+		},
+		{
+			"id": "-721239344",
+			"predicate": "contactLinkContact",
+			"params": [],
+			"type": "ContactLink"
+		},
+		{
+			"id": "2139689491",
+			"predicate": "updateWebPage",
+			"params": [
+				{
+					"name": "webpage",
+					"type": "WebPage"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-350980120",
+			"predicate": "webPageEmpty",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				}
+			],
+			"type": "WebPage"
+		},
+		{
+			"id": "-981018084",
+			"predicate": "webPagePending",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "WebPage"
+		},
+		{
+			"id": "-897446185",
+			"predicate": "webPage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "display_url",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "flags.0?string"
+				},
+				{
+					"name": "site_name",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "title",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "description",
+					"type": "flags.3?string"
+				},
+				{
+					"name": "photo",
+					"type": "flags.4?Photo"
+				},
+				{
+					"name": "embed_url",
+					"type": "flags.5?string"
+				},
+				{
+					"name": "embed_type",
+					"type": "flags.5?string"
+				},
+				{
+					"name": "embed_width",
+					"type": "flags.6?int"
+				},
+				{
+					"name": "embed_height",
+					"type": "flags.6?int"
+				},
+				{
+					"name": "duration",
+					"type": "flags.7?int"
+				},
+				{
+					"name": "author",
+					"type": "flags.8?string"
+				},
+				{
+					"name": "document",
+					"type": "flags.9?Document"
+				}
+			],
+			"type": "WebPage"
+		},
+		{
+			"id": "-1557277184",
+			"predicate": "messageMediaWebPage",
+			"params": [
+				{
+					"name": "webpage",
+					"type": "WebPage"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "2079516406",
+			"predicate": "authorization",
+			"params": [
+				{
+					"name": "hash",
+					"type": "long"
+				},
+				{
+					"name": "flags",
+					"type": "int"
+				},
+				{
+					"name": "device_model",
+					"type": "string"
+				},
+				{
+					"name": "platform",
+					"type": "string"
+				},
+				{
+					"name": "system_version",
+					"type": "string"
+				},
+				{
+					"name": "api_id",
+					"type": "int"
+				},
+				{
+					"name": "app_name",
+					"type": "string"
+				},
+				{
+					"name": "app_version",
+					"type": "string"
+				},
+				{
+					"name": "date_created",
+					"type": "int"
+				},
+				{
+					"name": "date_active",
+					"type": "int"
+				},
+				{
+					"name": "ip",
+					"type": "string"
+				},
+				{
+					"name": "country",
+					"type": "string"
+				},
+				{
+					"name": "region",
+					"type": "string"
+				}
+			],
+			"type": "Authorization"
+		},
+		{
+			"id": "307276766",
+			"predicate": "account.authorizations",
+			"params": [
+				{
+					"name": "authorizations",
+					"type": "Vector<Authorization>"
+				}
+			],
+			"type": "account.Authorizations"
+		},
+		{
+			"id": "-1764049896",
+			"predicate": "account.noPassword",
+			"params": [
+				{
+					"name": "new_salt",
+					"type": "bytes"
+				},
+				{
+					"name": "email_unconfirmed_pattern",
+					"type": "string"
+				}
+			],
+			"type": "account.Password"
+		},
+		{
+			"id": "2081952796",
+			"predicate": "account.password",
+			"params": [
+				{
+					"name": "current_salt",
+					"type": "bytes"
+				},
+				{
+					"name": "new_salt",
+					"type": "bytes"
+				},
+				{
+					"name": "hint",
+					"type": "string"
+				},
+				{
+					"name": "has_recovery",
+					"type": "Bool"
+				},
+				{
+					"name": "email_unconfirmed_pattern",
+					"type": "string"
+				}
+			],
+			"type": "account.Password"
+		},
+		{
+			"id": "-1212732749",
+			"predicate": "account.passwordSettings",
+			"params": [
+				{
+					"name": "email",
+					"type": "string"
+				}
+			],
+			"type": "account.PasswordSettings"
+		},
+		{
+			"id": "-2037289493",
+			"predicate": "account.passwordInputSettings",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "new_salt",
+					"type": "flags.0?bytes"
+				},
+				{
+					"name": "new_password_hash",
+					"type": "flags.0?bytes"
+				},
+				{
+					"name": "hint",
+					"type": "flags.0?string"
+				},
+				{
+					"name": "email",
+					"type": "flags.1?string"
+				}
+			],
+			"type": "account.PasswordInputSettings"
+		},
+		{
+			"id": "326715557",
+			"predicate": "auth.passwordRecovery",
+			"params": [
+				{
+					"name": "email_pattern",
+					"type": "string"
+				}
+			],
+			"type": "auth.PasswordRecovery"
+		},
+		{
+			"id": "673687578",
+			"predicate": "inputMediaVenue",
+			"params": [
+				{
+					"name": "geo_point",
+					"type": "InputGeoPoint"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "address",
+					"type": "string"
+				},
+				{
+					"name": "provider",
+					"type": "string"
+				},
+				{
+					"name": "venue_id",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "2031269663",
+			"predicate": "messageMediaVenue",
+			"params": [
+				{
+					"name": "geo",
+					"type": "GeoPoint"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "address",
+					"type": "string"
+				},
+				{
+					"name": "provider",
+					"type": "string"
+				},
+				{
+					"name": "venue_id",
+					"type": "string"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "-1551583367",
+			"predicate": "receivedNotifyMessage",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "flags",
+					"type": "int"
+				}
+			],
+			"type": "ReceivedNotifyMessage"
+		},
+		{
+			"id": "1776236393",
+			"predicate": "chatInviteEmpty",
+			"params": [],
+			"type": "ExportedChatInvite"
+		},
+		{
+			"id": "-64092740",
+			"predicate": "chatInviteExported",
+			"params": [
+				{
+					"name": "link",
+					"type": "string"
+				}
+			],
+			"type": "ExportedChatInvite"
+		},
+		{
+			"id": "1516793212",
+			"predicate": "chatInviteAlready",
+			"params": [
+				{
+					"name": "chat",
+					"type": "Chat"
+				}
+			],
+			"type": "ChatInvite"
+		},
+		{
+			"id": "-613092008",
+			"predicate": "chatInvite",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "channel",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "broadcast",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "public",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "megagroup",
+					"type": "flags.3?true"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "photo",
+					"type": "ChatPhoto"
+				},
+				{
+					"name": "participants_count",
+					"type": "int"
+				},
+				{
+					"name": "participants",
+					"type": "flags.4?Vector<User>"
+				}
+			],
+			"type": "ChatInvite"
+		},
+		{
+			"id": "-123931160",
+			"predicate": "messageActionChatJoinedByLink",
+			"params": [
+				{
+					"name": "inviter_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "1757493555",
+			"predicate": "updateReadMessagesContents",
+			"params": [
+				{
+					"name": "messages",
+					"type": "Vector<int>"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-4838507",
+			"predicate": "inputStickerSetEmpty",
+			"params": [],
+			"type": "InputStickerSet"
+		},
+		{
+			"id": "-1645763991",
+			"predicate": "inputStickerSetID",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputStickerSet"
+		},
+		{
+			"id": "-2044933984",
+			"predicate": "inputStickerSetShortName",
+			"params": [
+				{
+					"name": "short_name",
+					"type": "string"
+				}
+			],
+			"type": "InputStickerSet"
+		},
+		{
+			"id": "-852477119",
+			"predicate": "stickerSet",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "installed",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "archived",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "official",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "masks",
+					"type": "flags.3?true"
+				},
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "short_name",
+					"type": "string"
+				},
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "StickerSet"
+		},
+		{
+			"id": "-1240849242",
+			"predicate": "messages.stickerSet",
+			"params": [
+				{
+					"name": "set",
+					"type": "StickerSet"
+				},
+				{
+					"name": "packs",
+					"type": "Vector<StickerPack>"
+				},
+				{
+					"name": "documents",
+					"type": "Vector<Document>"
+				}
+			],
+			"type": "messages.StickerSet"
+		},
+		{
+			"id": "-787638374",
+			"predicate": "user",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "self",
+					"type": "flags.10?true"
+				},
+				{
+					"name": "contact",
+					"type": "flags.11?true"
+				},
+				{
+					"name": "mutual_contact",
+					"type": "flags.12?true"
+				},
+				{
+					"name": "deleted",
+					"type": "flags.13?true"
+				},
+				{
+					"name": "bot",
+					"type": "flags.14?true"
+				},
+				{
+					"name": "bot_chat_history",
+					"type": "flags.15?true"
+				},
+				{
+					"name": "bot_nochats",
+					"type": "flags.16?true"
+				},
+				{
+					"name": "verified",
+					"type": "flags.17?true"
+				},
+				{
+					"name": "restricted",
+					"type": "flags.18?true"
+				},
+				{
+					"name": "min",
+					"type": "flags.20?true"
+				},
+				{
+					"name": "bot_inline_geo",
+					"type": "flags.21?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "flags.0?long"
+				},
+				{
+					"name": "first_name",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "last_name",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "username",
+					"type": "flags.3?string"
+				},
+				{
+					"name": "phone",
+					"type": "flags.4?string"
+				},
+				{
+					"name": "photo",
+					"type": "flags.5?UserProfilePhoto"
+				},
+				{
+					"name": "status",
+					"type": "flags.6?UserStatus"
+				},
+				{
+					"name": "bot_info_version",
+					"type": "flags.14?int"
+				},
+				{
+					"name": "restriction_reason",
+					"type": "flags.18?string"
+				},
+				{
+					"name": "bot_inline_placeholder",
+					"type": "flags.19?string"
+				}
+			],
+			"type": "User"
+		},
+		{
+			"id": "-1032140601",
+			"predicate": "botCommand",
+			"params": [
+				{
+					"name": "command",
+					"type": "string"
+				},
+				{
+					"name": "description",
+					"type": "string"
+				}
+			],
+			"type": "BotCommand"
+		},
+		{
+			"id": "-1729618630",
+			"predicate": "botInfo",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "description",
+					"type": "string"
+				},
+				{
+					"name": "commands",
+					"type": "Vector<BotCommand>"
+				}
+			],
+			"type": "BotInfo"
+		},
+		{
+			"id": "-1560655744",
+			"predicate": "keyboardButton",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "2002815875",
+			"predicate": "keyboardButtonRow",
+			"params": [
+				{
+					"name": "buttons",
+					"type": "Vector<KeyboardButton>"
+				}
+			],
+			"type": "KeyboardButtonRow"
+		},
+		{
+			"id": "-1606526075",
+			"predicate": "replyKeyboardHide",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "selective",
+					"type": "flags.2?true"
+				}
+			],
+			"type": "ReplyMarkup"
+		},
+		{
+			"id": "-200242528",
+			"predicate": "replyKeyboardForceReply",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "single_use",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "selective",
+					"type": "flags.2?true"
+				}
+			],
+			"type": "ReplyMarkup"
+		},
+		{
+			"id": "889353612",
+			"predicate": "replyKeyboardMarkup",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "resize",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "single_use",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "selective",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "rows",
+					"type": "Vector<KeyboardButtonRow>"
+				}
+			],
+			"type": "ReplyMarkup"
+		},
+		{
+			"id": "2072935910",
+			"predicate": "inputPeerUser",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputPeer"
+		},
+		{
+			"id": "-668391402",
+			"predicate": "inputUser",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputUser"
+		},
+		{
+			"id": "-1350696044",
+			"predicate": "help.appChangelogEmpty",
+			"params": [],
+			"type": "help.AppChangelog"
+		},
+		{
+			"id": "1181279933",
+			"predicate": "help.appChangelog",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "help.AppChangelog"
+		},
+		{
+			"id": "-1148011883",
+			"predicate": "messageEntityUnknown",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "-100378723",
+			"predicate": "messageEntityMention",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "1868782349",
+			"predicate": "messageEntityHashtag",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "1827637959",
+			"predicate": "messageEntityBotCommand",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "1859134776",
+			"predicate": "messageEntityUrl",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "1692693954",
+			"predicate": "messageEntityEmail",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "-1117713463",
+			"predicate": "messageEntityBold",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "-2106619040",
+			"predicate": "messageEntityItalic",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "681706865",
+			"predicate": "messageEntityCode",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "1938967520",
+			"predicate": "messageEntityPre",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				},
+				{
+					"name": "language",
+					"type": "string"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "1990644519",
+			"predicate": "messageEntityTextUrl",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				},
+				{
+					"name": "url",
+					"type": "string"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "301019932",
+			"predicate": "updateShortSentMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "out",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "media",
+					"type": "flags.9?MessageMedia"
+				},
+				{
+					"name": "entities",
+					"type": "flags.7?Vector<MessageEntity>"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-292807034",
+			"predicate": "inputChannelEmpty",
+			"params": [],
+			"type": "InputChannel"
+		},
+		{
+			"id": "-1343524562",
+			"predicate": "inputChannel",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputChannel"
+		},
+		{
+			"id": "-1109531342",
+			"predicate": "peerChannel",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				}
+			],
+			"type": "Peer"
+		},
+		{
+			"id": "548253432",
+			"predicate": "inputPeerChannel",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputPeer"
+		},
+		{
+			"id": "-1588737454",
+			"predicate": "channel",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "creator",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "kicked",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "left",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "editor",
+					"type": "flags.3?true"
+				},
+				{
+					"name": "moderator",
+					"type": "flags.4?true"
+				},
+				{
+					"name": "broadcast",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "verified",
+					"type": "flags.7?true"
+				},
+				{
+					"name": "megagroup",
+					"type": "flags.8?true"
+				},
+				{
+					"name": "restricted",
+					"type": "flags.9?true"
+				},
+				{
+					"name": "democracy",
+					"type": "flags.10?true"
+				},
+				{
+					"name": "signatures",
+					"type": "flags.11?true"
+				},
+				{
+					"name": "min",
+					"type": "flags.12?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "flags.13?long"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "username",
+					"type": "flags.6?string"
+				},
+				{
+					"name": "photo",
+					"type": "ChatPhoto"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				},
+				{
+					"name": "restriction_reason",
+					"type": "flags.9?string"
+				}
+			],
+			"type": "Chat"
+		},
+		{
+			"id": "-2059962289",
+			"predicate": "channelForbidden",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "broadcast",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "megagroup",
+					"type": "flags.8?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "Chat"
+		},
+		{
+			"id": "2131196633",
+			"predicate": "contacts.resolvedPeer",
+			"params": [
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.ResolvedPeer"
+		},
+		{
+			"id": "-1009430225",
+			"predicate": "channelFull",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "can_view_participants",
+					"type": "flags.3?true"
+				},
+				{
+					"name": "can_set_username",
+					"type": "flags.6?true"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "about",
+					"type": "string"
+				},
+				{
+					"name": "participants_count",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "admins_count",
+					"type": "flags.1?int"
+				},
+				{
+					"name": "kicked_count",
+					"type": "flags.2?int"
+				},
+				{
+					"name": "read_inbox_max_id",
+					"type": "int"
+				},
+				{
+					"name": "read_outbox_max_id",
+					"type": "int"
+				},
+				{
+					"name": "unread_count",
+					"type": "int"
+				},
+				{
+					"name": "chat_photo",
+					"type": "Photo"
+				},
+				{
+					"name": "notify_settings",
+					"type": "PeerNotifySettings"
+				},
+				{
+					"name": "exported_invite",
+					"type": "ExportedChatInvite"
+				},
+				{
+					"name": "bot_info",
+					"type": "Vector<BotInfo>"
+				},
+				{
+					"name": "migrated_from_chat_id",
+					"type": "flags.4?int"
+				},
+				{
+					"name": "migrated_from_max_id",
+					"type": "flags.4?int"
+				},
+				{
+					"name": "pinned_msg_id",
+					"type": "flags.5?int"
+				}
+			],
+			"type": "ChatFull"
+		},
+		{
+			"id": "182649427",
+			"predicate": "messageRange",
+			"params": [
+				{
+					"name": "min_id",
+					"type": "int"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageRange"
+		},
+		{
+			"id": "-1725551049",
+			"predicate": "messages.channelMessages",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "-1781355374",
+			"predicate": "messageActionChannelCreate",
+			"params": [
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-352032773",
+			"predicate": "updateChannelTooLong",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "pts",
+					"type": "flags.0?int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1227598250",
+			"predicate": "updateChannel",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1656358105",
+			"predicate": "updateNewChannelMessage",
+			"params": [
+				{
+					"name": "message",
+					"type": "Message"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1108669311",
+			"predicate": "updateReadChannelInbox",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1015733815",
+			"predicate": "updateDeleteChannelMessages",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<int>"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1734268085",
+			"predicate": "updateChannelMessageViews",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "views",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1041346555",
+			"predicate": "updates.channelDifferenceEmpty",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "final",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "timeout",
+					"type": "flags.1?int"
+				}
+			],
+			"type": "updates.ChannelDifference"
+		},
+		{
+			"id": "1091431943",
+			"predicate": "updates.channelDifferenceTooLong",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "final",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "timeout",
+					"type": "flags.1?int"
+				},
+				{
+					"name": "top_message",
+					"type": "int"
+				},
+				{
+					"name": "read_inbox_max_id",
+					"type": "int"
+				},
+				{
+					"name": "read_outbox_max_id",
+					"type": "int"
+				},
+				{
+					"name": "unread_count",
+					"type": "int"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "updates.ChannelDifference"
+		},
+		{
+			"id": "543450958",
+			"predicate": "updates.channelDifference",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "final",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "timeout",
+					"type": "flags.1?int"
+				},
+				{
+					"name": "new_messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "other_updates",
+					"type": "Vector<Update>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "updates.ChannelDifference"
+		},
+		{
+			"id": "-1798033689",
+			"predicate": "channelMessagesFilterEmpty",
+			"params": [],
+			"type": "ChannelMessagesFilter"
+		},
+		{
+			"id": "-847783593",
+			"predicate": "channelMessagesFilter",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "exclude_new_messages",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "ranges",
+					"type": "Vector<MessageRange>"
+				}
+			],
+			"type": "ChannelMessagesFilter"
+		},
+		{
+			"id": "367766557",
+			"predicate": "channelParticipant",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChannelParticipant"
+		},
+		{
+			"id": "-1557620115",
+			"predicate": "channelParticipantSelf",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "inviter_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChannelParticipant"
+		},
+		{
+			"id": "-1861910545",
+			"predicate": "channelParticipantModerator",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "inviter_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChannelParticipant"
+		},
+		{
+			"id": "-1743180447",
+			"predicate": "channelParticipantEditor",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "inviter_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChannelParticipant"
+		},
+		{
+			"id": "-1933187430",
+			"predicate": "channelParticipantKicked",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "kicked_by",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChannelParticipant"
+		},
+		{
+			"id": "-471670279",
+			"predicate": "channelParticipantCreator",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				}
+			],
+			"type": "ChannelParticipant"
+		},
+		{
+			"id": "-566281095",
+			"predicate": "channelParticipantsRecent",
+			"params": [],
+			"type": "ChannelParticipantsFilter"
+		},
+		{
+			"id": "-1268741783",
+			"predicate": "channelParticipantsAdmins",
+			"params": [],
+			"type": "ChannelParticipantsFilter"
+		},
+		{
+			"id": "1010285434",
+			"predicate": "channelParticipantsKicked",
+			"params": [],
+			"type": "ChannelParticipantsFilter"
+		},
+		{
+			"id": "-1299865402",
+			"predicate": "channelRoleEmpty",
+			"params": [],
+			"type": "ChannelParticipantRole"
+		},
+		{
+			"id": "-1776756363",
+			"predicate": "channelRoleModerator",
+			"params": [],
+			"type": "ChannelParticipantRole"
+		},
+		{
+			"id": "-2113143156",
+			"predicate": "channelRoleEditor",
+			"params": [],
+			"type": "ChannelParticipantRole"
+		},
+		{
+			"id": "-177282392",
+			"predicate": "channels.channelParticipants",
+			"params": [
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "participants",
+					"type": "Vector<ChannelParticipant>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "channels.ChannelParticipants"
+		},
+		{
+			"id": "-791039645",
+			"predicate": "channels.channelParticipant",
+			"params": [
+				{
+					"name": "participant",
+					"type": "ChannelParticipant"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "channels.ChannelParticipant"
+		},
+		{
+			"id": "-636267638",
+			"predicate": "chatParticipantCreator",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				}
+			],
+			"type": "ChatParticipant"
+		},
+		{
+			"id": "-489233354",
+			"predicate": "chatParticipantAdmin",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "inviter_id",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "ChatParticipant"
+		},
+		{
+			"id": "1855224129",
+			"predicate": "updateChatAdmins",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "enabled",
+					"type": "Bool"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1232070311",
+			"predicate": "updateChatParticipantAdmin",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "is_admin",
+					"type": "Bool"
+				},
+				{
+					"name": "version",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1371385889",
+			"predicate": "messageActionChatMigrateTo",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-1336546578",
+			"predicate": "messageActionChannelMigrateFrom",
+			"params": [
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "-1328445861",
+			"predicate": "channelParticipantsBots",
+			"params": [],
+			"type": "ChannelParticipantsFilter"
+		},
+		{
+			"id": "-236044656",
+			"predicate": "help.termsOfService",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "help.TermsOfService"
+		},
+		{
+			"id": "1753886890",
+			"predicate": "updateNewStickerSet",
+			"params": [
+				{
+					"name": "stickerset",
+					"type": "messages.StickerSet"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "196268545",
+			"predicate": "updateStickerSetsOrder",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "masks",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "order",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1135492588",
+			"predicate": "updateStickerSets",
+			"params": [],
+			"type": "Update"
+		},
+		{
+			"id": "372165663",
+			"predicate": "foundGif",
+			"params": [
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "thumb_url",
+					"type": "string"
+				},
+				{
+					"name": "content_url",
+					"type": "string"
+				},
+				{
+					"name": "content_type",
+					"type": "string"
+				},
+				{
+					"name": "w",
+					"type": "int"
+				},
+				{
+					"name": "h",
+					"type": "int"
+				}
+			],
+			"type": "FoundGif"
+		},
+		{
+			"id": "-1670052855",
+			"predicate": "foundGifCached",
+			"params": [
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "photo",
+					"type": "Photo"
+				},
+				{
+					"name": "document",
+					"type": "Document"
+				}
+			],
+			"type": "FoundGif"
+		},
+		{
+			"id": "1212395773",
+			"predicate": "inputMediaGifExternal",
+			"params": [
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "q",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "1158290442",
+			"predicate": "messages.foundGifs",
+			"params": [
+				{
+					"name": "next_offset",
+					"type": "int"
+				},
+				{
+					"name": "results",
+					"type": "Vector<FoundGif>"
+				}
+			],
+			"type": "messages.FoundGifs"
+		},
+		{
+			"id": "-402498398",
+			"predicate": "messages.savedGifsNotModified",
+			"params": [],
+			"type": "messages.SavedGifs"
+		},
+		{
+			"id": "772213157",
+			"predicate": "messages.savedGifs",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				},
+				{
+					"name": "gifs",
+					"type": "Vector<Document>"
+				}
+			],
+			"type": "messages.SavedGifs"
+		},
+		{
+			"id": "-1821035490",
+			"predicate": "updateSavedGifs",
+			"params": [],
+			"type": "Update"
+		},
+		{
+			"id": "691006739",
+			"predicate": "inputBotInlineMessageMediaAuto",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "InputBotInlineMessage"
+		},
+		{
+			"id": "1036876423",
+			"predicate": "inputBotInlineMessageText",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "entities",
+					"type": "flags.1?Vector<MessageEntity>"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "InputBotInlineMessage"
+		},
+		{
+			"id": "750510426",
+			"predicate": "inputBotInlineResult",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "title",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "description",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "url",
+					"type": "flags.3?string"
+				},
+				{
+					"name": "thumb_url",
+					"type": "flags.4?string"
+				},
+				{
+					"name": "content_url",
+					"type": "flags.5?string"
+				},
+				{
+					"name": "content_type",
+					"type": "flags.5?string"
+				},
+				{
+					"name": "w",
+					"type": "flags.6?int"
+				},
+				{
+					"name": "h",
+					"type": "flags.6?int"
+				},
+				{
+					"name": "duration",
+					"type": "flags.7?int"
+				},
+				{
+					"name": "send_message",
+					"type": "InputBotInlineMessage"
+				}
+			],
+			"type": "InputBotInlineResult"
+		},
+		{
+			"id": "175419739",
+			"predicate": "botInlineMessageMediaAuto",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "BotInlineMessage"
+		},
+		{
+			"id": "-1937807902",
+			"predicate": "botInlineMessageText",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "entities",
+					"type": "flags.1?Vector<MessageEntity>"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "BotInlineMessage"
+		},
+		{
+			"id": "-1679053127",
+			"predicate": "botInlineResult",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "title",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "description",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "url",
+					"type": "flags.3?string"
+				},
+				{
+					"name": "thumb_url",
+					"type": "flags.4?string"
+				},
+				{
+					"name": "content_url",
+					"type": "flags.5?string"
+				},
+				{
+					"name": "content_type",
+					"type": "flags.5?string"
+				},
+				{
+					"name": "w",
+					"type": "flags.6?int"
+				},
+				{
+					"name": "h",
+					"type": "flags.6?int"
+				},
+				{
+					"name": "duration",
+					"type": "flags.7?int"
+				},
+				{
+					"name": "send_message",
+					"type": "BotInlineMessage"
+				}
+			],
+			"type": "BotInlineResult"
+		},
+		{
+			"id": "627509670",
+			"predicate": "messages.botResults",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "gallery",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "next_offset",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "switch_pm",
+					"type": "flags.2?InlineBotSwitchPM"
+				},
+				{
+					"name": "results",
+					"type": "Vector<BotInlineResult>"
+				}
+			],
+			"type": "messages.BotResults"
+		},
+		{
+			"id": "1417832080",
+			"predicate": "updateBotInlineQuery",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "query",
+					"type": "string"
+				},
+				{
+					"name": "geo",
+					"type": "flags.0?GeoPoint"
+				},
+				{
+					"name": "offset",
+					"type": "string"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "239663460",
+			"predicate": "updateBotInlineSend",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "query",
+					"type": "string"
+				},
+				{
+					"name": "geo",
+					"type": "flags.0?GeoPoint"
+				},
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "msg_id",
+					"type": "flags.1?InputBotInlineMessageID"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1358283666",
+			"predicate": "inputMessagesFilterVoice",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "928101534",
+			"predicate": "inputMessagesFilterMusic",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "-1107622874",
+			"predicate": "inputPrivacyKeyChatInvite",
+			"params": [],
+			"type": "InputPrivacyKey"
+		},
+		{
+			"id": "1343122938",
+			"predicate": "privacyKeyChatInvite",
+			"params": [],
+			"type": "PrivacyKey"
+		},
+		{
+			"id": "524838915",
+			"predicate": "exportedMessageLink",
+			"params": [
+				{
+					"name": "link",
+					"type": "string"
+				}
+			],
+			"type": "ExportedMessageLink"
+		},
+		{
+			"id": "-947462709",
+			"predicate": "messageFwdHeader",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "from_id",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "channel_id",
+					"type": "flags.1?int"
+				},
+				{
+					"name": "channel_post",
+					"type": "flags.2?int"
+				}
+			],
+			"type": "MessageFwdHeader"
+		},
+		{
+			"id": "457133559",
+			"predicate": "updateEditChannelMessage",
+			"params": [
+				{
+					"name": "message",
+					"type": "Message"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1738988427",
+			"predicate": "updateChannelPinnedMessage",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1799538451",
+			"predicate": "messageActionPinMessage",
+			"params": [],
+			"type": "MessageAction"
+		},
+		{
+			"id": "1923290508",
+			"predicate": "auth.codeTypeSms",
+			"params": [],
+			"type": "auth.CodeType"
+		},
+		{
+			"id": "1948046307",
+			"predicate": "auth.codeTypeCall",
+			"params": [],
+			"type": "auth.CodeType"
+		},
+		{
+			"id": "577556219",
+			"predicate": "auth.codeTypeFlashCall",
+			"params": [],
+			"type": "auth.CodeType"
+		},
+		{
+			"id": "1035688326",
+			"predicate": "auth.sentCodeTypeApp",
+			"params": [
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "auth.SentCodeType"
+		},
+		{
+			"id": "-1073693790",
+			"predicate": "auth.sentCodeTypeSms",
+			"params": [
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "auth.SentCodeType"
+		},
+		{
+			"id": "1398007207",
+			"predicate": "auth.sentCodeTypeCall",
+			"params": [
+				{
+					"name": "length",
+					"type": "int"
+				}
+			],
+			"type": "auth.SentCodeType"
+		},
+		{
+			"id": "-1425815847",
+			"predicate": "auth.sentCodeTypeFlashCall",
+			"params": [
+				{
+					"name": "pattern",
+					"type": "string"
+				}
+			],
+			"type": "auth.SentCodeType"
+		},
+		{
+			"id": "629866245",
+			"predicate": "keyboardButtonUrl",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				},
+				{
+					"name": "url",
+					"type": "string"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "1748655686",
+			"predicate": "keyboardButtonCallback",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				},
+				{
+					"name": "data",
+					"type": "bytes"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "-1318425559",
+			"predicate": "keyboardButtonRequestPhone",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "-59151553",
+			"predicate": "keyboardButtonRequestGeoLocation",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "90744648",
+			"predicate": "keyboardButtonSwitchInline",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "same_peer",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "text",
+					"type": "string"
+				},
+				{
+					"name": "query",
+					"type": "string"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "1218642516",
+			"predicate": "replyInlineMarkup",
+			"params": [
+				{
+					"name": "rows",
+					"type": "Vector<KeyboardButtonRow>"
+				}
+			],
+			"type": "ReplyMarkup"
+		},
+		{
+			"id": "-1324486149",
+			"predicate": "messages.botCallbackAnswer",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "alert",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "has_url",
+					"type": "flags.3?true"
+				},
+				{
+					"name": "message",
+					"type": "flags.0?string"
+				},
+				{
+					"name": "url",
+					"type": "flags.2?string"
+				}
+			],
+			"type": "messages.BotCallbackAnswer"
+		},
+		{
+			"id": "-415938591",
+			"predicate": "updateBotCallbackQuery",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "msg_id",
+					"type": "int"
+				},
+				{
+					"name": "chat_instance",
+					"type": "long"
+				},
+				{
+					"name": "data",
+					"type": "flags.0?bytes"
+				},
+				{
+					"name": "game_short_name",
+					"type": "flags.1?string"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "649453030",
+			"predicate": "messages.messageEditData",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "caption",
+					"type": "flags.0?true"
+				}
+			],
+			"type": "messages.MessageEditData"
+		},
+		{
+			"id": "-469536605",
+			"predicate": "updateEditMessage",
+			"params": [
+				{
+					"name": "message",
+					"type": "Message"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "pts_count",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-190472735",
+			"predicate": "inputBotInlineMessageMediaGeo",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "geo_point",
+					"type": "InputGeoPoint"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "InputBotInlineMessage"
+		},
+		{
+			"id": "-1431327288",
+			"predicate": "inputBotInlineMessageMediaVenue",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "geo_point",
+					"type": "InputGeoPoint"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "address",
+					"type": "string"
+				},
+				{
+					"name": "provider",
+					"type": "string"
+				},
+				{
+					"name": "venue_id",
+					"type": "string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "InputBotInlineMessage"
+		},
+		{
+			"id": "766443943",
+			"predicate": "inputBotInlineMessageMediaContact",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "InputBotInlineMessage"
+		},
+		{
+			"id": "982505656",
+			"predicate": "botInlineMessageMediaGeo",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "geo",
+					"type": "GeoPoint"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "BotInlineMessage"
+		},
+		{
+			"id": "1130767150",
+			"predicate": "botInlineMessageMediaVenue",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "geo",
+					"type": "GeoPoint"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "address",
+					"type": "string"
+				},
+				{
+					"name": "provider",
+					"type": "string"
+				},
+				{
+					"name": "venue_id",
+					"type": "string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "BotInlineMessage"
+		},
+		{
+			"id": "904770772",
+			"predicate": "botInlineMessageMediaContact",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "BotInlineMessage"
+		},
+		{
+			"id": "-1462213465",
+			"predicate": "inputBotInlineResultPhoto",
+			"params": [
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "photo",
+					"type": "InputPhoto"
+				},
+				{
+					"name": "send_message",
+					"type": "InputBotInlineMessage"
+				}
+			],
+			"type": "InputBotInlineResult"
+		},
+		{
+			"id": "-459324",
+			"predicate": "inputBotInlineResultDocument",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "title",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "description",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "document",
+					"type": "InputDocument"
+				},
+				{
+					"name": "send_message",
+					"type": "InputBotInlineMessage"
+				}
+			],
+			"type": "InputBotInlineResult"
+		},
+		{
+			"id": "400266251",
+			"predicate": "botInlineMediaResult",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "type",
+					"type": "string"
+				},
+				{
+					"name": "photo",
+					"type": "flags.0?Photo"
+				},
+				{
+					"name": "document",
+					"type": "flags.1?Document"
+				},
+				{
+					"name": "title",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "description",
+					"type": "flags.3?string"
+				},
+				{
+					"name": "send_message",
+					"type": "BotInlineMessage"
+				}
+			],
+			"type": "BotInlineResult"
+		},
+		{
+			"id": "-1995686519",
+			"predicate": "inputBotInlineMessageID",
+			"params": [
+				{
+					"name": "dc_id",
+					"type": "int"
+				},
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputBotInlineMessageID"
+		},
+		{
+			"id": "-103646630",
+			"predicate": "updateInlineBotCallbackQuery",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "msg_id",
+					"type": "InputBotInlineMessageID"
+				},
+				{
+					"name": "chat_instance",
+					"type": "long"
+				},
+				{
+					"name": "data",
+					"type": "flags.0?bytes"
+				},
+				{
+					"name": "game_short_name",
+					"type": "flags.1?string"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "1008755359",
+			"predicate": "inlineBotSwitchPM",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				},
+				{
+					"name": "start_param",
+					"type": "string"
+				}
+			],
+			"type": "InlineBotSwitchPM"
+		},
+		{
+			"id": "863093588",
+			"predicate": "messages.peerDialogs",
+			"params": [
+				{
+					"name": "dialogs",
+					"type": "Vector<Dialog>"
+				},
+				{
+					"name": "messages",
+					"type": "Vector<Message>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				},
+				{
+					"name": "state",
+					"type": "updates.State"
+				}
+			],
+			"type": "messages.PeerDialogs"
+		},
+		{
+			"id": "-305282981",
+			"predicate": "topPeer",
+			"params": [
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "rating",
+					"type": "double"
+				}
+			],
+			"type": "TopPeer"
+		},
+		{
+			"id": "-1419371685",
+			"predicate": "topPeerCategoryBotsPM",
+			"params": [],
+			"type": "TopPeerCategory"
+		},
+		{
+			"id": "344356834",
+			"predicate": "topPeerCategoryBotsInline",
+			"params": [],
+			"type": "TopPeerCategory"
+		},
+		{
+			"id": "104314861",
+			"predicate": "topPeerCategoryCorrespondents",
+			"params": [],
+			"type": "TopPeerCategory"
+		},
+		{
+			"id": "-1122524854",
+			"predicate": "topPeerCategoryGroups",
+			"params": [],
+			"type": "TopPeerCategory"
+		},
+		{
+			"id": "371037736",
+			"predicate": "topPeerCategoryChannels",
+			"params": [],
+			"type": "TopPeerCategory"
+		},
+		{
+			"id": "-75283823",
+			"predicate": "topPeerCategoryPeers",
+			"params": [
+				{
+					"name": "category",
+					"type": "TopPeerCategory"
+				},
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "peers",
+					"type": "Vector<TopPeer>"
+				}
+			],
+			"type": "TopPeerCategoryPeers"
+		},
+		{
+			"id": "-567906571",
+			"predicate": "contacts.topPeersNotModified",
+			"params": [],
+			"type": "contacts.TopPeers"
+		},
+		{
+			"id": "1891070632",
+			"predicate": "contacts.topPeers",
+			"params": [
+				{
+					"name": "categories",
+					"type": "Vector<TopPeerCategoryPeers>"
+				},
+				{
+					"name": "chats",
+					"type": "Vector<Chat>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "contacts.TopPeers"
+		},
+		{
+			"id": "892193368",
+			"predicate": "messageEntityMentionName",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "546203849",
+			"predicate": "inputMessageEntityMentionName",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "length",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				}
+			],
+			"type": "MessageEntity"
+		},
+		{
+			"id": "975236280",
+			"predicate": "inputMessagesFilterChatPhotos",
+			"params": [],
+			"type": "MessagesFilter"
+		},
+		{
+			"id": "634833351",
+			"predicate": "updateReadChannelOutbox",
+			"params": [
+				{
+					"name": "channel_id",
+					"type": "int"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-299124375",
+			"predicate": "updateDraftMessage",
+			"params": [
+				{
+					"name": "peer",
+					"type": "Peer"
+				},
+				{
+					"name": "draft",
+					"type": "DraftMessage"
+				}
+			],
+			"type": "Update"
+		},
+		{
+			"id": "-1169445179",
+			"predicate": "draftMessageEmpty",
+			"params": [],
+			"type": "DraftMessage"
+		},
+		{
+			"id": "-40996577",
+			"predicate": "draftMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "entities",
+					"type": "flags.3?Vector<MessageEntity>"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				}
+			],
+			"type": "DraftMessage"
+		},
+		{
+			"id": "-1615153660",
+			"predicate": "messageActionHistoryClear",
+			"params": [],
+			"type": "MessageAction"
+		},
+		{
+			"id": "82699215",
+			"predicate": "messages.featuredStickersNotModified",
+			"params": [],
+			"type": "messages.FeaturedStickers"
+		},
+		{
+			"id": "-123893531",
+			"predicate": "messages.featuredStickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				},
+				{
+					"name": "sets",
+					"type": "Vector<StickerSetCovered>"
+				},
+				{
+					"name": "unread",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "messages.FeaturedStickers"
+		},
+		{
+			"id": "1461528386",
+			"predicate": "updateReadFeaturedStickers",
+			"params": [],
+			"type": "Update"
+		},
+		{
+			"id": "186120336",
+			"predicate": "messages.recentStickersNotModified",
+			"params": [],
+			"type": "messages.RecentStickers"
+		},
+		{
+			"id": "1558317424",
+			"predicate": "messages.recentStickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				},
+				{
+					"name": "stickers",
+					"type": "Vector<Document>"
+				}
+			],
+			"type": "messages.RecentStickers"
+		},
+		{
+			"id": "-1706939360",
+			"predicate": "updateRecentStickers",
+			"params": [],
+			"type": "Update"
+		},
+		{
+			"id": "1338747336",
+			"predicate": "messages.archivedStickers",
+			"params": [
+				{
+					"name": "count",
+					"type": "int"
+				},
+				{
+					"name": "sets",
+					"type": "Vector<StickerSetCovered>"
+				}
+			],
+			"type": "messages.ArchivedStickers"
+		},
+		{
+			"id": "946083368",
+			"predicate": "messages.stickerSetInstallResultSuccess",
+			"params": [],
+			"type": "messages.StickerSetInstallResult"
+		},
+		{
+			"id": "904138920",
+			"predicate": "messages.stickerSetInstallResultArchive",
+			"params": [
+				{
+					"name": "sets",
+					"type": "Vector<StickerSetCovered>"
+				}
+			],
+			"type": "messages.StickerSetInstallResult"
+		},
+		{
+			"id": "1678812626",
+			"predicate": "stickerSetCovered",
+			"params": [
+				{
+					"name": "set",
+					"type": "StickerSet"
+				},
+				{
+					"name": "cover",
+					"type": "Document"
+				}
+			],
+			"type": "StickerSetCovered"
+		},
+		{
+			"id": "-1574314746",
+			"predicate": "updateConfig",
+			"params": [],
+			"type": "Update"
+		},
+		{
+			"id": "861169551",
+			"predicate": "updatePtsChanged",
+			"params": [],
+			"type": "Update"
+		},
+		{
+			"id": "-1252045032",
+			"predicate": "inputMediaPhotoExternal",
+			"params": [
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "-437690244",
+			"predicate": "inputMediaDocumentExternal",
+			"params": [
+				{
+					"name": "url",
+					"type": "string"
+				},
+				{
+					"name": "caption",
+					"type": "string"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "872932635",
+			"predicate": "stickerSetMultiCovered",
+			"params": [
+				{
+					"name": "set",
+					"type": "StickerSet"
+				},
+				{
+					"name": "covers",
+					"type": "Vector<Document>"
+				}
+			],
+			"type": "StickerSetCovered"
+		},
+		{
+			"id": "-1361650766",
+			"predicate": "maskCoords",
+			"params": [
+				{
+					"name": "n",
+					"type": "int"
+				},
+				{
+					"name": "x",
+					"type": "double"
+				},
+				{
+					"name": "y",
+					"type": "double"
+				},
+				{
+					"name": "zoom",
+					"type": "double"
+				}
+			],
+			"type": "MaskCoords"
+		},
+		{
+			"id": "-1744710921",
+			"predicate": "documentAttributeHasStickers",
+			"params": [],
+			"type": "DocumentAttribute"
+		},
+		{
+			"id": "1251549527",
+			"predicate": "inputStickeredMediaPhoto",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputPhoto"
+				}
+			],
+			"type": "InputStickeredMedia"
+		},
+		{
+			"id": "70813275",
+			"predicate": "inputStickeredMediaDocument",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputDocument"
+				}
+			],
+			"type": "InputStickeredMedia"
+		},
+		{
+			"id": "-1107729093",
+			"predicate": "game",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				},
+				{
+					"name": "short_name",
+					"type": "string"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "description",
+					"type": "string"
+				},
+				{
+					"name": "photo",
+					"type": "Photo"
+				},
+				{
+					"name": "document",
+					"type": "flags.0?Document"
+				}
+			],
+			"type": "Game"
+		},
+		{
+			"id": "1336154098",
+			"predicate": "inputBotInlineResultGame",
+			"params": [
+				{
+					"name": "id",
+					"type": "string"
+				},
+				{
+					"name": "short_name",
+					"type": "string"
+				},
+				{
+					"name": "send_message",
+					"type": "InputBotInlineMessage"
+				}
+			],
+			"type": "InputBotInlineResult"
+		},
+		{
+			"id": "1262639204",
+			"predicate": "inputBotInlineMessageGame",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "InputBotInlineMessage"
+		},
+		{
+			"id": "-580219064",
+			"predicate": "sendMessageGamePlayAction",
+			"params": [],
+			"type": "SendMessageAction"
+		},
+		{
+			"id": "-38694904",
+			"predicate": "messageMediaGame",
+			"params": [
+				{
+					"name": "game",
+					"type": "Game"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "-750828557",
+			"predicate": "inputMediaGame",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputGame"
+				}
+			],
+			"type": "InputMedia"
+		},
+		{
+			"id": "53231223",
+			"predicate": "inputGameID",
+			"params": [
+				{
+					"name": "id",
+					"type": "long"
+				},
+				{
+					"name": "access_hash",
+					"type": "long"
+				}
+			],
+			"type": "InputGame"
+		},
+		{
+			"id": "-1020139510",
+			"predicate": "inputGameShortName",
+			"params": [
+				{
+					"name": "bot_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "short_name",
+					"type": "string"
+				}
+			],
+			"type": "InputGame"
+		},
+		{
+			"id": "1358175439",
+			"predicate": "keyboardButtonGame",
+			"params": [
+				{
+					"name": "text",
+					"type": "string"
+				}
+			],
+			"type": "KeyboardButton"
+		},
+		{
+			"id": "-1834538890",
+			"predicate": "messageActionGameScore",
+			"params": [
+				{
+					"name": "game_id",
+					"type": "long"
+				},
+				{
+					"name": "score",
+					"type": "int"
+				}
+			],
+			"type": "MessageAction"
+		},
+		{
+			"id": "1493171408",
+			"predicate": "highScore",
+			"params": [
+				{
+					"name": "pos",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "int"
+				},
+				{
+					"name": "score",
+					"type": "int"
+				}
+			],
+			"type": "HighScore"
+		},
+		{
+			"id": "-1707344487",
+			"predicate": "messages.highScores",
+			"params": [
+				{
+					"name": "scores",
+					"type": "Vector<HighScore>"
+				},
+				{
+					"name": "users",
+					"type": "Vector<User>"
+				}
+			],
+			"type": "messages.HighScores"
+		}
+	],
+	"methods": [
+		{
+			"id": "-878758099",
+			"method": "invokeAfterMsg",
+			"params": [
+				{
+					"name": "msg_id",
+					"type": "long"
+				},
+				{
+					"name": "query",
+					"type": "!X"
+				}
+			],
+			"type": "X"
+		},
+		{
+			"id": "1036301552",
+			"method": "invokeAfterMsgs",
+			"params": [
+				{
+					"name": "msg_ids",
+					"type": "Vector<long>"
+				},
+				{
+					"name": "query",
+					"type": "!X"
+				}
+			],
+			"type": "X"
+		},
+		{
+			"id": "1877286395",
+			"method": "auth.checkPhone",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				}
+			],
+			"type": "auth.CheckedPhone"
+		},
+		{
+			"id": "-2035355412",
+			"method": "auth.sendCode",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "allow_flashcall",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "current_number",
+					"type": "flags.0?Bool"
+				},
+				{
+					"name": "api_id",
+					"type": "int"
+				},
+				{
+					"name": "api_hash",
+					"type": "string"
+				}
+			],
+			"type": "auth.SentCode"
+		},
+		{
+			"id": "453408308",
+			"method": "auth.signUp",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				},
+				{
+					"name": "phone_code",
+					"type": "string"
+				},
+				{
+					"name": "first_name",
+					"type": "string"
+				},
+				{
+					"name": "last_name",
+					"type": "string"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "-1126886015",
+			"method": "auth.signIn",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				},
+				{
+					"name": "phone_code",
+					"type": "string"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "1461180992",
+			"method": "auth.logOut",
+			"params": [],
+			"type": "Bool"
+		},
+		{
+			"id": "-1616179942",
+			"method": "auth.resetAuthorizations",
+			"params": [],
+			"type": "Bool"
+		},
+		{
+			"id": "1998331287",
+			"method": "auth.sendInvites",
+			"params": [
+				{
+					"name": "phone_numbers",
+					"type": "Vector<string>"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-440401971",
+			"method": "auth.exportAuthorization",
+			"params": [
+				{
+					"name": "dc_id",
+					"type": "int"
+				}
+			],
+			"type": "auth.ExportedAuthorization"
+		},
+		{
+			"id": "-470837741",
+			"method": "auth.importAuthorization",
+			"params": [
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "-841733627",
+			"method": "auth.bindTempAuthKey",
+			"params": [
+				{
+					"name": "perm_auth_key_id",
+					"type": "long"
+				},
+				{
+					"name": "nonce",
+					"type": "long"
+				},
+				{
+					"name": "expires_at",
+					"type": "int"
+				},
+				{
+					"name": "encrypted_message",
+					"type": "bytes"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1669245048",
+			"method": "account.registerDevice",
+			"params": [
+				{
+					"name": "token_type",
+					"type": "int"
+				},
+				{
+					"name": "token",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1707432768",
+			"method": "account.unregisterDevice",
+			"params": [
+				{
+					"name": "token_type",
+					"type": "int"
+				},
+				{
+					"name": "token",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-2067899501",
+			"method": "account.updateNotifySettings",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputNotifyPeer"
+				},
+				{
+					"name": "settings",
+					"type": "InputPeerNotifySettings"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "313765169",
+			"method": "account.getNotifySettings",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputNotifyPeer"
+				}
+			],
+			"type": "PeerNotifySettings"
+		},
+		{
+			"id": "-612493497",
+			"method": "account.resetNotifySettings",
+			"params": [],
+			"type": "Bool"
+		},
+		{
+			"id": "2018596725",
+			"method": "account.updateProfile",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "first_name",
+					"type": "flags.0?string"
+				},
+				{
+					"name": "last_name",
+					"type": "flags.1?string"
+				},
+				{
+					"name": "about",
+					"type": "flags.2?string"
+				}
+			],
+			"type": "User"
+		},
+		{
+			"id": "1713919532",
+			"method": "account.updateStatus",
+			"params": [
+				{
+					"name": "offline",
+					"type": "Bool"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1068696894",
+			"method": "account.getWallPapers",
+			"params": [],
+			"type": "Vector<WallPaper>"
+		},
+		{
+			"id": "-1374118561",
+			"method": "account.reportPeer",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "reason",
+					"type": "ReportReason"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "227648840",
+			"method": "users.getUsers",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<InputUser>"
+				}
+			],
+			"type": "Vector<User>"
+		},
+		{
+			"id": "-902781519",
+			"method": "users.getFullUser",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputUser"
+				}
+			],
+			"type": "UserFull"
+		},
+		{
+			"id": "-995929106",
+			"method": "contacts.getStatuses",
+			"params": [],
+			"type": "Vector<ContactStatus>"
+		},
+		{
+			"id": "583445000",
+			"method": "contacts.getContacts",
+			"params": [
+				{
+					"name": "hash",
+					"type": "string"
+				}
+			],
+			"type": "contacts.Contacts"
+		},
+		{
+			"id": "-634342611",
+			"method": "contacts.importContacts",
+			"params": [
+				{
+					"name": "contacts",
+					"type": "Vector<InputContact>"
+				},
+				{
+					"name": "replace",
+					"type": "Bool"
+				}
+			],
+			"type": "contacts.ImportedContacts"
+		},
+		{
+			"id": "-1902823612",
+			"method": "contacts.deleteContact",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputUser"
+				}
+			],
+			"type": "contacts.Link"
+		},
+		{
+			"id": "1504393374",
+			"method": "contacts.deleteContacts",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<InputUser>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "858475004",
+			"method": "contacts.block",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputUser"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-448724803",
+			"method": "contacts.unblock",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputUser"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-176409329",
+			"method": "contacts.getBlocked",
+			"params": [
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "contacts.Blocked"
+		},
+		{
+			"id": "-2065352905",
+			"method": "contacts.exportCard",
+			"params": [],
+			"type": "Vector<int>"
+		},
+		{
+			"id": "1340184318",
+			"method": "contacts.importCard",
+			"params": [
+				{
+					"name": "export_card",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "User"
+		},
+		{
+			"id": "1109588596",
+			"method": "messages.getMessages",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "1799878989",
+			"method": "messages.getDialogs",
+			"params": [
+				{
+					"name": "offset_date",
+					"type": "int"
+				},
+				{
+					"name": "offset_id",
+					"type": "int"
+				},
+				{
+					"name": "offset_peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "messages.Dialogs"
+		},
+		{
+			"id": "-1347868602",
+			"method": "messages.getHistory",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "offset_id",
+					"type": "int"
+				},
+				{
+					"name": "offset_date",
+					"type": "int"
+				},
+				{
+					"name": "add_offset",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				},
+				{
+					"name": "min_id",
+					"type": "int"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "-732523960",
+			"method": "messages.search",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "q",
+					"type": "string"
+				},
+				{
+					"name": "filter",
+					"type": "MessagesFilter"
+				},
+				{
+					"name": "min_date",
+					"type": "int"
+				},
+				{
+					"name": "max_date",
+					"type": "int"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "238054714",
+			"method": "messages.readHistory",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "messages.AffectedMessages"
+		},
+		{
+			"id": "469850889",
+			"method": "messages.deleteHistory",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "just_clear",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "messages.AffectedHistory"
+		},
+		{
+			"id": "-1510897371",
+			"method": "messages.deleteMessages",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "messages.AffectedMessages"
+		},
+		{
+			"id": "94983360",
+			"method": "messages.receivedMessages",
+			"params": [
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "Vector<ReceivedNotifyMessage>"
+		},
+		{
+			"id": "-1551737264",
+			"method": "messages.setTyping",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "action",
+					"type": "SendMessageAction"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-91733382",
+			"method": "messages.sendMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "silent",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "background",
+					"type": "flags.6?true"
+				},
+				{
+					"name": "clear_draft",
+					"type": "flags.7?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				},
+				{
+					"name": "entities",
+					"type": "flags.3?Vector<MessageEntity>"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-923703407",
+			"method": "messages.sendMedia",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "silent",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "background",
+					"type": "flags.6?true"
+				},
+				{
+					"name": "clear_draft",
+					"type": "flags.7?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "media",
+					"type": "InputMedia"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "1888354709",
+			"method": "messages.forwardMessages",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "silent",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "background",
+					"type": "flags.6?true"
+				},
+				{
+					"name": "with_my_score",
+					"type": "flags.8?true"
+				},
+				{
+					"name": "from_peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				},
+				{
+					"name": "random_id",
+					"type": "Vector<long>"
+				},
+				{
+					"name": "to_peer",
+					"type": "InputPeer"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-820669733",
+			"method": "messages.reportSpam",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1460572005",
+			"method": "messages.hideReportSpam",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "913498268",
+			"method": "messages.getPeerSettings",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				}
+			],
+			"type": "PeerSettings"
+		},
+		{
+			"id": "1013621127",
+			"method": "messages.getChats",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "messages.Chats"
+		},
+		{
+			"id": "998448230",
+			"method": "messages.getFullChat",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "messages.ChatFull"
+		},
+		{
+			"id": "-599447467",
+			"method": "messages.editChatTitle",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-900957736",
+			"method": "messages.editChatPhoto",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "photo",
+					"type": "InputChatPhoto"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-106911223",
+			"method": "messages.addChatUser",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "fwd_limit",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-530505962",
+			"method": "messages.deleteChatUser",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "164303470",
+			"method": "messages.createChat",
+			"params": [
+				{
+					"name": "users",
+					"type": "Vector<InputUser>"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-304838614",
+			"method": "updates.getState",
+			"params": [],
+			"type": "updates.State"
+		},
+		{
+			"id": "168039573",
+			"method": "updates.getDifference",
+			"params": [
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "date",
+					"type": "int"
+				},
+				{
+					"name": "qts",
+					"type": "int"
+				}
+			],
+			"type": "updates.Difference"
+		},
+		{
+			"id": "-256159406",
+			"method": "photos.updateProfilePhoto",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputPhoto"
+				}
+			],
+			"type": "UserProfilePhoto"
+		},
+		{
+			"id": "1328726168",
+			"method": "photos.uploadProfilePhoto",
+			"params": [
+				{
+					"name": "file",
+					"type": "InputFile"
+				}
+			],
+			"type": "photos.Photo"
+		},
+		{
+			"id": "-2016444625",
+			"method": "photos.deletePhotos",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<InputPhoto>"
+				}
+			],
+			"type": "Vector<long>"
+		},
+		{
+			"id": "-1291540959",
+			"method": "upload.saveFilePart",
+			"params": [
+				{
+					"name": "file_id",
+					"type": "long"
+				},
+				{
+					"name": "file_part",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-475607115",
+			"method": "upload.getFile",
+			"params": [
+				{
+					"name": "location",
+					"type": "InputFileLocation"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "upload.File"
+		},
+		{
+			"id": "-990308245",
+			"method": "help.getConfig",
+			"params": [],
+			"type": "Config"
+		},
+		{
+			"id": "531836966",
+			"method": "help.getNearestDc",
+			"params": [],
+			"type": "NearestDc"
+		},
+		{
+			"id": "-1372724842",
+			"method": "help.getAppUpdate",
+			"params": [],
+			"type": "help.AppUpdate"
+		},
+		{
+			"id": "1862465352",
+			"method": "help.saveAppLog",
+			"params": [
+				{
+					"name": "events",
+					"type": "Vector<InputAppEvent>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1295590211",
+			"method": "help.getInviteText",
+			"params": [],
+			"type": "help.InviteText"
+		},
+		{
+			"id": "-1848823128",
+			"method": "photos.getUserPhotos",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "max_id",
+					"type": "long"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "photos.Photos"
+		},
+		{
+			"id": "865483769",
+			"method": "messages.forwardMessage",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "651135312",
+			"method": "messages.getDhConfig",
+			"params": [
+				{
+					"name": "version",
+					"type": "int"
+				},
+				{
+					"name": "random_length",
+					"type": "int"
+				}
+			],
+			"type": "messages.DhConfig"
+		},
+		{
+			"id": "-162681021",
+			"method": "messages.requestEncryption",
+			"params": [
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "random_id",
+					"type": "int"
+				},
+				{
+					"name": "g_a",
+					"type": "bytes"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "1035731989",
+			"method": "messages.acceptEncryption",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputEncryptedChat"
+				},
+				{
+					"name": "g_b",
+					"type": "bytes"
+				},
+				{
+					"name": "key_fingerprint",
+					"type": "long"
+				}
+			],
+			"type": "EncryptedChat"
+		},
+		{
+			"id": "-304536635",
+			"method": "messages.discardEncryption",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "2031374829",
+			"method": "messages.setEncryptedTyping",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputEncryptedChat"
+				},
+				{
+					"name": "typing",
+					"type": "Bool"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "2135648522",
+			"method": "messages.readEncryptedHistory",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputEncryptedChat"
+				},
+				{
+					"name": "max_date",
+					"type": "int"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1451792525",
+			"method": "messages.sendEncrypted",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputEncryptedChat"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "data",
+					"type": "bytes"
+				}
+			],
+			"type": "messages.SentEncryptedMessage"
+		},
+		{
+			"id": "-1701831834",
+			"method": "messages.sendEncryptedFile",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputEncryptedChat"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "data",
+					"type": "bytes"
+				},
+				{
+					"name": "file",
+					"type": "InputEncryptedFile"
+				}
+			],
+			"type": "messages.SentEncryptedMessage"
+		},
+		{
+			"id": "852769188",
+			"method": "messages.sendEncryptedService",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputEncryptedChat"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "data",
+					"type": "bytes"
+				}
+			],
+			"type": "messages.SentEncryptedMessage"
+		},
+		{
+			"id": "1436924774",
+			"method": "messages.receivedQueue",
+			"params": [
+				{
+					"name": "max_qts",
+					"type": "int"
+				}
+			],
+			"type": "Vector<long>"
+		},
+		{
+			"id": "-562337987",
+			"method": "upload.saveBigFilePart",
+			"params": [
+				{
+					"name": "file_id",
+					"type": "long"
+				},
+				{
+					"name": "file_part",
+					"type": "int"
+				},
+				{
+					"name": "file_total_parts",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "bytes"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1769565673",
+			"method": "initConnection",
+			"params": [
+				{
+					"name": "api_id",
+					"type": "int"
+				},
+				{
+					"name": "device_model",
+					"type": "string"
+				},
+				{
+					"name": "system_version",
+					"type": "string"
+				},
+				{
+					"name": "app_version",
+					"type": "string"
+				},
+				{
+					"name": "lang_code",
+					"type": "string"
+				},
+				{
+					"name": "query",
+					"type": "!X"
+				}
+			],
+			"type": "X"
+		},
+		{
+			"id": "-1663104819",
+			"method": "help.getSupport",
+			"params": [],
+			"type": "help.Support"
+		},
+		{
+			"id": "916930423",
+			"method": "messages.readMessageContents",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "messages.AffectedMessages"
+		},
+		{
+			"id": "655677548",
+			"method": "account.checkUsername",
+			"params": [
+				{
+					"name": "username",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1040964988",
+			"method": "account.updateUsername",
+			"params": [
+				{
+					"name": "username",
+					"type": "string"
+				}
+			],
+			"type": "User"
+		},
+		{
+			"id": "301470424",
+			"method": "contacts.search",
+			"params": [
+				{
+					"name": "q",
+					"type": "string"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "contacts.Found"
+		},
+		{
+			"id": "-623130288",
+			"method": "account.getPrivacy",
+			"params": [
+				{
+					"name": "key",
+					"type": "InputPrivacyKey"
+				}
+			],
+			"type": "account.PrivacyRules"
+		},
+		{
+			"id": "-906486552",
+			"method": "account.setPrivacy",
+			"params": [
+				{
+					"name": "key",
+					"type": "InputPrivacyKey"
+				},
+				{
+					"name": "rules",
+					"type": "Vector<InputPrivacyRule>"
+				}
+			],
+			"type": "account.PrivacyRules"
+		},
+		{
+			"id": "1099779595",
+			"method": "account.deleteAccount",
+			"params": [
+				{
+					"name": "reason",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "150761757",
+			"method": "account.getAccountTTL",
+			"params": [],
+			"type": "AccountDaysTTL"
+		},
+		{
+			"id": "608323678",
+			"method": "account.setAccountTTL",
+			"params": [
+				{
+					"name": "ttl",
+					"type": "AccountDaysTTL"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-627372787",
+			"method": "invokeWithLayer",
+			"params": [
+				{
+					"name": "layer",
+					"type": "int"
+				},
+				{
+					"name": "query",
+					"type": "!X"
+				}
+			],
+			"type": "X"
+		},
+		{
+			"id": "-113456221",
+			"method": "contacts.resolveUsername",
+			"params": [
+				{
+					"name": "username",
+					"type": "string"
+				}
+			],
+			"type": "contacts.ResolvedPeer"
+		},
+		{
+			"id": "149257707",
+			"method": "account.sendChangePhoneCode",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "allow_flashcall",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "current_number",
+					"type": "flags.0?Bool"
+				}
+			],
+			"type": "auth.SentCode"
+		},
+		{
+			"id": "1891839707",
+			"method": "account.changePhone",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				},
+				{
+					"name": "phone_code",
+					"type": "string"
+				}
+			],
+			"type": "User"
+		},
+		{
+			"id": "479598769",
+			"method": "messages.getAllStickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "messages.AllStickers"
+		},
+		{
+			"id": "954152242",
+			"method": "account.updateDeviceLocked",
+			"params": [
+				{
+					"name": "period",
+					"type": "int"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1738800940",
+			"method": "auth.importBotAuthorization",
+			"params": [
+				{
+					"name": "flags",
+					"type": "int"
+				},
+				{
+					"name": "api_id",
+					"type": "int"
+				},
+				{
+					"name": "api_hash",
+					"type": "string"
+				},
+				{
+					"name": "bot_auth_token",
+					"type": "string"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "623001124",
+			"method": "messages.getWebPagePreview",
+			"params": [
+				{
+					"name": "message",
+					"type": "string"
+				}
+			],
+			"type": "MessageMedia"
+		},
+		{
+			"id": "-484392616",
+			"method": "account.getAuthorizations",
+			"params": [],
+			"type": "account.Authorizations"
+		},
+		{
+			"id": "-545786948",
+			"method": "account.resetAuthorization",
+			"params": [
+				{
+					"name": "hash",
+					"type": "long"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1418342645",
+			"method": "account.getPassword",
+			"params": [],
+			"type": "account.Password"
+		},
+		{
+			"id": "-1131605573",
+			"method": "account.getPasswordSettings",
+			"params": [
+				{
+					"name": "current_password_hash",
+					"type": "bytes"
+				}
+			],
+			"type": "account.PasswordSettings"
+		},
+		{
+			"id": "-92517498",
+			"method": "account.updatePasswordSettings",
+			"params": [
+				{
+					"name": "current_password_hash",
+					"type": "bytes"
+				},
+				{
+					"name": "new_settings",
+					"type": "account.PasswordInputSettings"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "174260510",
+			"method": "auth.checkPassword",
+			"params": [
+				{
+					"name": "password_hash",
+					"type": "bytes"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "-661144474",
+			"method": "auth.requestPasswordRecovery",
+			"params": [],
+			"type": "auth.PasswordRecovery"
+		},
+		{
+			"id": "1319464594",
+			"method": "auth.recoverPassword",
+			"params": [
+				{
+					"name": "code",
+					"type": "string"
+				}
+			],
+			"type": "auth.Authorization"
+		},
+		{
+			"id": "-1080796745",
+			"method": "invokeWithoutUpdates",
+			"params": [
+				{
+					"name": "query",
+					"type": "!X"
+				}
+			],
+			"type": "X"
+		},
+		{
+			"id": "2106086025",
+			"method": "messages.exportChatInvite",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "ExportedChatInvite"
+		},
+		{
+			"id": "1051570619",
+			"method": "messages.checkChatInvite",
+			"params": [
+				{
+					"name": "hash",
+					"type": "string"
+				}
+			],
+			"type": "ChatInvite"
+		},
+		{
+			"id": "1817183516",
+			"method": "messages.importChatInvite",
+			"params": [
+				{
+					"name": "hash",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "639215886",
+			"method": "messages.getStickerSet",
+			"params": [
+				{
+					"name": "stickerset",
+					"type": "InputStickerSet"
+				}
+			],
+			"type": "messages.StickerSet"
+		},
+		{
+			"id": "-946871200",
+			"method": "messages.installStickerSet",
+			"params": [
+				{
+					"name": "stickerset",
+					"type": "InputStickerSet"
+				},
+				{
+					"name": "archived",
+					"type": "Bool"
+				}
+			],
+			"type": "messages.StickerSetInstallResult"
+		},
+		{
+			"id": "-110209570",
+			"method": "messages.uninstallStickerSet",
+			"params": [
+				{
+					"name": "stickerset",
+					"type": "InputStickerSet"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-421563528",
+			"method": "messages.startBot",
+			"params": [
+				{
+					"name": "bot",
+					"type": "InputUser"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "start_param",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1189013126",
+			"method": "help.getAppChangelog",
+			"params": [],
+			"type": "help.AppChangelog"
+		},
+		{
+			"id": "-993483427",
+			"method": "messages.getMessagesViews",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				},
+				{
+					"name": "increment",
+					"type": "Bool"
+				}
+			],
+			"type": "Vector<int>"
+		},
+		{
+			"id": "-871347913",
+			"method": "channels.readHistory",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "max_id",
+					"type": "int"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-2067661490",
+			"method": "channels.deleteMessages",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "messages.AffectedMessages"
+		},
+		{
+			"id": "-787622117",
+			"method": "channels.deleteUserHistory",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				}
+			],
+			"type": "messages.AffectedHistory"
+		},
+		{
+			"id": "-32999408",
+			"method": "channels.reportSpam",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1814580409",
+			"method": "channels.getMessages",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "id",
+					"type": "Vector<int>"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "618237842",
+			"method": "channels.getParticipants",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "filter",
+					"type": "ChannelParticipantsFilter"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "channels.ChannelParticipants"
+		},
+		{
+			"id": "1416484774",
+			"method": "channels.getParticipant",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				}
+			],
+			"type": "channels.ChannelParticipant"
+		},
+		{
+			"id": "176122811",
+			"method": "channels.getChannels",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<InputChannel>"
+				}
+			],
+			"type": "messages.Chats"
+		},
+		{
+			"id": "141781513",
+			"method": "channels.getFullChannel",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				}
+			],
+			"type": "messages.ChatFull"
+		},
+		{
+			"id": "-192332417",
+			"method": "channels.createChannel",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "broadcast",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "megagroup",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				},
+				{
+					"name": "about",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "333610782",
+			"method": "channels.editAbout",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "about",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-344583728",
+			"method": "channels.editAdmin",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "role",
+					"type": "ChannelParticipantRole"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "1450044624",
+			"method": "channels.editTitle",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "title",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-248621111",
+			"method": "channels.editPhoto",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "photo",
+					"type": "InputChatPhoto"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "283557164",
+			"method": "channels.checkUsername",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "username",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "890549214",
+			"method": "channels.updateUsername",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "username",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "615851205",
+			"method": "channels.joinChannel",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-130635115",
+			"method": "channels.leaveChannel",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "429865580",
+			"method": "channels.inviteToChannel",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "users",
+					"type": "Vector<InputUser>"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1502421484",
+			"method": "channels.kickFromChannel",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "kicked",
+					"type": "Bool"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-950663035",
+			"method": "channels.exportInvite",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				}
+			],
+			"type": "ExportedChatInvite"
+		},
+		{
+			"id": "-1072619549",
+			"method": "channels.deleteChannel",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1154295872",
+			"method": "updates.getChannelDifference",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "filter",
+					"type": "ChannelMessagesFilter"
+				},
+				{
+					"name": "pts",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "updates.ChannelDifference"
+		},
+		{
+			"id": "-326379039",
+			"method": "messages.toggleChatAdmins",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "enabled",
+					"type": "Bool"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1444503762",
+			"method": "messages.editChatAdmin",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "is_admin",
+					"type": "Bool"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "363051235",
+			"method": "messages.migrateChat",
+			"params": [
+				{
+					"name": "chat_id",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1640190800",
+			"method": "messages.searchGlobal",
+			"params": [
+				{
+					"name": "q",
+					"type": "string"
+				},
+				{
+					"name": "offset_date",
+					"type": "int"
+				},
+				{
+					"name": "offset_peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "offset_id",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "messages.Messages"
+		},
+		{
+			"id": "889286899",
+			"method": "help.getTermsOfService",
+			"params": [],
+			"type": "help.TermsOfService"
+		},
+		{
+			"id": "2016638777",
+			"method": "messages.reorderStickerSets",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "masks",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "order",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "864953444",
+			"method": "messages.getDocumentByHash",
+			"params": [
+				{
+					"name": "sha256",
+					"type": "bytes"
+				},
+				{
+					"name": "size",
+					"type": "int"
+				},
+				{
+					"name": "mime_type",
+					"type": "string"
+				}
+			],
+			"type": "Document"
+		},
+		{
+			"id": "-1080395925",
+			"method": "messages.searchGifs",
+			"params": [
+				{
+					"name": "q",
+					"type": "string"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				}
+			],
+			"type": "messages.FoundGifs"
+		},
+		{
+			"id": "-2084618926",
+			"method": "messages.getSavedGifs",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "messages.SavedGifs"
+		},
+		{
+			"id": "846868683",
+			"method": "messages.saveGif",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputDocument"
+				},
+				{
+					"name": "unsave",
+					"type": "Bool"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1364105629",
+			"method": "messages.getInlineBotResults",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "bot",
+					"type": "InputUser"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "geo_point",
+					"type": "flags.0?InputGeoPoint"
+				},
+				{
+					"name": "query",
+					"type": "string"
+				},
+				{
+					"name": "offset",
+					"type": "string"
+				}
+			],
+			"type": "messages.BotResults"
+		},
+		{
+			"id": "-346119674",
+			"method": "messages.setInlineBotResults",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "gallery",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "private",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "results",
+					"type": "Vector<InputBotInlineResult>"
+				},
+				{
+					"name": "cache_time",
+					"type": "int"
+				},
+				{
+					"name": "next_offset",
+					"type": "flags.2?string"
+				},
+				{
+					"name": "switch_pm",
+					"type": "flags.3?InlineBotSwitchPM"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1318189314",
+			"method": "messages.sendInlineBotResult",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "silent",
+					"type": "flags.5?true"
+				},
+				{
+					"name": "background",
+					"type": "flags.6?true"
+				},
+				{
+					"name": "clear_draft",
+					"type": "flags.7?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "random_id",
+					"type": "long"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "id",
+					"type": "string"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "1231065863",
+			"method": "channels.toggleInvites",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "enabled",
+					"type": "Bool"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-934882771",
+			"method": "channels.exportMessageLink",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "ExportedMessageLink"
+		},
+		{
+			"id": "527021574",
+			"method": "channels.toggleSignatures",
+			"params": [
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "enabled",
+					"type": "Bool"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "-1490162350",
+			"method": "channels.updatePinnedMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "silent",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "channel",
+					"type": "InputChannel"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "1056025023",
+			"method": "auth.resendCode",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				}
+			],
+			"type": "auth.SentCode"
+		},
+		{
+			"id": "520357240",
+			"method": "auth.cancelCode",
+			"params": [
+				{
+					"name": "phone_number",
+					"type": "string"
+				},
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-39416522",
+			"method": "messages.getMessageEditData",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				}
+			],
+			"type": "messages.MessageEditData"
+		},
+		{
+			"id": "-829299510",
+			"method": "messages.editMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "message",
+					"type": "flags.11?string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				},
+				{
+					"name": "entities",
+					"type": "flags.3?Vector<MessageEntity>"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "319564933",
+			"method": "messages.editInlineBotMessage",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "id",
+					"type": "InputBotInlineMessageID"
+				},
+				{
+					"name": "message",
+					"type": "flags.11?string"
+				},
+				{
+					"name": "reply_markup",
+					"type": "flags.2?ReplyMarkup"
+				},
+				{
+					"name": "entities",
+					"type": "flags.3?Vector<MessageEntity>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-2130010132",
+			"method": "messages.getBotCallbackAnswer",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "game",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "msg_id",
+					"type": "int"
+				},
+				{
+					"name": "data",
+					"type": "flags.0?bytes"
+				}
+			],
+			"type": "messages.BotCallbackAnswer"
+		},
+		{
+			"id": "-920136629",
+			"method": "messages.setBotCallbackAnswer",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "alert",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "query_id",
+					"type": "long"
+				},
+				{
+					"name": "message",
+					"type": "flags.0?string"
+				},
+				{
+					"name": "url",
+					"type": "flags.2?string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-728224331",
+			"method": "contacts.getTopPeers",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "correspondents",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "bots_pm",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "bots_inline",
+					"type": "flags.2?true"
+				},
+				{
+					"name": "groups",
+					"type": "flags.10?true"
+				},
+				{
+					"name": "channels",
+					"type": "flags.15?true"
+				},
+				{
+					"name": "offset",
+					"type": "int"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				},
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "contacts.TopPeers"
+		},
+		{
+			"id": "451113900",
+			"method": "contacts.resetTopPeerRating",
+			"params": [
+				{
+					"name": "category",
+					"type": "TopPeerCategory"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "764901049",
+			"method": "messages.getPeerDialogs",
+			"params": [
+				{
+					"name": "peers",
+					"type": "Vector<InputPeer>"
+				}
+			],
+			"type": "messages.PeerDialogs"
+		},
+		{
+			"id": "-1137057461",
+			"method": "messages.saveDraft",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "no_webpage",
+					"type": "flags.1?true"
+				},
+				{
+					"name": "reply_to_msg_id",
+					"type": "flags.0?int"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "message",
+					"type": "string"
+				},
+				{
+					"name": "entities",
+					"type": "flags.3?Vector<MessageEntity>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1782549861",
+			"method": "messages.getAllDrafts",
+			"params": [],
+			"type": "Updates"
+		},
+		{
+			"id": "766298703",
+			"method": "messages.getFeaturedStickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "messages.FeaturedStickers"
+		},
+		{
+			"id": "1527873830",
+			"method": "messages.readFeaturedStickers",
+			"params": [
+				{
+					"name": "id",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1587647177",
+			"method": "messages.getRecentStickers",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "attached",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "messages.RecentStickers"
+		},
+		{
+			"id": "958863608",
+			"method": "messages.saveRecentSticker",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "attached",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "id",
+					"type": "InputDocument"
+				},
+				{
+					"name": "unsave",
+					"type": "Bool"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1986437075",
+			"method": "messages.clearRecentStickers",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "attached",
+					"type": "flags.0?true"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "1475442322",
+			"method": "messages.getArchivedStickers",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "masks",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "offset_id",
+					"type": "long"
+				},
+				{
+					"name": "limit",
+					"type": "int"
+				}
+			],
+			"type": "messages.ArchivedStickers"
+		},
+		{
+			"id": "353818557",
+			"method": "account.sendConfirmPhoneCode",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "allow_flashcall",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "hash",
+					"type": "string"
+				},
+				{
+					"name": "current_number",
+					"type": "flags.0?Bool"
+				}
+			],
+			"type": "auth.SentCode"
+		},
+		{
+			"id": "1596029123",
+			"method": "account.confirmPhone",
+			"params": [
+				{
+					"name": "phone_code_hash",
+					"type": "string"
+				},
+				{
+					"name": "phone_code",
+					"type": "string"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1920105769",
+			"method": "channels.getAdminedPublicChannels",
+			"params": [],
+			"type": "messages.Chats"
+		},
+		{
+			"id": "1706608543",
+			"method": "messages.getMaskStickers",
+			"params": [
+				{
+					"name": "hash",
+					"type": "int"
+				}
+			],
+			"type": "messages.AllStickers"
+		},
+		{
+			"id": "-866424884",
+			"method": "messages.getAttachedStickers",
+			"params": [
+				{
+					"name": "media",
+					"type": "InputStickeredMedia"
+				}
+			],
+			"type": "Vector<StickerSetCovered>"
+		},
+		{
+			"id": "-1907842680",
+			"method": "auth.dropTempAuthKeys",
+			"params": [
+				{
+					"name": "except_auth_keys",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-1896289088",
+			"method": "messages.setGameScore",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "edit_message",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "score",
+					"type": "int"
+				}
+			],
+			"type": "Updates"
+		},
+		{
+			"id": "363700068",
+			"method": "messages.setInlineGameScore",
+			"params": [
+				{
+					"name": "flags",
+					"type": "#"
+				},
+				{
+					"name": "edit_message",
+					"type": "flags.0?true"
+				},
+				{
+					"name": "id",
+					"type": "InputBotInlineMessageID"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				},
+				{
+					"name": "score",
+					"type": "int"
+				}
+			],
+			"type": "Bool"
+		},
+		{
+			"id": "-400399203",
+			"method": "messages.getGameHighScores",
+			"params": [
+				{
+					"name": "peer",
+					"type": "InputPeer"
+				},
+				{
+					"name": "id",
+					"type": "int"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				}
+			],
+			"type": "messages.HighScores"
+		},
+		{
+			"id": "258170395",
+			"method": "messages.getInlineGameHighScores",
+			"params": [
+				{
+					"name": "id",
+					"type": "InputBotInlineMessageID"
+				},
+				{
+					"name": "user_id",
+					"type": "InputUser"
+				}
+			],
+			"type": "messages.HighScores"
+		}
+	]
+};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+module.exports = {
+	"constructors": [
+		{
+			"id": "481674261",
+			"predicate": "vector",
+			"params": [],
+			"type": "Vector t"
+		},
+		{
+			"id": "85337187",
+			"predicate": "resPQ",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "pq",
+					"type": "bytes"
+				},
+				{
+					"name": "server_public_key_fingerprints",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "ResPQ"
+		},
+		{
+			"id": "-2083955988",
+			"predicate": "p_q_inner_data",
+			"params": [
+				{
+					"name": "pq",
+					"type": "bytes"
+				},
+				{
+					"name": "p",
+					"type": "bytes"
+				},
+				{
+					"name": "q",
+					"type": "bytes"
+				},
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "new_nonce",
+					"type": "int256"
+				}
+			],
+			"type": "P_Q_inner_data"
+		},
+		{
+			"id": "2043348061",
+			"predicate": "server_DH_params_fail",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "new_nonce_hash",
+					"type": "int128"
+				}
+			],
+			"type": "Server_DH_Params"
+		},
+		{
+			"id": "-790100132",
+			"predicate": "server_DH_params_ok",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "encrypted_answer",
+					"type": "bytes"
+				}
+			],
+			"type": "Server_DH_Params"
+		},
+		{
+			"id": "-1249309254",
+			"predicate": "server_DH_inner_data",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "g",
+					"type": "int"
+				},
+				{
+					"name": "dh_prime",
+					"type": "bytes"
+				},
+				{
+					"name": "g_a",
+					"type": "bytes"
+				},
+				{
+					"name": "server_time",
+					"type": "int"
+				}
+			],
+			"type": "Server_DH_inner_data"
+		},
+		{
+			"id": "1715713620",
+			"predicate": "client_DH_inner_data",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "retry_id",
+					"type": "long"
+				},
+				{
+					"name": "g_b",
+					"type": "bytes"
+				}
+			],
+			"type": "Client_DH_Inner_Data"
+		},
+		{
+			"id": "1003222836",
+			"predicate": "dh_gen_ok",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "new_nonce_hash1",
+					"type": "int128"
+				}
+			],
+			"type": "Set_client_DH_params_answer"
+		},
+		{
+			"id": "1188831161",
+			"predicate": "dh_gen_retry",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "new_nonce_hash2",
+					"type": "int128"
+				}
+			],
+			"type": "Set_client_DH_params_answer"
+		},
+		{
+			"id": "-1499615742",
+			"predicate": "dh_gen_fail",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "new_nonce_hash3",
+					"type": "int128"
+				}
+			],
+			"type": "Set_client_DH_params_answer"
+		},
+		{
+			"id": "-212046591",
+			"predicate": "rpc_result",
+			"params": [
+				{
+					"name": "req_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "result",
+					"type": "Object"
+				}
+			],
+			"type": "RpcResult"
+		},
+		{
+			"id": "558156313",
+			"predicate": "rpc_error",
+			"params": [
+				{
+					"name": "error_code",
+					"type": "int"
+				},
+				{
+					"name": "error_message",
+					"type": "string"
+				}
+			],
+			"type": "RpcError"
+		},
+		{
+			"id": "1579864942",
+			"predicate": "rpc_answer_unknown",
+			"params": [],
+			"type": "RpcDropAnswer"
+		},
+		{
+			"id": "-847714938",
+			"predicate": "rpc_answer_dropped_running",
+			"params": [],
+			"type": "RpcDropAnswer"
+		},
+		{
+			"id": "-1539647305",
+			"predicate": "rpc_answer_dropped",
+			"params": [
+				{
+					"name": "msg_id",
+					"type": "long"
+				},
+				{
+					"name": "seq_no",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "int"
+				}
+			],
+			"type": "RpcDropAnswer"
+		},
+		{
+			"id": "155834844",
+			"predicate": "future_salt",
+			"params": [
+				{
+					"name": "valid_since",
+					"type": "int"
+				},
+				{
+					"name": "valid_until",
+					"type": "int"
+				},
+				{
+					"name": "salt",
+					"type": "long"
+				}
+			],
+			"type": "FutureSalt"
+		},
+		{
+			"id": "-1370486635",
+			"predicate": "future_salts",
+			"params": [
+				{
+					"name": "req_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "now",
+					"type": "int"
+				},
+				{
+					"name": "salts",
+					"type": "vector<future_salt>"
+				}
+			],
+			"type": "FutureSalts"
+		},
+		{
+			"id": "880243653",
+			"predicate": "pong",
+			"params": [
+				{
+					"name": "msg_id",
+					"type": "long"
+				},
+				{
+					"name": "ping_id",
+					"type": "long"
+				}
+			],
+			"type": "Pong"
+		},
+		{
+			"id": "-501201412",
+			"predicate": "destroy_session_ok",
+			"params": [
+				{
+					"name": "session_id",
+					"type": "long"
+				}
+			],
+			"type": "DestroySessionRes"
+		},
+		{
+			"id": "1658015945",
+			"predicate": "destroy_session_none",
+			"params": [
+				{
+					"name": "session_id",
+					"type": "long"
+				}
+			],
+			"type": "DestroySessionRes"
+		},
+		{
+			"id": "-1631450872",
+			"predicate": "new_session_created",
+			"params": [
+				{
+					"name": "first_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "unique_id",
+					"type": "long"
+				},
+				{
+					"name": "server_salt",
+					"type": "long"
+				}
+			],
+			"type": "NewSession"
+		},
+		{
+			"id": "1945237724",
+			"predicate": "msg_container",
+			"params": [
+				{
+					"name": "messages",
+					"type": "vector<%Message>"
+				}
+			],
+			"type": "MessageContainer"
+		},
+		{
+			"id": "1538843921",
+			"predicate": "message",
+			"params": [
+				{
+					"name": "msg_id",
+					"type": "long"
+				},
+				{
+					"name": "seqno",
+					"type": "int"
+				},
+				{
+					"name": "bytes",
+					"type": "int"
+				},
+				{
+					"name": "body",
+					"type": "Object"
+				}
+			],
+			"type": "Message"
+		},
+		{
+			"id": "-530561358",
+			"predicate": "msg_copy",
+			"params": [
+				{
+					"name": "orig_message",
+					"type": "Message"
+				}
+			],
+			"type": "MessageCopy"
+		},
+		{
+			"id": "812830625",
+			"predicate": "gzip_packed",
+			"params": [
+				{
+					"name": "packed_data",
+					"type": "bytes"
+				}
+			],
+			"type": "Object"
+		},
+		{
+			"id": "1658238041",
+			"predicate": "msgs_ack",
+			"params": [
+				{
+					"name": "msg_ids",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "MsgsAck"
+		},
+		{
+			"id": "-1477445615",
+			"predicate": "bad_msg_notification",
+			"params": [
+				{
+					"name": "bad_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "bad_msg_seqno",
+					"type": "int"
+				},
+				{
+					"name": "error_code",
+					"type": "int"
+				}
+			],
+			"type": "BadMsgNotification"
+		},
+		{
+			"id": "-307542917",
+			"predicate": "bad_server_salt",
+			"params": [
+				{
+					"name": "bad_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "bad_msg_seqno",
+					"type": "int"
+				},
+				{
+					"name": "error_code",
+					"type": "int"
+				},
+				{
+					"name": "new_server_salt",
+					"type": "long"
+				}
+			],
+			"type": "BadMsgNotification"
+		},
+		{
+			"id": "2105940488",
+			"predicate": "msg_resend_req",
+			"params": [
+				{
+					"name": "msg_ids",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "MsgResendReq"
+		},
+		{
+			"id": "-630588590",
+			"predicate": "msgs_state_req",
+			"params": [
+				{
+					"name": "msg_ids",
+					"type": "Vector<long>"
+				}
+			],
+			"type": "MsgsStateReq"
+		},
+		{
+			"id": "81704317",
+			"predicate": "msgs_state_info",
+			"params": [
+				{
+					"name": "req_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "info",
+					"type": "bytes"
+				}
+			],
+			"type": "MsgsStateInfo"
+		},
+		{
+			"id": "-1933520591",
+			"predicate": "msgs_all_info",
+			"params": [
+				{
+					"name": "msg_ids",
+					"type": "Vector<long>"
+				},
+				{
+					"name": "info",
+					"type": "bytes"
+				}
+			],
+			"type": "MsgsAllInfo"
+		},
+		{
+			"id": "661470918",
+			"predicate": "msg_detailed_info",
+			"params": [
+				{
+					"name": "msg_id",
+					"type": "long"
+				},
+				{
+					"name": "answer_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "bytes",
+					"type": "int"
+				},
+				{
+					"name": "status",
+					"type": "int"
+				}
+			],
+			"type": "MsgDetailedInfo"
+		},
+		{
+			"id": "-2137147681",
+			"predicate": "msg_new_detailed_info",
+			"params": [
+				{
+					"name": "answer_msg_id",
+					"type": "long"
+				},
+				{
+					"name": "bytes",
+					"type": "int"
+				},
+				{
+					"name": "status",
+					"type": "int"
+				}
+			],
+			"type": "MsgDetailedInfo"
+		}
+	],
+	"methods": [
+		{
+			"id": "1615239032",
+			"method": "req_pq",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				}
+			],
+			"type": "ResPQ"
+		},
+		{
+			"id": "-686627650",
+			"method": "req_DH_params",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "p",
+					"type": "bytes"
+				},
+				{
+					"name": "q",
+					"type": "bytes"
+				},
+				{
+					"name": "public_key_fingerprint",
+					"type": "long"
+				},
+				{
+					"name": "encrypted_data",
+					"type": "bytes"
+				}
+			],
+			"type": "Server_DH_Params"
+		},
+		{
+			"id": "-184262881",
+			"method": "set_client_DH_params",
+			"params": [
+				{
+					"name": "nonce",
+					"type": "int128"
+				},
+				{
+					"name": "server_nonce",
+					"type": "int128"
+				},
+				{
+					"name": "encrypted_data",
+					"type": "bytes"
+				}
+			],
+			"type": "Set_client_DH_params_answer"
+		},
+		{
+			"id": "1491380032",
+			"method": "rpc_drop_answer",
+			"params": [
+				{
+					"name": "req_msg_id",
+					"type": "long"
+				}
+			],
+			"type": "RpcDropAnswer"
+		},
+		{
+			"id": "-1188971260",
+			"method": "get_future_salts",
+			"params": [
+				{
+					"name": "num",
+					"type": "int"
+				}
+			],
+			"type": "FutureSalts"
+		},
+		{
+			"id": "2059302892",
+			"method": "ping",
+			"params": [
+				{
+					"name": "ping_id",
+					"type": "long"
+				}
+			],
+			"type": "Pong"
+		},
+		{
+			"id": "-213746804",
+			"method": "ping_delay_disconnect",
+			"params": [
+				{
+					"name": "ping_id",
+					"type": "long"
+				},
+				{
+					"name": "disconnect_delay",
+					"type": "int"
+				}
+			],
+			"type": "Pong"
+		},
+		{
+			"id": "-414113498",
+			"method": "destroy_session",
+			"params": [
+				{
+					"name": "session_id",
+					"type": "long"
+				}
+			],
+			"type": "DestroySessionRes"
+		},
+		{
+			"id": "-1835453025",
+			"method": "http_wait",
+			"params": [
+				{
+					"name": "max_delay",
+					"type": "int"
+				},
+				{
+					"name": "wait_after",
+					"type": "int"
+				},
+				{
+					"name": "max_wait",
+					"type": "int"
+				}
+			],
+			"type": "HttpWait"
+		}
+	]
+};
+
+/***/ }),
 /* 28 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__bin__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__error_cases__ = __webpack_require__(29);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
-const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
-const withoutNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]);
-
-const baseDcID = 2;
-
-const mtpClearStorage = function () {
-  const saveKeys = [];
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${dcID}_auth_key`);
-    saveKeys.push(`t_dc${dcID}_auth_key`);
-  }
-  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
-    const restoreObj = {};
-    saveKeys.forEach((key, i) => {
-      const value = values[i];
-      if (value !== false && value !== undefined) restoreObj[key] = value;
-    });
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-    return restoreObj;
-  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = mtpClearStorage;
-
-
-const Ln = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length');
-
-class ApiManager {
-  constructor({ serverConfig = {}, appSettings = {} } = {}) {
-    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
-      wildcard: true
-    });
-    this.on = this.emitter.on;
-    this.emit = this.emitter.emit;
-    this.cache = {
-      uploader: {},
-      downloader: {},
-      auth: {},
-      servers: {}
-    };
-
-    this.mtpGetNetworker = (dcID, options = {}) => {
-      const isUpload = options.fileUpload || options.fileDownload;
-      const cache = isUpload ? this.cache.uploader : this.cache.downloader;
-      if (!dcID) throw new Error('get Networker without dcID');
-
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
-
-      const akk = `dc${dcID}_auth_key`;
-      const ssk = `dc${dcID}_server_salt`;
-
-      const dcUrl = this.chooseServer(dcID, isUpload);
-
-      const networkGetter = result => {
-        if (cache[dcID]) return cache[dcID];
-
-        const authKeyHex = result[0];
-        let serverSaltHex = result[1];
-        // console.log('ass', dcID, authKeyHex, serverSaltHex)
-        if (Ln(512, authKeyHex)) {
-          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
-          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(authKeyHex);
-          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(serverSaltHex);
-
-          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
-        }
-
-        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
-
-        const onDcAuth = ({ authKey, serverSalt }) => {
-          const storeObj = {
-            [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(authKey),
-            [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(serverSalt)
-          };
-          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
-
-          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
-        };
-
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["a" /* auth */])(dcID, this.cache.auth, dcUrl).then(onDcAuth, netError);
-      };
-
-      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(networkGetter);
-    };
-
-    this.serverConfig = serverConfig;
-    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, serverConfig);
-    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
-    this.setUserAuth = this.setUserAuth.bind(this);
-
-    this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
-    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.chooseServer, this.emit);
-  }
-
-  mtpInvokeApi(method, params, options = {}) {
-    // const self = this
-    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
-    const rejectPromise = error => {
-      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
-      deferred.reject(error);
-
-      if (!options.noErrorBox) {
-        //TODO weird code. `error` changed after `.reject`?
-        error.input = method;
-        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
-        this.emit('error.invoke', error);
-      }
-    };
-    let dcID, cachedNetworker;
-
-    const cachedNetThunk = () => performRequest(cachedNetworker);
-    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3);
-
-    const stack = new Error().stack || 'empty stack';
-    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
-      const deferResolve = deferred.resolve;
-      const apiSavedNet = () => cachedNetworker = networker;
-      const apiRecall = networker => networker.wrapApiCall(method, params, options);
-      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
-
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
-    });
-    const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
-
-    dcID = options.dcID || baseDcID;
-    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
-
-    return deferred.promise;
-  }
-  setUserAuth(dcID, userAuth) {
-    const fullUserAuth = Object.assign({ dcID }, userAuth);
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
-      dc: dcID,
-      user_auth: fullUserAuth
-    });
-    this.emit('auth.dc', { dc: dcID, auth: userAuth });
-  }
-}
-/* harmony export (immutable) */ __webpack_exports__["c"] = ApiManager;
-
-
-ApiManager.appSettings = {
-  invokeWithLayer: 0xda9b0d0d,
-  layer: NaN,
-  initConnection: 0x69796de9,
-  api_id: '',
-  device_model: 'Unknown UserAgent',
-  system_version: 'Unknown Platform',
-  app_version: '',
-  lang_code: 'en'
-};
-const netError = error => {
-  console.log('Get networker error', error, error.stack);
-  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-};
-
-const api = new ApiManager();
-/* harmony export (immutable) */ __webpack_exports__["b"] = api;
-
-
-const mtpInvokeApi = api.mtpInvokeApi;
-/* unused harmony export mtpInvokeApi */
-
+module.exports = (__webpack_require__(0))(126);
 
 /***/ }),
 /* 29 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
-
-
-
-
-
-
-
-
-
-const cachedExportPromise = {};
-
-const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) => ({
-  base: baseDcID,
-  errR: rawError,
-  code,
-  type,
-  dcID
-});
-
-const patterns = {
-  noBaseAuth: ({ code, dcID, base }) => code === 401 && dcID === base,
-  noDcAuth: ({ code, dcID, base }) => code === 401 && dcID !== base,
-  migrate: ({ code }) => code === 303,
-  floodWait: ({ code, errR }) => !errR && code === 420,
-  waitFail: ({ code, type, errR }) => !errR && (code === 500 || type === 'MSG_WAIT_FAILED'),
-  _: () => true
-};
-
-const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, mtpInvokeApi, mtpGetNetworker) => matched({
-  invoke: mtpInvokeApi,
-  throwNext: () => rejectPromise(error),
-  reject: rejectPromise,
-  getNet: mtpGetNetworker,
-  error,
-  options,
-  emit,
-  requestThunk,
-  apiRecall,
-  deferResolve,
-  apiSavedNet
-});
-
-const noBaseAuth = ({ emit, throwNext }) => {
-  __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].remove('dc', 'user_auth');
-  emit('error.401.base');
-  throwNext();
-};
-
-const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }) => {
-  const importAuth = ({ id, bytes }) => invoke('auth.importAuthorization', { id, bytes }, { dcID, noErrorBox: true });
-
-  if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["isNil"])(cachedExportPromise[dcID])) {
-    const exportDeferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
-
-    invoke('auth.exportAuthorization', { dc_id: dcID }, { noErrorBox: true }).then(importAuth).then(exportDeferred.resolve).catch(exportDeferred.reject);
-
-    cachedExportPromise[dcID] = exportDeferred.promise;
-  }
-
-  cachedExportPromise[dcID].then(apiSavedNet).then(apiRecall).then(deferResolve).catch(reject);
-};
-
-const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve, getNet }) => {
-  const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
-  if (newDcID === dcID) return;
-  if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].set({ dc: /*baseDcID =*/newDcID });
-
-  getNet(newDcID, options).then(apiRecall).then(deferResolve).catch(reject);
-};
-
-const floodWait = ({ error, options, throwNext, requestThunk }) => {
-  const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10;
-  if (waitTime > (options.timeout || 60)) return throwNext();
-  requestThunk(waitTime);
-};
-
-const waitFail = ({ options, throwNext, requestThunk }) => {
-  const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__time_manager__["tsNow"])();
-  if (options.stopTime) {
-    if (now >= options.stopTime) return throwNext();
-  } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propOr"])(10, 'timeout', options) * 1000;
-  options.waitTime = options.waitTime ? Math.min(60, options.waitTime * 1.5) : 1;
-  requestThunk(options.waitTime);
-};
-
-const def = ({ throwNext }) => throwNext();
-
-const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__["a" /* default */])(patterns, protect)({
-  noBaseAuth,
-  noDcAuth,
-  migrate,
-  floodWait,
-  waitFail,
-  _: def
-}, matchProtect);
-/* harmony export (immutable) */ __webpack_exports__["a"] = switchErrors;
-
+module.exports = (__webpack_require__(0))(127);
 
 /***/ }),
 /* 30 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-const Switch = (patterns, protector = e => e) => (matches, mProtector = e => e) => (...data) => {
-  const keyList = Object.keys(patterns);
-  const normalized = protector(...data);
-  for (const key of keyList) if (patterns[key](normalized)) return mProtector(matches[key]);
-};
-/* unused harmony export Switch */
-
-
-/* harmony default export */ __webpack_exports__["a"] = Switch;
+module.exports = (__webpack_require__(0))(130);
 
 /***/ }),
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = false;
-
-// Only Node.JS has a process variable that is of [[Class]] process
-try {
- module.exports = Object.prototype.toString.call(global.process) === '[object process]' 
-} catch(e) {}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(32)))
+module.exports = (__webpack_require__(0))(132);
 
 /***/ }),
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = (__webpack_require__(0))(62);
+
+/***/ }),
+/* 33 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_setimmediate__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__smart_timeout__ = __webpack_require__(10);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "smartTimeout", function() { return __WEBPACK_IMPORTED_MODULE_1__smart_timeout__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "blueDefer", function() { return __WEBPACK_IMPORTED_MODULE_2__defer__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__crypto__ = __webpack_require__(7);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "CryptoWorker", function() { return __WEBPACK_IMPORTED_MODULE_3__crypto__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(1);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_4__bin__["bin"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(12);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__ = __webpack_require__(17);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__store__ = __webpack_require__(6);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_7__store__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_time_manager__ = __webpack_require__(5);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_8__service_time_manager__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__ = __webpack_require__(13);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_secure_random__ = __webpack_require__(9);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_10__service_secure_random__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_networker__ = __webpack_require__(14);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_11__service_networker__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__http__ = __webpack_require__(8);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_12__http__["a"]; });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import * as MtpRsaKeysManager from './service/rsa-keys-manger'
+// export { MtpRsaKeysManager }
+
+// import * as MtpAuthorizer from './service/authorizer'
+// export { MtpAuthorizer }
+
+
+
+
+
+
+
+// export * from './tl'
+
+
+
+console.info('source loaded');
+
+/* harmony default export */ __webpack_exports__["default"] = {};
 
 /***/ })
 /******/ ]);
