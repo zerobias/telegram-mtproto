@@ -15,20 +15,17 @@
   ],
   "globals": {
     "inject": true,
-    "angular": true,
-    "R": true,
-    "axios": true,
-    "Config": true,
     "setZeroTimeout": true
   },
   "env": {
     "node"  : true,
-    "browser": true,
+    "browser": false,
     "es6"   : true,
-    "jasmine": true,
-    "jquery": true
+    "jasmine": false,
+    "jquery": false
   },
   "rules": {
+    // "strict"               : "error",
     "no-console"           : "off",
     "no-cond-assign"       : "warn",
 

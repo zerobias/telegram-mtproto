@@ -7,7 +7,7 @@ import Switch from '../../switch'
 import { PureStorage } from '../../store'
 import { tsNow } from '../time-manager'
 
-export const cachedExportPromise = {}
+const cachedExportPromise = {}
 
 const protect = ({ code = NaN, type = '' }, { rawError = null }, dcID, baseDcID) =>
   ({ code, type, dcID, base: baseDcID, rawError })

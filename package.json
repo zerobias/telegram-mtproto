@@ -4,6 +4,7 @@
     "@goodmind/node-cryptojs-aes": "^0.4.0",
     "axios": "^0.15.3",
     "bluebird": "^3.4.7",
+    "detect-node": "^2.0.3",
     "eventemitter2": "^3.0.0",
     "jsbn": "^1.1.0",
     "pako": "^1.0.4",
@@ -24,6 +25,7 @@
     "eslint-plugin-babel": "^4.0.1",
     "eslint-plugin-promise": "^3.4.2",
     "nightmare": "^2.9.1",
+    "rimraf": "^2.5.4",
     "tap": "^10.1.1",
     "webpack": "^2.2.1"
   },
@@ -65,7 +67,9 @@
     "build:webogram:vendor": "webpack --config config/webogram/webpack.vendor.config.js",
     "build:webogram": "webpack --config config/webogram/webpack.config.js",
     "rebuild:webogram": "npm run build:webogram:vendor && npm run build:webogram",
+    "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel source/ -d lib -s",
+    "clean:cjs": "rimraf lib/",
     "test": "node --harmony test/ci-test.js"
   },
   "version": "2.0.0"

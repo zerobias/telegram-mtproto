@@ -1,4 +1,6 @@
 import { when, is, identity } from 'ramda'
+import isNode from 'detect-node'
+
 import blueDefer from './defer'
 import smartTimeout from './smart-timeout'
 import { convertToUint8Array, sha1HashSync, sha256HashSync,
@@ -9,7 +11,9 @@ const convertIfArray = when(is(Array), convertToUint8Array)
 let webWorker = false
 let taskID = 0
 const awaiting = {}
-const webCrypto = (window.crypto.subtle || window.crypto.webkitSubtle) //TODO remove browser depends
+const webCrypto = isNode
+  ? false
+  : window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
   /* || window.msCrypto && window.msCrypto.subtle*/
 let useSha1Crypto = true//webCrypto && webCrypto.digest !== undefined
 let useSha256Crypto = true//webCrypto && webCrypto.digest !== undefined
@@ -93,15 +97,15 @@ const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) =>
 const factorize = bytes => {
   bytes = convertToByteArray(bytes)
   return webWorker
-    ? performTaskWorker('factorize', { bytes: bytes })
+    ? performTaskWorker('factorize', { bytes })
     : smartTimeout.promise(() => pqPrimeFactorization(bytes))
 }
 
 const modPow = (x, y, m) => webWorker
   ? performTaskWorker('mod-pow', {
-    x: x,
-    y: y,
-    m: m
+    x,
+    y,
+    m
   })
   : smartTimeout.promise(() => bytesModPow(x, y, m))
 

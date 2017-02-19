@@ -1,8 +1,11 @@
+import isNode from 'detect-node'
+
 import { TimeOffset } from '../store'
 import { nextRandomInt, longFromInts } from '../bin'
 
 export const tsNow = seconds => {
-  const t = +new Date() + (window.tsOffset || 0)
+  let t = +new Date()
+  if (!isNode) t += window.tsOffset || 0
   return seconds
     ? Math.floor(t / 1000)
     : t
@@ -24,7 +27,7 @@ const generateMessageID = () => {
         timeMSec = timeTicks % 1000,
         random = nextRandomInt(0xFFFF)
 
-  let messageID = [timeSec, (timeMSec << 21) | (random << 3) | 4]
+  let messageID = [timeSec, timeMSec << 21 | random << 3 | 4]
   if (lastMessageID[0] > messageID[0] ||
     lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
     messageID = [lastMessageID[0], lastMessageID[1] + 4]
