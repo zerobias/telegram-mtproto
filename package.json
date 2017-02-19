@@ -2,8 +2,13 @@
   "description": "Telegram MTProto library",
   "name": "telegram-mtproto",
   "license": "MIT",
-  "main": "./lib/index.js",
+  "main": "lib/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "browser": "dist/mtproto2-browser.js",
+  "typings": "index.d.ts",
   "scripts": {
+    "build": "npm run build:cjs && npm run build:es",
     "watch": "webpack --watch --config config/webogram/webpack.config.js",
     "build:webogram:vendor": "webpack --config config/webogram/webpack.vendor.config.js",
     "build:webogram": "webpack --config config/webogram/webpack.config.js",
@@ -11,6 +16,9 @@
     "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel source/ -d lib -s",
     "clean:cjs": "rimraf lib/",
+    "rebuild:es": "npm run clean:es & npm run build:es",
+    "build:es": "babel source/ -d es -s",
+    "clean:es": "rimraf es/",
     "test": "node --harmony test/node.test.js"
   },
   "author": "Zero Bias",
@@ -27,6 +35,7 @@
     "setimmediate": "^1.0.5"
   },
   "devDependencies": {
+    "babel-cli": "^6.23.0",
     "babel-core": "^6.23.1",
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.3.2",
@@ -48,7 +57,9 @@
   "files": [
     "lib",
     "dist",
+    "schema",
     "source",
+    "es",
     "index.d.ts"
   ],
   "keywords": [
@@ -59,15 +70,13 @@
     "protocol",
     "library"
   ],
-  "typings": "./index.d.ts",
-  "jsnext:main": "./source/index.js",
   "maintainers": [
     {
       "name": "Zero Bias",
       "email": "ribkatt@gmail.com"
     }
   ],
-  "readme": "./README.md",
+  "readme": "README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
