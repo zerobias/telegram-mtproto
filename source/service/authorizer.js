@@ -10,14 +10,13 @@ import CryptoWorker from '../crypto'
 import MtpSecureRandom from './secure-random'
 import { TLSerialization, TLDeserialization } from '../tl'
 import { generateID, applyServerTime, dTime, tsNow } from './time-manager'
-import { chooseServer } from './dc-configurator'
 import { select, prepare } from './rsa-keys-manger'
 
 import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor } from '../bin'
 
-function mtpSendPlainRequest(dcID, requestBuffer) {
+function mtpSendPlainRequest(url, requestBuffer) {
   const requestLength = requestBuffer.byteLength,
         requestArray = new Int32Array(requestBuffer)
 
@@ -38,8 +37,7 @@ function mtpSendPlainRequest(dcID, requestBuffer) {
 
   const requestData = resultArray
   let requestPromise
-  const url = chooseServer(dcID)
-  const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url }
+  const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url }
   try {
     requestPromise = httpClient.post(url, requestData, {
       responseType: 'arraybuffer'
@@ -81,16 +79,14 @@ function mtpSendReqPQ(auth) {
   request.storeMethod('req_pq', { nonce: auth.nonce })
 
   console.log(dTime(), 'Send req_pq', bytesToHex(auth.nonce))
-  mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function(deserializer) {
+  mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then((deserializer) => {
     const response = deserializer.fetchObject('ResPQ')
 
-    if (response._ != 'resPQ') {
+    if (response._ != 'resPQ')
       throw new Error(`[MT] resPQ response invalid: ${  response._}`)
-    }
 
-    if (!bytesCmp(auth.nonce, response.nonce)) {
+    if (!bytesCmp(auth.nonce, response.nonce))
       throw new Error('[MT] resPQ nonce mismatch')
-    }
 
     auth.serverNonce = response.server_nonce
     auth.pq = response.pq
@@ -109,11 +105,11 @@ function mtpSendReqPQ(auth) {
       auth.q = q
       console.log(dTime(), 'PQ factorization done', it)
       mtpSendReqDhParams(auth)
-    }, function(error) {
+    }, error => {
       console.log('Worker error', error, error.stack)
       deferred.reject(error)
     })
-  }, function(error) {
+  }, error => {
     console.error(dTime(), 'req_pq error', error.message)
     deferred.reject(error)
   })
@@ -151,7 +147,7 @@ function mtpSendReqDhParams(auth) {
   })
 
   console.log(dTime(), 'Send req_DH_params')
-  mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function(deserializer) {
+  mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then((deserializer) => {
     const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
 
     if (response._ != 'server_DH_params_fail' && response._ != 'server_DH_params_ok') {
@@ -187,9 +183,7 @@ function mtpSendReqDhParams(auth) {
     }
 
     mtpSendSetClientDhParams(auth)
-  }, function(error) {
-    deferred.reject(error)
-  })
+  }, deferred.reject)
 }
 
 function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
@@ -314,99 +308,98 @@ function mtpSendSetClientDhParams(auth) {
     })
 
     console.log(dTime(), 'Send set_client_DH_params')
-    mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function(deserializer) {
-      const response = deserializer.fetchObject('Set_client_DH_params_answer')
+    mtpSendPlainRequest(auth.dcUrl, request.getBuffer())
+      .then(function(deserializer) {
+        const response = deserializer.fetchObject('Set_client_DH_params_answer')
 
-      if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
-        deferred.reject(new Error(`[MT] Set_client_DH_params_answer response invalid: ${  response._}`))
-        return false
-      }
-
-      if (!bytesCmp(auth.nonce, response.nonce)) {
-        deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'))
-        return false
-      }
-
-      if (!bytesCmp(auth.serverNonce, response.server_nonce)) {
-        deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'))
-        return false
-      }
-
-      CryptoWorker.modPow(auth.gA, auth.b, auth.dhPrime).then(function(authKey) {
-        const authKeyHash = sha1BytesSync(authKey),
-              authKeyAux = authKeyHash.slice(0, 8),
-              authKeyID = authKeyHash.slice(-8)
-
-        console.log(dTime(), 'Got Set_client_DH_params_answer', response._)
-        switch (response._) {
-          case 'dh_gen_ok': {
-            const newNonceHash1 = sha1BytesSync(auth.newNonce.concat([1], authKeyAux)).slice(-16)
-
-            if (!bytesCmp(newNonceHash1, response.new_nonce_hash1)) {
-              deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'))
-              return false
-            }
-
-            const serverSalt = bytesXor(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8))
-            // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
-
-            auth.authKeyID = authKeyID
-            auth.authKey = authKey
-            auth.serverSalt = serverSalt
-
-            deferred.resolve(auth)
-            break
-          }
-          case 'dh_gen_retry': {
-            const newNonceHash2 = sha1BytesSync(auth.newNonce.concat([2], authKeyAux)).slice(-16)
-            if (!bytesCmp(newNonceHash2, response.new_nonce_hash2)) {
-              deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'))
-              return false
-            }
-
-            return mtpSendSetClientDhParams(auth)
-          }
-          case 'dh_gen_fail': {
-            const newNonceHash3 = sha1BytesSync(auth.newNonce.concat([3], authKeyAux)).slice(-16)
-            if (!bytesCmp(newNonceHash3, response.new_nonce_hash3)) {
-              deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'))
-              return false
-            }
-
-            deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'))
-            return false
-          }
+        if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
+          deferred.reject(new Error(`[MT] Set_client_DH_params_answer response invalid: ${  response._}`))
+          return false
         }
+
+        if (!bytesCmp(auth.nonce, response.nonce)) {
+          deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'))
+          return false
+        }
+
+        if (!bytesCmp(auth.serverNonce, response.server_nonce)) {
+          deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'))
+          return false
+        }
+
+        CryptoWorker.modPow(auth.gA, auth.b, auth.dhPrime).then(function(authKey) {
+          const authKeyHash = sha1BytesSync(authKey),
+                authKeyAux = authKeyHash.slice(0, 8),
+                authKeyID = authKeyHash.slice(-8)
+
+          console.log(dTime(), 'Got Set_client_DH_params_answer', response._)
+          switch (response._) {
+            case 'dh_gen_ok': {
+              const newNonceHash1 = sha1BytesSync(auth.newNonce.concat([1], authKeyAux)).slice(-16)
+
+              if (!bytesCmp(newNonceHash1, response.new_nonce_hash1)) {
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'))
+                return false
+              }
+
+              const serverSalt = bytesXor(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8))
+              // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
+
+              auth.authKeyID = authKeyID
+              auth.authKey = authKey
+              auth.serverSalt = serverSalt
+
+              deferred.resolve(auth)
+              break
+            }
+            case 'dh_gen_retry': {
+              const newNonceHash2 = sha1BytesSync(auth.newNonce.concat([2], authKeyAux)).slice(-16)
+              if (!bytesCmp(newNonceHash2, response.new_nonce_hash2)) {
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'))
+                return false
+              }
+
+              return mtpSendSetClientDhParams(auth)
+            }
+            case 'dh_gen_fail': {
+              const newNonceHash3 = sha1BytesSync(auth.newNonce.concat([3], authKeyAux)).slice(-16)
+              if (!bytesCmp(newNonceHash3, response.new_nonce_hash3)) {
+                deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'))
+                return false
+              }
+
+              deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'))
+              return false
+            }
+          }
+        }, function(error) {
+          deferred.reject(error)
+        })
       }, function(error) {
         deferred.reject(error)
       })
-    }, function(error) {
-      deferred.reject(error)
-    })
-  }, function(error) {
+  }, (error) => {
     deferred.reject(error)
   })
 }
 
-const cached = {}
-
-function mtpAuth(dcID) {
+function mtpAuth(dcID, cached, dcUrl) {
   console.count('mtpAuth')
-  if (cached[dcID] !== undefined) {
+  if (cached[dcID])
     return cached[dcID].promise
-  }
   console.warn('mtpAuth')
   const nonce = []
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 16; i++)
     nonce.push(nextRandomInt(0xFF))
-  }
 
-  if (!chooseServer(dcID))
-    return Promise.reject(new Error(`[MT] No server found for dc ${  dcID}`))
+  if (!dcUrl)
+    return Promise.reject(
+      new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`))
 
   const auth = {
-    dcID    : dcID,
-    nonce   : nonce,
+    dcID,
+    dcUrl,
+    nonce,
     deferred: blueDefer()
   }
 

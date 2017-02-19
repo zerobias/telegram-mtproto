@@ -8,20 +8,11 @@ import { auth } from '../authorizer'
 import { PureStorage } from '../../store'
 import blueDefer from '../../defer'
 import { dTime } from '../time-manager'
+import { chooseServer } from '../dc-configurator'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
 import { switchErrors } from './error-cases'
-
-// export const mtpSetUserAuth = onAuth =>
-//   function mtpSetUserAuth(dcID, userAuth) {
-//     const fullUserAuth = { dcID, ...userAuth }
-//     PureStorage.set({
-//       dc       : dcID,
-//       user_auth: fullUserAuth
-//     })
-//     onAuth(fullUserAuth, dcID)
-//   }
 
 const hasPath = pathSatisfies( complement( isNil ) )
 const defDc = unless( is(Number), always(2) )
@@ -62,7 +53,9 @@ export class ApiManager {
   emit = this.emitter.emit
   cache = {
     uploader  : {},
-    downloader: {}
+    downloader: {},
+    auth      : {},
+    servers   : {}
   }
   static appSettings = {
     invokeWithLayer: 0xda9b0d0d,
@@ -74,15 +67,18 @@ export class ApiManager {
     app_version    : '',
     lang_code      : 'en'
   }
-  constructor(appSettings = {}) {
+  constructor({ serverConfig = {}, appSettings = {} } = {}) {
+    this.serverConfig = serverConfig
+    this.chooseServer = chooseServer(this.cache.servers, serverConfig)
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     this.setUserAuth = this.setUserAuth.bind(this)
 
     this.appSettings = { ...ApiManager.appSettings, ...withoutNil(appSettings) }
-    this.networkFabric = getNetworker(this.appSettings, this.emit)
+    this.networkFabric = getNetworker(this.appSettings, this.chooseServer, this.emit)
   }
   mtpGetNetworker = (dcID, options = {}) => {
-    const cache = options.fileUpload || options.fileDownload
+    const isUpload = options.fileUpload || options.fileDownload
+    const cache = isUpload
       ? this.cache.uploader
       : this.cache.downloader
     if (!dcID) throw new Error('get Networker without dcID')
@@ -91,6 +87,8 @@ export class ApiManager {
 
     const akk = `dc${  dcID  }_auth_key`
     const ssk = `dc${  dcID  }_server_salt`
+
+    const dcUrl = this.chooseServer(dcID, isUpload)
 
     const networkGetter = result => {
       if (cache[dcID]) return cache[dcID]
@@ -120,7 +118,7 @@ export class ApiManager {
         return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options)
       }
 
-      return auth(dcID)
+      return auth(dcID, this.cache.auth, dcUrl)
         .then(onDcAuth, netError)
     }
 

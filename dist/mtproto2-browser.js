@@ -104,7 +104,7 @@ module.exports = vendor;
 /* unused harmony export bytesToBase64 */
 /* unused harmony export uint6ToBase64 */
 /* harmony export (immutable) */ __webpack_exports__["l"] = bytesCmp;
-/* harmony export (immutable) */ __webpack_exports__["y"] = bytesXor;
+/* harmony export (immutable) */ __webpack_exports__["z"] = bytesXor;
 /* unused harmony export bytesToWords */
 /* unused harmony export bytesFromWords */
 /* unused harmony export bytesFromBigInt */
@@ -117,13 +117,13 @@ module.exports = vendor;
 /* unused harmony export bufferConcat */
 /* unused harmony export longToInts */
 /* harmony export (immutable) */ __webpack_exports__["n"] = longToBytes;
-/* harmony export (immutable) */ __webpack_exports__["z"] = longFromInts;
+/* harmony export (immutable) */ __webpack_exports__["w"] = longFromInts;
 /* harmony export (immutable) */ __webpack_exports__["d"] = intToUint;
 /* harmony export (immutable) */ __webpack_exports__["f"] = uintToInt;
 /* harmony export (immutable) */ __webpack_exports__["p"] = sha1HashSync;
 /* harmony export (immutable) */ __webpack_exports__["k"] = sha1BytesSync;
 /* harmony export (immutable) */ __webpack_exports__["q"] = sha256HashSync;
-/* harmony export (immutable) */ __webpack_exports__["w"] = rsaEncrypt;
+/* harmony export (immutable) */ __webpack_exports__["y"] = rsaEncrypt;
 /* unused harmony export addPadding */
 /* harmony export (immutable) */ __webpack_exports__["r"] = aesEncryptSync;
 /* harmony export (immutable) */ __webpack_exports__["s"] = aesDecryptSync;
@@ -1013,7 +1013,7 @@ const generateMessageID = () => {
 
   // console.log('generated msg id', messageID, timerOffset)
 
-  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* longFromInts */])(messageID[0], messageID[1]);
+  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["w" /* longFromInts */])(messageID[0], messageID[1]);
 };
 
 const applyServerTime = (serverTime, localTime) => {
@@ -1953,36 +1953,40 @@ delete httpClient.defaults.headers.common['Accept'];
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
+
+
 const sslSubdomains = ['pluto', 'venus', 'aurora', 'vesta', 'flora'];
 
-const dcOptions = Config.Modes.test ? [{ id: 1, host: '149.154.175.10', port: 80 }, { id: 2, host: '149.154.167.40', port: 80 }, { id: 3, host: '149.154.175.117', port: 80 }] : [{ id: 1, host: '149.154.175.50', port: 80 }, { id: 2, host: '149.154.167.51', port: 80 }, { id: 3, host: '149.154.175.100', port: 80 }, { id: 4, host: '149.154.167.91', port: 80 }, { id: 5, host: '149.154.171.5', port: 80 }];
+const devDC = [{ id: 1, host: '149.154.175.10', port: 80 }, { id: 2, host: '149.154.167.40', port: 80 }, { id: 3, host: '149.154.175.117', port: 80 }];
 
-const chosenServers = {};
+const prodDC = [{ id: 1, host: '149.154.175.50', port: 80 }, { id: 2, host: '149.154.167.51', port: 80 }, { id: 3, host: '149.154.175.100', port: 80 }, { id: 4, host: '149.154.167.91', port: 80 }, { id: 5, host: '149.154.171.5', port: 80 }];
 
-const chooseServer = (dcID, upload) => {
-  if (chosenServers[dcID] === undefined) {
-    let chosenServer = false,
-        i,
-        dcOption;
+const portString = ({ port = 80 }) => port === 80 ? '' : `:${port}`;
 
-    if (Config.Modes.ssl || !Config.Modes.http) {
-      const subdomain = sslSubdomains[dcID - 1] + (upload ? '-1' : '');
-      const path = Config.Modes.test ? 'apiw_test1' : 'apiw1';
-      chosenServer = `https://${subdomain}.web.telegram.org/${path}`;
-      return chosenServer;
-    }
+const findById = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["propEq"])('id'), __WEBPACK_IMPORTED_MODULE_0_ramda__["find"]);
 
-    for (i = 0; i < dcOptions.length; i++) {
-      dcOption = dcOptions[i];
-      if (dcOption.id == dcID) {
-        chosenServer = `http://${dcOption.host}${dcOption.port != 80 ? `:${dcOption.port}` : ''}/apiw1`;
-        break;
-      }
-    }
-    chosenServers[dcID] = chosenServer;
+const chooseServer = (chosenServers, {
+  dev = false,
+  webogram = false,
+  dcList = dev ? devDC : prodDC
+} = {}) => (dcID, upload = false) => {
+  const choosen = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["prop"])(dcID);
+  if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])(dcID, chosenServers)) return choosen(chosenServers);
+  let chosenServer = false;
+
+  if (webogram) {
+    const subdomain = sslSubdomains[dcID - 1] + (upload ? '-1' : '');
+    const path = dev ? 'apiw_test1' : 'apiw1';
+    chosenServer = `https://${subdomain}.web.telegram.org/${path}`;
+    return chosenServer; //TODO Possibly bug. Isn't it necessary? chosenServers[dcID] = chosenServer
   }
+  const dcOption = findById(dcID)(dcList);
+  if (dcOption) chosenServer = `http://${dcOption.host}${portString(dcOption)}/apiw1`;
+  chosenServers[dcID] = chosenServer;
 
-  return chosenServers[dcID];
+  return choosen(chosenServers);
 };
 /* harmony export (immutable) */ __webpack_exports__["chooseServer"] = chooseServer;
 
@@ -2069,8 +2073,7 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(setImmediate) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* WEBPACK VAR INJECTION */(function(setImmediate) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
@@ -2080,10 +2083,9 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__secure_random__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__tl__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__rsa_keys_manger__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__bin__ = __webpack_require__(1);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "auth", function() { return mtpAuth; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__bin__ = __webpack_require__(1);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return mtpAuth; });
 
 
 const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
@@ -2100,8 +2102,7 @@ const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
 
 
 
-
-function mtpSendPlainRequest(dcID, requestBuffer) {
+function mtpSendPlainRequest(url, requestBuffer) {
   const requestLength = requestBuffer.byteLength,
         requestArray = new Int32Array(requestBuffer);
 
@@ -2122,8 +2123,7 @@ function mtpSendPlainRequest(dcID, requestBuffer) {
 
   const requestData = resultArray;
   let requestPromise;
-  const url = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(dcID);
-  const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url: url };
+  const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url };
   try {
     requestPromise = __WEBPACK_IMPORTED_MODULE_3__http__["b" /* default */].post(url, requestData, {
       responseType: 'arraybuffer'
@@ -2160,25 +2160,21 @@ function mtpSendReqPQ(auth) {
 
   request.storeMethod('req_pq', { nonce: auth.nonce });
 
-  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(auth.nonce));
-  mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
+  console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.nonce));
+  mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
     const response = deserializer.fetchObject('ResPQ');
 
-    if (response._ != 'resPQ') {
-      throw new Error(`[MT] resPQ response invalid: ${response._}`);
-    }
+    if (response._ != 'resPQ') throw new Error(`[MT] resPQ response invalid: ${response._}`);
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
-      throw new Error('[MT] resPQ nonce mismatch');
-    }
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
 
     auth.serverNonce = response.server_nonce;
     auth.pq = response.pq;
     auth.fingerprints = response.server_public_key_fingerprints;
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(auth.pq), auth.fingerprints);
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(auth.pq), auth.fingerprints);
 
-    auth.publicKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__rsa_keys_manger__["a" /* select */])(auth.fingerprints);
+    auth.publicKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__["a" /* select */])(auth.fingerprints);
 
     if (!auth.publicKey) throw new Error('[MT] No public key found');
 
@@ -2188,16 +2184,16 @@ function mtpSendReqPQ(auth) {
       auth.q = q;
       console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization done', it);
       mtpSendReqDhParams(auth);
-    }, function (error) {
+    }, error => {
       console.log('Worker error', error, error.stack);
       deferred.reject(error);
     });
-  }, function (error) {
+  }, error => {
     console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'req_pq error', error.message);
     deferred.reject(error);
   });
 
-  setTimeout(__WEBPACK_IMPORTED_MODULE_9__rsa_keys_manger__["b" /* prepare */], 0);
+  setTimeout(__WEBPACK_IMPORTED_MODULE_8__rsa_keys_manger__["b" /* prepare */], 0);
 }
 
 function mtpSendReqDhParams(auth) {
@@ -2217,7 +2213,7 @@ function mtpSendReqDhParams(auth) {
     new_nonce: auth.newNonce
   }, 'P_Q_inner_data', 'DECRYPTED_DATA');
 
-  const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+  const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
   const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
   request.storeMethod('req_DH_params', {
@@ -2226,11 +2222,11 @@ function mtpSendReqDhParams(auth) {
     p: auth.p,
     q: auth.q,
     public_key_fingerprint: auth.publicKey.fingerprint,
-    encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["w" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
+    encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["y" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
   });
 
   console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_DH_params');
-  mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
+  mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
     const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
 
     if (response._ != 'server_DH_params_fail' && response._ != 'server_DH_params_ok') {
@@ -2238,19 +2234,19 @@ function mtpSendReqDhParams(auth) {
       return false;
     }
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
       deferred.reject(new Error('[MT] Server_DH_Params nonce mismatch'));
       return false;
     }
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
       deferred.reject(new Error('[MT] Server_DH_Params server_nonce mismatch'));
       return false;
     }
 
     if (response._ == 'server_DH_params_fail') {
-      const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce).slice(-16);
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
+      const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce).slice(-16);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
         deferred.reject(new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'));
         return false;
       }
@@ -2266,22 +2262,20 @@ function mtpSendReqDhParams(auth) {
     }
 
     mtpSendSetClientDhParams(auth);
-  }, function (error) {
-    deferred.reject(error);
-  });
+  }, deferred.reject);
 }
 
 function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
   auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
 
-  auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
-  auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
+  auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
+  auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
 
-  const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["s" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
+  const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["s" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
 
   const hash = answerWithHash.slice(0, 20);
   const answerWithPadding = answerWithHash.slice(20);
-  const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
+  const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
 
   const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, { mtproto: true });
   const response = deserializer.fetchObject('Server_DH_inner_data');
@@ -2290,11 +2284,11 @@ function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
     throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
   }
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
     throw new Error('[MT] server_DH_inner_data nonce mismatch');
   }
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
     throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
   }
 
@@ -2309,7 +2303,7 @@ function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
 
   const offset = deserializer.getOffset();
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
+  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
     throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch');
   }
 
@@ -2318,14 +2312,14 @@ function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
 
 function mtpVerifyDhParams(g, dhPrime, gA) {
   console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Verifying DH params');
-  const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(dhPrime);
+  const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(dhPrime);
   if (g != 3 || dhPrimeHex !== 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d930f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f69458705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4ac8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba74d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9ca3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b') {
     // The verified value is from https://core.telegram.org/mtproto/security_guidelines
     throw new Error('[MT] DH params are not verified: unknown dhPrime');
   }
   console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'dhPrime cmp OK');
 
-  const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesToHex */])(gA), 16);
+  const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(gA), 16);
   const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
 
   if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
@@ -2354,7 +2348,7 @@ function mtpVerifyDhParams(g, dhPrime, gA) {
 
 function mtpSendSetClientDhParams(auth) {
   const deferred = auth.deferred;
-  const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["x" /* bytesFromHex */])(auth.g.toString(16));
+  const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(auth.g.toString(16));
 
   auth.b = new Array(256);
   __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
@@ -2369,9 +2363,9 @@ function mtpSendSetClientDhParams(auth) {
       g_b: gB
     }, 'Client_DH_Inner_Data');
 
-    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
-    const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["r" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
+    const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["r" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
 
     const request = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
     request.storeMethod('set_client_DH_params', {
@@ -2381,7 +2375,7 @@ function mtpSendSetClientDhParams(auth) {
     });
 
     console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send set_client_DH_params');
-    mtpSendPlainRequest(auth.dcID, request.getBuffer()).then(function (deserializer) {
+    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(function (deserializer) {
       const response = deserializer.fetchObject('Set_client_DH_params_answer');
 
       if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
@@ -2389,18 +2383,18 @@ function mtpSendSetClientDhParams(auth) {
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.nonce, response.nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
         return false;
       }
 
       __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(function (authKey) {
-        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(authKey),
+        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(authKey),
               authKeyAux = authKeyHash.slice(0, 8),
               authKeyID = authKeyHash.slice(-8);
 
@@ -2408,14 +2402,14 @@ function mtpSendSetClientDhParams(auth) {
         switch (response._) {
           case 'dh_gen_ok':
             {
-              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
+              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
 
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
                 return false;
               }
 
-              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["y" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
+              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["z" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
               // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
 
               auth.authKeyID = authKeyID;
@@ -2427,8 +2421,8 @@ function mtpSendSetClientDhParams(auth) {
             }
           case 'dh_gen_retry':
             {
-              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
+              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
                 return false;
               }
@@ -2437,8 +2431,8 @@ function mtpSendSetClientDhParams(auth) {
             }
           case 'dh_gen_fail':
             {
-              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
+              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
                 return false;
               }
@@ -2453,29 +2447,24 @@ function mtpSendSetClientDhParams(auth) {
     }, function (error) {
       deferred.reject(error);
     });
-  }, function (error) {
+  }, error => {
     deferred.reject(error);
   });
 }
 
-const cached = {};
-
-function mtpAuth(dcID) {
+function mtpAuth(dcID, cached, dcUrl) {
   console.count('mtpAuth');
-  if (cached[dcID] !== undefined) {
-    return cached[dcID].promise;
-  }
+  if (cached[dcID]) return cached[dcID].promise;
   console.warn('mtpAuth');
   const nonce = [];
-  for (let i = 0; i < 16; i++) {
-    nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["o" /* nextRandomInt */])(0xFF));
-  }
+  for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["o" /* nextRandomInt */])(0xFF));
 
-  if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(dcID)) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID}`));
+  if (!dcUrl) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`));
 
   const auth = {
-    dcID: dcID,
-    nonce: nonce,
+    dcID,
+    dcUrl,
+    nonce,
     deferred: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])()
   };
 
@@ -2511,9 +2500,8 @@ function mtpAuth(dcID) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__smart_timeout__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__http__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__dc_configurator__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__store__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(1);
 
 
 
@@ -2526,7 +2514,7 @@ function mtpAuth(dcID) {
 
 
 
-
+// import { chooseServer } from './dc-configurator'
 
 
 
@@ -2540,7 +2528,7 @@ let akStopped = false;
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 
 
-const NetworkerFabric = (appConfig, emit) => {
+const NetworkerFabric = (appConfig, chooseServer, emit) => {
   var _class, _temp, _initialiseProps;
 
   return _temp = _class = class NetworkerThread {
@@ -2551,9 +2539,9 @@ const NetworkerFabric = (appConfig, emit) => {
       this.iii = iii++;
 
       this.authKey = authKey;
-      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(authKey);
-      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["j" /* convertToArrayBuffer */])(authKey);
-      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
+      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["i" /* convertToUint8Array */])(authKey);
+      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["j" /* convertToArrayBuffer */])(authKey);
+      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["k" /* sha1BytesSync */])(authKey).slice(-8);
 
       this.serverSalt = serverSalt;
 
@@ -2861,8 +2849,8 @@ const NetworkerFabric = (appConfig, emit) => {
       const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](responseBuffer);
 
       const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id');
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
-        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(authKeyID)}`);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(authKeyID, this.authKeyID)) {
+        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(authKeyID)}`);
       }
       const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key');
       const encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
@@ -2875,10 +2863,10 @@ const NetworkerFabric = (appConfig, emit) => {
         const sessionID = deserializer.fetchIntBytes(64, false, 'session_id');
         const messageID = deserializer.fetchLong('message_id');
 
-        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
+        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(sessionID, this.prevSessionID));
         if (isInvalidSession) {
           console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID);
-          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(sessionID)}`);
+          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(sessionID)}`);
         }
 
         const seqNo = deserializer.fetchInt('seq_no');
@@ -2895,15 +2883,15 @@ const NetworkerFabric = (appConfig, emit) => {
         offset = deserializer.getOffset();
         const paddingLength = totalLength - offset;
         if (paddingLength < 0 || paddingLength > 15) throw new Error(`[MT] Invalid padding length: ${paddingLength}`);
-        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
+        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["i" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
 
         const afterShaHash = dataHash => {
-          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
-            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
+          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["l" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["m" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
+            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["m" /* bytesFromArrayBuffer */])(dataHash));
             throw new Error('[MT] server msgKey mismatch');
           }
 
-          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["h" /* bytesToArrayBuffer */])(messageBody);
+          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["h" /* bytesToArrayBuffer */])(messageBody);
           const deserializerOptions = getDeserializeOpts(this.getMsgById);
           const deserializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["b" /* TLDeserialization */](buffer, deserializerOptions);
           const response = deserializer.fetchObject('', 'INPUT');
@@ -2922,12 +2910,12 @@ const NetworkerFabric = (appConfig, emit) => {
     }
 
     applyServerSalt(newServerSalt) {
-      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["n" /* longToBytes */])(newServerSalt);
+      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["n" /* longToBytes */])(newServerSalt);
 
       const storeObj = {
-        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["e" /* bytesToHex */])(serverSalt)
+        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["e" /* bytesToHex */])(serverSalt)
       };
-      __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].set(storeObj);
+      __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].set(storeObj);
 
       this.serverSalt = serverSalt;
       return true;
@@ -2988,7 +2976,7 @@ const NetworkerFabric = (appConfig, emit) => {
 
     processError(rawError) {
       const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || [];
-      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["f" /* uintToInt */])(rawError.error_code);
+      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* uintToInt */])(rawError.error_code);
 
       return {
         code: !rawError.error_code || rawError.error_code <= 0 ? 500 : rawError.error_code,
@@ -3038,7 +3026,7 @@ const NetworkerFabric = (appConfig, emit) => {
             }
 
             if (message.error_code == 16 || message.error_code == 17) {
-              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
+              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["b" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
                 console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Update session');
                 this.updateSession();
               }
@@ -3073,7 +3061,7 @@ const NetworkerFabric = (appConfig, emit) => {
               const updateCond = baseDcID === this.dcID && !this.upload && updatesProcessor;
               if (updateCond) updatesProcessor(message, true);
             };
-            __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
+            __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
             break;
           }
         case 'msgs_ack':
@@ -3164,7 +3152,7 @@ const NetworkerFabric = (appConfig, emit) => {
         this.sendLongPoll();
       };
 
-      __WEBPACK_IMPORTED_MODULE_11__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
+      __WEBPACK_IMPORTED_MODULE_10__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
     };
 
     this.checkConnection = event => {
@@ -3172,7 +3160,7 @@ const NetworkerFabric = (appConfig, emit) => {
       __WEBPACK_IMPORTED_MODULE_7__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
 
       const serializer = new __WEBPACK_IMPORTED_MODULE_6__tl__["a" /* TLSerialization */]({ mtproto: true });
-      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
+      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["o" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["o" /* nextRandomInt */])(0xFFFFFFFF)];
 
       serializer.storeMethod('ping', { ping_id: pingID });
 
@@ -3364,7 +3352,7 @@ const NetworkerFabric = (appConfig, emit) => {
       if (lengthOverflow || singlesCount > 1) this.sheduleRequest();
     };
 
-    this.getRequestUrl = () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__dc_configurator__["chooseServer"])(this.dcID, this.upload);
+    this.getRequestUrl = () => chooseServer(this.dcID, this.upload);
 
     this.sendEncryptedRequest = (message, options = {}) => {
       // console.log(dTime(), 'Send encrypted'/*, message*/)
@@ -3488,8 +3476,8 @@ const stopAll = () => akStopped = true;
 /* harmony export (immutable) */ __webpack_exports__["stopAll"] = stopAll;
 
 
-const getNetworker = (appConfig, emit) => {
-  const Networker = NetworkerFabric(appConfig, emit);
+const getNetworker = (appConfig, chooseServer, emit) => {
+  const Networker = NetworkerFabric(appConfig, chooseServer, emit);
   return (dc, authKey, serverSalt, options) => new Networker(dc, authKey, serverSalt, options);
 };
 /* harmony export (immutable) */ __webpack_exports__["getNetworker"] = getNetworker;
@@ -5149,17 +5137,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_8__service_time_manager__; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__ = __webpack_require__(10);
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_authorizer__ = __webpack_require__(15);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpAuthorizer", function() { return __WEBPACK_IMPORTED_MODULE_10__service_authorizer__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_secure_random__ = __webpack_require__(11);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_11__service_secure_random__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__service_networker__ = __webpack_require__(16);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_12__service_networker__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__tl__ = __webpack_require__(7);
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLSerialization", function() { return __WEBPACK_IMPORTED_MODULE_13__tl__["a"]; });
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLDeserialization", function() { return __WEBPACK_IMPORTED_MODULE_13__tl__["b"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__http__ = __webpack_require__(9);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_14__http__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_secure_random__ = __webpack_require__(11);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_10__service_secure_random__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_networker__ = __webpack_require__(16);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_11__service_networker__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__tl__ = __webpack_require__(7);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLSerialization", function() { return __WEBPACK_IMPORTED_MODULE_12__tl__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "TLDeserialization", function() { return __WEBPACK_IMPORTED_MODULE_12__tl__["b"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__http__ = __webpack_require__(9);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_13__http__["a"]; });
 
 
 
@@ -5179,8 +5165,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // import * as MtpRsaKeysManager from './service/rsa-keys-manger'
 // export { MtpRsaKeysManager }
 
-
-
+// import * as MtpAuthorizer from './service/authorizer'
+// export { MtpAuthorizer }
 
 
 
@@ -5941,8 +5927,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__bin__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__error_cases__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__error_cases__ = __webpack_require__(29);
 
 
 
@@ -5958,15 +5945,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 
-// export const mtpSetUserAuth = onAuth =>
-//   function mtpSetUserAuth(dcID, userAuth) {
-//     const fullUserAuth = { dcID, ...userAuth }
-//     PureStorage.set({
-//       dc       : dcID,
-//       user_auth: fullUserAuth
-//     })
-//     onAuth(fullUserAuth, dcID)
-//   }
 
 const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
 const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
@@ -5997,7 +5975,7 @@ const mtpClearStorage = function () {
 const Ln = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length');
 
 class ApiManager {
-  constructor(appSettings = {}) {
+  constructor({ serverConfig = {}, appSettings = {} } = {}) {
     this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
       wildcard: true
     });
@@ -6005,17 +5983,22 @@ class ApiManager {
     this.emit = this.emitter.emit;
     this.cache = {
       uploader: {},
-      downloader: {}
+      downloader: {},
+      auth: {},
+      servers: {}
     };
 
     this.mtpGetNetworker = (dcID, options = {}) => {
-      const cache = options.fileUpload || options.fileDownload ? this.cache.uploader : this.cache.downloader;
+      const isUpload = options.fileUpload || options.fileDownload;
+      const cache = isUpload ? this.cache.uploader : this.cache.downloader;
       if (!dcID) throw new Error('get Networker without dcID');
 
       if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
 
       const akk = `dc${dcID}_auth_key`;
       const ssk = `dc${dcID}_server_salt`;
+
+      const dcUrl = this.chooseServer(dcID, isUpload);
 
       const networkGetter = result => {
         if (cache[dcID]) return cache[dcID];
@@ -6025,8 +6008,8 @@ class ApiManager {
         // console.log('ass', dcID, authKeyHex, serverSaltHex)
         if (Ln(512, authKeyHex)) {
           if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
-          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(authKeyHex);
-          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["x" /* bytesFromHex */])(serverSaltHex);
+          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(authKeyHex);
+          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["x" /* bytesFromHex */])(serverSaltHex);
 
           return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
         }
@@ -6035,25 +6018,27 @@ class ApiManager {
 
         const onDcAuth = ({ authKey, serverSalt }) => {
           const storeObj = {
-            [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(authKey),
-            [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesToHex */])(serverSalt)
+            [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(authKey),
+            [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesToHex */])(serverSalt)
           };
           __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
 
           return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
         };
 
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["auth"])(dcID).then(onDcAuth, netError);
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["a" /* auth */])(dcID, this.cache.auth, dcUrl).then(onDcAuth, netError);
       };
 
       return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(networkGetter);
     };
 
+    this.serverConfig = serverConfig;
+    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, serverConfig);
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
     this.setUserAuth = this.setUserAuth.bind(this);
 
     this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
-    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.emit);
+    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.chooseServer, this.emit);
   }
 
   mtpInvokeApi(method, params, options = {}) {
@@ -6082,7 +6067,7 @@ class ApiManager {
       const apiRecall = networker => networker.wrapApiCall(method, params, options);
       console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
 
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
     });
     const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
 

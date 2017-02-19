@@ -10,7 +10,7 @@ import { TLSerialization, TLDeserialization } from '../tl'
 import smartTimeout from '../smart-timeout'
 import blueDefer from '../defer'
 import { httpClient } from '../http'
-import { chooseServer } from './dc-configurator'
+// import { chooseServer } from './dc-configurator'
 import { PureStorage } from '../store'
 
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
@@ -26,7 +26,7 @@ let akStopped = false
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 
 
-const NetworkerFabric = (appConfig, emit) => class NetworkerThread {
+const NetworkerFabric = (appConfig, chooseServer, emit) => class NetworkerThread {
   constructor(dc, authKey, serverSalt, options = {}) {
     this.dcID = dc
     this.iii = iii++
@@ -1035,8 +1035,8 @@ export const startAll = () => {
 
 export const stopAll = () => akStopped = true
 
-export const getNetworker = (appConfig, emit) => {
-  const Networker = NetworkerFabric(appConfig, emit)
+export const getNetworker = (appConfig, chooseServer, emit) => {
+  const Networker = NetworkerFabric(appConfig, chooseServer, emit)
   return (dc, authKey, serverSalt, options) =>
     new Networker(dc, authKey, serverSalt, options)
 }

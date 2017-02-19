@@ -55,6 +55,7 @@
       }
     ],
     "no-extra-parens"      : "error",
+    "multiline-ternary"    : "off",
 
     //General
     "arrow-body-style"     : ["error", "as-needed"],
@@ -119,7 +120,6 @@
       "ArrayExpression": 1,
       "ObjectExpression": "first"
     }],
-    "multiline-ternary"    : ["warn", "always"],
     "operator-linebreak": ["error", "after", {
       "overrides": {
         "?": "before",

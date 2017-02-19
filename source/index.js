@@ -17,8 +17,8 @@ export { MtpDcConfigurator }
 // import * as MtpRsaKeysManager from './service/rsa-keys-manger'
 // export { MtpRsaKeysManager }
 
-import * as MtpAuthorizer from './service/authorizer'
-export { MtpAuthorizer }
+// import * as MtpAuthorizer from './service/authorizer'
+// export { MtpAuthorizer }
 
 import MtpSecureRandom from './service/secure-random'
 export { MtpSecureRandom }
