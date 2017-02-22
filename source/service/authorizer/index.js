@@ -2,18 +2,20 @@ import Promise from 'bluebird'
 import jsbn from 'jsbn'
 const { BigInteger } = jsbn
 
-import blueDefer from '../defer'
-import { smartTimeout } from '../smart-timeout'
-import httpClient from '../http'
-import CryptoWorker from '../crypto'
+import blueDefer from '../../defer'
+import { smartTimeout } from '../../smart-timeout'
+import CryptoWorker from '../../crypto'
 
-import MtpSecureRandom from './secure-random'
-import { generateID, applyServerTime, dTime, tsNow } from './time-manager'
+import MtpSecureRandom from '../secure-random'
+import { applyServerTime, dTime, tsNow } from '../time-manager'
 
 import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
-  bytesFromHex, bytesXor } from '../bin'
+  bytesFromHex, bytesXor } from '../../bin'
 
+// import { ErrorBadResponse } from '../../error'
+
+import SendPlainReq from './send-plain-req'
 
 const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' +
   '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' +
@@ -24,58 +26,7 @@ const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93
   'f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b'
 
 export const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
-  function mtpSendPlainRequest(url, requestBuffer) {
-    const requestLength = requestBuffer.byteLength,
-          requestArray = new Int32Array(requestBuffer)
-
-    const header = new Serialization()
-    header.storeLongP(0, 0, 'auth_key_id') // Auth key
-    header.storeLong(generateID(), 'msg_id') // Msg_id
-    header.storeInt(requestLength, 'request_length')
-
-    const headerBuffer = header.getBuffer(),
-          headerArray = new Int32Array(headerBuffer)
-    const headerLength = headerBuffer.byteLength
-
-    const resultBuffer = new ArrayBuffer(headerLength + requestLength),
-          resultArray = new Int32Array(resultBuffer)
-
-    resultArray.set(headerArray)
-    resultArray.set(requestArray, headerArray.length)
-
-    const requestData = resultArray
-    let requestPromise
-    const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url }
-    try {
-      requestPromise = httpClient.post(url, requestData, {
-        responseType: 'arraybuffer'
-      })
-    } catch (e) {
-      requestPromise = Promise.reject({ originalError: e, ...baseError })
-    }
-    return requestPromise.then(
-      result => {
-        if (!result.data || !result.data.byteLength)
-          return Promise.reject(baseError)
-        let deserializer
-        try {
-          deserializer = new Deserialization(result.data, { mtproto: true })
-          const auth_key_id = deserializer.fetchLong('auth_key_id')
-          const msg_id = deserializer.fetchLong('msg_id')
-          const msg_len = deserializer.fetchInt('msg_len')
-        } catch (e) {
-          return Promise.reject({ originalError: e, ...baseError })
-        }
-
-        return deserializer
-      },
-      error => {
-        if (!error.message && !error.type)
-          error = { originalError: error, ...baseError }
-        return Promise.reject(error)
-      }
-    )
-  }
+  const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
 
   function mtpSendReqPQ(auth) {
     const deferred = auth.deferred
@@ -85,43 +36,55 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
 
     request.storeMethod('req_pq', { nonce: auth.nonce })
 
-    mtpSendPlainRequest(auth.dcUrl, request.getBuffer())
-      .then((deserializer) => {
-        const response = deserializer.fetchObject('ResPQ')
+    const keyFoundCheck = key => key
+      ? auth.publicKey = key
+      : Promise.reject(new Error('[MT] No public key found'))
 
-        if (response._ != 'resPQ')
-          throw new Error(`[MT] resPQ response invalid: ${  response._}`)
+    const factorizeThunk = () => CryptoWorker.factorize(auth.pq)
 
-        if (!bytesCmp(auth.nonce, response.nonce))
-          throw new Error('[MT] resPQ nonce mismatch')
+    const factDone = ([ p, q, it ]) => {
+      auth.p = p
+      auth.q = q
+      console.log(dTime(), 'PQ factorization done', it)
+      mtpSendReqDhParams(auth)
+    }
 
-        auth.serverNonce = response.server_nonce
-        auth.pq = response.pq
-        auth.fingerprints = response.server_public_key_fingerprints
+    const factFail = error => {
+      console.log('Worker error', error, error.stack)
+      deferred.reject(error)
+    }
 
-        // console.log(dTime(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
+    const factorizer = (deserializer) => {
+      const response = deserializer.fetchObject('ResPQ')
 
-        auth.publicKey = select(auth.fingerprints)
+      if (response._ !== 'resPQ')
+        throw new Error(`[MT] resPQ response invalid: ${  response._}`)
 
-        if (!auth.publicKey)
-          throw new Error('[MT] No public key found')
+      if (!bytesCmp(auth.nonce, response.nonce))
+        throw new Error('[MT] resPQ nonce mismatch')
 
-        // console.log(dTime(), 'PQ factorization start', auth.pq)
-        CryptoWorker.factorize(auth.pq).then(([ p, q, it ]) => {
-          auth.p = p
-          auth.q = q
-          console.log(dTime(), 'PQ factorization done', it)
-          mtpSendReqDhParams(auth)
-        }, error => {
-          console.log('Worker error', error, error.stack)
-          deferred.reject(error)
-        })
-      }, error => {
+      auth.serverNonce = response.server_nonce
+      auth.pq = response.pq
+      auth.fingerprints = response.server_public_key_fingerprints
+
+      // console.log(dTime(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
+
+      select(auth.fingerprints)
+        .then(keyFoundCheck)
+        .then(factorizeThunk)
+        .then(factDone, factFail)
+
+      // console.log(dTime(), 'PQ factorization start', auth.pq)
+    }
+
+    const sendPlainThunk = () => sendPlainReq(auth.dcUrl, request.getBuffer())
+
+    return prepare()
+      .then(sendPlainThunk)
+      .then(factorizer, error => {
         console.error(dTime(), 'req_pq error', error.message)
         deferred.reject(error)
       })
-
-    smartTimeout.immediate(prepare)
   }
 
   function mtpSendReqDhParams(auth) {
@@ -154,7 +117,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     })
 
     console.log(dTime(), 'Send req_DH_params')
-    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then((deserializer) => {
+    sendPlainReq(auth.dcUrl, request.getBuffer()).then((deserializer) => {
       const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
 
       if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
@@ -377,7 +340,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       })
 
       console.log(dTime(), 'Send set_client_DH_params')
-      mtpSendPlainRequest(auth.dcUrl, request.getBuffer())
+      sendPlainReq(auth.dcUrl, request.getBuffer())
         .then(afterPlainRequest, deferred.reject)
     }, deferred.reject)
   }

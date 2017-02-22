@@ -7,7 +7,7 @@
 		exports["mtproto"] = factory(require("vendor"));
 	else
 		root["mtproto"] = factory(root["vendor"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_5__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_6__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -73,24 +73,23 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 40);
+/******/ 	return __webpack_require__(__webpack_require__.s = 42);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(36);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rusha__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(41);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(28);
 /* harmony export (immutable) */ __webpack_exports__["x"] = bigint;
 /* harmony export (immutable) */ __webpack_exports__["k"] = bigStringInt;
 /* unused harmony export dHexDump */
@@ -916,8 +915,7 @@ function bytesModPow(x, y, m) {
 }
 
 /***/ }),
-
-/***/ 1:
+/* 1 */
 /***/ (function(module, exports) {
 
 /*
@@ -1637,12 +1635,386 @@ exports.CryptoJS = CryptoJS;
 
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/***/ 10:
+module.exports = (__webpack_require__(6))(125);
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(6))(128);
+
+/***/ }),
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
+/**
+ * Defered promise like in Q and $q
+ *
+ * @returns {{ resolve: (res: any) => void, reject: (res: any) => void, promise: Promise<{}> }}
+ */
+const blueDefer = () => {
+  let resolve, reject;
+  const promise = new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a((rs, rj) => {
+    resolve = rs;
+    reject = rj;
+  });
+  return {
+    resolve,
+    reject,
+    promise
+  };
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = blueDefer;
+
+
+/* harmony default export */ __webpack_exports__["b"] = blueDefer;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateID", function() { return generateMessageID; });
+
+
+
+
+
+const tsNow = seconds => {
+  let t = +new Date();
+  //eslint-disable-next-line
+  if (!__WEBPACK_IMPORTED_MODULE_0_detect_node___default.a) t += window.tsOffset || 0;
+  return seconds ? Math.floor(t / 1000) : t;
+};
+/* harmony export (immutable) */ __webpack_exports__["tsNow"] = tsNow;
+
+
+const logTimer = new Date().getTime();
+
+const dTime = () => `[${((new Date().getTime() - logTimer) / 1000).toFixed(3)}]`;
+/* harmony export (immutable) */ __webpack_exports__["dTime"] = dTime;
+
+
+let lastMessageID = [0, 0];
+let timerOffset = 0;
+
+const offset = __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].get();
+if (offset) timerOffset = offset;
+
+const generateMessageID = () => {
+  const timeTicks = tsNow(),
+        timeSec = Math.floor(timeTicks / 1000) + timerOffset,
+        timeMSec = timeTicks % 1000,
+        random = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["l" /* nextRandomInt */])(0xFFFF);
+
+  let messageID = [timeSec, timeMSec << 21 | random << 3 | 4];
+  if (lastMessageID[0] > messageID[0] || lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
+    messageID = [lastMessageID[0], lastMessageID[1] + 4];
+  }
+
+  lastMessageID = messageID;
+
+  // console.log('generated msg id', messageID, timerOffset)
+
+  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["t" /* longFromInts */])(messageID[0], messageID[1]);
+};
+
+const applyServerTime = (serverTime, localTime) => {
+  const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000);
+  const changed = Math.abs(timerOffset - newTimeOffset) > 10;
+  __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].set(newTimeOffset);
+
+  lastMessageID = [0, 0];
+  timerOffset = newTimeOffset;
+  console.log(dTime(), 'Apply server time', serverTime, localTime, newTimeOffset, changed);
+
+  return changed;
+};
+/* harmony export (immutable) */ __webpack_exports__["applyServerTime"] = applyServerTime;
+
+
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = vendor;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+
+
+
+
+const ValueStore = () => {
+  let val = null;
+
+  return {
+    get: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val),
+    set: newVal => val = newVal
+  };
+};
+/* unused harmony export ValueStore */
+
+
+const ValueStoreMap = () => {
+  const val = new Map();
+
+  return {
+    get: key => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val.get(key)),
+    set: (key, newVal) => val.set(key, newVal)
+  };
+};
+/* unused harmony export ValueStoreMap */
+
+
+const TimeOffset = ValueStore();
+/* harmony export (immutable) */ __webpack_exports__["b"] = TimeOffset;
+
+const dcList = ValueStoreMap();
+/* unused harmony export dcList */
+
+
+const flatProps = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["flip"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["props"]), __WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"]);
+
+const AsyncStorage = () => {
+  let store = {};
+
+  const flatGet = flatProps(store);
+  const set = obj => store = Object.assign({}, store, obj);
+  const remove = keys => store = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys, store);
+  const clr = () => store = {};
+  return {
+    get: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(flatGet(...keys)),
+    set: obj => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(set(obj)),
+    remove: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(remove(keys)),
+    clear: () => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(clr()),
+    noPrefix: () => ({})
+  };
+};
+/* unused harmony export AsyncStorage */
+
+
+const PureStorage = AsyncStorage();
+/* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
+ /*{
+                                           get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
+                                           set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
+                                           remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
+                                           noPrefix: () => ConfigStorage.noPrefix(),
+                                           clear   : () => new Promise(rs => ConfigStorage.clear(rs))
+                                           }*/
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
+
+const cancelToken = Symbol('cancel token');
+
+const timeoutRefs = new WeakSet();
+
+const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
+
+const smartTimeout = (fn, delay = 0, ...args) => {
+  const newToken = Symbol('cancel id');
+  const checkRun = () => {
+    if (timeoutRefs.has(newToken)) {
+      timeoutRefs.delete(newToken);
+      return fn(...args);
+    } else return false;
+  };
+  const promise = pause(delay).then(checkRun);
+  promise[cancelToken] = newToken;
+  return promise;
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = smartTimeout;
+
+
+smartTimeout.cancel = promise => {
+  if (!promise || !promise[cancelToken]) return false;
+  const token = promise[cancelToken];
+  return timeoutRefs.has(token) ? timeoutRefs.delete(token) : false;
+};
+
+smartTimeout.immediate = (fn, ...args) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve().then(() => fn(...args));
+
+smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(...args));
+
+/* harmony default export */ __webpack_exports__["b"] = smartTimeout;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_detect_node__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(0);
+
+
+
+__webpack_require__(37);
+
+
+
+
+
+const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), __WEBPACK_IMPORTED_MODULE_4__bin__["b" /* convertToUint8Array */]);
+let webWorker = !__WEBPACK_IMPORTED_MODULE_1_detect_node___default.a;
+let taskID = 0;
+const awaiting = {};
+const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false
+//eslint-disable-next-line
+: window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
+//eslint-disable-next-line
+|| window.msCrypto && window.msCrypto.subtle;
+const useWebCrypto = webCrypto && !!webCrypto.digest;
+let useSha1Crypto = useWebCrypto;
+let useSha256Crypto = useWebCrypto;
+const finalizeTask = (taskID, result) => {
+  const deferred = awaiting[taskID];
+  if (deferred) {
+    // console.log(rework_d_T(), 'CW done')
+    deferred.resolve(result); //TODO Possibly, can be used as
+    delete awaiting[taskID]; //
+  } //    deferred = Promise.resolve()
+}; //    deferred.resolve( result )
+
+const isCryptoTask = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["both"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])('taskID'), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])('result'));
+
+//eslint-disable-next-line
+const workerEnable = !__WEBPACK_IMPORTED_MODULE_1_detect_node___default.a && window.Worker;
+if (workerEnable) {
+  const tmpWorker = new Worker('./bundle/hash.worker.js');
+  // tmpWorker.onmessage = function(event) {
+  //   console.info('CW tmpWorker.onmessage', event && event.data)
+  // }
+  tmpWorker.onmessage = e => {
+    if (e.data === 'ready') {
+      console.info('CW ready');
+    } else if (!isCryptoTask(e.data)) {
+      console.info('Not crypto task', e, e.data);
+      return e;
+    } else return webWorker ? finalizeTask(e.data.taskID, e.data.result) : webWorker = tmpWorker;
+  };
+
+  tmpWorker.onerror = function (error) {
+    console.error('CW error', error, error.stack);
+    webWorker = false;
+  };
+  tmpWorker.postMessage('b');
+  webWorker = tmpWorker;
+}
+
+const performTaskWorker = (task, params, embed) => {
+  // console.log(rework_d_T(), 'CW start', task)
+  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
+
+  awaiting[taskID] = deferred;
+
+  params.task = task;
+  params.taskID = taskID;(embed || webWorker).postMessage(params);
+
+  taskID++;
+
+  return deferred.promise;
+};
+
+const sha1Hash = bytes => {
+  if (useSha1Crypto) {
+    // We don't use buffer since typedArray.subarray(...).buffer gives the whole buffer and not sliced one.
+    // webCrypto.digest supports typed array
+    const bytesTyped = convertIfArray(bytes);
+    // console.log(rework_d_T(), 'Native sha1 start')
+    return webCrypto.digest({ name: 'SHA-1' }, bytesTyped).then(digest =>
+    // console.log(rework_d_T(), 'Native sha1 done')
+    digest, e => {
+      console.error('Crypto digest error', e);
+      useSha1Crypto = false;
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes);
+    });
+  }
+  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */], bytes);
+};
+
+const sha256Hash = bytes => {
+  if (useSha256Crypto) {
+    const bytesTyped = convertIfArray(bytes);
+    // console.log(rework_d_T(), 'Native sha1 start')
+    return webCrypto.digest({ name: 'SHA-256' }, bytesTyped).then(__WEBPACK_IMPORTED_MODULE_0_ramda__["identity"]
+    // console.log(rework_d_T(), 'Native sha1 done')
+    , e => {
+      console.error('Crypto digest error', e);
+      useSha256Crypto = false;
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes);
+    });
+  }
+  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */], bytes);
+};
+
+const aesEncrypt = (bytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["o" /* aesEncryptSync */])(bytes, keyBytes, ivBytes)));
+
+const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* aesDecryptSync */])(encryptedBytes, keyBytes, ivBytes)));
+
+const factorize = bytes => {
+  bytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* convertToByteArray */])(bytes);
+  return webWorker ? performTaskWorker('factorize', { bytes }) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["r" /* pqPrimeFactorization */], bytes);
+};
+
+const modPow = (x, y, m) => webWorker ? performTaskWorker('mod-pow', {
+  x,
+  y,
+  m
+}) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["s" /* bytesModPow */], x, y, m);
+
+const CryptoWorker = {
+  sha1Hash,
+  sha256Hash,
+  aesEncrypt,
+  aesDecrypt,
+  factorize,
+  modPow
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = CryptoWorker;
+
+
+/* harmony default export */ __webpack_exports__["b"] = CryptoWorker;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 
 
@@ -1655,8 +2027,7 @@ delete httpClient.defaults.headers.common['Accept'];
 /* harmony default export */ __webpack_exports__["b"] = httpClient;
 
 /***/ }),
-
-/***/ 11:
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1671,27 +2042,26 @@ const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
 /* harmony default export */ __webpack_exports__["a"] = random;
 
 /***/ }),
-
-/***/ 12:
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(35);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__tl__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__tl__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__error_cases__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__error_cases__ = __webpack_require__(29);
 
 
 
@@ -1710,8 +2080,8 @@ const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
 
 
 
-const api57 = __webpack_require__(36);
-const mtproto57 = __webpack_require__(37);
+const api57 = __webpack_require__(38);
+const mtproto57 = __webpack_require__(39);
 
 const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
 const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
@@ -1895,8 +2265,7 @@ const mtpInvokeApi = api.mtpInvokeApi;
 
 
 /***/ }),
-
-/***/ 13:
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports = false;
@@ -1909,19 +2278,17 @@ try {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
-
-/***/ 14:
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(5))(126);
+module.exports = (__webpack_require__(6))(126);
 
 /***/ }),
-
-/***/ 15:
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 
 
@@ -1933,13 +2300,12 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 /* harmony default export */ __webpack_exports__["b"] = forEach;
 
 /***/ }),
-
-/***/ 16:
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 
 
@@ -1978,18 +2344,17 @@ const chooseServer = (chosenServers, {
 
 
 /***/ }),
-
-/***/ 17:
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__smart_timeout__ = __webpack_require__(8);
@@ -2962,15 +3327,13 @@ const setUpdatesProcessor = callback => updatesProcessor = callback;
 
 
 /***/ }),
-
-/***/ 18:
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(5))(123);
+module.exports = (__webpack_require__(6))(123);
 
 /***/ }),
-
-/***/ 19:
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -2986,15 +3349,7 @@ exports.CryptoJS = CryptoJS;
 exports.JsonFormatter = JsonFormatter;
 
 /***/ }),
-
-/***/ 2:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(5))(128);
-
-/***/ }),
-
-/***/ 20:
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -3215,8 +3570,7 @@ code.google.com/p/crypto-js/wiki/License
 
 
 /***/ }),
-
-/***/ 21:
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -4197,8 +4551,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
 
 
 /***/ }),
-
-/***/ 22:
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -4315,17 +4668,7 @@ code.google.com/p/crypto-js/wiki/License
 
 
 /***/ }),
-
-/***/ 228:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = function() {
-	return new Worker(__webpack_require__.p + "hash.worker.js");
-};
-
-/***/ }),
-
-/***/ 23:
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -4451,8 +4794,7 @@ code.google.com/p/crypto-js/wiki/License
 
 
 /***/ }),
-
-/***/ 24:
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -4503,8 +4845,7 @@ var JsonFormatter = {
 exports.JsonFormatter = JsonFormatter;
 
 /***/ }),
-
-/***/ 25:
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -4766,8 +5107,7 @@ code.google.com/p/crypto-js/wiki/License
 
 
 /***/ }),
-
-/***/ 26:
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var CryptoJS = __webpack_require__(1).CryptoJS;
@@ -4953,8 +5293,45 @@ var CryptoJS = __webpack_require__(1).CryptoJS;
 }(Math));
 
 /***/ }),
+/* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/***/ 27:
+"use strict";
+
+class MTError extends Error {
+  static getMessage(code, type, message) {
+    return `MT[${code}] ${type}: ${message}`;
+  }
+  constructor(code, type, message) {
+    const fullMessage = MTError.getMessage(code, type, message);
+    super(fullMessage);
+    this.code = code;
+    this.type = type;
+  }
+}
+/* unused harmony export MTError */
+
+
+class ErrorBadResponse extends MTError {
+  constructor(url, originalError = null) {
+    super(406, 'NETWORK_BAD_RESPONSE', url);
+    if (originalError) this.originalError = originalError;
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = ErrorBadResponse;
+
+
+class ErrorNotFound extends MTError {
+  constructor(err) {
+    super(404, 'REQUEST_FAILED', err.config.url);
+    this.originalError = err;
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = ErrorNotFound;
+
+
+/***/ }),
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6469,19 +6846,18 @@ function mont_(x, y, n, np) {
 }
 
 /***/ }),
-
-/***/ 28:
+/* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
 
 
 
@@ -6581,22 +6957,21 @@ const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__
 
 
 /***/ }),
-
-/***/ 29:
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__http__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__crypto__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__secure_random__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__crypto__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__secure_random__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__send_plain_req__ = __webpack_require__(31);
 
 
 const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
@@ -6610,72 +6985,45 @@ const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
 
 
 
+// import { ErrorBadResponse } from '../../error'
+
+
 
 const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' + '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' + '8705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4a' + 'c8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba7' + '4d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9c' + 'a3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851' + 'f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b';
 
 const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
-  function mtpSendPlainRequest(url, requestBuffer) {
-    const requestLength = requestBuffer.byteLength,
-          requestArray = new Int32Array(requestBuffer);
-
-    const header = new Serialization();
-    header.storeLongP(0, 0, 'auth_key_id'); // Auth key
-    header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["generateID"])(), 'msg_id'); // Msg_id
-    header.storeInt(requestLength, 'request_length');
-
-    const headerBuffer = header.getBuffer(),
-          headerArray = new Int32Array(headerBuffer);
-    const headerLength = headerBuffer.byteLength;
-
-    const resultBuffer = new ArrayBuffer(headerLength + requestLength),
-          resultArray = new Int32Array(resultBuffer);
-
-    resultArray.set(headerArray);
-    resultArray.set(requestArray, headerArray.length);
-
-    const requestData = resultArray;
-    let requestPromise;
-    const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url };
-    try {
-      requestPromise = __WEBPACK_IMPORTED_MODULE_4__http__["b" /* default */].post(url, requestData, {
-        responseType: 'arraybuffer'
-      });
-    } catch (e) {
-      requestPromise = __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
-    }
-    return requestPromise.then(result => {
-      if (!result.data || !result.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(baseError);
-      let deserializer;
-      try {
-        deserializer = new Deserialization(result.data, { mtproto: true });
-        const auth_key_id = deserializer.fetchLong('auth_key_id');
-        const msg_id = deserializer.fetchLong('msg_id');
-        const msg_len = deserializer.fetchInt('msg_len');
-      } catch (e) {
-        return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(Object.assign({ originalError: e }, baseError));
-      }
-
-      return deserializer;
-    }, error => {
-      if (!error.message && !error.type) error = Object.assign({ originalError: error }, baseError);
-      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-    });
-  }
+  const sendPlainReq = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__send_plain_req__["a" /* default */])({ Serialization, Deserialization });
 
   function mtpSendReqPQ(auth) {
     const deferred = auth.deferred;
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["f" /* bytesToHex */])(auth.nonce));
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.nonce));
 
     const request = new Serialization({ mtproto: true });
 
     request.storeMethod('req_pq', { nonce: auth.nonce });
 
-    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
+    const keyFoundCheck = key => key ? auth.publicKey = key : __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error('[MT] No public key found'));
+
+    const factorizeThunk = () => __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].factorize(auth.pq);
+
+    const factDone = ([p, q, it]) => {
+      auth.p = p;
+      auth.q = q;
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization done', it);
+      mtpSendReqDhParams(auth);
+    };
+
+    const factFail = error => {
+      console.log('Worker error', error, error.stack);
+      deferred.reject(error);
+    };
+
+    const factorizer = deserializer => {
       const response = deserializer.fetchObject('ResPQ');
 
-      if (response._ != 'resPQ') throw new Error(`[MT] resPQ response invalid: ${response._}`);
+      if (response._ !== 'resPQ') throw new Error(`[MT] resPQ response invalid: ${response._}`);
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
 
       auth.serverNonce = response.server_nonce;
       auth.pq = response.pq;
@@ -6683,33 +7031,24 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 
       // console.log(dTime(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
 
-      auth.publicKey = select(auth.fingerprints);
-
-      if (!auth.publicKey) throw new Error('[MT] No public key found');
+      select(auth.fingerprints).then(keyFoundCheck).then(factorizeThunk).then(factDone, factFail);
 
       // console.log(dTime(), 'PQ factorization start', auth.pq)
-      __WEBPACK_IMPORTED_MODULE_5__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
-        auth.p = p;
-        auth.q = q;
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization done', it);
-        mtpSendReqDhParams(auth);
-      }, error => {
-        console.log('Worker error', error, error.stack);
-        deferred.reject(error);
-      });
-    }, error => {
-      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'req_pq error', error.message);
+    };
+
+    const sendPlainThunk = () => sendPlainReq(auth.dcUrl, request.getBuffer());
+
+    return prepare().then(sendPlainThunk).then(factorizer, error => {
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'req_pq error', error.message);
       deferred.reject(error);
     });
-
-    __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["a" /* smartTimeout */].immediate(prepare);
   }
 
   function mtpSendReqDhParams(auth) {
     const deferred = auth.deferred;
 
     auth.newNonce = new Array(32);
-    __WEBPACK_IMPORTED_MODULE_6__secure_random__["a" /* default */].nextBytes(auth.newNonce);
+    __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.newNonce);
 
     const data = new Serialization({ mtproto: true });
     data.storeObject({
@@ -6722,7 +7061,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       new_nonce: auth.newNonce
     }, 'P_Q_inner_data', 'DECRYPTED_DATA');
 
-    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
     const request = new Serialization({ mtproto: true });
     request.storeMethod('req_DH_params', {
@@ -6731,11 +7070,11 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       p: auth.p,
       q: auth.q,
       public_key_fingerprint: auth.publicKey.fingerprint,
-      encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["v" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
+      encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["v" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
     });
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_DH_params');
-    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_DH_params');
+    sendPlainReq(auth.dcUrl, request.getBuffer()).then(deserializer => {
       const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
 
       if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
@@ -6743,19 +7082,19 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
         deferred.reject(new Error('[MT] Server_DH_Params nonce mismatch'));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
         deferred.reject(new Error('[MT] Server_DH_Params server_nonce mismatch'));
         return false;
       }
 
       if (response._ == 'server_DH_params_fail') {
-        const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce).slice(-16);
-        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
+        const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce).slice(-16);
+        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
           deferred.reject(new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'));
           return false;
         }
@@ -6775,27 +7114,27 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
   }
 
   function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
-    auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
+    auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["tsNow"])();
 
-    auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
-    auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
+    auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
+    auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
 
-    const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["p" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
+    const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["p" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
 
     const hash = answerWithHash.slice(0, 20);
     const answerWithPadding = answerWithHash.slice(20);
-    const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
+    const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
 
     const deserializer = new Deserialization(buffer, { mtproto: true });
     const response = deserializer.fetchObject('Server_DH_inner_data');
 
     if (response._ != 'server_DH_inner_data') throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] server_DH_inner_data nonce mismatch');
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] server_DH_inner_data nonce mismatch');
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Done decrypting answer');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Done decrypting answer');
     auth.g = response.g;
     auth.dhPrime = response.dh_prime;
     auth.gA = response.g_a;
@@ -6806,22 +7145,22 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 
     const offset = deserializer.getOffset();
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
       throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch');
     }
 
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
   }
 
   function mtpVerifyDhParams(g, dhPrime, gA) {
     // console.log(dTime(), 'Verifying DH params')
-    const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["f" /* bytesToHex */])(dhPrime);
+    const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(dhPrime);
     if (g !== 3 || dhPrimeHex !== primeHex)
       // The verified value is from https://core.telegram.org/mtproto/security_guidelines
       throw new Error('[MT] DH params are not verified: unknown dhPrime');
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'dhPrime cmp OK');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'dhPrime cmp OK');
 
-    const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["f" /* bytesToHex */])(gA), 16);
+    const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(gA), 16);
     const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
 
     if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
@@ -6844,17 +7183,17 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     if (gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0) {
       throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}');
     }
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
 
     return true;
   }
 
   function mtpSendSetClientDhParams(auth) {
     const deferred = auth.deferred;
-    const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["u" /* bytesFromHex */])(auth.g.toString(16));
+    const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["u" /* bytesFromHex */])(auth.g.toString(16));
 
     auth.b = new Array(256);
-    __WEBPACK_IMPORTED_MODULE_6__secure_random__["a" /* default */].nextBytes(auth.b);
+    __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
 
     const afterPlainRequest = deserializer => {
       const response = deserializer.fetchObject('Set_client_DH_params_answer');
@@ -6864,33 +7203,33 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
         return false;
       }
 
-      __WEBPACK_IMPORTED_MODULE_5__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(authKey => {
-        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(authKey),
+      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(authKey => {
+        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(authKey),
               authKeyAux = authKeyHash.slice(0, 8),
               authKeyID = authKeyHash.slice(-8);
 
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
         switch (response._) {
           case 'dh_gen_ok':
             {
-              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
+              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
 
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
                 return false;
               }
 
-              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
+              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
               // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
 
               auth.authKeyID = authKeyID;
@@ -6902,8 +7241,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
             }
           case 'dh_gen_retry':
             {
-              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
+              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
                 return false;
               }
@@ -6912,8 +7251,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
             }
           case 'dh_gen_fail':
             {
-              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
+              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
                 return false;
               }
@@ -6925,7 +7264,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       }, deferred.reject);
     };
 
-    __WEBPACK_IMPORTED_MODULE_5__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(gB => {
+    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(gB => {
       const data = new Serialization({ mtproto: true });
       data.storeObject({
         _: 'client_DH_inner_data',
@@ -6935,9 +7274,9 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         g_b: gB
       }, 'Client_DH_Inner_Data');
 
-      const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+      const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
-      const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["o" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
+      const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["o" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
 
       const request = new Serialization({ mtproto: true });
       request.storeMethod('set_client_DH_params', {
@@ -6946,8 +7285,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         encrypted_data: encryptedData
       });
 
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send set_client_DH_params');
-      mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(afterPlainRequest, deferred.reject);
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send set_client_DH_params');
+      sendPlainReq(auth.dcUrl, request.getBuffer()).then(afterPlainRequest, deferred.reject);
     }, deferred.reject);
   }
 
@@ -6955,7 +7294,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     if (cached[dcID]) return cached[dcID].promise;
     console.warn('mtpAuth');
     const nonce = [];
-    for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["l" /* nextRandomInt */])(0xFF));
+    for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["l" /* nextRandomInt */])(0xFF));
 
     if (!dcUrl) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`));
 
@@ -6984,19 +7323,105 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 /* harmony default export */ __webpack_exports__["a"] = Auth;
 
 /***/ }),
-
-/***/ 3:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(5))(125);
-
-/***/ }),
-
-/***/ 30:
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__http__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__error__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__time_manager__ = __webpack_require__(5);
+
+
+
+
+
+
+
+const is404 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pathEq"])(['response', 'status'], 404);
+const notError = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["allPass"])([__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["has"])('message'), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["has"])('type')]);
+
+const SendPlain = ({ Serialization, Deserialization }) => {
+  const onlySendPlainReq = (url, requestBuffer) => {
+    const requestLength = requestBuffer.byteLength,
+          requestArray = new Int32Array(requestBuffer);
+
+    const header = new Serialization();
+    header.storeLongP(0, 0, 'auth_key_id'); // Auth key
+    header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__time_manager__["generateID"])(), 'msg_id'); // Msg_id
+    header.storeInt(requestLength, 'request_length');
+
+    const headerBuffer = header.getBuffer(),
+          headerArray = new Int32Array(headerBuffer);
+    const headerLength = headerBuffer.byteLength;
+
+    const resultBuffer = new ArrayBuffer(headerLength + requestLength),
+          resultArray = new Int32Array(resultBuffer);
+
+    resultArray.set(headerArray);
+    resultArray.set(requestArray, headerArray.length);
+
+    const requestData = resultArray;
+    let reqPromise;
+    try {
+      reqPromise = __WEBPACK_IMPORTED_MODULE_2__http__["b" /* default */].post(url, requestData, {
+        responseType: 'arraybuffer'
+      });
+    } catch (e) {
+      reqPromise = __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new __WEBPACK_IMPORTED_MODULE_3__error__["a" /* ErrorBadResponse */](url, e));
+    }
+    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.props({ url, req: reqPromise });
+  };
+
+  const onlySendPlainErr = err => {
+    let error;
+    switch (true) {
+      case is404(err):
+        error = new __WEBPACK_IMPORTED_MODULE_3__error__["b" /* ErrorNotFound */](err);
+        break;
+      case notError(err):
+        error = new __WEBPACK_IMPORTED_MODULE_3__error__["a" /* ErrorBadResponse */]('', err);
+        break;
+      default:
+        error = err;
+    }
+    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
+  };
+
+  const onlySendPlainRes = ({ url, req }) => {
+    if (!req.data || !req.data.byteLength) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new __WEBPACK_IMPORTED_MODULE_3__error__["a" /* ErrorBadResponse */](url));
+    let deserializer;
+    try {
+      deserializer = new Deserialization(req.data, { mtproto: true });
+      const auth_key_id = deserializer.fetchLong('auth_key_id');
+      const msg_id = deserializer.fetchLong('msg_id');
+      const msg_len = deserializer.fetchInt('msg_len');
+    } catch (e) {
+      return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new __WEBPACK_IMPORTED_MODULE_3__error__["a" /* ErrorBadResponse */](url, e));
+    }
+
+    return deserializer;
+  };
+
+  const sendPlainReq = (url, requestBuffer) => onlySendPlainReq(url, requestBuffer).then(onlySendPlainRes, onlySendPlainErr);
+
+  return sendPlainReq;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = SendPlain;
+
+/***/ }),
+/* 32 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(0);
+
 
 
 /**
@@ -7025,37 +7450,41 @@ const KeyManager = Serialization => {
 
   const mapPrepare = ({ modulus, exponent }) => {
     const RSAPublicKey = new Serialization();
-    RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["u" /* bytesFromHex */])(modulus), 'n');
-    RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["u" /* bytesFromHex */])(exponent), 'e');
+    RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["u" /* bytesFromHex */])(modulus), 'n');
+    RSAPublicKey.storeBytes(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["u" /* bytesFromHex */])(exponent), 'e');
 
     const buffer = RSAPublicKey.getBuffer();
 
-    const fingerprintBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["d" /* sha1BytesSync */])(buffer).slice(-8);
+    const fingerprintBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["d" /* sha1BytesSync */])(buffer).slice(-8);
     fingerprintBytes.reverse();
 
-    publicKeysParsed[__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["f" /* bytesToHex */])(fingerprintBytes)] = {
+    publicKeysParsed[__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["f" /* bytesToHex */])(fingerprintBytes)] = {
       modulus,
       exponent
     };
   };
-  const prepareRsaKeys = () => {
-    if (prepared) return;
-    publisKeysHex.forEach(mapPrepare);
+
+  const setPrepared = () => {
     prepared = true;
   };
 
-  const selectRsaKeyByFingerPrint = fingerprints => {
-    prepareRsaKeys();
+  const prepareRsaKeys = () => {
+    if (prepared) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve();
+    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.map(publisKeysHex, mapPrepare).then(setPrepared);
+  };
 
+  const selectRsaKey = fingerprints => () => {
     let fingerprintHex, foundKey;
     for (let i = 0; i < fingerprints.length; i++) {
-      fingerprintHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__bin__["k" /* bigStringInt */])(fingerprints[i]).toString(16);
+      fingerprintHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["k" /* bigStringInt */])(fingerprints[i]).toString(16);
       foundKey = publicKeysParsed[fingerprintHex];
       if (foundKey) return Object.assign({ fingerprint: fingerprints[i] }, foundKey);
     }
 
     return false;
   };
+
+  const selectRsaKeyByFingerPrint = fingerprints => prepareRsaKeys().then(selectRsaKey(fingerprints));
 
   return {
     prepare: prepareRsaKeys,
@@ -7068,8 +7497,7 @@ const KeyManager = Serialization => {
 /* harmony default export */ __webpack_exports__["a"] = KeyManager;
 
 /***/ }),
-
-/***/ 31:
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7084,14 +7512,13 @@ const Switch = (patterns, protector = e => e) => (matches, mProtector = e => e) 
 /* harmony default export */ __webpack_exports__["a"] = Switch;
 
 /***/ }),
-
-/***/ 32:
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(0);
 
@@ -7763,8 +8190,7 @@ const TL = (api, mtApi) => {
 /* harmony default export */ __webpack_exports__["a"] = TL;
 
 /***/ }),
-
-/***/ 33:
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -8493,8 +8919,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-
-/***/ 34:
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {(function () {
@@ -8994,8 +9419,15 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/***/ 36:
+module.exports = function() {
+	return new Worker(__webpack_require__.p + "hash.worker.js");
+};
+
+/***/ }),
+/* 38 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -19553,8 +19985,7 @@ module.exports = {
 };
 
 /***/ }),
-
-/***/ 37:
+/* 39 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -20271,53 +20702,19 @@ module.exports = {
 };
 
 /***/ }),
-
-/***/ 38:
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(5))(124);
+module.exports = (__webpack_require__(6))(124);
 
 /***/ }),
-
-/***/ 39:
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(5))(127);
+module.exports = (__webpack_require__(6))(127);
 
 /***/ }),
-
-/***/ 4:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-
-/**
- * Defered promise like in Q and $q
- *
- * @returns {{ resolve: (res: any) => void, reject: (res: any) => void, promise: Promise<{}> }}
- */
-const blueDefer = () => {
-  let resolve, reject;
-  const promise = new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a((rs, rj) => {
-    resolve = rs;
-    reject = rj;
-  });
-  return {
-    resolve,
-    reject,
-    promise
-  };
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = blueDefer;
-
-
-/* harmony default export */ __webpack_exports__["b"] = blueDefer;
-
-/***/ }),
-
-/***/ 40:
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -20338,7 +20735,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["c"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__store__ = __webpack_require__(7);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__store__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__service_time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__service_time_manager__ = __webpack_require__(5);
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_7__service_time_manager__; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_dc_configurator__ = __webpack_require__(16);
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_8__service_dc_configurator__; });
@@ -20377,346 +20774,7 @@ console.info('source loaded');
 
 /* harmony default export */ __webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["c" /* ApiManager */];
 
-/***/ }),
-
-/***/ 5:
-/***/ (function(module, exports) {
-
-module.exports = vendor;
-
-/***/ }),
-
-/***/ 6:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(0);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateID", function() { return generateMessageID; });
-
-
-
-
-
-const tsNow = seconds => {
-  let t = +new Date();
-  //eslint-disable-next-line
-  if (!__WEBPACK_IMPORTED_MODULE_0_detect_node___default.a) t += window.tsOffset || 0;
-  return seconds ? Math.floor(t / 1000) : t;
-};
-/* harmony export (immutable) */ __webpack_exports__["tsNow"] = tsNow;
-
-
-const logTimer = new Date().getTime();
-
-const dTime = () => `[${((new Date().getTime() - logTimer) / 1000).toFixed(3)}]`;
-/* harmony export (immutable) */ __webpack_exports__["dTime"] = dTime;
-
-
-let lastMessageID = [0, 0];
-let timerOffset = 0;
-
-const offset = __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].get();
-if (offset) timerOffset = offset;
-
-const generateMessageID = () => {
-  const timeTicks = tsNow(),
-        timeSec = Math.floor(timeTicks / 1000) + timerOffset,
-        timeMSec = timeTicks % 1000,
-        random = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["l" /* nextRandomInt */])(0xFFFF);
-
-  let messageID = [timeSec, timeMSec << 21 | random << 3 | 4];
-  if (lastMessageID[0] > messageID[0] || lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
-    messageID = [lastMessageID[0], lastMessageID[1] + 4];
-  }
-
-  lastMessageID = messageID;
-
-  // console.log('generated msg id', messageID, timerOffset)
-
-  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["t" /* longFromInts */])(messageID[0], messageID[1]);
-};
-
-const applyServerTime = (serverTime, localTime) => {
-  const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000);
-  const changed = Math.abs(timerOffset - newTimeOffset) > 10;
-  __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].set(newTimeOffset);
-
-  lastMessageID = [0, 0];
-  timerOffset = newTimeOffset;
-  console.log(dTime(), 'Apply server time', serverTime, localTime, newTimeOffset, changed);
-
-  return changed;
-};
-/* harmony export (immutable) */ __webpack_exports__["applyServerTime"] = applyServerTime;
-
-
-
-
-/***/ }),
-
-/***/ 7:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-
-
-
-
-const ValueStore = () => {
-  let val = null;
-
-  return {
-    get: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val),
-    set: newVal => val = newVal
-  };
-};
-/* unused harmony export ValueStore */
-
-
-const ValueStoreMap = () => {
-  const val = new Map();
-
-  return {
-    get: key => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val.get(key)),
-    set: (key, newVal) => val.set(key, newVal)
-  };
-};
-/* unused harmony export ValueStoreMap */
-
-
-const TimeOffset = ValueStore();
-/* harmony export (immutable) */ __webpack_exports__["b"] = TimeOffset;
-
-const dcList = ValueStoreMap();
-/* unused harmony export dcList */
-
-
-const flatProps = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["flip"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["props"]), __WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"]);
-
-const AsyncStorage = () => {
-  let store = {};
-
-  const flatGet = flatProps(store);
-  const set = obj => store = Object.assign({}, store, obj);
-  const remove = keys => store = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys, store);
-  const clr = () => store = {};
-  return {
-    get: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(flatGet(...keys)),
-    set: obj => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(set(obj)),
-    remove: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(remove(keys)),
-    clear: () => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(clr()),
-    noPrefix: () => ({})
-  };
-};
-/* unused harmony export AsyncStorage */
-
-
-const PureStorage = AsyncStorage();
-/* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
- /*{
-                                           get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
-                                           set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
-                                           remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
-                                           noPrefix: () => ConfigStorage.noPrefix(),
-                                           clear   : () => new Promise(rs => ConfigStorage.clear(rs))
-                                           }*/
-
-/***/ }),
-
-/***/ 8:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-
-
-const cancelToken = Symbol('cancel token');
-
-const timeoutRefs = new WeakSet();
-
-const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
-
-const smartTimeout = (fn, delay = 0, ...args) => {
-  const newToken = Symbol('cancel id');
-  const checkRun = () => {
-    if (timeoutRefs.has(newToken)) {
-      timeoutRefs.delete(newToken);
-      return fn(...args);
-    } else return false;
-  };
-  const promise = pause(delay).then(checkRun);
-  promise[cancelToken] = newToken;
-  return promise;
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = smartTimeout;
-
-
-smartTimeout.cancel = promise => {
-  if (!promise || !promise[cancelToken]) return false;
-  const token = promise[cancelToken];
-  return timeoutRefs.has(token) ? timeoutRefs.delete(token) : false;
-};
-
-smartTimeout.immediate = (fn, ...args) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve().then(() => fn(...args));
-
-smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(...args));
-
-/* harmony default export */ __webpack_exports__["b"] = smartTimeout;
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_detect_node__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(0);
-
-
-
-__webpack_require__(228);
-
-
-
-
-
-const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), __WEBPACK_IMPORTED_MODULE_4__bin__["b" /* convertToUint8Array */]);
-let webWorker = !__WEBPACK_IMPORTED_MODULE_1_detect_node___default.a;
-let taskID = 0;
-const awaiting = {};
-const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false
-//eslint-disable-next-line
-: window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
-//eslint-disable-next-line
-|| window.msCrypto && window.msCrypto.subtle;
-const useWebCrypto = webCrypto && !!webCrypto.digest;
-let useSha1Crypto = useWebCrypto;
-let useSha256Crypto = useWebCrypto;
-const finalizeTask = (taskID, result) => {
-  const deferred = awaiting[taskID];
-  if (deferred) {
-    // console.log(rework_d_T(), 'CW done')
-    deferred.resolve(result); //TODO Possibly, can be used as
-    delete awaiting[taskID]; //
-  } //    deferred = Promise.resolve()
-}; //    deferred.resolve( result )
-
-const isCryptoTask = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["both"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])('taskID'), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])('result'));
-
-//eslint-disable-next-line
-const workerEnable = !__WEBPACK_IMPORTED_MODULE_1_detect_node___default.a && window.Worker;
-if (workerEnable) {
-  const tmpWorker = new Worker('./bundle/hash.worker.js');
-  // tmpWorker.onmessage = function(event) {
-  //   console.info('CW tmpWorker.onmessage', event && event.data)
-  // }
-  tmpWorker.onmessage = e => {
-    if (e.data === 'ready') {
-      console.info('CW ready');
-    } else if (!isCryptoTask(e.data)) {
-      console.info('Not crypto task', e, e.data);
-      return e;
-    } else return webWorker ? finalizeTask(e.data.taskID, e.data.result) : webWorker = tmpWorker;
-  };
-
-  tmpWorker.onerror = function (error) {
-    console.error('CW error', error, error.stack);
-    webWorker = false;
-  };
-  tmpWorker.postMessage('b');
-  webWorker = tmpWorker;
-}
-
-const performTaskWorker = (task, params, embed) => {
-  // console.log(rework_d_T(), 'CW start', task)
-  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
-
-  awaiting[taskID] = deferred;
-
-  params.task = task;
-  params.taskID = taskID;(embed || webWorker).postMessage(params);
-
-  taskID++;
-
-  return deferred.promise;
-};
-
-const sha1Hash = bytes => {
-  if (useSha1Crypto) {
-    // We don't use buffer since typedArray.subarray(...).buffer gives the whole buffer and not sliced one.
-    // webCrypto.digest supports typed array
-    const bytesTyped = convertIfArray(bytes);
-    // console.log(rework_d_T(), 'Native sha1 start')
-    return webCrypto.digest({ name: 'SHA-1' }, bytesTyped).then(digest =>
-    // console.log(rework_d_T(), 'Native sha1 done')
-    digest, e => {
-      console.error('Crypto digest error', e);
-      useSha1Crypto = false;
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes);
-    });
-  }
-  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */], bytes);
-};
-
-const sha256Hash = bytes => {
-  if (useSha256Crypto) {
-    const bytesTyped = convertIfArray(bytes);
-    // console.log(rework_d_T(), 'Native sha1 start')
-    return webCrypto.digest({ name: 'SHA-256' }, bytesTyped).then(__WEBPACK_IMPORTED_MODULE_0_ramda__["identity"]
-    // console.log(rework_d_T(), 'Native sha1 done')
-    , e => {
-      console.error('Crypto digest error', e);
-      useSha256Crypto = false;
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes);
-    });
-  }
-  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */], bytes);
-};
-
-const aesEncrypt = (bytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["o" /* aesEncryptSync */])(bytes, keyBytes, ivBytes)));
-
-const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* aesDecryptSync */])(encryptedBytes, keyBytes, ivBytes)));
-
-const factorize = bytes => {
-  bytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* convertToByteArray */])(bytes);
-  return webWorker ? performTaskWorker('factorize', { bytes }) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["r" /* pqPrimeFactorization */], bytes);
-};
-
-const modPow = (x, y, m) => webWorker ? performTaskWorker('mod-pow', {
-  x,
-  y,
-  m
-}) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["s" /* bytesModPow */], x, y, m);
-
-const CryptoWorker = {
-  sha1Hash,
-  sha256Hash,
-  aesEncrypt,
-  aesDecrypt,
-  factorize,
-  modPow
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = CryptoWorker;
-
-
-/* harmony default export */ __webpack_exports__["b"] = CryptoWorker;
-
 /***/ })
-
-/******/ });
+/******/ ]);
 });
 //# sourceMappingURL=mtproto2-browser.js.map

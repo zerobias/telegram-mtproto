@@ -1,3 +1,4 @@
+import Promise from 'bluebird'
 import { bytesToHex, sha1BytesSync, bytesFromHex, bigStringInt } from '../bin'
 
 /**
@@ -40,15 +41,17 @@ export const KeyManager = (Serialization) => {
       exponent
     }
   }
+
+  const setPrepared = () => { prepared = true }
+
   const prepareRsaKeys = () => {
-    if (prepared) return
-    publisKeysHex.forEach(mapPrepare)
-    prepared = true
+    if (prepared) return Promise.resolve()
+    return Promise
+      .map(publisKeysHex, mapPrepare)
+      .then(setPrepared)
   }
 
-  const selectRsaKeyByFingerPrint = fingerprints => {
-    prepareRsaKeys()
-
+  const selectRsaKey = fingerprints => () => {
     let fingerprintHex, foundKey
     for (let i = 0; i < fingerprints.length; i++) {
       fingerprintHex = bigStringInt(fingerprints[i]).toString(16)
@@ -59,6 +62,10 @@ export const KeyManager = (Serialization) => {
 
     return false
   }
+
+  const selectRsaKeyByFingerPrint = fingerprints =>
+    prepareRsaKeys()
+      .then(selectRsaKey(fingerprints))
 
   return {
     prepare: prepareRsaKeys,
