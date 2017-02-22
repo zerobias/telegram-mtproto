@@ -4,7 +4,6 @@ import { propOr, isNil } from 'ramda'
 
 import blueDefer from '../../defer'
 import Switch from '../../switch'
-import { PureStorage } from '../../store'
 import { tsNow } from '../time-manager'
 
 const cachedExportPromise = {}
@@ -43,7 +42,8 @@ const matchProtect =
       apiRecall,
       deferResolve,
       mtpInvokeApi,
-      mtpGetNetworker
+      mtpGetNetworker,
+      storage
     ) =>
       matched({
         invoke   : mtpInvokeApi,
@@ -56,12 +56,13 @@ const matchProtect =
         requestThunk,
         apiRecall,
         deferResolve,
-        apiSavedNet
+        apiSavedNet,
+        storage
       })
 
 
-const noBaseAuth = ({ emit, throwNext }) => {
-  PureStorage.remove('dc', 'user_auth')
+const noBaseAuth = ({ emit, throwNext, storage }) => {
+  storage.remove('dc', 'user_auth')
   emit('error.401.base')
   throwNext()
 }
@@ -97,13 +98,15 @@ const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }
     .catch(reject)
 }
 
-const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve, getNet }) => {
+const migrate = ({ error, dcID, options, reject,
+    apiRecall, deferResolve, getNet, storage
+  }) => {
   const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2]
   if (newDcID === dcID) return
   if (options.dcID)
     options.dcID = newDcID
   else
-    PureStorage.set({ dc: /*baseDcID =*/ newDcID })
+    storage.set({ dc: /*baseDcID =*/ newDcID })
 
   getNet(newDcID, options)
     .then(apiRecall)

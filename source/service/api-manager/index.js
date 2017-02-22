@@ -3,7 +3,7 @@ import EventEmitter from 'eventemitter2'
 
 import { pathSatisfies, complement, isNil, unless, is, always, propEq, reject, type, both } from 'ramda'
 
-import { getNetworker } from '../networker'
+import NetworkerFabric from '../networker'
 import Auth from '../authorizer'
 import { PureStorage } from '../../store'
 import blueDefer from '../../defer'
@@ -25,29 +25,6 @@ const withoutNil = reject( isNil )
 
 const baseDcID = 2
 
-export const mtpClearStorage = function() {
-  const saveKeys = []
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${  dcID  }_auth_key`)
-    saveKeys.push(`t_dc${  dcID  }_auth_key`)
-  }
-  PureStorage.noPrefix()
-  return PureStorage
-    .get(saveKeys)
-    .tap(PureStorage.clear)
-    .then(values => {
-      const restoreObj = {}
-      saveKeys.forEach((key, i) => {
-        const value = values[i]
-        if (value !== false && value !== undefined)
-          restoreObj[key] = value
-      })
-      PureStorage.noPrefix()
-      return restoreObj
-    })
-    .then(PureStorage.set)
-}
-
 const Ln = (length, obj) => obj && propEq('length', length, obj)
 
 export class ApiManager {
@@ -62,7 +39,7 @@ export class ApiManager {
     auth      : {},
     servers   : {}
   }
-  static appSettings = {
+  static apiConfig = {
     invokeWithLayer: 0xda9b0d0d,
     layer          : NaN,
     initConnection : 0x69796de9,
@@ -73,20 +50,31 @@ export class ApiManager {
     lang_code      : 'en'
   }
 
-  constructor({ serverConfig = {}, appSettings = {}, schema = api57, mtSchema = mtproto57, debug = false } = {}) {
-    this.serverConfig = serverConfig
+  constructor({
+      server = {},
+      api = {},
+      app: {
+        debug = false,
+        storage = PureStorage
+      } = {},
+      schema = api57,
+      mtSchema = mtproto57,
+    } = {}) {
+    this.storage = storage
+    this.serverConfig = server
     this.debug = debug
     this.schema = schema
     this.mtSchema = mtSchema
-    this.chooseServer = chooseServer(this.cache.servers, serverConfig)
+    this.chooseServer = chooseServer(this.cache.servers, server)
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     this.setUserAuth = this.setUserAuth.bind(this)
 
     this.TL = TL(schema, mtSchema)
     this.keyManager = KeyManager(this.TL.Serialization)
     this.auth = Auth(this.TL, this.keyManager)
-    this.appSettings = { ...ApiManager.appSettings, ...withoutNil(appSettings) }
-    this.networkFabric = getNetworker(this.appSettings, this.chooseServer, this.TL, this.emit, debug)
+    this.apiConfig = { ...ApiManager.apiConfig, ...withoutNil(api) }
+    this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
+                                         storage, this.emit, debug)
 
     // return new Proxy(this, {
     //   get(ctx, name) {
@@ -122,7 +110,7 @@ export class ApiManager {
         const authKey = bytesFromHex(authKeyHex)
         const serverSalt = bytesFromHex(serverSaltHex)
 
-        return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options)
+        return cache[dcID] = new this.networkFabric(dcID, authKey, serverSalt, options)
       }
 
       if (!options.createNetworker)
@@ -133,16 +121,16 @@ export class ApiManager {
           [akk]: bytesToHex(authKey),
           [ssk]: bytesToHex(serverSalt)
         }
-        PureStorage.set(storeObj)
+        this.storage.set(storeObj)
 
-        return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options)
+        return cache[dcID] = new this.networkFabric(dcID, authKey, serverSalt, options)
       }
 
       return this.auth(dcID, this.cache.auth, dcUrl)
         .then(onDcAuth, netError)
     }
 
-    return PureStorage
+    return this.storage
       .get(akk, ssk)
       .then(networkGetter)
   }
@@ -188,7 +176,7 @@ export class ApiManager {
             return switchErrors(error, options, dcID, baseDcID)(
               error, options, this.emit, rejectPromise, requestThunk,
               apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
-              this.mtpGetNetworker)
+              this.mtpGetNetworker, this.storage)
           })
     const getDcNetworker = (baseDcID = 2) =>
       this.mtpGetNetworker(dcID = defDc(baseDcID), options)
@@ -199,7 +187,7 @@ export class ApiManager {
         .then(performRequest)
         .catch(rejectPromise)
     else
-      PureStorage.get('dc')
+      this.storage.get('dc')
         .then(getDcNetworker)
         .then(performRequest)
         .catch(rejectPromise)
@@ -208,11 +196,33 @@ export class ApiManager {
   }
   setUserAuth(dcID, userAuth) {
     const fullUserAuth = { dcID, ...userAuth }
-    PureStorage.set({
+    this.storage.set({
       dc       : dcID,
       user_auth: fullUserAuth
     })
     this.emit('auth.dc', { dc: dcID, auth: userAuth })
+  }
+  mtpClearStorage = function() {
+    const saveKeys = []
+    for (let dcID = 1; dcID <= 5; dcID++) {
+      saveKeys.push(`dc${  dcID  }_auth_key`)
+      saveKeys.push(`t_dc${  dcID  }_auth_key`)
+    }
+    this.storage.noPrefix() //TODO Remove noPrefix
+    return this.storage
+      .get(saveKeys)
+      .tap(this.storage.clear)
+      .then(values => {
+        const restoreObj = {}
+        saveKeys.forEach((key, i) => {
+          const value = values[i]
+          if (value !== false && value !== undefined)
+            restoreObj[key] = value
+        })
+        this.storage.noPrefix()
+        return restoreObj
+      })
+      .then(this.storage.set)
   }
 }
 
@@ -220,7 +230,3 @@ const netError = error => {
   console.log('Get networker error', error, error.stack)
   return Promise.reject(error)
 }
-
-export const api = new ApiManager
-
-export const mtpInvokeApi = api.mtpInvokeApi

@@ -2089,31 +2089,20 @@ const withoutNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["re
 
 const baseDcID = 2;
 
-const mtpClearStorage = function () {
-  const saveKeys = [];
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${dcID}_auth_key`);
-    saveKeys.push(`t_dc${dcID}_auth_key`);
-  }
-  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
-    const restoreObj = {};
-    saveKeys.forEach((key, i) => {
-      const value = values[i];
-      if (value !== false && value !== undefined) restoreObj[key] = value;
-    });
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-    return restoreObj;
-  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = mtpClearStorage;
-
-
 const Ln = (length, obj) => obj && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length', length, obj);
 
 class ApiManager {
 
-  constructor({ serverConfig = {}, appSettings = {}, schema = api57, mtSchema = mtproto57, debug = false } = {}) {
+  constructor({
+    server = {},
+    api = {},
+    app: {
+      debug = false,
+      storage = __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */]
+    } = {},
+    schema = api57,
+    mtSchema = mtproto57
+  } = {}) {
     this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
       wildcard: true
     });
@@ -2149,7 +2138,7 @@ class ApiManager {
           const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(authKeyHex);
           const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(serverSaltHex);
 
-          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+          return cache[dcID] = new this.networkFabric(dcID, authKey, serverSalt, options);
         }
 
         if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
@@ -2159,30 +2148,49 @@ class ApiManager {
             [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(authKey),
             [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(serverSalt)
           };
-          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
+          this.storage.set(storeObj);
 
-          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+          return cache[dcID] = new this.networkFabric(dcID, authKey, serverSalt, options);
         };
 
         return this.auth(dcID, this.cache.auth, dcUrl).then(onDcAuth, netError);
       };
 
-      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(networkGetter);
+      return this.storage.get(akk, ssk).then(networkGetter);
     };
 
-    this.serverConfig = serverConfig;
+    this.mtpClearStorage = function () {
+      const saveKeys = [];
+      for (let dcID = 1; dcID <= 5; dcID++) {
+        saveKeys.push(`dc${dcID}_auth_key`);
+        saveKeys.push(`t_dc${dcID}_auth_key`);
+      }
+      this.storage.noPrefix(); //TODO Remove noPrefix
+      return this.storage.get(saveKeys).tap(this.storage.clear).then(values => {
+        const restoreObj = {};
+        saveKeys.forEach((key, i) => {
+          const value = values[i];
+          if (value !== false && value !== undefined) restoreObj[key] = value;
+        });
+        this.storage.noPrefix();
+        return restoreObj;
+      }).then(this.storage.set);
+    };
+
+    this.storage = storage;
+    this.serverConfig = server;
     this.debug = debug;
     this.schema = schema;
     this.mtSchema = mtSchema;
-    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, serverConfig);
+    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, server);
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
     this.setUserAuth = this.setUserAuth.bind(this);
 
     this.TL = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__tl__["a" /* default */])(schema, mtSchema);
     this.keyManager = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__["a" /* default */])(this.TL.Serialization);
     this.auth = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["a" /* default */])(this.TL, this.keyManager);
-    this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
-    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.chooseServer, this.TL, this.emit, debug);
+    this.apiConfig = Object.assign({}, ApiManager.apiConfig, withoutNil(api));
+    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["default"])(this.apiConfig, this.chooseServer, this.TL, storage, this.emit, debug);
 
     // return new Proxy(this, {
     //   get(ctx, name) {
@@ -2220,28 +2228,28 @@ class ApiManager {
       const apiRecall = networker => networker.wrapApiCall(method, params, options);
       console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
 
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__error_cases__["a" /* switchErrors */])(error, options, dcID, baseDcID)(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__error_cases__["a" /* switchErrors */])(error, options, dcID, baseDcID)(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker, this.storage);
     });
     const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
 
     dcID = options.dcID || baseDcID;
-    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else this.storage.get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
 
     return deferred.promise;
   }
   setUserAuth(dcID, userAuth) {
     const fullUserAuth = Object.assign({ dcID }, userAuth);
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
+    this.storage.set({
       dc: dcID,
       user_auth: fullUserAuth
     });
     this.emit('auth.dc', { dc: dcID, auth: userAuth });
   }
 }
-/* harmony export (immutable) */ __webpack_exports__["c"] = ApiManager;
+/* harmony export (immutable) */ __webpack_exports__["a"] = ApiManager;
 
 
-ApiManager.appSettings = {
+ApiManager.apiConfig = {
   invokeWithLayer: 0xda9b0d0d,
   layer: NaN,
   initConnection: 0x69796de9,
@@ -2255,14 +2263,6 @@ const netError = error => {
   console.log('Get networker error', error, error.stack);
   return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
 };
-
-const api = new ApiManager();
-/* harmony export (immutable) */ __webpack_exports__["b"] = api;
-
-
-const mtpInvokeApi = api.mtpInvokeApi;
-/* unused harmony export mtpInvokeApi */
-
 
 /***/ }),
 /* 13 */
@@ -2360,9 +2360,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__smart_timeout__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__http__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__store__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__bin__ = __webpack_require__(0);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__bin__ = __webpack_require__(0);
 
 
 
@@ -2386,7 +2384,7 @@ let akStopped = false;
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 
 
-const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, emit, debug) => {
+const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, storage, emit, debug) => {
   var _class, _temp, _initialiseProps;
 
   return _temp = _class = class NetworkerThread {
@@ -2397,9 +2395,9 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       this.iii = iii++;
 
       this.authKey = authKey;
-      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["b" /* convertToUint8Array */])(authKey);
-      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["c" /* convertToArrayBuffer */])(authKey);
-      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["d" /* sha1BytesSync */])(authKey).slice(-8);
+      this.authKeyUint8 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["b" /* convertToUint8Array */])(authKey);
+      this.authKeyBuffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["c" /* convertToArrayBuffer */])(authKey);
+      this.authKeyID = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["d" /* sha1BytesSync */])(authKey).slice(-8);
 
       this.serverSalt = serverSalt;
 
@@ -2670,8 +2668,8 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       const deserializer = new Deserialization(responseBuffer);
 
       const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id');
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(authKeyID, this.authKeyID)) {
-        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["f" /* bytesToHex */])(authKeyID)}`);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesCmp */])(authKeyID, this.authKeyID)) {
+        throw new Error(`[MT] Invalid server auth_key_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["f" /* bytesToHex */])(authKeyID)}`);
       }
       const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key');
       const encryptedData = deserializer.fetchRawBytes(responseBuffer.byteLength - deserializer.getOffset(), true, 'encrypted_data');
@@ -2684,10 +2682,10 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         const sessionID = deserializer.fetchIntBytes(64, false, 'session_id');
         const messageID = deserializer.fetchLong('message_id');
 
-        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(sessionID, this.prevSessionID));
+        const isInvalidSession = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesCmp */])(sessionID, this.sessionID) && (!this.prevSessionID || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesCmp */])(sessionID, this.prevSessionID));
         if (isInvalidSession) {
           console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID);
-          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["f" /* bytesToHex */])(sessionID)}`);
+          throw new Error(`[MT] Invalid server session_id: ${__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["f" /* bytesToHex */])(sessionID)}`);
         }
 
         const seqNo = deserializer.fetchInt('seq_no');
@@ -2704,15 +2702,15 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         offset = deserializer.getOffset();
         const paddingLength = totalLength - offset;
         if (paddingLength < 0 || paddingLength > 15) throw new Error(`[MT] Invalid padding length: ${paddingLength}`);
-        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["b" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
+        const hashData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["b" /* convertToUint8Array */])(dataWithPadding).subarray(0, offset);
 
         const afterShaHash = dataHash => {
-          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["e" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["g" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
-            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["g" /* bytesFromArrayBuffer */])(dataHash));
+          if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["e" /* bytesCmp */])(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["g" /* bytesFromArrayBuffer */])(dataHash).slice(-16))) {
+            console.warn(msgKey, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["g" /* bytesFromArrayBuffer */])(dataHash));
             throw new Error('[MT] server msgKey mismatch');
           }
 
-          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["h" /* bytesToArrayBuffer */])(messageBody);
+          const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["h" /* bytesToArrayBuffer */])(messageBody);
           const deserializerOptions = getDeserializeOpts(this.getMsgById);
           const deserializer = new Deserialization(buffer, deserializerOptions);
           const response = deserializer.fetchObject('', 'INPUT');
@@ -2731,12 +2729,12 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
     }
 
     applyServerSalt(newServerSalt) {
-      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["i" /* longToBytes */])(newServerSalt);
+      const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["i" /* longToBytes */])(newServerSalt);
 
       const storeObj = {
-        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["f" /* bytesToHex */])(serverSalt)
+        [`dc${this.dcID}_server_salt`]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["f" /* bytesToHex */])(serverSalt)
       };
-      __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].set(storeObj);
+      storage.set(storeObj);
 
       this.serverSalt = serverSalt;
       return true;
@@ -2797,7 +2795,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
 
     processError(rawError) {
       const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || [];
-      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["j" /* uintToInt */])(rawError.error_code);
+      rawError.error_code = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["j" /* uintToInt */])(rawError.error_code);
 
       return {
         code: !rawError.error_code || rawError.error_code <= 0 ? 500 : rawError.error_code,
@@ -2847,7 +2845,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
             }
 
             if (message.error_code == 16 || message.error_code == 17) {
-              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["k" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
+              if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["applyServerTime"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["k" /* bigStringInt */])(messageID).shiftRight(32).toString(10))) {
                 console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["dTime"])(), 'Update session');
                 this.updateSession();
               }
@@ -2882,7 +2880,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
               const updateCond = baseDcID === this.dcID && !this.upload && updatesProcessor;
               if (updateCond) updatesProcessor(message, true);
             };
-            __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].get('dc').then(onBaseDc);
+            storage.get('dc').then(onBaseDc);
             break;
           }
         case 'msgs_ack':
@@ -2973,7 +2971,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         return this.sendLongPoll();
       };
 
-      __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
+      storage.get('dc').then(afterGetDc);
     };
 
     this.onHttpWait = () => {
@@ -3003,7 +3001,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.checkConnectionPromise);
 
       const serializer = new Serialization({ mtproto: true });
-      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__bin__["l" /* nextRandomInt */])(0xFFFFFFFF)];
+      const pingID = [__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* nextRandomInt */])(0xFFFFFFFF), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__bin__["l" /* nextRandomInt */])(0xFFFFFFFF)];
 
       serializer.storeMethod('ping', { ping_id: pingID });
 
@@ -3263,6 +3261,8 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
     };
   }, _temp;
 };
+/* harmony export (immutable) */ __webpack_exports__["NetworkerFabric"] = NetworkerFabric;
+
 
 const getDeserializeOpts = msgGetter => ({
   mtproto: true,
@@ -3316,15 +3316,11 @@ const stopAll = () => akStopped = true;
 /* harmony export (immutable) */ __webpack_exports__["stopAll"] = stopAll;
 
 
-const getNetworker = (appConfig, chooseServer, { Serialization, Deserialization }, emit, debug) => {
-  const Networker = NetworkerFabric(appConfig, chooseServer, { Serialization, Deserialization }, emit, debug);
-  return (dc, authKey, serverSalt, options) => new Networker(dc, authKey, serverSalt, options);
-};
-/* harmony export (immutable) */ __webpack_exports__["getNetworker"] = getNetworker;
-
 const setUpdatesProcessor = callback => updatesProcessor = callback;
 /* harmony export (immutable) */ __webpack_exports__["setUpdatesProcessor"] = setUpdatesProcessor;
 
+
+/* harmony default export */ __webpack_exports__["default"] = NetworkerFabric;
 
 /***/ }),
 /* 18 */
@@ -6856,9 +6852,7 @@ function mont_(x, y, n, np) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__time_manager__ = __webpack_require__(5);
 
 
 
@@ -6886,7 +6880,7 @@ const patterns = {
   _: () => true
 };
 
-const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, mtpInvokeApi, mtpGetNetworker) => matched({
+const matchProtect = matched => (error, options, emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, mtpInvokeApi, mtpGetNetworker, storage) => matched({
   invoke: mtpInvokeApi,
   throwNext: () => rejectPromise(error),
   reject: rejectPromise,
@@ -6897,11 +6891,12 @@ const matchProtect = matched => (error, options, emit, rejectPromise, requestThu
   requestThunk,
   apiRecall,
   deferResolve,
-  apiSavedNet
+  apiSavedNet,
+  storage
 });
 
-const noBaseAuth = ({ emit, throwNext }) => {
-  __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].remove('dc', 'user_auth');
+const noBaseAuth = ({ emit, throwNext, storage }) => {
+  storage.remove('dc', 'user_auth');
   emit('error.401.base');
   throwNext();
 };
@@ -6920,10 +6915,12 @@ const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }
   cachedExportPromise[dcID].then(apiSavedNet).then(apiRecall).then(deferResolve).catch(reject);
 };
 
-const migrate = ({ error, dcID, options, reject, apiRecall, deferResolve, getNet }) => {
+const migrate = ({ error, dcID, options, reject,
+  apiRecall, deferResolve, getNet, storage
+}) => {
   const newDcID = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2];
   if (newDcID === dcID) return;
-  if (options.dcID) options.dcID = newDcID;else __WEBPACK_IMPORTED_MODULE_4__store__["a" /* PureStorage */].set({ dc: /*baseDcID =*/newDcID });
+  if (options.dcID) options.dcID = newDcID;else storage.set({ dc: /*baseDcID =*/newDcID });
 
   getNet(newDcID, options).then(apiRecall).then(deferResolve).catch(reject);
 };
@@ -6935,7 +6932,7 @@ const floodWait = ({ error, options, throwNext, requestThunk }) => {
 };
 
 const waitFail = ({ options, throwNext, requestThunk }) => {
-  const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__time_manager__["tsNow"])();
+  const now = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__time_manager__["tsNow"])();
   if (options.stopTime) {
     if (now >= options.stopTime) return throwNext();
   } else options.stopTime = now + __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["propOr"])(10, 'timeout', options) * 1000;
@@ -20730,9 +20727,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__for_each__ = __webpack_require__(15);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_4__for_each__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__ = __webpack_require__(12);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["c"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__store__ = __webpack_require__(7);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__store__["a"]; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__service_time_manager__ = __webpack_require__(5);
@@ -20772,7 +20767,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 console.info('source loaded');
 
 
-/* harmony default export */ __webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["c" /* ApiManager */];
+/* harmony default export */ __webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["a" /* ApiManager */];
 
 /***/ })
 /******/ ]);

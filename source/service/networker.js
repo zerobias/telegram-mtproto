@@ -9,7 +9,6 @@ import forEach from '../for-each'
 import smartTimeout from '../smart-timeout'
 import blueDefer from '../defer'
 import { httpClient } from '../http'
-import { PureStorage } from '../store'
 
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   nextRandomInt, bytesCmp, bytesToHex, bytesFromArrayBuffer,
@@ -24,7 +23,7 @@ let akStopped = false
 // const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 
 
-const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, emit, debug) =>
+export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, storage, emit, debug) =>
   class NetworkerThread {
     constructor(dc, authKey, serverSalt, options = {}) {
       this.dcID = dc
@@ -210,7 +209,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         return this.sendLongPoll()
       }
 
-      PureStorage.get('dc')
+      storage.get('dc')
         .then(afterGetDc)
     }
 
@@ -728,7 +727,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       const storeObj = {
         [`dc${ this.dcID }_server_salt`]: bytesToHex(serverSalt)
       }
-      PureStorage.set(storeObj)
+      storage.set(storeObj)
 
       this.serverSalt = serverSalt
       return true
@@ -901,7 +900,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
             if (updateCond)
               updatesProcessor(message, true)
           }
-          PureStorage.get('dc').then(onBaseDc)
+          storage.get('dc').then(onBaseDc)
           break
         }
         case 'msgs_ack': {
@@ -1026,10 +1025,7 @@ export const startAll = () => {
 
 export const stopAll = () => akStopped = true
 
-export const getNetworker = (appConfig, chooseServer, { Serialization, Deserialization }, emit, debug) => {
-  const Networker = NetworkerFabric(appConfig, chooseServer, { Serialization, Deserialization }, emit, debug)
-  return (dc, authKey, serverSalt, options) =>
-    new Networker(dc, authKey, serverSalt, options)
-}
 export const setUpdatesProcessor = callback =>
   updatesProcessor = callback
+
+export default NetworkerFabric
