@@ -207,7 +207,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
           // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
           return
 
-        this.sendLongPoll()
+        return this.sendLongPoll()
       }
 
       PureStorage.get('dc')
@@ -216,7 +216,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
 
     onHttpWait = () => {
       delete this.longPollPending
-      setImmediate(this.checkLongPoll)
+      return smartTimeout.immediate(this.checkLongPoll)
     }
 
     sendLongPoll = () => {
@@ -224,7 +224,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       this.longPollPending = tsNow() + maxWait
       // console.log('Set lp', this.longPollPending, tsNow())
 
-      this.wrapMtpCall('http_wait', {
+      return this.wrapMtpCall('http_wait', {
         max_delay : 500,
         wait_after: 150,
         max_wait  : maxWait
@@ -748,7 +748,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
         this.nextReqPromise = smartTimeout(
           this.performSheduledRequest, delay)
       else
-        setImmediate(this.performSheduledRequest)
+        smartTimeout.immediate(this.performSheduledRequest)
 
       this.nextReq = nextReq
     }

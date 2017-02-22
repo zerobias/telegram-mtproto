@@ -88,13 +88,13 @@ export class ApiManager {
     this.appSettings = { ...ApiManager.appSettings, ...withoutNil(appSettings) }
     this.networkFabric = getNetworker(this.appSettings, this.chooseServer, this.TL, this.emit, debug)
 
-    return new Proxy(this, {
-      get(ctx, name) {
-        const result = Reflect.get(ctx, name)
-        console.info('get', name, type(result))
-        return result
-      }
-    })
+    // return new Proxy(this, {
+    //   get(ctx, name) {
+    //     const result = Reflect.get(ctx, name)
+    //     console.info('get', name, type(result))
+    //     return result
+    //   }
+    // })
   }
   mtpGetNetworker = (dcID, options = {}) => {
     const isUpload = options.fileUpload || options.fileDownload
@@ -185,10 +185,10 @@ export class ApiManager {
             const apiRecall = networker => networker.wrapApiCall(method, params, options)
             console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
 
-            return switchErrors(error, options, this.emit, rejectPromise, requestThunk,
-                                apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
-                                this.mtpGetNetworker)
-
+            return switchErrors(error, options, dcID, baseDcID)(
+              error, options, this.emit, rejectPromise, requestThunk,
+              apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
+              this.mtpGetNetworker)
           })
     const getDcNetworker = (baseDcID = 2) =>
       this.mtpGetNetworker(dcID = defDc(baseDcID), options)

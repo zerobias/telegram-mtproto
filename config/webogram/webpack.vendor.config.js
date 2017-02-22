@@ -11,15 +11,15 @@ const config = {
 
   entry: {
     vendor: [
-      '@goodmind/node-cryptojs-aes',
+      // '@goodmind/node-cryptojs-aes',
       // 'big-integer',
-      'rusha',
+      // 'rusha',
       'pako/lib/inflate',
       'jsbn',
       'axios',
       'ramda',
-      'bluebird',
-      'setimmediate'
+      'bluebird'
+      // 'setimmediate'
     ]
   },
   context: source,

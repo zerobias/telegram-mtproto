@@ -1,6 +1,7 @@
 import { BigInteger, SecureRandom } from 'jsbn'
 import Rusha from 'rusha'
-import { CryptoJS } from '@goodmind/node-cryptojs-aes'
+import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
+const { CryptoJS } = CryptoJSlib
 
 import { inflate } from 'pako/lib/inflate'
 

@@ -6,7 +6,7 @@ const timeoutRefs = new WeakSet
 
 const pause = delay => new Promise(r => setTimeout(r, delay))
 
-export const smartTimeout = (fn, delay, ...args) => {
+export const smartTimeout = (fn, delay = 0, ...args) => {
   const newToken = Symbol('cancel id')
   const checkRun = () => {
     if (timeoutRefs.has(newToken)) {
@@ -26,6 +26,11 @@ smartTimeout.cancel = promise => {
     ? timeoutRefs.delete(token)
     : false
 }
+
+smartTimeout.immediate = (fn, ...args) =>
+  Promise
+    .resolve()
+    .then(() => fn(...args))
 
 smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay)
   .then(() => fn(...args))

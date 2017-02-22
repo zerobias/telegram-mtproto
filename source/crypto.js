@@ -1,5 +1,7 @@
-import { when, is, identity } from 'ramda'
+import { when, is, identity, has, both } from 'ramda'
 import isNode from 'detect-node'
+
+require('worker-loader!./worker.js')
 
 import blueDefer from './defer'
 import smartTimeout from './smart-timeout'
@@ -8,7 +10,7 @@ import { convertToUint8Array, sha1HashSync, sha256HashSync,
   pqPrimeFactorization, bytesModPow } from './bin'
 
 const convertIfArray = when(is(Array), convertToUint8Array)
-let webWorker = false
+let webWorker = !isNode
 let taskID = 0
 const awaiting = {}
 const webCrypto = isNode
@@ -28,19 +30,34 @@ const finalizeTask = (taskID, result) => {
     delete awaiting[taskID]  //
   }                          //    deferred = Promise.resolve()
 }                            //    deferred.resolve( result )
-// window.Worker
-const workerEnable = false
-if (workerEnable) { //TODO worker disabled here
-  //eslint-disable-next-line
-  const tmpWorker = new Worker('js/lib/crypto_worker.js')``
-  tmpWorker.onmessage = e =>
-    webWorker
+
+const isCryptoTask = both(has('taskID'), has('result'))
+
+//eslint-disable-next-line
+const workerEnable = !isNode && window.Worker
+if (workerEnable) {
+  const tmpWorker = new Worker('./bundle/hash.worker.js')
+  // tmpWorker.onmessage = function(event) {
+  //   console.info('CW tmpWorker.onmessage', event && event.data)
+  // }
+  tmpWorker.onmessage = e => {
+    if (e.data === 'ready') {
+      console.info('CW ready')
+    } else if (!isCryptoTask(e.data)) {
+      console.info('Not crypto task', e, e.data)
+      return e
+    } else
+    return webWorker
       ? finalizeTask(e.data.taskID, e.data.result)
       : webWorker = tmpWorker
-  tmpWorker.onerror = error => {
+  }
+
+  tmpWorker.onerror = function(error) {
     console.error('CW error', error, error.stack)
     webWorker = false
   }
+  tmpWorker.postMessage('b')
+  webWorker = tmpWorker
 }
 
 const performTaskWorker = (task, params, embed) => {
@@ -72,7 +89,7 @@ const sha1Hash = bytes => {
       return sha1HashSync(bytes)
     })
   }
-  return smartTimeout.promise(() => sha1HashSync(bytes), 0)
+  return smartTimeout.immediate(sha1HashSync, bytes)
 }
 
 const sha256Hash = bytes => {
@@ -88,21 +105,21 @@ const sha256Hash = bytes => {
           return sha256HashSync(bytes)
         })
   }
-  return smartTimeout.promise(() => sha256HashSync(bytes), 0)
+  return smartTimeout.immediate(sha256HashSync, bytes)
 }
 
 const aesEncrypt = (bytes, keyBytes, ivBytes) =>
-  smartTimeout.promise(() => convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes)))
+  smartTimeout.immediate(() => convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes)))
 
 const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) =>
-  smartTimeout.promise(() => convertToArrayBuffer(
+  smartTimeout.immediate(() => convertToArrayBuffer(
     aesDecryptSync(encryptedBytes, keyBytes, ivBytes)))
 
 const factorize = bytes => {
   bytes = convertToByteArray(bytes)
   return webWorker
     ? performTaskWorker('factorize', { bytes })
-    : smartTimeout.promise(() => pqPrimeFactorization(bytes))
+    : smartTimeout.immediate(pqPrimeFactorization, bytes)
 }
 
 const modPow = (x, y, m) => webWorker
@@ -111,7 +128,7 @@ const modPow = (x, y, m) => webWorker
     y,
     m
   })
-  : smartTimeout.promise(() => bytesModPow(x, y, m))
+  : smartTimeout.immediate(bytesModPow, x, y, m)
 
 export const CryptoWorker = {
   sha1Hash,

@@ -1,4 +1,4 @@
-import 'setimmediate'
+// import 'setimmediate'
 
 export { smartTimeout } from './smart-timeout'
 export { blueDefer } from './defer'

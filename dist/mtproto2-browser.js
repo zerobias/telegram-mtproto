@@ -7,7 +7,7 @@
 		exports["mtproto"] = factory(require("vendor"));
 	else
 		root["mtproto"] = factory(root["vendor"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_0__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -73,29 +73,24 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 40);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports) {
+/******/ ({
 
-module.exports = vendor;
-
-/***/ }),
-/* 1 */
+/***/ 0:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rusha__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_pako_lib_inflate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__leemon__ = __webpack_require__(27);
 /* harmony export (immutable) */ __webpack_exports__["x"] = bigint;
 /* harmony export (immutable) */ __webpack_exports__["k"] = bigStringInt;
 /* unused harmony export dHexDump */
@@ -136,6 +131,7 @@ module.exports = vendor;
 
 
 
+const { CryptoJS } = __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__;
 
 
 
@@ -302,7 +298,7 @@ function bytesToWords(bytes) {
     words[i >>> 2] |= bytes[i] << 24 - i % 4 * 8;
   }
 
-  return new __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].lib.WordArray.init(words, len);
+  return new CryptoJS.lib.WordArray.init(words, len);
 }
 
 function bytesFromWords(wordArray) {
@@ -437,7 +433,7 @@ function sha1BytesSync(bytes) {
 
 function sha256HashSync(bytes) {
   // console.log(dT(), 'SHA-2 hash start', bytes.byteLength || bytes.length)
-  const hashWords = __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].SHA256(bytesToWords(bytes));
+  const hashWords = CryptoJS.SHA256(bytesToWords(bytes));
   // console.log(dT(), 'SHA-2 hash finish')
 
   const hashBytes = bytesFromWords(hashWords);
@@ -489,10 +485,10 @@ function aesEncryptSync(bytes, keyBytes, ivBytes) {
   // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/)
   bytes = addPadding(bytes);
 
-  const encryptedWords = __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].AES.encrypt(bytesToWords(bytes), bytesToWords(keyBytes), {
+  const encryptedWords = CryptoJS.AES.encrypt(bytesToWords(bytes), bytesToWords(keyBytes), {
     iv: bytesToWords(ivBytes),
-    padding: __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].pad.NoPadding,
-    mode: __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].mode.IGE
+    padding: CryptoJS.pad.NoPadding,
+    mode: CryptoJS.mode.IGE
   }).ciphertext;
 
   const encryptedBytes = bytesFromWords(encryptedWords);
@@ -504,10 +500,10 @@ function aesEncryptSync(bytes, keyBytes, ivBytes) {
 function aesDecryptSync(encryptedBytes, keyBytes, ivBytes) {
 
   // console.log(dT(), 'AES decrypt start', encryptedBytes.length)
-  const decryptedWords = __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].AES.decrypt({ ciphertext: bytesToWords(encryptedBytes) }, bytesToWords(keyBytes), {
+  const decryptedWords = CryptoJS.AES.decrypt({ ciphertext: bytesToWords(encryptedBytes) }, bytesToWords(keyBytes), {
     iv: bytesToWords(ivBytes),
-    padding: __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].pad.NoPadding,
-    mode: __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__["CryptoJS"].mode.IGE
+    padding: CryptoJS.pad.NoPadding,
+    mode: CryptoJS.mode.IGE
   });
 
   const bytes = bytesFromWords(decryptedWords);
@@ -920,322 +916,733 @@ function bytesModPow(x, y, m) {
 }
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(131);
+/***/ 1:
+/***/ (function(module, exports) {
 
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(128);
-
-/***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
 /**
- * Defered promise like in Q and $q
- *
- * @returns {{ resolve: (res: any) => void, reject: (res: any) => void, promise: Promise<{}> }}
+ * CryptoJS core components.
  */
-const blueDefer = () => {
-  let resolve, reject;
-  const promise = new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a((rs, rj) => {
-    resolve = rs;
-    reject = rj;
-  });
-  return {
-    resolve,
-    reject,
-    promise
-  };
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = blueDefer;
+var CryptoJS = CryptoJS || (function (Math, undefined) {
+    /**
+     * CryptoJS namespace.
+     */
+    var C = {};
 
+    /**
+     * Library namespace.
+     */
+    var C_lib = C.lib = {};
 
-/* harmony default export */ __webpack_exports__["b"] = blueDefer;
+    /**
+     * Base object for prototypal inheritance.
+     */
+    var Base = C_lib.Base = (function () {
+        function F() {}
 
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+        return {
+            /**
+             * Creates a new object that inherits from this object.
+             *
+             * @param {Object} overrides Properties to copy into the new object.
+             *
+             * @return {Object} The new object.
+             *
+             * @static
+             *
+             * @example
+             *
+             *     var MyType = CryptoJS.lib.Base.extend({
+             *         field: 'value',
+             *
+             *         method: function () {
+             *         }
+             *     });
+             */
+            extend: function (overrides) {
+                // Spawn
+                F.prototype = this;
+                var subtype = new F();
 
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(1);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateID", function() { return generateMessageID; });
+                // Augment
+                if (overrides) {
+                    subtype.mixIn(overrides);
+                }
 
+                // Create default initializer
+                if (!subtype.hasOwnProperty('init')) {
+                    subtype.init = function () {
+                        subtype.$super.init.apply(this, arguments);
+                    };
+                }
 
+                // Initializer's prototype is the subtype object
+                subtype.init.prototype = subtype;
 
+                // Reference supertype
+                subtype.$super = this;
 
+                return subtype;
+            },
 
-const tsNow = seconds => {
-  let t = +new Date();
-  //eslint-disable-next-line
-  if (!__WEBPACK_IMPORTED_MODULE_0_detect_node___default.a) t += window.tsOffset || 0;
-  return seconds ? Math.floor(t / 1000) : t;
-};
-/* harmony export (immutable) */ __webpack_exports__["tsNow"] = tsNow;
+            /**
+             * Extends this object and runs the init method.
+             * Arguments to create() will be passed to init().
+             *
+             * @return {Object} The new object.
+             *
+             * @static
+             *
+             * @example
+             *
+             *     var instance = MyType.create();
+             */
+            create: function () {
+                var instance = this.extend();
+                instance.init.apply(instance, arguments);
 
+                return instance;
+            },
 
-const logTimer = new Date().getTime();
+            /**
+             * Initializes a newly created object.
+             * Override this method to add some logic when your objects are created.
+             *
+             * @example
+             *
+             *     var MyType = CryptoJS.lib.Base.extend({
+             *         init: function () {
+             *             // ...
+             *         }
+             *     });
+             */
+            init: function () {
+            },
 
-const dTime = () => `[${((new Date().getTime() - logTimer) / 1000).toFixed(3)}]`;
-/* harmony export (immutable) */ __webpack_exports__["dTime"] = dTime;
+            /**
+             * Copies properties into this object.
+             *
+             * @param {Object} properties The properties to mix in.
+             *
+             * @example
+             *
+             *     MyType.mixIn({
+             *         field: 'value'
+             *     });
+             */
+            mixIn: function (properties) {
+                for (var propertyName in properties) {
+                    if (properties.hasOwnProperty(propertyName)) {
+                        this[propertyName] = properties[propertyName];
+                    }
+                }
 
+                // IE won't copy toString using the loop above
+                if (properties.hasOwnProperty('toString')) {
+                    this.toString = properties.toString;
+                }
+            },
 
-let lastMessageID = [0, 0];
-let timerOffset = 0;
+            /**
+             * Creates a copy of this object.
+             *
+             * @return {Object} The clone.
+             *
+             * @example
+             *
+             *     var clone = instance.clone();
+             */
+            clone: function () {
+                return this.init.prototype.extend(this);
+            }
+        };
+    }());
 
-const offset = __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].get();
-if (offset) timerOffset = offset;
+    /**
+     * An array of 32-bit words.
+     *
+     * @property {Array} words The array of 32-bit words.
+     * @property {number} sigBytes The number of significant bytes in this word array.
+     */
+    var WordArray = C_lib.WordArray = Base.extend({
+        /**
+         * Initializes a newly created word array.
+         *
+         * @param {Array} words (Optional) An array of 32-bit words.
+         * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.lib.WordArray.create();
+         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
+         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
+         */
+        init: function (words, sigBytes) {
+            words = this.words = words || [];
 
-const generateMessageID = () => {
-  const timeTicks = tsNow(),
-        timeSec = Math.floor(timeTicks / 1000) + timerOffset,
-        timeMSec = timeTicks % 1000,
-        random = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["l" /* nextRandomInt */])(0xFFFF);
+            if (sigBytes != undefined) {
+                this.sigBytes = sigBytes;
+            } else {
+                this.sigBytes = words.length * 4;
+            }
+        },
 
-  let messageID = [timeSec, timeMSec << 21 | random << 3 | 4];
-  if (lastMessageID[0] > messageID[0] || lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
-    messageID = [lastMessageID[0], lastMessageID[1] + 4];
-  }
+        /**
+         * Converts this word array to a string.
+         *
+         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
+         *
+         * @return {string} The stringified word array.
+         *
+         * @example
+         *
+         *     var string = wordArray + '';
+         *     var string = wordArray.toString();
+         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+         */
+        toString: function (encoder) {
+            return (encoder || Hex).stringify(this);
+        },
 
-  lastMessageID = messageID;
+        /**
+         * Concatenates a word array to this word array.
+         *
+         * @param {WordArray} wordArray The word array to append.
+         *
+         * @return {WordArray} This word array.
+         *
+         * @example
+         *
+         *     wordArray1.concat(wordArray2);
+         */
+        concat: function (wordArray) {
+            // Shortcuts
+            var thisWords = this.words;
+            var thatWords = wordArray.words;
+            var thisSigBytes = this.sigBytes;
+            var thatSigBytes = wordArray.sigBytes;
 
-  // console.log('generated msg id', messageID, timerOffset)
+            // Clamp excess bits
+            this.clamp();
 
-  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["t" /* longFromInts */])(messageID[0], messageID[1]);
-};
+            // Concat
+            if (thisSigBytes % 4) {
+                // Copy one byte at a time
+                for (var i = 0; i < thatSigBytes; i++) {
+                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
+                }
+            } else if (thatWords.length > 0xffff) {
+                // Copy one word at a time
+                for (var i = 0; i < thatSigBytes; i += 4) {
+                    thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
+                }
+            } else {
+                // Copy all words at once
+                thisWords.push.apply(thisWords, thatWords);
+            }
+            this.sigBytes += thatSigBytes;
 
-const applyServerTime = (serverTime, localTime) => {
-  const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000);
-  const changed = Math.abs(timerOffset - newTimeOffset) > 10;
-  __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].set(newTimeOffset);
+            // Chainable
+            return this;
+        },
 
-  lastMessageID = [0, 0];
-  timerOffset = newTimeOffset;
-  console.log(dTime(), 'Apply server time', serverTime, localTime, newTimeOffset, changed);
+        /**
+         * Removes insignificant bits.
+         *
+         * @example
+         *
+         *     wordArray.clamp();
+         */
+        clamp: function () {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes;
 
-  return changed;
-};
-/* harmony export (immutable) */ __webpack_exports__["applyServerTime"] = applyServerTime;
+            // Clamp
+            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+            words.length = Math.ceil(sigBytes / 4);
+        },
 
+        /**
+         * Creates a copy of this word array.
+         *
+         * @return {WordArray} The clone.
+         *
+         * @example
+         *
+         *     var clone = wordArray.clone();
+         */
+        clone: function () {
+            var clone = Base.clone.call(this);
+            clone.words = this.words.slice(0);
 
+            return clone;
+        },
 
+        /**
+         * Creates a word array filled with random bytes.
+         *
+         * @param {number} nBytes The number of random bytes to generate.
+         *
+         * @return {WordArray} The random word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.lib.WordArray.random(16);
+         */
+        random: function (nBytes) {
+            var words = [];
+            for (var i = 0; i < nBytes; i += 4) {
+                words.push((Math.random() * 0x100000000) | 0);
+            }
 
-/***/ }),
-/* 6 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-
-
-
-
-const ValueStore = () => {
-  let val = null;
-
-  return {
-    get: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val),
-    set: newVal => val = newVal
-  };
-};
-/* unused harmony export ValueStore */
-
-
-const ValueStoreMap = () => {
-  const val = new Map();
-
-  return {
-    get: key => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val.get(key)),
-    set: (key, newVal) => val.set(key, newVal)
-  };
-};
-/* unused harmony export ValueStoreMap */
-
-
-const TimeOffset = ValueStore();
-/* harmony export (immutable) */ __webpack_exports__["b"] = TimeOffset;
-
-const dcList = ValueStoreMap();
-/* unused harmony export dcList */
-
-
-const flatProps = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["flip"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["props"]), __WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"]);
-
-const AsyncStorage = () => {
-  let store = {};
-
-  const flatGet = flatProps(store);
-  const set = obj => store = Object.assign({}, store, obj);
-  const remove = keys => store = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys, store);
-  const clr = () => store = {};
-  return {
-    get: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(flatGet(...keys)),
-    set: obj => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(set(obj)),
-    remove: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(remove(keys)),
-    clear: () => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(clr()),
-    noPrefix: () => ({})
-  };
-};
-/* unused harmony export AsyncStorage */
-
-
-const PureStorage = AsyncStorage();
-/* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
- /*{
-                                           get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
-                                           set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
-                                           remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
-                                           noPrefix: () => ConfigStorage.noPrefix(),
-                                           clear   : () => new Promise(rs => ConfigStorage.clear(rs))
-                                           }*/
-
-/***/ }),
-/* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_detect_node__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(1);
-
-
-
-
-
-
-
-const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), __WEBPACK_IMPORTED_MODULE_4__bin__["b" /* convertToUint8Array */]);
-let webWorker = false;
-let taskID = 0;
-const awaiting = {};
-const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false
-//eslint-disable-next-line
-: window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
-//eslint-disable-next-line
-|| window.msCrypto && window.msCrypto.subtle;
-const useWebCrypto = webCrypto && !!webCrypto.digest;
-let useSha1Crypto = useWebCrypto;
-let useSha256Crypto = useWebCrypto;
-const finalizeTask = (taskID, result) => {
-  const deferred = awaiting[taskID];
-  if (deferred) {
-    // console.log(rework_d_T(), 'CW done')
-    deferred.resolve(result); //TODO Possibly, can be used as
-    delete awaiting[taskID]; //
-  } //    deferred = Promise.resolve()
-}; //    deferred.resolve( result )
-// window.Worker
-const workerEnable = false;
-if (workerEnable) {
-  //TODO worker disabled here
-  //eslint-disable-next-line
-  const tmpWorker = new Worker('js/lib/crypto_worker.js')``;
-  tmpWorker.onmessage = e => webWorker ? finalizeTask(e.data.taskID, e.data.result) : webWorker = tmpWorker;
-  tmpWorker.onerror = error => {
-    console.error('CW error', error, error.stack);
-    webWorker = false;
-  };
-}
-
-const performTaskWorker = (task, params, embed) => {
-  // console.log(rework_d_T(), 'CW start', task)
-  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
-
-  awaiting[taskID] = deferred;
-
-  params.task = task;
-  params.taskID = taskID;(embed || webWorker).postMessage(params);
-
-  taskID++;
-
-  return deferred.promise;
-};
-
-const sha1Hash = bytes => {
-  if (useSha1Crypto) {
-    // We don't use buffer since typedArray.subarray(...).buffer gives the whole buffer and not sliced one.
-    // webCrypto.digest supports typed array
-    const bytesTyped = convertIfArray(bytes);
-    // console.log(rework_d_T(), 'Native sha1 start')
-    return webCrypto.digest({ name: 'SHA-1' }, bytesTyped).then(digest =>
-    // console.log(rework_d_T(), 'Native sha1 done')
-    digest, e => {
-      console.error('Crypto digest error', e);
-      useSha1Crypto = false;
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes);
+            return new WordArray.init(words, nBytes);
+        }
     });
-  }
-  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes), 0);
-};
 
-const sha256Hash = bytes => {
-  if (useSha256Crypto) {
-    const bytesTyped = convertIfArray(bytes);
-    // console.log(rework_d_T(), 'Native sha1 start')
-    return webCrypto.digest({ name: 'SHA-256' }, bytesTyped).then(__WEBPACK_IMPORTED_MODULE_0_ramda__["identity"]
-    // console.log(rework_d_T(), 'Native sha1 done')
-    , e => {
-      console.error('Crypto digest error', e);
-      useSha256Crypto = false;
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes);
+    /**
+     * Encoder namespace.
+     */
+    var C_enc = C.enc = {};
+
+    /**
+     * Hex encoding strategy.
+     */
+    var Hex = C_enc.Hex = {
+        /**
+         * Converts a word array to a hex string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The hex string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var hexString = CryptoJS.enc.Hex.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            // Convert
+            var hexChars = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                hexChars.push((bite >>> 4).toString(16));
+                hexChars.push((bite & 0x0f).toString(16));
+            }
+
+            return hexChars.join('');
+        },
+
+        /**
+         * Converts a hex string to a word array.
+         *
+         * @param {string} hexStr The hex string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
+         */
+        parse: function (hexStr) {
+            // Shortcut
+            var hexStrLength = hexStr.length;
+
+            // Convert
+            var words = [];
+            for (var i = 0; i < hexStrLength; i += 2) {
+                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
+            }
+
+            return new WordArray.init(words, hexStrLength / 2);
+        }
+    };
+
+    /**
+     * Latin1 encoding strategy.
+     */
+    var Latin1 = C_enc.Latin1 = {
+        /**
+         * Converts a word array to a Latin1 string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The Latin1 string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            // Convert
+            var latin1Chars = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                latin1Chars.push(String.fromCharCode(bite));
+            }
+
+            return latin1Chars.join('');
+        },
+
+        /**
+         * Converts a Latin1 string to a word array.
+         *
+         * @param {string} latin1Str The Latin1 string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
+         */
+        parse: function (latin1Str) {
+            // Shortcut
+            var latin1StrLength = latin1Str.length;
+
+            // Convert
+            var words = [];
+            for (var i = 0; i < latin1StrLength; i++) {
+                words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
+            }
+
+            return new WordArray.init(words, latin1StrLength);
+        }
+    };
+
+    /**
+     * UTF-8 encoding strategy.
+     */
+    var Utf8 = C_enc.Utf8 = {
+        /**
+         * Converts a word array to a UTF-8 string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The UTF-8 string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            try {
+                return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+            } catch (e) {
+                throw new Error('Malformed UTF-8 data');
+            }
+        },
+
+        /**
+         * Converts a UTF-8 string to a word array.
+         *
+         * @param {string} utf8Str The UTF-8 string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
+         */
+        parse: function (utf8Str) {
+            return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
+        }
+    };
+
+    /**
+     * Abstract buffered block algorithm template.
+     *
+     * The property blockSize must be implemented in a concrete subtype.
+     *
+     * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
+     */
+    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+        /**
+         * Resets this block algorithm's data buffer to its initial state.
+         *
+         * @example
+         *
+         *     bufferedBlockAlgorithm.reset();
+         */
+        reset: function () {
+            // Initial values
+            this._data = new WordArray.init();
+            this._nDataBytes = 0;
+        },
+
+        /**
+         * Adds new data to this block algorithm's buffer.
+         *
+         * @param {WordArray|string} data The data to append. Strings are converted to a WordArray using UTF-8.
+         *
+         * @example
+         *
+         *     bufferedBlockAlgorithm._append('data');
+         *     bufferedBlockAlgorithm._append(wordArray);
+         */
+        _append: function (data) {
+            // Convert string to WordArray, else assume WordArray already
+            if (typeof data == 'string') {
+                data = Utf8.parse(data);
+            }
+
+            // Append
+            this._data.concat(data);
+            this._nDataBytes += data.sigBytes;
+        },
+
+        /**
+         * Processes available data blocks.
+         *
+         * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
+         *
+         * @param {boolean} doFlush Whether all blocks and partial blocks should be processed.
+         *
+         * @return {WordArray} The processed data.
+         *
+         * @example
+         *
+         *     var processedData = bufferedBlockAlgorithm._process();
+         *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
+         */
+        _process: function (doFlush) {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+            var dataSigBytes = data.sigBytes;
+            var blockSize = this.blockSize;
+            var blockSizeBytes = blockSize * 4;
+
+            // Count blocks ready
+            var nBlocksReady = dataSigBytes / blockSizeBytes;
+            if (doFlush) {
+                // Round up to include partial blocks
+                nBlocksReady = Math.ceil(nBlocksReady);
+            } else {
+                // Round down to include only full blocks,
+                // less the number of blocks that must remain in the buffer
+                nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
+            }
+
+            // Count words ready
+            var nWordsReady = nBlocksReady * blockSize;
+
+            // Count bytes ready
+            var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
+
+            // Process blocks
+            if (nWordsReady) {
+                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+                    // Perform concrete-algorithm logic
+                    this._doProcessBlock(dataWords, offset);
+                }
+
+                // Remove processed words
+                var processedWords = dataWords.splice(0, nWordsReady);
+                data.sigBytes -= nBytesReady;
+            }
+
+            // Return processed words
+            return new WordArray.init(processedWords, nBytesReady);
+        },
+
+        /**
+         * Creates a copy of this object.
+         *
+         * @return {Object} The clone.
+         *
+         * @example
+         *
+         *     var clone = bufferedBlockAlgorithm.clone();
+         */
+        clone: function () {
+            var clone = Base.clone.call(this);
+            clone._data = this._data.clone();
+
+            return clone;
+        },
+
+        _minBufferSize: 0
     });
-  }
-  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes), 0);
-};
 
-const aesEncrypt = (bytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["o" /* aesEncryptSync */])(bytes, keyBytes, ivBytes)));
+    /**
+     * Abstract hasher template.
+     *
+     * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+     */
+    var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
+        /**
+         * Configuration options.
+         */
+        cfg: Base.extend(),
 
-const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* aesDecryptSync */])(encryptedBytes, keyBytes, ivBytes)));
+        /**
+         * Initializes a newly created hasher.
+         *
+         * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
+         *
+         * @example
+         *
+         *     var hasher = CryptoJS.algo.SHA256.create();
+         */
+        init: function (cfg) {
+            // Apply config defaults
+            this.cfg = this.cfg.extend(cfg);
 
-const factorize = bytes => {
-  bytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* convertToByteArray */])(bytes);
-  return webWorker ? performTaskWorker('factorize', { bytes }) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["r" /* pqPrimeFactorization */])(bytes));
-};
+            // Set initial values
+            this.reset();
+        },
 
-const modPow = (x, y, m) => webWorker ? performTaskWorker('mod-pow', {
-  x,
-  y,
-  m
-}) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].promise(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["s" /* bytesModPow */])(x, y, m));
+        /**
+         * Resets this hasher to its initial state.
+         *
+         * @example
+         *
+         *     hasher.reset();
+         */
+        reset: function () {
+            // Reset data buffer
+            BufferedBlockAlgorithm.reset.call(this);
 
-const CryptoWorker = {
-  sha1Hash,
-  sha256Hash,
-  aesEncrypt,
-  aesDecrypt,
-  factorize,
-  modPow
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = CryptoWorker;
+            // Perform concrete-hasher logic
+            this._doReset();
+        },
 
+        /**
+         * Updates this hasher with a message.
+         *
+         * @param {WordArray|string} messageUpdate The message to append.
+         *
+         * @return {Hasher} This hasher.
+         *
+         * @example
+         *
+         *     hasher.update('message');
+         *     hasher.update(wordArray);
+         */
+        update: function (messageUpdate) {
+            // Append
+            this._append(messageUpdate);
 
-/* harmony default export */ __webpack_exports__["b"] = CryptoWorker;
+            // Update the hash
+            this._process();
+
+            // Chainable
+            return this;
+        },
+
+        /**
+         * Finalizes the hash computation.
+         * Note that the finalize operation is effectively a destructive, read-once operation.
+         *
+         * @param {WordArray|string} messageUpdate (Optional) A final message update.
+         *
+         * @return {WordArray} The hash.
+         *
+         * @example
+         *
+         *     var hash = hasher.finalize();
+         *     var hash = hasher.finalize('message');
+         *     var hash = hasher.finalize(wordArray);
+         */
+        finalize: function (messageUpdate) {
+            // Final message update
+            if (messageUpdate) {
+                this._append(messageUpdate);
+            }
+
+            // Perform concrete-hasher logic
+            var hash = this._doFinalize();
+
+            return hash;
+        },
+
+        blockSize: 512/32,
+
+        /**
+         * Creates a shortcut function to a hasher's object interface.
+         *
+         * @param {Hasher} hasher The hasher to create a helper for.
+         *
+         * @return {Function} The shortcut function.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var SHA256 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.SHA256);
+         */
+        _createHelper: function (hasher) {
+            return function (message, cfg) {
+                return new hasher.init(cfg).finalize(message);
+            };
+        },
+
+        /**
+         * Creates a shortcut function to the HMAC's object interface.
+         *
+         * @param {Hasher} hasher The hasher to use in this HMAC helper.
+         *
+         * @return {Function} The shortcut function.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var HmacSHA256 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.SHA256);
+         */
+        _createHmacHelper: function (hasher) {
+            return function (message, key) {
+                return new C_algo.HMAC.init(hasher, key).finalize(message);
+            };
+        }
+    });
+
+    /**
+     * Algorithm namespace.
+     */
+    var C_algo = C.algo = {};
+
+    return C;
+}(Math));
+
+exports.CryptoJS = CryptoJS;
+
 
 /***/ }),
-/* 8 */
+
+/***/ 10:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 
 
@@ -1248,11 +1655,12 @@ delete httpClient.defaults.headers.common['Accept'];
 /* harmony default export */ __webpack_exports__["b"] = httpClient;
 
 /***/ }),
-/* 9 */
+
+/***/ 11:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
 
 
@@ -1263,53 +1671,253 @@ const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
 /* harmony default export */ __webpack_exports__["a"] = random;
 
 /***/ }),
-/* 10 */
+
+/***/ 12:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__tl__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__error_cases__ = __webpack_require__(28);
 
 
-const cancelToken = Symbol('cancel token');
 
-const timeoutRefs = new WeakSet();
 
-const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
 
-const smartTimeout = (fn, delay, ...args) => {
-  const newToken = Symbol('cancel id');
-  const checkRun = () => {
-    if (timeoutRefs.has(newToken)) {
-      timeoutRefs.delete(newToken);
-      return fn(...args);
-    } else return false;
-  };
-  const promise = pause(delay).then(checkRun);
-  promise[cancelToken] = newToken;
-  return promise;
+
+
+
+
+
+
+
+
+
+
+
+
+
+const api57 = __webpack_require__(36);
+const mtproto57 = __webpack_require__(37);
+
+const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
+const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
+const withoutNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]);
+
+const baseDcID = 2;
+
+const mtpClearStorage = function () {
+  const saveKeys = [];
+  for (let dcID = 1; dcID <= 5; dcID++) {
+    saveKeys.push(`dc${dcID}_auth_key`);
+    saveKeys.push(`t_dc${dcID}_auth_key`);
+  }
+  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
+    const restoreObj = {};
+    saveKeys.forEach((key, i) => {
+      const value = values[i];
+      if (value !== false && value !== undefined) restoreObj[key] = value;
+    });
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
+    return restoreObj;
+  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
 };
-/* harmony export (immutable) */ __webpack_exports__["a"] = smartTimeout;
+/* harmony export (immutable) */ __webpack_exports__["a"] = mtpClearStorage;
 
 
-smartTimeout.cancel = promise => {
-  if (!promise || !promise[cancelToken]) return false;
-  const token = promise[cancelToken];
-  return timeoutRefs.has(token) ? timeoutRefs.delete(token) : false;
+const Ln = (length, obj) => obj && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length', length, obj);
+
+class ApiManager {
+
+  constructor({ serverConfig = {}, appSettings = {}, schema = api57, mtSchema = mtproto57, debug = false } = {}) {
+    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
+      wildcard: true
+    });
+    this.on = this.emitter.on.bind(this.emitter);
+    this.emit = this.emitter.emit.bind(this.emitter);
+    this.cache = {
+      uploader: {},
+      downloader: {},
+      auth: {},
+      servers: {}
+    };
+
+    this.mtpGetNetworker = (dcID, options = {}) => {
+      const isUpload = options.fileUpload || options.fileDownload;
+      const cache = isUpload ? this.cache.uploader : this.cache.downloader;
+      if (!dcID) throw new Error('get Networker without dcID');
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
+
+      const akk = `dc${dcID}_auth_key`;
+      const ssk = `dc${dcID}_server_salt`;
+
+      const dcUrl = this.chooseServer(dcID, isUpload);
+
+      const networkGetter = result => {
+        if (cache[dcID]) return cache[dcID];
+
+        const authKeyHex = result[0];
+        let serverSaltHex = result[1];
+        // console.log('ass', dcID, authKeyHex, serverSaltHex)
+        if (Ln(512, authKeyHex)) {
+          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
+          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(authKeyHex);
+          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(serverSaltHex);
+
+          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+        }
+
+        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
+
+        const onDcAuth = ({ authKey, serverSalt }) => {
+          const storeObj = {
+            [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(authKey),
+            [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(serverSalt)
+          };
+          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
+
+          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+        };
+
+        return this.auth(dcID, this.cache.auth, dcUrl).then(onDcAuth, netError);
+      };
+
+      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(networkGetter);
+    };
+
+    this.serverConfig = serverConfig;
+    this.debug = debug;
+    this.schema = schema;
+    this.mtSchema = mtSchema;
+    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, serverConfig);
+    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
+    this.setUserAuth = this.setUserAuth.bind(this);
+
+    this.TL = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__tl__["a" /* default */])(schema, mtSchema);
+    this.keyManager = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__["a" /* default */])(this.TL.Serialization);
+    this.auth = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["a" /* default */])(this.TL, this.keyManager);
+    this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
+    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.chooseServer, this.TL, this.emit, debug);
+
+    // return new Proxy(this, {
+    //   get(ctx, name) {
+    //     const result = Reflect.get(ctx, name)
+    //     console.info('get', name, type(result))
+    //     return result
+    //   }
+    // })
+  }
+
+  mtpInvokeApi(method, params, options = {}) {
+    // const self = this
+    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
+    const rejectPromise = error => {
+      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
+      deferred.reject(error);
+
+      if (!options.noErrorBox) {
+        //TODO weird code. `error` changed after `.reject`?
+        error.input = method;
+        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
+        this.emit('error.invoke', error);
+      }
+    };
+    let dcID, cachedNetworker;
+
+    const cachedNetThunk = () => performRequest(cachedNetworker);
+    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3);
+
+    const defError = new Error();
+    const stack = defError.stack || 'empty stack';
+    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
+      const deferResolve = deferred.resolve;
+      const apiSavedNet = () => cachedNetworker = networker;
+      const apiRecall = networker => networker.wrapApiCall(method, params, options);
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
+
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__error_cases__["a" /* switchErrors */])(error, options, dcID, baseDcID)(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
+    });
+    const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
+
+    dcID = options.dcID || baseDcID;
+    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
+
+    return deferred.promise;
+  }
+  setUserAuth(dcID, userAuth) {
+    const fullUserAuth = Object.assign({ dcID }, userAuth);
+    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
+      dc: dcID,
+      user_auth: fullUserAuth
+    });
+    this.emit('auth.dc', { dc: dcID, auth: userAuth });
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["c"] = ApiManager;
+
+
+ApiManager.appSettings = {
+  invokeWithLayer: 0xda9b0d0d,
+  layer: NaN,
+  initConnection: 0x69796de9,
+  api_id: '',
+  device_model: 'Unknown UserAgent',
+  system_version: 'Unknown Platform',
+  app_version: '',
+  lang_code: 'en'
+};
+const netError = error => {
+  console.log('Get networker error', error, error.stack);
+  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
 };
 
-smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(...args));
+const api = new ApiManager();
+/* harmony export (immutable) */ __webpack_exports__["b"] = api;
 
-/* harmony default export */ __webpack_exports__["b"] = smartTimeout;
+
+const mtpInvokeApi = api.mtpInvokeApi;
+/* unused harmony export mtpInvokeApi */
+
 
 /***/ }),
-/* 11 */
+
+/***/ 13:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(129);
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = false;
+
+// Only Node.JS has a process variable that is of [[Class]] process
+try {
+ module.exports = Object.prototype.toString.call(global.process) === '[object process]' 
+} catch(e) {}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
 
 /***/ }),
-/* 12 */
+
+/***/ 14:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(5))(126);
+
+/***/ }),
+
+/***/ 15:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1325,7 +1933,8 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 /* harmony default export */ __webpack_exports__["b"] = forEach;
 
 /***/ }),
-/* 13 */
+
+/***/ 16:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1369,24 +1978,25 @@ const chooseServer = (chosenServers, {
 
 
 /***/ }),
-/* 14 */
+
+/***/ 17:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(setImmediate) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__smart_timeout__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__smart_timeout__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__http__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__http__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__store__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__bin__ = __webpack_require__(0);
 
 
 
@@ -1776,7 +2386,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       // console.log(dTime(), 'shedule req', delay)
       // console.trace()
       __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].cancel(this.nextReqPromise);
-      if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else setImmediate(this.performSheduledRequest);
+      if (delay > 0) this.nextReqPromise = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */])(this.performSheduledRequest, delay);else __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].immediate(this.performSheduledRequest);
 
       this.nextReq = nextReq;
     }
@@ -1995,7 +2605,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
           // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
           return;
 
-        this.sendLongPoll();
+        return this.sendLongPoll();
       };
 
       __WEBPACK_IMPORTED_MODULE_9__store__["a" /* PureStorage */].get('dc').then(afterGetDc);
@@ -2003,7 +2613,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
 
     this.onHttpWait = () => {
       delete this.longPollPending;
-      setImmediate(this.checkLongPoll);
+      return __WEBPACK_IMPORTED_MODULE_6__smart_timeout__["b" /* default */].immediate(this.checkLongPoll);
     };
 
     this.sendLongPoll = () => {
@@ -2011,7 +2621,7 @@ const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserializati
       this.longPollPending = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__time_manager__["tsNow"])() + maxWait;
       // console.log('Set lp', this.longPollPending, tsNow())
 
-      this.wrapMtpCall('http_wait', {
+      return this.wrapMtpCall('http_wait', {
         max_delay: 500,
         wait_after: 150,
         max_wait: maxWait
@@ -2350,258 +2960,2001 @@ const getNetworker = (appConfig, chooseServer, { Serialization, Deserialization 
 const setUpdatesProcessor = callback => updatesProcessor = callback;
 /* harmony export (immutable) */ __webpack_exports__["setUpdatesProcessor"] = setUpdatesProcessor;
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(16).setImmediate))
 
 /***/ }),
-/* 15 */
+
+/***/ 18:
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = false;
-
-// Only Node.JS has a process variable that is of [[Class]] process
-try {
- module.exports = Object.prototype.toString.call(global.process) === '[object process]' 
-} catch(e) {}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(32)))
+module.exports = (__webpack_require__(5))(123);
 
 /***/ }),
-/* 16 */
+
+/***/ 19:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(360);
+var CryptoJS = __webpack_require__(1).CryptoJS;
+__webpack_require__(22);
+__webpack_require__(25);
+__webpack_require__(23);
+__webpack_require__(21);
+__webpack_require__(20);
+__webpack_require__(26);
+var JsonFormatter = __webpack_require__(24).JsonFormatter;
+
+exports.CryptoJS = CryptoJS;
+exports.JsonFormatter = JsonFormatter;
 
 /***/ }),
-/* 17 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__dc_configurator__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__tl__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__bin__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__error_cases__ = __webpack_require__(20);
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
 
+module.exports = (__webpack_require__(5))(128);
 
+/***/ }),
 
+/***/ 20:
+/***/ (function(module, exports, __webpack_require__) {
 
+var CryptoJS = __webpack_require__(1).CryptoJS;
 
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+(function () {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var BlockCipher = C_lib.BlockCipher;
+    var C_algo = C.algo;
 
+    // Lookup tables
+    var SBOX = [];
+    var INV_SBOX = [];
+    var SUB_MIX_0 = [];
+    var SUB_MIX_1 = [];
+    var SUB_MIX_2 = [];
+    var SUB_MIX_3 = [];
+    var INV_SUB_MIX_0 = [];
+    var INV_SUB_MIX_1 = [];
+    var INV_SUB_MIX_2 = [];
+    var INV_SUB_MIX_3 = [];
 
-
-
-
-
-
-
-
-
-
-
-
-const api57 = __webpack_require__(26);
-const mtproto57 = __webpack_require__(27);
-
-const hasPath = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["pathSatisfies"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["complement"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]));
-const defDc = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["unless"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Number), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["always"])(2));
-const withoutNil = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["reject"])(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"]);
-
-const baseDcID = 2;
-
-const mtpClearStorage = function () {
-  const saveKeys = [];
-  for (let dcID = 1; dcID <= 5; dcID++) {
-    saveKeys.push(`dc${dcID}_auth_key`);
-    saveKeys.push(`t_dc${dcID}_auth_key`);
-  }
-  __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-  return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(saveKeys).tap(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].clear).then(values => {
-    const restoreObj = {};
-    saveKeys.forEach((key, i) => {
-      const value = values[i];
-      if (value !== false && value !== undefined) restoreObj[key] = value;
-    });
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].noPrefix();
-    return restoreObj;
-  }).then(__WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set);
-};
-/* harmony export (immutable) */ __webpack_exports__["a"] = mtpClearStorage;
-
-
-const Ln = (length, obj) => obj && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["propEq"])('length', length, obj);
-
-class ApiManager {
-
-  constructor({ serverConfig = {}, appSettings = {}, schema = api57, mtSchema = mtproto57, debug = false } = {}) {
-    this.emitter = new __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default.a({
-      wildcard: true
-    });
-    this.on = this.emitter.on.bind(this.emitter);
-    this.emit = this.emitter.emit.bind(this.emitter);
-    this.cache = {
-      uploader: {},
-      downloader: {},
-      auth: {},
-      servers: {}
-    };
-
-    this.mtpGetNetworker = (dcID, options = {}) => {
-      const isUpload = options.fileUpload || options.fileDownload;
-      const cache = isUpload ? this.cache.uploader : this.cache.downloader;
-      if (!dcID) throw new Error('get Networker without dcID');
-
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["isNil"])(cache[dcID])) return cache[dcID];
-
-      const akk = `dc${dcID}_auth_key`;
-      const ssk = `dc${dcID}_server_salt`;
-
-      const dcUrl = this.chooseServer(dcID, isUpload);
-
-      const networkGetter = result => {
-        if (cache[dcID]) return cache[dcID];
-
-        const authKeyHex = result[0];
-        let serverSaltHex = result[1];
-        // console.log('ass', dcID, authKeyHex, serverSaltHex)
-        if (Ln(512, authKeyHex)) {
-          if (!serverSaltHex || serverSaltHex.length !== 16) serverSaltHex = 'AAAAAAAAAAAAAAAA';
-          const authKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(authKeyHex);
-          const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["u" /* bytesFromHex */])(serverSaltHex);
-
-          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
+    // Compute lookup tables
+    (function () {
+        // Compute double table
+        var d = [];
+        for (var i = 0; i < 256; i++) {
+            if (i < 128) {
+                d[i] = i << 1;
+            } else {
+                d[i] = (i << 1) ^ 0x11b;
+            }
         }
 
-        if (!options.createNetworker) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject({ type: 'AUTH_KEY_EMPTY', code: 401 });
+        // Walk GF(2^8)
+        var x = 0;
+        var xi = 0;
+        for (var i = 0; i < 256; i++) {
+            // Compute sbox
+            var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
+            sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
+            SBOX[x] = sx;
+            INV_SBOX[sx] = x;
 
-        const onDcAuth = ({ authKey, serverSalt }) => {
-          const storeObj = {
-            [akk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(authKey),
-            [ssk]: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_11__bin__["f" /* bytesToHex */])(serverSalt)
-          };
-          __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set(storeObj);
+            // Compute multiplication
+            var x2 = d[x];
+            var x4 = d[x2];
+            var x8 = d[x4];
 
-          return cache[dcID] = this.networkFabric(dcID, authKey, serverSalt, options);
-        };
+            // Compute sub bytes, mix columns tables
+            var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
+            SUB_MIX_0[x] = (t << 24) | (t >>> 8);
+            SUB_MIX_1[x] = (t << 16) | (t >>> 16);
+            SUB_MIX_2[x] = (t << 8)  | (t >>> 24);
+            SUB_MIX_3[x] = t;
 
-        return this.auth(dcID, this.cache.auth, dcUrl).then(onDcAuth, netError);
-      };
+            // Compute inv sub bytes, inv mix columns tables
+            var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
+            INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
+            INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
+            INV_SUB_MIX_2[sx] = (t << 8)  | (t >>> 24);
+            INV_SUB_MIX_3[sx] = t;
 
-      return __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get(akk, ssk).then(networkGetter);
-    };
+            // Compute next counter
+            if (!x) {
+                x = xi = 1;
+            } else {
+                x = x2 ^ d[d[d[x8 ^ x2]]];
+                xi ^= d[d[xi]];
+            }
+        }
+    }());
 
-    this.serverConfig = serverConfig;
-    this.debug = debug;
-    this.schema = schema;
-    this.mtSchema = mtSchema;
-    this.chooseServer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__dc_configurator__["chooseServer"])(this.cache.servers, serverConfig);
-    this.mtpInvokeApi = this.mtpInvokeApi.bind(this);
-    this.setUserAuth = this.setUserAuth.bind(this);
+    // Precomputed Rcon lookup
+    var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
 
-    this.TL = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_9__tl__["a" /* default */])(schema, mtSchema);
-    this.keyManager = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_10__rsa_keys_manger__["a" /* default */])(this.TL.Serialization);
-    this.auth = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__authorizer__["a" /* default */])(this.TL, this.keyManager);
-    this.appSettings = Object.assign({}, ApiManager.appSettings, withoutNil(appSettings));
-    this.networkFabric = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__networker__["getNetworker"])(this.appSettings, this.chooseServer, this.TL, this.emit, debug);
+    /**
+     * AES block cipher algorithm.
+     */
+    var AES = C_algo.AES = BlockCipher.extend({
+        _doReset: function () {
+            // Shortcuts
+            var key = this._key;
+            var keyWords = key.words;
+            var keySize = key.sigBytes / 4;
 
-    return new Proxy(this, {
-      get(ctx, name) {
-        const result = Reflect.get(ctx, name);
-        console.info('get', name, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["type"])(result));
-        return result;
-      }
+            // Compute number of rounds
+            var nRounds = this._nRounds = keySize + 6
+
+            // Compute number of key schedule rows
+            var ksRows = (nRounds + 1) * 4;
+
+            // Compute key schedule
+            var keySchedule = this._keySchedule = [];
+            for (var ksRow = 0; ksRow < ksRows; ksRow++) {
+                if (ksRow < keySize) {
+                    keySchedule[ksRow] = keyWords[ksRow];
+                } else {
+                    var t = keySchedule[ksRow - 1];
+
+                    if (!(ksRow % keySize)) {
+                        // Rot word
+                        t = (t << 8) | (t >>> 24);
+
+                        // Sub word
+                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+
+                        // Mix Rcon
+                        t ^= RCON[(ksRow / keySize) | 0] << 24;
+                    } else if (keySize > 6 && ksRow % keySize == 4) {
+                        // Sub word
+                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+                    }
+
+                    keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
+                }
+            }
+
+            // Compute inv key schedule
+            var invKeySchedule = this._invKeySchedule = [];
+            for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+                var ksRow = ksRows - invKsRow;
+
+                if (invKsRow % 4) {
+                    var t = keySchedule[ksRow];
+                } else {
+                    var t = keySchedule[ksRow - 4];
+                }
+
+                if (invKsRow < 4 || ksRow <= 4) {
+                    invKeySchedule[invKsRow] = t;
+                } else {
+                    invKeySchedule[invKsRow] = INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[(t >>> 16) & 0xff]] ^
+                                               INV_SUB_MIX_2[SBOX[(t >>> 8) & 0xff]] ^ INV_SUB_MIX_3[SBOX[t & 0xff]];
+                }
+            }
+        },
+
+        encryptBlock: function (M, offset) {
+            this._doCryptBlock(M, offset, this._keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX);
+        },
+
+        decryptBlock: function (M, offset) {
+            // Swap 2nd and 4th rows
+            var t = M[offset + 1];
+            M[offset + 1] = M[offset + 3];
+            M[offset + 3] = t;
+
+            this._doCryptBlock(M, offset, this._invKeySchedule, INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX);
+
+            // Inv swap 2nd and 4th rows
+            var t = M[offset + 1];
+            M[offset + 1] = M[offset + 3];
+            M[offset + 3] = t;
+        },
+
+        _doCryptBlock: function (M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
+            // Shortcut
+            var nRounds = this._nRounds;
+
+            // Get input, add round key
+            var s0 = M[offset]     ^ keySchedule[0];
+            var s1 = M[offset + 1] ^ keySchedule[1];
+            var s2 = M[offset + 2] ^ keySchedule[2];
+            var s3 = M[offset + 3] ^ keySchedule[3];
+
+            // Key schedule row counter
+            var ksRow = 4;
+
+            // Rounds
+            for (var round = 1; round < nRounds; round++) {
+                // Shift rows, sub bytes, mix columns, add round key
+                var t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^ SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
+                var t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^ SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
+                var t2 = SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[(s3 >>> 16) & 0xff] ^ SUB_MIX_2[(s0 >>> 8) & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++];
+                var t3 = SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[(s0 >>> 16) & 0xff] ^ SUB_MIX_2[(s1 >>> 8) & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++];
+
+                // Update state
+                s0 = t0;
+                s1 = t1;
+                s2 = t2;
+                s3 = t3;
+            }
+
+            // Shift rows, sub bytes, add round key
+            var t0 = ((SBOX[s0 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xff] << 16) | (SBOX[(s2 >>> 8) & 0xff] << 8) | SBOX[s3 & 0xff]) ^ keySchedule[ksRow++];
+            var t1 = ((SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) | (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]) ^ keySchedule[ksRow++];
+            var t2 = ((SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) | (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]) ^ keySchedule[ksRow++];
+            var t3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) | (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++];
+
+            // Set output
+            M[offset]     = t0;
+            M[offset + 1] = t1;
+            M[offset + 2] = t2;
+            M[offset + 3] = t3;
+        },
+
+        keySize: 256/32
     });
-  }
 
-  mtpInvokeApi(method, params, options = {}) {
-    // const self = this
-    const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__defer__["b" /* default */])();
-    const rejectPromise = error => {
-      if (!error) error = { type: 'ERROR_EMPTY' };else if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_ramda__["is"])(Object, error)) error = { message: error };
-      deferred.reject(error);
-
-      if (!options.noErrorBox) {
-        //TODO weird code. `error` changed after `.reject`?
-        error.input = method;
-        error.stack = stack || hasPath(['originalError', 'stack'], error) || error.stack || new Error().stack;
-        this.emit('error.invoke', error);
-      }
-    };
-    let dcID, cachedNetworker;
-
-    const cachedNetThunk = () => performRequest(cachedNetworker);
-    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3);
-
-    const defError = new Error();
-    const stack = defError.stack || 'empty stack';
-    const performRequest = networker => (cachedNetworker = networker).wrapApiCall(method, params, options).then(deferred.resolve, error => {
-      const deferResolve = deferred.resolve;
-      const apiSavedNet = () => cachedNetworker = networker;
-      const apiRecall = networker => networker.wrapApiCall(method, params, options);
-      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Error', error.code, error.type, baseDcID, dcID);
-
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_12__error_cases__["a" /* switchErrors */])(error, options, this.emit, rejectPromise, requestThunk, apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi, this.mtpGetNetworker);
-    });
-    const getDcNetworker = (baseDcID = 2) => this.mtpGetNetworker(dcID = defDc(baseDcID), options);
-
-    dcID = options.dcID || baseDcID;
-    if (dcID) __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(this.mtpGetNetworker(dcID, options)).then(performRequest).catch(rejectPromise);else __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].get('dc').then(getDcNetworker).then(performRequest).catch(rejectPromise);
-
-    return deferred.promise;
-  }
-  setUserAuth(dcID, userAuth) {
-    const fullUserAuth = Object.assign({ dcID }, userAuth);
-    __WEBPACK_IMPORTED_MODULE_5__store__["a" /* PureStorage */].set({
-      dc: dcID,
-      user_auth: fullUserAuth
-    });
-    this.emit('auth.dc', { dc: dcID, auth: userAuth });
-  }
-}
-/* harmony export (immutable) */ __webpack_exports__["c"] = ApiManager;
-
-
-ApiManager.appSettings = {
-  invokeWithLayer: 0xda9b0d0d,
-  layer: NaN,
-  initConnection: 0x69796de9,
-  api_id: '',
-  device_model: 'Unknown UserAgent',
-  system_version: 'Unknown Platform',
-  app_version: '',
-  lang_code: 'en'
-};
-const netError = error => {
-  console.log('Get networker error', error, error.stack);
-  return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(error);
-};
-
-const api = new ApiManager();
-/* harmony export (immutable) */ __webpack_exports__["b"] = api;
-
-
-const mtpInvokeApi = api.mtpInvokeApi;
-/* unused harmony export mtpInvokeApi */
+    /**
+     * Shortcut functions to the cipher's object interface.
+     *
+     * @example
+     *
+     *     var ciphertext = CryptoJS.AES.encrypt(message, key, cfg);
+     *     var plaintext  = CryptoJS.AES.decrypt(ciphertext, key, cfg);
+     */
+    C.AES = BlockCipher._createHelper(AES);
+}());
 
 
 /***/ }),
-/* 18 */
+
+/***/ 21:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(63);
+var CryptoJS = __webpack_require__(1).CryptoJS;
+
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+/**
+ * Cipher core components.
+ */
+CryptoJS.lib.Cipher || (function (undefined) {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var Base = C_lib.Base;
+    var WordArray = C_lib.WordArray;
+    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
+    var C_enc = C.enc;
+    var Utf8 = C_enc.Utf8;
+    var Base64 = C_enc.Base64;
+    var C_algo = C.algo;
+    var EvpKDF = C_algo.EvpKDF;
+
+    /**
+     * Abstract base cipher template.
+     *
+     * @property {number} keySize This cipher's key size. Default: 4 (128 bits)
+     * @property {number} ivSize This cipher's IV size. Default: 4 (128 bits)
+     * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
+     * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
+     */
+    var Cipher = C_lib.Cipher = BufferedBlockAlgorithm.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {WordArray} iv The IV to use for this operation.
+         */
+        cfg: Base.extend(),
+
+        /**
+         * Creates this cipher in encryption mode.
+         *
+         * @param {WordArray} key The key.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @return {Cipher} A cipher instance.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var cipher = CryptoJS.algo.AES.createEncryptor(keyWordArray, { iv: ivWordArray });
+         */
+        createEncryptor: function (key, cfg) {
+            return this.create(this._ENC_XFORM_MODE, key, cfg);
+        },
+
+        /**
+         * Creates this cipher in decryption mode.
+         *
+         * @param {WordArray} key The key.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @return {Cipher} A cipher instance.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var cipher = CryptoJS.algo.AES.createDecryptor(keyWordArray, { iv: ivWordArray });
+         */
+        createDecryptor: function (key, cfg) {
+            return this.create(this._DEC_XFORM_MODE, key, cfg);
+        },
+
+        /**
+         * Initializes a newly created cipher.
+         *
+         * @param {number} xformMode Either the encryption or decryption transormation mode constant.
+         * @param {WordArray} key The key.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @example
+         *
+         *     var cipher = CryptoJS.algo.AES.create(CryptoJS.algo.AES._ENC_XFORM_MODE, keyWordArray, { iv: ivWordArray });
+         */
+        init: function (xformMode, key, cfg) {
+            // Apply config defaults
+            this.cfg = this.cfg.extend(cfg);
+
+            // Store transform mode and key
+            this._xformMode = xformMode;
+            this._key = key;
+
+            // Set initial values
+            this.reset();
+        },
+
+        /**
+         * Resets this cipher to its initial state.
+         *
+         * @example
+         *
+         *     cipher.reset();
+         */
+        reset: function () {
+            // Reset data buffer
+            BufferedBlockAlgorithm.reset.call(this);
+
+            // Perform concrete-cipher logic
+            this._doReset();
+        },
+
+        /**
+         * Adds data to be encrypted or decrypted.
+         *
+         * @param {WordArray|string} dataUpdate The data to encrypt or decrypt.
+         *
+         * @return {WordArray} The data after processing.
+         *
+         * @example
+         *
+         *     var encrypted = cipher.process('data');
+         *     var encrypted = cipher.process(wordArray);
+         */
+        process: function (dataUpdate) {
+            // Append
+            this._append(dataUpdate);
+
+            // Process available blocks
+            return this._process();
+        },
+
+        /**
+         * Finalizes the encryption or decryption process.
+         * Note that the finalize operation is effectively a destructive, read-once operation.
+         *
+         * @param {WordArray|string} dataUpdate The final data to encrypt or decrypt.
+         *
+         * @return {WordArray} The data after final processing.
+         *
+         * @example
+         *
+         *     var encrypted = cipher.finalize();
+         *     var encrypted = cipher.finalize('data');
+         *     var encrypted = cipher.finalize(wordArray);
+         */
+        finalize: function (dataUpdate) {
+            // Final data update
+            if (dataUpdate) {
+                this._append(dataUpdate);
+            }
+
+            // Perform concrete-cipher logic
+            var finalProcessedData = this._doFinalize();
+
+            return finalProcessedData;
+        },
+
+        keySize: 128/32,
+
+        ivSize: 128/32,
+
+        _ENC_XFORM_MODE: 1,
+
+        _DEC_XFORM_MODE: 2,
+
+        /**
+         * Creates shortcut functions to a cipher's object interface.
+         *
+         * @param {Cipher} cipher The cipher to create a helper for.
+         *
+         * @return {Object} An object with encrypt and decrypt shortcut functions.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var AES = CryptoJS.lib.Cipher._createHelper(CryptoJS.algo.AES);
+         */
+        _createHelper: (function () {
+            function selectCipherStrategy(key) {
+                if (typeof key == 'string') {
+                    return PasswordBasedCipher;
+                } else {
+                    return SerializableCipher;
+                }
+            }
+
+            return function (cipher) {
+                return {
+                    encrypt: function (message, key, cfg) {
+                        return selectCipherStrategy(key).encrypt(cipher, message, key, cfg);
+                    },
+
+                    decrypt: function (ciphertext, key, cfg) {
+                        return selectCipherStrategy(key).decrypt(cipher, ciphertext, key, cfg);
+                    }
+                };
+            };
+        }())
+    });
+
+    /**
+     * Abstract base stream cipher template.
+     *
+     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 1 (32 bits)
+     */
+    var StreamCipher = C_lib.StreamCipher = Cipher.extend({
+        _doFinalize: function () {
+            // Process partial blocks
+            var finalProcessedBlocks = this._process(!!'flush');
+
+            return finalProcessedBlocks;
+        },
+
+        blockSize: 1
+    });
+
+    /**
+     * Mode namespace.
+     */
+    var C_mode = C.mode = {};
+
+    /**
+     * Abstract base block cipher mode template.
+     */
+    var BlockCipherMode = C_lib.BlockCipherMode = Base.extend({
+        /**
+         * Creates this mode for encryption.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {Array} iv The IV words.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.createEncryptor(cipher, iv.words);
+         */
+        createEncryptor: function (cipher, iv) {
+            return this.Encryptor.create(cipher, iv);
+        },
+
+        /**
+         * Creates this mode for decryption.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {Array} iv The IV words.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.createDecryptor(cipher, iv.words);
+         */
+        createDecryptor: function (cipher, iv) {
+            return this.Decryptor.create(cipher, iv);
+        },
+
+        /**
+         * Initializes a newly created mode.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {Array} iv The IV words.
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv.words);
+         */
+        init: function (cipher, iv) {
+            this._cipher = cipher;
+            this._iv = iv;
+        }
+    });
+
+    /**
+     * Cipher Block Chaining mode.
+     */
+    var CBC = C_mode.CBC = (function () {
+        /**
+         * Abstract base CBC mode.
+         */
+        var CBC = BlockCipherMode.extend();
+
+        /**
+         * CBC encryptor.
+         */
+        CBC.Encryptor = CBC.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {Array} words The data words to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data.words, offset);
+             */
+            processBlock: function (words, offset) {
+                // Shortcuts
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+
+                // XOR and encrypt
+                xorBlock.call(this, words, offset, blockSize);
+                cipher.encryptBlock(words, offset);
+
+                // Remember this block to use with next block
+                this._prevBlock = words.slice(offset, offset + blockSize);
+            }
+        });
+
+        /**
+         * CBC decryptor.
+         */
+        CBC.Decryptor = CBC.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {Array} words The data words to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data.words, offset);
+             */
+            processBlock: function (words, offset) {
+                // Shortcuts
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+
+                // Remember this block to use with next block
+                var thisBlock = words.slice(offset, offset + blockSize);
+
+                // Decrypt and XOR
+                cipher.decryptBlock(words, offset);
+                xorBlock.call(this, words, offset, blockSize);
+
+                // This block becomes the previous block
+                this._prevBlock = thisBlock;
+            }
+        });
+
+        function xorBlock(words, offset, blockSize) {
+            // Shortcut
+            var iv = this._iv;
+
+            // Choose mixing block
+            if (iv) {
+                var block = iv;
+
+                // Remove IV for subsequent blocks
+                this._iv = undefined;
+            } else {
+                var block = this._prevBlock;
+            }
+
+            // XOR blocks
+            for (var i = 0; i < blockSize; i++) {
+                words[offset + i] ^= block[i];
+            }
+        }
+
+        return CBC;
+    }());
+
+    /**
+     * Infinite Garble Extension mode.
+     */
+    var IGE = C_mode.IGE = (function () {
+        /**
+         * Abstract base IGE mode.
+         */
+        var IGE = BlockCipherMode.extend();
+
+        /**
+         * IGE encryptor.
+         */
+        IGE.Encryptor = IGE.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {Array} words The data words to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data.words, offset);
+             */
+            processBlock: function (words, offset) {
+                // Shortcuts
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+
+                if (this._ivp === undefined) {
+                  this._ivp = this._iv.slice(0, blockSize);
+                  this._iv2p = this._iv.slice(blockSize, blockSize + blockSize);
+                }
+
+
+                // Remember this block to use with next block
+                var nextIv2p = words.slice(offset, offset + blockSize);
+
+                // XOR with previous ciphertext
+                xorBlock(words, this._ivp, offset, blockSize);
+
+                // Block cipher
+                cipher.encryptBlock(words, offset);
+
+                // XOR with previous plaintext
+                xorBlock(words, this._iv2p, offset, blockSize);
+
+                this._ivp = words.slice(offset, offset + blockSize);
+                this._iv2p = nextIv2p;
+            }
+        });
+
+        /**
+         * IGE decryptor.
+         */
+        IGE.Decryptor = IGE.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {Array} words The data words to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data.words, offset);
+             */
+            processBlock: function (words, offset) {
+                // Shortcuts
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+
+                if (this._ivp === undefined) {
+                  this._ivp = this._iv.slice(0, blockSize);
+                  this._iv2p = this._iv.slice(blockSize, 2 * blockSize);
+                }
+
+                // Remember this block to use with next block
+                var nextIvp = words.slice(offset, offset + blockSize);
+
+                // XOR with previous ciphertext
+                xorBlock(words, this._iv2p, offset, blockSize);
+
+                // Block cipher
+                cipher.decryptBlock(words, offset);
+
+                // XOR with previous plaintext
+                xorBlock(words, this._ivp, offset, blockSize);
+
+                this._ivp = nextIvp;
+                this._iv2p = words.slice(offset, offset + blockSize);
+            }
+        });
+
+        function xorBlock(words, block, offset, blockSize) {
+            for (var i = 0; i < blockSize; i++) {
+                words[offset + i] ^= block[i];
+            }
+        }
+
+        return IGE;
+    }());
+
+    /**
+     * Padding namespace.
+     */
+    var C_pad = C.pad = {};
+
+    /**
+     * PKCS #5/7 padding strategy.
+     */
+    var Pkcs7 = C_pad.Pkcs7 = {
+        /**
+         * Pads data using the algorithm defined in PKCS #5/7.
+         *
+         * @param {WordArray} data The data to pad.
+         * @param {number} blockSize The multiple that the data should be padded to.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     CryptoJS.pad.Pkcs7.pad(wordArray, 4);
+         */
+        pad: function (data, blockSize) {
+            // Shortcut
+            var blockSizeBytes = blockSize * 4;
+
+            // Count padding bytes
+            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+
+            // Create padding word
+            var paddingWord = (nPaddingBytes << 24) | (nPaddingBytes << 16) | (nPaddingBytes << 8) | nPaddingBytes;
+
+            // Create padding
+            var paddingWords = [];
+            for (var i = 0; i < nPaddingBytes; i += 4) {
+                paddingWords.push(paddingWord);
+            }
+            var padding = WordArray.create(paddingWords, nPaddingBytes);
+
+            // Add padding
+            data.concat(padding);
+        },
+
+        /**
+         * Unpads data that had been padded using the algorithm defined in PKCS #5/7.
+         *
+         * @param {WordArray} data The data to unpad.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     CryptoJS.pad.Pkcs7.unpad(wordArray);
+         */
+        unpad: function (data) {
+            // Get number of padding bytes from last byte
+            var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+
+            // Remove padding
+            data.sigBytes -= nPaddingBytes;
+        }
+    };
+
+    var NoPadding = C_pad.NoPadding = {
+        pad: function () {
+        },
+
+        unpad: function () {
+        }
+    };
+
+
+    /**
+     * Abstract base block cipher template.
+     *
+     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
+     */
+    var BlockCipher = C_lib.BlockCipher = Cipher.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {Mode} mode The block mode to use. Default: CBC
+         * @property {Padding} padding The padding strategy to use. Default: Pkcs7
+         */
+        cfg: Cipher.cfg.extend({
+            mode: CBC,
+            padding: Pkcs7
+        }),
+
+        reset: function () {
+            // Reset cipher
+            Cipher.reset.call(this);
+
+            // Shortcuts
+            var cfg = this.cfg;
+            var iv = cfg.iv;
+            var mode = cfg.mode;
+
+            // Reset block mode
+            if (this._xformMode == this._ENC_XFORM_MODE) {
+                var modeCreator = mode.createEncryptor;
+            } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
+                var modeCreator = mode.createDecryptor;
+
+                // Keep at least one block in the buffer for unpadding
+                this._minBufferSize = 1;
+            }
+            this._mode = modeCreator.call(mode, this, iv && iv.words);
+        },
+
+        _doProcessBlock: function (words, offset) {
+            this._mode.processBlock(words, offset);
+        },
+
+        _doFinalize: function () {
+            // Shortcut
+            var padding = this.cfg.padding;
+
+            // Finalize
+            if (this._xformMode == this._ENC_XFORM_MODE) {
+                // Pad data
+                padding.pad(this._data, this.blockSize);
+
+                // Process final blocks
+                var finalProcessedBlocks = this._process(!!'flush');
+            } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
+                // Process final blocks
+                var finalProcessedBlocks = this._process(!!'flush');
+
+                // Unpad data
+                padding.unpad(finalProcessedBlocks);
+            }
+
+            return finalProcessedBlocks;
+        },
+
+        blockSize: 128/32
+    });
+
+    /**
+     * A collection of cipher parameters.
+     *
+     * @property {WordArray} ciphertext The raw ciphertext.
+     * @property {WordArray} key The key to this ciphertext.
+     * @property {WordArray} iv The IV used in the ciphering operation.
+     * @property {WordArray} salt The salt used with a key derivation function.
+     * @property {Cipher} algorithm The cipher algorithm.
+     * @property {Mode} mode The block mode used in the ciphering operation.
+     * @property {Padding} padding The padding scheme used in the ciphering operation.
+     * @property {number} blockSize The block size of the cipher.
+     * @property {Format} formatter The default formatting strategy to convert this cipher params object to a string.
+     */
+    var CipherParams = C_lib.CipherParams = Base.extend({
+        /**
+         * Initializes a newly created cipher params object.
+         *
+         * @param {Object} cipherParams An object with any of the possible cipher parameters.
+         *
+         * @example
+         *
+         *     var cipherParams = CryptoJS.lib.CipherParams.create({
+         *         ciphertext: ciphertextWordArray,
+         *         key: keyWordArray,
+         *         iv: ivWordArray,
+         *         salt: saltWordArray,
+         *         algorithm: CryptoJS.algo.AES,
+         *         mode: CryptoJS.mode.CBC,
+         *         padding: CryptoJS.pad.PKCS7,
+         *         blockSize: 4,
+         *         formatter: CryptoJS.format.OpenSSL
+         *     });
+         */
+        init: function (cipherParams) {
+            this.mixIn(cipherParams);
+        },
+
+        /**
+         * Converts this cipher params object to a string.
+         *
+         * @param {Format} formatter (Optional) The formatting strategy to use.
+         *
+         * @return {string} The stringified cipher params.
+         *
+         * @throws Error If neither the formatter nor the default formatter is set.
+         *
+         * @example
+         *
+         *     var string = cipherParams + '';
+         *     var string = cipherParams.toString();
+         *     var string = cipherParams.toString(CryptoJS.format.OpenSSL);
+         */
+        toString: function (formatter) {
+            return (formatter || this.formatter).stringify(this);
+        }
+    });
+
+    /**
+     * Format namespace.
+     */
+    var C_format = C.format = {};
+
+    /**
+     * OpenSSL formatting strategy.
+     */
+    var OpenSSLFormatter = C_format.OpenSSL = {
+        /**
+         * Converts a cipher params object to an OpenSSL-compatible string.
+         *
+         * @param {CipherParams} cipherParams The cipher params object.
+         *
+         * @return {string} The OpenSSL-compatible string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var openSSLString = CryptoJS.format.OpenSSL.stringify(cipherParams);
+         */
+        stringify: function (cipherParams) {
+            // Shortcuts
+            var ciphertext = cipherParams.ciphertext;
+            var salt = cipherParams.salt;
+
+            // Format
+            if (salt) {
+                var wordArray = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
+            } else {
+                var wordArray = ciphertext;
+            }
+
+            return wordArray.toString(Base64);
+        },
+
+        /**
+         * Converts an OpenSSL-compatible string to a cipher params object.
+         *
+         * @param {string} openSSLStr The OpenSSL-compatible string.
+         *
+         * @return {CipherParams} The cipher params object.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var cipherParams = CryptoJS.format.OpenSSL.parse(openSSLString);
+         */
+        parse: function (openSSLStr) {
+            // Parse base64
+            var ciphertext = Base64.parse(openSSLStr);
+
+            // Shortcut
+            var ciphertextWords = ciphertext.words;
+
+            // Test for salt
+            if (ciphertextWords[0] == 0x53616c74 && ciphertextWords[1] == 0x65645f5f) {
+                // Extract salt
+                var salt = WordArray.create(ciphertextWords.slice(2, 4));
+
+                // Remove salt from ciphertext
+                ciphertextWords.splice(0, 4);
+                ciphertext.sigBytes -= 16;
+            }
+
+            return CipherParams.create({ ciphertext: ciphertext, salt: salt });
+        }
+    };
+
+    /**
+     * A cipher wrapper that returns ciphertext as a serializable cipher params object.
+     */
+    var SerializableCipher = C_lib.SerializableCipher = Base.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {Formatter} format The formatting strategy to convert cipher param objects to and from a string. Default: OpenSSL
+         */
+        cfg: Base.extend({
+            format: OpenSSLFormatter
+        }),
+
+        /**
+         * Encrypts a message.
+         *
+         * @param {Cipher} cipher The cipher algorithm to use.
+         * @param {WordArray|string} message The message to encrypt.
+         * @param {WordArray} key The key.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @return {CipherParams} A cipher params object.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key);
+         *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key, { iv: iv });
+         *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+         */
+        encrypt: function (cipher, message, key, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg);
+
+            // Encrypt
+            var encryptor = cipher.createEncryptor(key, cfg);
+            var ciphertext = encryptor.finalize(message);
+
+            // Shortcut
+            var cipherCfg = encryptor.cfg;
+
+            // Create and return serializable cipher params
+            return CipherParams.create({
+                ciphertext: ciphertext,
+                key: key,
+                iv: cipherCfg.iv,
+                algorithm: cipher,
+                mode: cipherCfg.mode,
+                padding: cipherCfg.padding,
+                blockSize: cipher.blockSize,
+                formatter: cfg.format
+            });
+        },
+
+        /**
+         * Decrypts serialized ciphertext.
+         *
+         * @param {Cipher} cipher The cipher algorithm to use.
+         * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+         * @param {WordArray} key The key.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @return {WordArray} The plaintext.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var plaintext = CryptoJS.lib.SerializableCipher.decrypt(CryptoJS.algo.AES, formattedCiphertext, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+         *     var plaintext = CryptoJS.lib.SerializableCipher.decrypt(CryptoJS.algo.AES, ciphertextParams, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+         */
+        decrypt: function (cipher, ciphertext, key, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg);
+
+            // Convert string to CipherParams
+            ciphertext = this._parse(ciphertext, cfg.format);
+
+            // Decrypt
+            var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
+
+            return plaintext;
+        },
+
+        /**
+         * Converts serialized ciphertext to CipherParams,
+         * else assumed CipherParams already and returns ciphertext unchanged.
+         *
+         * @param {CipherParams|string} ciphertext The ciphertext.
+         * @param {Formatter} format The formatting strategy to use to parse serialized ciphertext.
+         *
+         * @return {CipherParams} The unserialized ciphertext.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var ciphertextParams = CryptoJS.lib.SerializableCipher._parse(ciphertextStringOrParams, format);
+         */
+        _parse: function (ciphertext, format) {
+            if (typeof ciphertext == 'string') {
+                return format.parse(ciphertext, this);
+            } else {
+                return ciphertext;
+            }
+        }
+    });
+
+    /**
+     * Key derivation function namespace.
+     */
+    var C_kdf = C.kdf = {};
+
+    /**
+     * OpenSSL key derivation function.
+     */
+    var OpenSSLKdf = C_kdf.OpenSSL = {
+        /**
+         * Derives a key and IV from a password.
+         *
+         * @param {string} password The password to derive from.
+         * @param {number} keySize The size in words of the key to generate.
+         * @param {number} ivSize The size in words of the IV to generate.
+         * @param {WordArray|string} salt (Optional) A 64-bit salt to use. If omitted, a salt will be generated randomly.
+         *
+         * @return {CipherParams} A cipher params object with the key, IV, and salt.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32);
+         *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32, 'saltsalt');
+         */
+        execute: function (password, keySize, ivSize, salt) {
+            // Generate random salt
+            if (!salt) {
+                salt = WordArray.random(64/8);
+            }
+
+            // Derive key and IV
+            var key = EvpKDF.create({ keySize: keySize + ivSize }).compute(password, salt);
+
+            // Separate key and IV
+            var iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
+            key.sigBytes = keySize * 4;
+
+            // Return params
+            return CipherParams.create({ key: key, iv: iv, salt: salt });
+        }
+    };
+
+    /**
+     * A serializable cipher wrapper that derives the key from a password,
+     * and returns ciphertext as a serializable cipher params object.
+     */
+    var PasswordBasedCipher = C_lib.PasswordBasedCipher = SerializableCipher.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {KDF} kdf The key derivation function to use to generate a key and IV from a password. Default: OpenSSL
+         */
+        cfg: SerializableCipher.cfg.extend({
+            kdf: OpenSSLKdf
+        }),
+
+        /**
+         * Encrypts a message using a password.
+         *
+         * @param {Cipher} cipher The cipher algorithm to use.
+         * @param {WordArray|string} message The message to encrypt.
+         * @param {string} password The password.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @return {CipherParams} A cipher params object.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(CryptoJS.algo.AES, message, 'password');
+         *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(CryptoJS.algo.AES, message, 'password', { format: CryptoJS.format.OpenSSL });
+         */
+        encrypt: function (cipher, message, password, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg);
+
+            // Derive key and other params
+            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize);
+
+            // Add IV to config
+            cfg.iv = derivedParams.iv;
+
+            // Encrypt
+            var ciphertext = SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, cfg);
+
+            // Mix in derived params
+            ciphertext.mixIn(derivedParams);
+
+            return ciphertext;
+        },
+
+        /**
+         * Decrypts serialized ciphertext using a password.
+         *
+         * @param {Cipher} cipher The cipher algorithm to use.
+         * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+         * @param {string} password The password.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @return {WordArray} The plaintext.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(CryptoJS.algo.AES, formattedCiphertext, 'password', { format: CryptoJS.format.OpenSSL });
+         *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(CryptoJS.algo.AES, ciphertextParams, 'password', { format: CryptoJS.format.OpenSSL });
+         */
+        decrypt: function (cipher, ciphertext, password, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg);
+
+            // Convert string to CipherParams
+            ciphertext = this._parse(ciphertext, cfg.format);
+
+            // Derive key and other params
+            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt);
+
+            // Add IV to config
+            cfg.iv = derivedParams.iv;
+
+            // Decrypt
+            var plaintext = SerializableCipher.decrypt.call(this, cipher, ciphertext, derivedParams.key, cfg);
+
+            return plaintext;
+        }
+    });
+}());
+
 
 /***/ }),
-/* 19 */
+
+/***/ 22:
+/***/ (function(module, exports, __webpack_require__) {
+
+var CryptoJS = __webpack_require__(1).CryptoJS;
+
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+(function () {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var C_enc = C.enc;
+
+    /**
+     * Base64 encoding strategy.
+     */
+    var Base64 = C_enc.Base64 = {
+        /**
+         * Converts a word array to a Base64 string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The Base64 string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var base64String = CryptoJS.enc.Base64.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+            var map = this._map;
+
+            // Clamp excess bits
+            wordArray.clamp();
+
+            // Convert
+            var base64Chars = [];
+            for (var i = 0; i < sigBytes; i += 3) {
+                var byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
+                var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
+                var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
+
+                var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
+
+                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
+                    base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
+                }
+            }
+
+            // Add padding
+            var paddingChar = map.charAt(64);
+            if (paddingChar) {
+                while (base64Chars.length % 4) {
+                    base64Chars.push(paddingChar);
+                }
+            }
+
+            return base64Chars.join('');
+        },
+
+        /**
+         * Converts a Base64 string to a word array.
+         *
+         * @param {string} base64Str The Base64 string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Base64.parse(base64String);
+         */
+        parse: function (base64Str) {
+            // Shortcuts
+            var base64StrLength = base64Str.length;
+            var map = this._map;
+
+            // Ignore padding
+            var paddingChar = map.charAt(64);
+            if (paddingChar) {
+                var paddingIndex = base64Str.indexOf(paddingChar);
+                if (paddingIndex != -1) {
+                    base64StrLength = paddingIndex;
+                }
+            }
+
+            // Convert
+            var words = [];
+            var nBytes = 0;
+            for (var i = 0; i < base64StrLength; i++) {
+                if (i % 4) {
+                    var bits1 = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);
+                    var bits2 = map.indexOf(base64Str.charAt(i)) >>> (6 - (i % 4) * 2);
+                    words[nBytes >>> 2] |= (bits1 | bits2) << (24 - (nBytes % 4) * 8);
+                    nBytes++;
+                }
+            }
+
+            return WordArray.create(words, nBytes);
+        },
+
+        _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+    };
+}());
+
+
+/***/ }),
+
+/***/ 228:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = function() {
+	return new Worker(__webpack_require__.p + "hash.worker.js");
+};
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(module, exports, __webpack_require__) {
+
+var CryptoJS = __webpack_require__(1).CryptoJS;
+
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+(function () {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var Base = C_lib.Base;
+    var WordArray = C_lib.WordArray;
+    var C_algo = C.algo;
+    var MD5 = C_algo.MD5;
+
+    /**
+     * This key derivation function is meant to conform with EVP_BytesToKey.
+     * www.openssl.org/docs/crypto/EVP_BytesToKey.html
+     */
+    var EvpKDF = C_algo.EvpKDF = Base.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
+         * @property {Hasher} hasher The hash algorithm to use. Default: MD5
+         * @property {number} iterations The number of iterations to perform. Default: 1
+         */
+        cfg: Base.extend({
+            keySize: 128/32,
+            hasher: MD5,
+            iterations: 1
+        }),
+
+        /**
+         * Initializes a newly created key derivation function.
+         *
+         * @param {Object} cfg (Optional) The configuration options to use for the derivation.
+         *
+         * @example
+         *
+         *     var kdf = CryptoJS.algo.EvpKDF.create();
+         *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8 });
+         *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8, iterations: 1000 });
+         */
+        init: function (cfg) {
+            this.cfg = this.cfg.extend(cfg);
+        },
+
+        /**
+         * Derives a key from a password.
+         *
+         * @param {WordArray|string} password The password.
+         * @param {WordArray|string} salt A salt.
+         *
+         * @return {WordArray} The derived key.
+         *
+         * @example
+         *
+         *     var key = kdf.compute(password, salt);
+         */
+        compute: function (password, salt) {
+            // Shortcut
+            var cfg = this.cfg;
+
+            // Init hasher
+            var hasher = cfg.hasher.create();
+
+            // Initial values
+            var derivedKey = WordArray.create();
+
+            // Shortcuts
+            var derivedKeyWords = derivedKey.words;
+            var keySize = cfg.keySize;
+            var iterations = cfg.iterations;
+
+            // Generate key
+            while (derivedKeyWords.length < keySize) {
+                if (block) {
+                    hasher.update(block);
+                }
+                var block = hasher.update(password).finalize(salt);
+                hasher.reset();
+
+                // Iterations
+                for (var i = 1; i < iterations; i++) {
+                    block = hasher.finalize(block);
+                    hasher.reset();
+                }
+
+                derivedKey.concat(block);
+            }
+            derivedKey.sigBytes = keySize * 4;
+
+            return derivedKey;
+        }
+    });
+
+    /**
+     * Derives a key from a password.
+     *
+     * @param {WordArray|string} password The password.
+     * @param {WordArray|string} salt A salt.
+     * @param {Object} cfg (Optional) The configuration options to use for this computation.
+     *
+     * @return {WordArray} The derived key.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var key = CryptoJS.EvpKDF(password, salt);
+     *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8 });
+     *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8, iterations: 1000 });
+     */
+    C.EvpKDF = function (password, salt, cfg) {
+        return EvpKDF.create(cfg).compute(password, salt);
+    };
+}());
+
+
+/***/ }),
+
+/***/ 24:
+/***/ (function(module, exports, __webpack_require__) {
+
+var CryptoJS = __webpack_require__(1).CryptoJS;
+
+// create custom json serialization format
+var JsonFormatter = {
+	stringify: function (cipherParams) {
+		// create json object with ciphertext
+		var jsonObj = {
+			ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64)
+		};
+		
+		// optionally add iv and salt
+		if (cipherParams.iv) {
+			jsonObj.iv = cipherParams.iv.toString();
+		}
+		
+		if (cipherParams.salt) {
+			jsonObj.s = cipherParams.salt.toString();
+		}
+
+		// stringify json object
+		return JSON.stringify(jsonObj)
+	},
+
+	parse: function (jsonStr) {
+		// parse json string
+		var jsonObj = JSON.parse(jsonStr);
+		
+		// extract ciphertext from json object, and create cipher params object
+		var cipherParams = CryptoJS.lib.CipherParams.create({
+			ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
+		});
+		
+		// optionally extract iv and salt
+		if (jsonObj.iv) {
+			cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv);
+		}
+            
+		if (jsonObj.s) {
+			cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s);
+		}
+		
+		return cipherParams;
+	}
+};
+
+exports.JsonFormatter = JsonFormatter;
+
+/***/ }),
+
+/***/ 25:
+/***/ (function(module, exports, __webpack_require__) {
+
+var CryptoJS = __webpack_require__(1).CryptoJS;
+
+/*
+CryptoJS v3.1.2
+code.google.com/p/crypto-js
+(c) 2009-2013 by Jeff Mott. All rights reserved.
+code.google.com/p/crypto-js/wiki/License
+*/
+(function (Math) {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var Hasher = C_lib.Hasher;
+    var C_algo = C.algo;
+
+    // Constants table
+    var T = [];
+
+    // Compute constants
+    (function () {
+        for (var i = 0; i < 64; i++) {
+            T[i] = (Math.abs(Math.sin(i + 1)) * 0x100000000) | 0;
+        }
+    }());
+
+    /**
+     * MD5 hash algorithm.
+     */
+    var MD5 = C_algo.MD5 = Hasher.extend({
+        _doReset: function () {
+            this._hash = new WordArray.init([
+                0x67452301, 0xefcdab89,
+                0x98badcfe, 0x10325476
+            ]);
+        },
+
+        _doProcessBlock: function (M, offset) {
+            // Swap endian
+            for (var i = 0; i < 16; i++) {
+                // Shortcuts
+                var offset_i = offset + i;
+                var M_offset_i = M[offset_i];
+
+                M[offset_i] = (
+                    (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
+                    (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
+                );
+            }
+
+            // Shortcuts
+            var H = this._hash.words;
+
+            var M_offset_0  = M[offset + 0];
+            var M_offset_1  = M[offset + 1];
+            var M_offset_2  = M[offset + 2];
+            var M_offset_3  = M[offset + 3];
+            var M_offset_4  = M[offset + 4];
+            var M_offset_5  = M[offset + 5];
+            var M_offset_6  = M[offset + 6];
+            var M_offset_7  = M[offset + 7];
+            var M_offset_8  = M[offset + 8];
+            var M_offset_9  = M[offset + 9];
+            var M_offset_10 = M[offset + 10];
+            var M_offset_11 = M[offset + 11];
+            var M_offset_12 = M[offset + 12];
+            var M_offset_13 = M[offset + 13];
+            var M_offset_14 = M[offset + 14];
+            var M_offset_15 = M[offset + 15];
+
+            // Working varialbes
+            var a = H[0];
+            var b = H[1];
+            var c = H[2];
+            var d = H[3];
+
+            // Computation
+            a = FF(a, b, c, d, M_offset_0,  7,  T[0]);
+            d = FF(d, a, b, c, M_offset_1,  12, T[1]);
+            c = FF(c, d, a, b, M_offset_2,  17, T[2]);
+            b = FF(b, c, d, a, M_offset_3,  22, T[3]);
+            a = FF(a, b, c, d, M_offset_4,  7,  T[4]);
+            d = FF(d, a, b, c, M_offset_5,  12, T[5]);
+            c = FF(c, d, a, b, M_offset_6,  17, T[6]);
+            b = FF(b, c, d, a, M_offset_7,  22, T[7]);
+            a = FF(a, b, c, d, M_offset_8,  7,  T[8]);
+            d = FF(d, a, b, c, M_offset_9,  12, T[9]);
+            c = FF(c, d, a, b, M_offset_10, 17, T[10]);
+            b = FF(b, c, d, a, M_offset_11, 22, T[11]);
+            a = FF(a, b, c, d, M_offset_12, 7,  T[12]);
+            d = FF(d, a, b, c, M_offset_13, 12, T[13]);
+            c = FF(c, d, a, b, M_offset_14, 17, T[14]);
+            b = FF(b, c, d, a, M_offset_15, 22, T[15]);
+
+            a = GG(a, b, c, d, M_offset_1,  5,  T[16]);
+            d = GG(d, a, b, c, M_offset_6,  9,  T[17]);
+            c = GG(c, d, a, b, M_offset_11, 14, T[18]);
+            b = GG(b, c, d, a, M_offset_0,  20, T[19]);
+            a = GG(a, b, c, d, M_offset_5,  5,  T[20]);
+            d = GG(d, a, b, c, M_offset_10, 9,  T[21]);
+            c = GG(c, d, a, b, M_offset_15, 14, T[22]);
+            b = GG(b, c, d, a, M_offset_4,  20, T[23]);
+            a = GG(a, b, c, d, M_offset_9,  5,  T[24]);
+            d = GG(d, a, b, c, M_offset_14, 9,  T[25]);
+            c = GG(c, d, a, b, M_offset_3,  14, T[26]);
+            b = GG(b, c, d, a, M_offset_8,  20, T[27]);
+            a = GG(a, b, c, d, M_offset_13, 5,  T[28]);
+            d = GG(d, a, b, c, M_offset_2,  9,  T[29]);
+            c = GG(c, d, a, b, M_offset_7,  14, T[30]);
+            b = GG(b, c, d, a, M_offset_12, 20, T[31]);
+
+            a = HH(a, b, c, d, M_offset_5,  4,  T[32]);
+            d = HH(d, a, b, c, M_offset_8,  11, T[33]);
+            c = HH(c, d, a, b, M_offset_11, 16, T[34]);
+            b = HH(b, c, d, a, M_offset_14, 23, T[35]);
+            a = HH(a, b, c, d, M_offset_1,  4,  T[36]);
+            d = HH(d, a, b, c, M_offset_4,  11, T[37]);
+            c = HH(c, d, a, b, M_offset_7,  16, T[38]);
+            b = HH(b, c, d, a, M_offset_10, 23, T[39]);
+            a = HH(a, b, c, d, M_offset_13, 4,  T[40]);
+            d = HH(d, a, b, c, M_offset_0,  11, T[41]);
+            c = HH(c, d, a, b, M_offset_3,  16, T[42]);
+            b = HH(b, c, d, a, M_offset_6,  23, T[43]);
+            a = HH(a, b, c, d, M_offset_9,  4,  T[44]);
+            d = HH(d, a, b, c, M_offset_12, 11, T[45]);
+            c = HH(c, d, a, b, M_offset_15, 16, T[46]);
+            b = HH(b, c, d, a, M_offset_2,  23, T[47]);
+
+            a = II(a, b, c, d, M_offset_0,  6,  T[48]);
+            d = II(d, a, b, c, M_offset_7,  10, T[49]);
+            c = II(c, d, a, b, M_offset_14, 15, T[50]);
+            b = II(b, c, d, a, M_offset_5,  21, T[51]);
+            a = II(a, b, c, d, M_offset_12, 6,  T[52]);
+            d = II(d, a, b, c, M_offset_3,  10, T[53]);
+            c = II(c, d, a, b, M_offset_10, 15, T[54]);
+            b = II(b, c, d, a, M_offset_1,  21, T[55]);
+            a = II(a, b, c, d, M_offset_8,  6,  T[56]);
+            d = II(d, a, b, c, M_offset_15, 10, T[57]);
+            c = II(c, d, a, b, M_offset_6,  15, T[58]);
+            b = II(b, c, d, a, M_offset_13, 21, T[59]);
+            a = II(a, b, c, d, M_offset_4,  6,  T[60]);
+            d = II(d, a, b, c, M_offset_11, 10, T[61]);
+            c = II(c, d, a, b, M_offset_2,  15, T[62]);
+            b = II(b, c, d, a, M_offset_9,  21, T[63]);
+
+            // Intermediate hash value
+            H[0] = (H[0] + a) | 0;
+            H[1] = (H[1] + b) | 0;
+            H[2] = (H[2] + c) | 0;
+            H[3] = (H[3] + d) | 0;
+        },
+
+        _doFinalize: function () {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = data.sigBytes * 8;
+
+            // Add padding
+            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+
+            var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+            var nBitsTotalL = nBitsTotal;
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = (
+                (((nBitsTotalH << 8)  | (nBitsTotalH >>> 24)) & 0x00ff00ff) |
+                (((nBitsTotalH << 24) | (nBitsTotalH >>> 8))  & 0xff00ff00)
+            );
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+                (((nBitsTotalL << 8)  | (nBitsTotalL >>> 24)) & 0x00ff00ff) |
+                (((nBitsTotalL << 24) | (nBitsTotalL >>> 8))  & 0xff00ff00)
+            );
+
+            data.sigBytes = (dataWords.length + 1) * 4;
+
+            // Hash final blocks
+            this._process();
+
+            // Shortcuts
+            var hash = this._hash;
+            var H = hash.words;
+
+            // Swap endian
+            for (var i = 0; i < 4; i++) {
+                // Shortcut
+                var H_i = H[i];
+
+                H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
+                       (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
+            }
+
+            // Return final computed hash
+            return hash;
+        },
+
+        clone: function () {
+            var clone = Hasher.clone.call(this);
+            clone._hash = this._hash.clone();
+
+            return clone;
+        }
+    });
+
+    function FF(a, b, c, d, x, s, t) {
+        var n = a + ((b & c) | (~b & d)) + x + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    function GG(a, b, c, d, x, s, t) {
+        var n = a + ((b & d) | (c & ~d)) + x + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    function HH(a, b, c, d, x, s, t) {
+        var n = a + (b ^ c ^ d) + x + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    function II(a, b, c, d, x, s, t) {
+        var n = a + (c ^ (b | ~d)) + x + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    /**
+     * Shortcut function to the hasher's object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     *
+     * @return {WordArray} The hash.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var hash = CryptoJS.MD5('message');
+     *     var hash = CryptoJS.MD5(wordArray);
+     */
+    C.MD5 = Hasher._createHelper(MD5);
+
+    /**
+     * Shortcut function to the HMAC's object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     * @param {WordArray|string} key The secret key.
+     *
+     * @return {WordArray} The HMAC.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var hmac = CryptoJS.HmacMD5(message, key);
+     */
+    C.HmacMD5 = Hasher._createHmacHelper(MD5);
+}(Math));
+
+
+/***/ }),
+
+/***/ 26:
+/***/ (function(module, exports, __webpack_require__) {
+
+var CryptoJS = __webpack_require__(1).CryptoJS;
+
+(function (Math) {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var Hasher = C_lib.Hasher;
+    var C_algo = C.algo;
+
+    // Initialization and round constants tables
+    var H = [];
+    var K = [];
+
+    // Compute constants
+    (function () {
+        function isPrime(n) {
+            var sqrtN = Math.sqrt(n);
+            for (var factor = 2; factor <= sqrtN; factor++) {
+                if (!(n % factor)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function getFractionalBits(n) {
+            return ((n - (n | 0)) * 0x100000000) | 0;
+        }
+
+        var n = 2;
+        var nPrime = 0;
+        while (nPrime < 64) {
+            if (isPrime(n)) {
+                if (nPrime < 8) {
+                    H[nPrime] = getFractionalBits(Math.pow(n, 1 / 2));
+                }
+                K[nPrime] = getFractionalBits(Math.pow(n, 1 / 3));
+
+                nPrime++;
+            }
+
+            n++;
+        }
+    }());
+
+    // Reusable object
+    var W = [];
+
+    /**
+     * SHA-256 hash algorithm.
+     */
+    var SHA256 = C_algo.SHA256 = Hasher.extend({
+        _doReset: function () {
+            this._hash = new WordArray.init(H.slice(0));
+        },
+
+        _doProcessBlock: function (M, offset) {
+            // Shortcut
+            var H = this._hash.words;
+
+            // Working variables
+            var a = H[0];
+            var b = H[1];
+            var c = H[2];
+            var d = H[3];
+            var e = H[4];
+            var f = H[5];
+            var g = H[6];
+            var h = H[7];
+
+            // Computation
+            for (var i = 0; i < 64; i++) {
+                if (i < 16) {
+                    W[i] = M[offset + i] | 0;
+                } else {
+                    var gamma0x = W[i - 15];
+                    var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
+                                  ((gamma0x << 14) | (gamma0x >>> 18)) ^
+                                   (gamma0x >>> 3);
+
+                    var gamma1x = W[i - 2];
+                    var gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
+                                  ((gamma1x << 13) | (gamma1x >>> 19)) ^
+                                   (gamma1x >>> 10);
+
+                    W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16];
+                }
+
+                var ch  = (e & f) ^ (~e & g);
+                var maj = (a & b) ^ (a & c) ^ (b & c);
+
+                var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
+                var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
+
+                var t1 = h + sigma1 + ch + K[i] + W[i];
+                var t2 = sigma0 + maj;
+
+                h = g;
+                g = f;
+                f = e;
+                e = (d + t1) | 0;
+                d = c;
+                c = b;
+                b = a;
+                a = (t1 + t2) | 0;
+            }
+
+            // Intermediate hash value
+            H[0] = (H[0] + a) | 0;
+            H[1] = (H[1] + b) | 0;
+            H[2] = (H[2] + c) | 0;
+            H[3] = (H[3] + d) | 0;
+            H[4] = (H[4] + e) | 0;
+            H[5] = (H[5] + f) | 0;
+            H[6] = (H[6] + g) | 0;
+            H[7] = (H[7] + h) | 0;
+        },
+
+        _doFinalize: function () {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = data.sigBytes * 8;
+
+            // Add padding
+            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = Math.floor(nBitsTotal / 0x100000000);
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+            data.sigBytes = dataWords.length * 4;
+
+            // Hash final blocks
+            this._process();
+
+            // Return final computed hash
+            return this._hash;
+        },
+
+        clone: function () {
+            var clone = Hasher.clone.call(this);
+            clone._hash = this._hash.clone();
+
+            return clone;
+        }
+    });
+
+    /**
+     * Shortcut function to the hasher's object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     *
+     * @return {WordArray} The hash.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var hash = CryptoJS.SHA256('message');
+     *     var hash = CryptoJS.SHA256(wordArray);
+     */
+    C.SHA256 = Hasher._createHelper(SHA256);
+
+    /**
+     * Shortcut function to the HMAC's object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     * @param {WordArray|string} key The secret key.
+     *
+     * @return {WordArray} The HMAC.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var hmac = CryptoJS.HmacSHA256(message, key);
+     */
+    C.HmacSHA256 = Hasher._createHmacHelper(SHA256);
+}(Math));
+
+/***/ }),
+
+/***/ 27:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4116,7 +6469,8 @@ function mont_(x, y, n, np) {
 }
 
 /***/ }),
-/* 20 */
+
+/***/ 28:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4125,9 +6479,9 @@ function mont_(x, y, n, np) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(6);
 
 
 
@@ -4227,20 +6581,22 @@ const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__
 
 
 /***/ }),
-/* 21 */
+
+/***/ 29:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(setImmediate) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__http__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__crypto__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__secure_random__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__time_manager__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__http__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__crypto__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__secure_random__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__time_manager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__bin__ = __webpack_require__(0);
 
 
 const { BigInteger } = __WEBPACK_IMPORTED_MODULE_1_jsbn___default.a;
@@ -4264,7 +6620,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 
     const header = new Serialization();
     header.storeLongP(0, 0, 'auth_key_id'); // Auth key
-    header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["generateID"])(), 'msg_id'); // Msg_id
+    header.storeLong(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["generateID"])(), 'msg_id'); // Msg_id
     header.storeInt(requestLength, 'request_length');
 
     const headerBuffer = header.getBuffer(),
@@ -4281,7 +6637,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     let requestPromise;
     const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url };
     try {
-      requestPromise = __WEBPACK_IMPORTED_MODULE_3__http__["b" /* default */].post(url, requestData, {
+      requestPromise = __WEBPACK_IMPORTED_MODULE_4__http__["b" /* default */].post(url, requestData, {
         responseType: 'arraybuffer'
       });
     } catch (e) {
@@ -4307,54 +6663,53 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
   }
 
   function mtpSendReqPQ(auth) {
-    console.warn('mtpSendReqPQ');
     const deferred = auth.deferred;
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["f" /* bytesToHex */])(auth.nonce));
 
     const request = new Serialization({ mtproto: true });
 
     request.storeMethod('req_pq', { nonce: auth.nonce });
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_pq', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.nonce));
     mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
       const response = deserializer.fetchObject('ResPQ');
 
       if (response._ != 'resPQ') throw new Error(`[MT] resPQ response invalid: ${response._}`);
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] resPQ nonce mismatch');
 
       auth.serverNonce = response.server_nonce;
       auth.pq = response.pq;
       auth.fingerprints = response.server_public_key_fingerprints;
 
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got ResPQ', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.serverNonce), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(auth.pq), auth.fingerprints);
+      // console.log(dTime(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
 
       auth.publicKey = select(auth.fingerprints);
 
       if (!auth.publicKey) throw new Error('[MT] No public key found');
 
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization start', auth.pq);
-      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
+      // console.log(dTime(), 'PQ factorization start', auth.pq)
+      __WEBPACK_IMPORTED_MODULE_5__crypto__["b" /* default */].factorize(auth.pq).then(([p, q, it]) => {
         auth.p = p;
         auth.q = q;
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'PQ factorization done', it);
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'PQ factorization done', it);
         mtpSendReqDhParams(auth);
       }, error => {
         console.log('Worker error', error, error.stack);
         deferred.reject(error);
       });
     }, error => {
-      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'req_pq error', error.message);
+      console.error(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'req_pq error', error.message);
       deferred.reject(error);
     });
 
-    setTimeout(prepare, 0);
+    __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["a" /* smartTimeout */].immediate(prepare);
   }
 
   function mtpSendReqDhParams(auth) {
     const deferred = auth.deferred;
 
     auth.newNonce = new Array(32);
-    __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.newNonce);
+    __WEBPACK_IMPORTED_MODULE_6__secure_random__["a" /* default */].nextBytes(auth.newNonce);
 
     const data = new Serialization({ mtproto: true });
     data.storeObject({
@@ -4367,7 +6722,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       new_nonce: auth.newNonce
     }, 'P_Q_inner_data', 'DECRYPTED_DATA');
 
-    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+    const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
     const request = new Serialization({ mtproto: true });
     request.storeMethod('req_DH_params', {
@@ -4376,31 +6731,31 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       p: auth.p,
       q: auth.q,
       public_key_fingerprint: auth.publicKey.fingerprint,
-      encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["v" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
+      encrypted_data: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["v" /* rsaEncrypt */])(auth.publicKey, dataWithHash)
     });
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send req_DH_params');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send req_DH_params');
     mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(deserializer => {
       const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE');
 
-      if (response._ != 'server_DH_params_fail' && response._ != 'server_DH_params_ok') {
+      if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
         deferred.reject(new Error(`[MT] Server_DH_Params response invalid: ${response._}`));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
         deferred.reject(new Error('[MT] Server_DH_Params nonce mismatch'));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
         deferred.reject(new Error('[MT] Server_DH_Params server_nonce mismatch'));
         return false;
       }
 
       if (response._ == 'server_DH_params_fail') {
-        const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce).slice(-16);
-        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
+        const newNonceHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce).slice(-16);
+        if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash, response.new_nonce_hash)) {
           deferred.reject(new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'));
           return false;
         }
@@ -4420,27 +6775,27 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
   }
 
   function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
-    auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["tsNow"])();
+    auth.localTime = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["tsNow"])();
 
-    auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
-    auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
+    auth.tmpAesKey = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat(auth.serverNonce)).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(0, 12));
+    auth.tmpAesIv = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.serverNonce.concat(auth.newNonce)).slice(12).concat(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])([].concat(auth.newNonce, auth.newNonce)), auth.newNonce.slice(0, 4));
 
-    const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["p" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
+    const answerWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["p" /* aesDecryptSync */])(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv);
 
     const hash = answerWithHash.slice(0, 20);
     const answerWithPadding = answerWithHash.slice(20);
-    const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
+    const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["h" /* bytesToArrayBuffer */])(answerWithPadding);
 
     const deserializer = new Deserialization(buffer, { mtproto: true });
     const response = deserializer.fetchObject('Server_DH_inner_data');
 
     if (response._ != 'server_DH_inner_data') throw new Error(`[MT] server_DH_inner_data response invalid: ${constructor}`);
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] server_DH_inner_data nonce mismatch');
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) throw new Error('[MT] server_DH_inner_data nonce mismatch');
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) throw new Error('[MT] server_DH_inner_data serverNonce mismatch');
 
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Done decrypting answer');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Done decrypting answer');
     auth.g = response.g;
     auth.dhPrime = response.dh_prime;
     auth.gA = response.g_a;
@@ -4451,22 +6806,22 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 
     const offset = deserializer.getOffset();
 
-    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
+    if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(hash, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(answerWithPadding.slice(0, offset)))) {
       throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch');
     }
 
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
   }
 
   function mtpVerifyDhParams(g, dhPrime, gA) {
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Verifying DH params');
-    const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(dhPrime);
+    // console.log(dTime(), 'Verifying DH params')
+    const dhPrimeHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["f" /* bytesToHex */])(dhPrime);
     if (g !== 3 || dhPrimeHex !== primeHex)
       // The verified value is from https://core.telegram.org/mtproto/security_guidelines
       throw new Error('[MT] DH params are not verified: unknown dhPrime');
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'dhPrime cmp OK');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'dhPrime cmp OK');
 
-    const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["f" /* bytesToHex */])(gA), 16);
+    const gABigInt = new BigInteger(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["f" /* bytesToHex */])(gA), 16);
     const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16);
 
     if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
@@ -4476,7 +6831,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     if (gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0) {
       throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1');
     }
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '1 < gA < dhPrime-1 OK');
+    // console.log(dTime(), '1 < gA < dhPrime-1 OK')
+
 
     const two = new BigInteger(null);
     two.fromInt(2);
@@ -4488,17 +6844,17 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     if (gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0) {
       throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}');
     }
-    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
+    console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK');
 
     return true;
   }
 
   function mtpSendSetClientDhParams(auth) {
     const deferred = auth.deferred;
-    const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["u" /* bytesFromHex */])(auth.g.toString(16));
+    const gBytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["u" /* bytesFromHex */])(auth.g.toString(16));
 
     auth.b = new Array(256);
-    __WEBPACK_IMPORTED_MODULE_5__secure_random__["a" /* default */].nextBytes(auth.b);
+    __WEBPACK_IMPORTED_MODULE_6__secure_random__["a" /* default */].nextBytes(auth.b);
 
     const afterPlainRequest = deserializer => {
       const response = deserializer.fetchObject('Set_client_DH_params_answer');
@@ -4508,33 +6864,33 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.nonce, response.nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer nonce mismatch'));
         return false;
       }
 
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(auth.serverNonce, response.server_nonce)) {
         deferred.reject(new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'));
         return false;
       }
 
-      __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(authKey => {
-        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(authKey),
+      __WEBPACK_IMPORTED_MODULE_5__crypto__["b" /* default */].modPow(auth.gA, auth.b, auth.dhPrime).then(authKey => {
+        const authKeyHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(authKey),
               authKeyAux = authKeyHash.slice(0, 8),
               authKeyID = authKeyHash.slice(-8);
 
-        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
+        console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Got Set_client_DH_params_answer', response._);
         switch (response._) {
           case 'dh_gen_ok':
             {
-              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
+              const newNonceHash1 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([1], authKeyAux)).slice(-16);
 
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash1, response.new_nonce_hash1)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'));
                 return false;
               }
 
-              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
+              const serverSalt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["w" /* bytesXor */])(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8));
               // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
 
               auth.authKeyID = authKeyID;
@@ -4546,8 +6902,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
             }
           case 'dh_gen_retry':
             {
-              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
+              const newNonceHash2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([2], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash2, response.new_nonce_hash2)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'));
                 return false;
               }
@@ -4556,8 +6912,8 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
             }
           case 'dh_gen_fail':
             {
-              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
-              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
+              const newNonceHash3 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(auth.newNonce.concat([3], authKeyAux)).slice(-16);
+              if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["e" /* bytesCmp */])(newNonceHash3, response.new_nonce_hash3)) {
                 deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'));
                 return false;
               }
@@ -4569,7 +6925,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       }, deferred.reject);
     };
 
-    __WEBPACK_IMPORTED_MODULE_4__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(gB => {
+    __WEBPACK_IMPORTED_MODULE_5__crypto__["b" /* default */].modPow(gBytes, auth.b, auth.dhPrime).then(gB => {
       const data = new Serialization({ mtproto: true });
       data.storeObject({
         _: 'client_DH_inner_data',
@@ -4579,9 +6935,9 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         g_b: gB
       }, 'Client_DH_Inner_Data');
 
-      const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
+      const dataWithHash = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["d" /* sha1BytesSync */])(data.getBuffer()).concat(data.getBytes());
 
-      const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["o" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
+      const encryptedData = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["o" /* aesEncryptSync */])(dataWithHash, auth.tmpAesKey, auth.tmpAesIv);
 
       const request = new Serialization({ mtproto: true });
       request.storeMethod('set_client_DH_params', {
@@ -4590,17 +6946,16 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
         encrypted_data: encryptedData
       });
 
-      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__time_manager__["dTime"])(), 'Send set_client_DH_params');
+      console.log(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__time_manager__["dTime"])(), 'Send set_client_DH_params');
       mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then(afterPlainRequest, deferred.reject);
     }, deferred.reject);
   }
 
   function mtpAuth(dcID, cached, dcUrl) {
-    console.count('mtpAuth');
     if (cached[dcID]) return cached[dcID].promise;
     console.warn('mtpAuth');
     const nonce = [];
-    for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__bin__["l" /* nextRandomInt */])(0xFF));
+    for (let i = 0; i < 16; i++) nonce.push(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8__bin__["l" /* nextRandomInt */])(0xFF));
 
     if (!dcUrl) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.reject(new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`));
 
@@ -4611,7 +6966,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
       deferred: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])()
     };
 
-    setImmediate(() => mtpSendReqPQ(auth));
+    __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["a" /* smartTimeout */].immediate(() => mtpSendReqPQ(auth));
 
     cached[dcID] = auth.deferred;
 
@@ -4627,14 +6982,21 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 /* unused harmony export Auth */
 
 /* harmony default export */ __webpack_exports__["a"] = Auth;
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(16).setImmediate))
 
 /***/ }),
-/* 22 */
+
+/***/ 3:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = (__webpack_require__(5))(125);
+
+/***/ }),
+
+/***/ 30:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bin__ = __webpack_require__(0);
 
 
 /**
@@ -4706,7 +7068,8 @@ const KeyManager = Serialization => {
 /* harmony default export */ __webpack_exports__["a"] = KeyManager;
 
 /***/ }),
-/* 23 */
+
+/***/ 31:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4721,15 +7084,16 @@ const Switch = (patterns, protector = e => e) => (matches, mProtector = e => e) 
 /* harmony default export */ __webpack_exports__["a"] = Switch;
 
 /***/ }),
-/* 24 */
+
+/***/ 32:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(0);
 
 
 
@@ -5399,7 +7763,8 @@ const TL = (api, mtApi) => {
 /* harmony default export */ __webpack_exports__["a"] = TL;
 
 /***/ }),
-/* 25 */
+
+/***/ 33:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -6128,7 +8493,509 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 26 */
+
+/***/ 34:
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {(function () {
+    var /*
+ * Rusha, a JavaScript implementation of the Secure Hash Algorithm, SHA-1,
+ * as defined in FIPS PUB 180-1, tuned for high performance with large inputs.
+ * (http://github.com/srijs/rusha)
+ *
+ * Inspired by Paul Johnstons implementation (http://pajhome.org.uk/crypt/md5).
+ *
+ * Copyright (c) 2013 Sam Rijs (http://awesam.de).
+ * Released under the terms of the MIT license as follows:
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+    util = {
+        getDataType: function (data) {
+            if (typeof data === 'string') {
+                return 'string';
+            }
+            if (data instanceof Array) {
+                return 'array';
+            }
+            if (typeof global !== 'undefined' && global.Buffer && global.Buffer.isBuffer(data)) {
+                return 'buffer';
+            }
+            if (data instanceof ArrayBuffer) {
+                return 'arraybuffer';
+            }
+            if (data.buffer instanceof ArrayBuffer) {
+                return 'view';
+            }
+            if (data instanceof Blob) {
+                return 'blob';
+            }
+            throw new Error('Unsupported data type.');
+        }
+    };
+    function Rusha(chunkSize) {
+        'use strict';
+        var // Private object structure.
+        self$2 = { fill: 0 };
+        var // Calculate the length of buffer that the sha1 routine uses
+        // including the padding.
+        padlen = function (len) {
+            for (len += 9; len % 64 > 0; len += 1);
+            return len;
+        };
+        var padZeroes = function (bin, len) {
+            var h8 = new Uint8Array(bin.buffer);
+            var om = len % 4, align = len - om;
+            switch (om) {
+            case 0:
+                h8[align + 3] = 0;
+            case 1:
+                h8[align + 2] = 0;
+            case 2:
+                h8[align + 1] = 0;
+            case 3:
+                h8[align + 0] = 0;
+            }
+            for (var i$2 = (len >> 2) + 1; i$2 < bin.length; i$2++)
+                bin[i$2] = 0;
+        };
+        var padData = function (bin, chunkLen, msgLen) {
+            bin[chunkLen >> 2] |= 128 << 24 - (chunkLen % 4 << 3);
+            // To support msgLen >= 2 GiB, use a float division when computing the
+            // high 32-bits of the big-endian message length in bits.
+            bin[((chunkLen >> 2) + 2 & ~15) + 14] = msgLen / (1 << 29) | 0;
+            bin[((chunkLen >> 2) + 2 & ~15) + 15] = msgLen << 3;
+        };
+        var // Convert a binary string and write it to the heap.
+        // A binary string is expected to only contain char codes < 256.
+        convStr = function (H8, H32, start, len, off) {
+            var str = this, i$2, om = off % 4, lm = (len + om) % 4, j = len - lm;
+            switch (om) {
+            case 0:
+                H8[off] = str.charCodeAt(start + 3);
+            case 1:
+                H8[off + 1 - (om << 1) | 0] = str.charCodeAt(start + 2);
+            case 2:
+                H8[off + 2 - (om << 1) | 0] = str.charCodeAt(start + 1);
+            case 3:
+                H8[off + 3 - (om << 1) | 0] = str.charCodeAt(start);
+            }
+            if (len < lm + om) {
+                return;
+            }
+            for (i$2 = 4 - om; i$2 < j; i$2 = i$2 + 4 | 0) {
+                H32[off + i$2 >> 2] = str.charCodeAt(start + i$2) << 24 | str.charCodeAt(start + i$2 + 1) << 16 | str.charCodeAt(start + i$2 + 2) << 8 | str.charCodeAt(start + i$2 + 3);
+            }
+            switch (lm) {
+            case 3:
+                H8[off + j + 1 | 0] = str.charCodeAt(start + j + 2);
+            case 2:
+                H8[off + j + 2 | 0] = str.charCodeAt(start + j + 1);
+            case 1:
+                H8[off + j + 3 | 0] = str.charCodeAt(start + j);
+            }
+        };
+        var // Convert a buffer or array and write it to the heap.
+        // The buffer or array is expected to only contain elements < 256.
+        convBuf = function (H8, H32, start, len, off) {
+            var buf = this, i$2, om = off % 4, lm = (len + om) % 4, j = len - lm;
+            switch (om) {
+            case 0:
+                H8[off] = buf[start + 3];
+            case 1:
+                H8[off + 1 - (om << 1) | 0] = buf[start + 2];
+            case 2:
+                H8[off + 2 - (om << 1) | 0] = buf[start + 1];
+            case 3:
+                H8[off + 3 - (om << 1) | 0] = buf[start];
+            }
+            if (len < lm + om) {
+                return;
+            }
+            for (i$2 = 4 - om; i$2 < j; i$2 = i$2 + 4 | 0) {
+                H32[off + i$2 >> 2 | 0] = buf[start + i$2] << 24 | buf[start + i$2 + 1] << 16 | buf[start + i$2 + 2] << 8 | buf[start + i$2 + 3];
+            }
+            switch (lm) {
+            case 3:
+                H8[off + j + 1 | 0] = buf[start + j + 2];
+            case 2:
+                H8[off + j + 2 | 0] = buf[start + j + 1];
+            case 1:
+                H8[off + j + 3 | 0] = buf[start + j];
+            }
+        };
+        var convBlob = function (H8, H32, start, len, off) {
+            var blob = this, i$2, om = off % 4, lm = (len + om) % 4, j = len - lm;
+            var buf = new Uint8Array(reader.readAsArrayBuffer(blob.slice(start, start + len)));
+            switch (om) {
+            case 0:
+                H8[off] = buf[3];
+            case 1:
+                H8[off + 1 - (om << 1) | 0] = buf[2];
+            case 2:
+                H8[off + 2 - (om << 1) | 0] = buf[1];
+            case 3:
+                H8[off + 3 - (om << 1) | 0] = buf[0];
+            }
+            if (len < lm + om) {
+                return;
+            }
+            for (i$2 = 4 - om; i$2 < j; i$2 = i$2 + 4 | 0) {
+                H32[off + i$2 >> 2 | 0] = buf[i$2] << 24 | buf[i$2 + 1] << 16 | buf[i$2 + 2] << 8 | buf[i$2 + 3];
+            }
+            switch (lm) {
+            case 3:
+                H8[off + j + 1 | 0] = buf[j + 2];
+            case 2:
+                H8[off + j + 2 | 0] = buf[j + 1];
+            case 1:
+                H8[off + j + 3 | 0] = buf[j];
+            }
+        };
+        var convFn = function (data) {
+            switch (util.getDataType(data)) {
+            case 'string':
+                return convStr.bind(data);
+            case 'array':
+                return convBuf.bind(data);
+            case 'buffer':
+                return convBuf.bind(data);
+            case 'arraybuffer':
+                return convBuf.bind(new Uint8Array(data));
+            case 'view':
+                return convBuf.bind(new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
+            case 'blob':
+                return convBlob.bind(data);
+            }
+        };
+        var slice = function (data, offset) {
+            switch (util.getDataType(data)) {
+            case 'string':
+                return data.slice(offset);
+            case 'array':
+                return data.slice(offset);
+            case 'buffer':
+                return data.slice(offset);
+            case 'arraybuffer':
+                return data.slice(offset);
+            case 'view':
+                return data.buffer.slice(offset);
+            }
+        };
+        var // Precompute 00 - ff strings
+        precomputedHex = new Array(256);
+        for (var i = 0; i < 256; i++) {
+            precomputedHex[i] = (i < 16 ? '0' : '') + i.toString(16);
+        }
+        var // Convert an ArrayBuffer into its hexadecimal string representation.
+        hex = function (arrayBuffer) {
+            var binarray = new Uint8Array(arrayBuffer);
+            var res = new Array(arrayBuffer.byteLength);
+            for (var i$2 = 0; i$2 < res.length; i$2++) {
+                res[i$2] = precomputedHex[binarray[i$2]];
+            }
+            return res.join('');
+        };
+        var ceilHeapSize = function (v) {
+            // The asm.js spec says:
+            // The heap object's byteLength must be either
+            // 2^n for n in [12, 24) or 2^24 * n for n ≥ 1.
+            // Also, byteLengths smaller than 2^16 are deprecated.
+            var p;
+            if (// If v is smaller than 2^16, the smallest possible solution
+                // is 2^16.
+                v <= 65536)
+                return 65536;
+            if (// If v < 2^24, we round up to 2^n,
+                // otherwise we round up to 2^24 * n.
+                v < 16777216) {
+                for (p = 1; p < v; p = p << 1);
+            } else {
+                for (p = 16777216; p < v; p += 16777216);
+            }
+            return p;
+        };
+        var // Initialize the internal data structures to a new capacity.
+        init = function (size) {
+            if (size % 64 > 0) {
+                throw new Error('Chunk size must be a multiple of 128 bit');
+            }
+            self$2.offset = 0;
+            self$2.maxChunkLen = size;
+            self$2.padMaxChunkLen = padlen(size);
+            // The size of the heap is the sum of:
+            // 1. The padded input message size
+            // 2. The extended space the algorithm needs (320 byte)
+            // 3. The 160 bit state the algoritm uses
+            self$2.heap = new ArrayBuffer(ceilHeapSize(self$2.padMaxChunkLen + 320 + 20));
+            self$2.h32 = new Int32Array(self$2.heap);
+            self$2.h8 = new Int8Array(self$2.heap);
+            self$2.core = new Rusha._core({
+                Int32Array: Int32Array,
+                DataView: DataView
+            }, {}, self$2.heap);
+            self$2.buffer = null;
+        };
+        // Iinitializethe datastructures according
+        // to a chunk siyze.
+        init(chunkSize || 64 * 1024);
+        var initState = function (heap, padMsgLen) {
+            self$2.offset = 0;
+            var io = new Int32Array(heap, padMsgLen + 320, 5);
+            io[0] = 1732584193;
+            io[1] = -271733879;
+            io[2] = -1732584194;
+            io[3] = 271733878;
+            io[4] = -1009589776;
+        };
+        var padChunk = function (chunkLen, msgLen) {
+            var padChunkLen = padlen(chunkLen);
+            var view = new Int32Array(self$2.heap, 0, padChunkLen >> 2);
+            padZeroes(view, chunkLen);
+            padData(view, chunkLen, msgLen);
+            return padChunkLen;
+        };
+        var // Write data to the heap.
+        write = function (data, chunkOffset, chunkLen, off) {
+            convFn(data)(self$2.h8, self$2.h32, chunkOffset, chunkLen, off || 0);
+        };
+        var // Initialize and call the RushaCore,
+        // assuming an input buffer of length len * 4.
+        coreCall = function (data, chunkOffset, chunkLen, msgLen, finalize) {
+            var padChunkLen = chunkLen;
+            write(data, chunkOffset, chunkLen);
+            if (finalize) {
+                padChunkLen = padChunk(chunkLen, msgLen);
+            }
+            self$2.core.hash(padChunkLen, self$2.padMaxChunkLen);
+        };
+        var getRawDigest = function (heap, padMaxChunkLen) {
+            var io = new Int32Array(heap, padMaxChunkLen + 320, 5);
+            var out = new Int32Array(5);
+            var arr = new DataView(out.buffer);
+            arr.setInt32(0, io[0], false);
+            arr.setInt32(4, io[1], false);
+            arr.setInt32(8, io[2], false);
+            arr.setInt32(12, io[3], false);
+            arr.setInt32(16, io[4], false);
+            return out;
+        };
+        var // Calculate the hash digest as an array of 5 32bit integers.
+        rawDigest = this.rawDigest = function (str) {
+            var msgLen = str.byteLength || str.length || str.size || 0;
+            initState(self$2.heap, self$2.padMaxChunkLen);
+            var chunkOffset = 0, chunkLen = self$2.maxChunkLen, last;
+            for (chunkOffset = 0; msgLen > chunkOffset + chunkLen; chunkOffset += chunkLen) {
+                coreCall(str, chunkOffset, chunkLen, msgLen, false);
+            }
+            coreCall(str, chunkOffset, msgLen - chunkOffset, msgLen, true);
+            return getRawDigest(self$2.heap, self$2.padMaxChunkLen);
+        };
+        // The digest and digestFrom* interface returns the hash digest
+        // as a hex string.
+        this.digest = this.digestFromString = this.digestFromBuffer = this.digestFromArrayBuffer = function (str) {
+            return hex(rawDigest(str).buffer);
+        };
+        this.resetState = function () {
+            initState(self$2.heap, self$2.padMaxChunkLen);
+            return this;
+        };
+        this.append = function (chunk) {
+            var chunkOffset = 0;
+            var chunkLen = chunk.byteLength || chunk.length || chunk.size || 0;
+            var turnOffset = self$2.offset % self$2.maxChunkLen;
+            var inputLen;
+            self$2.offset += chunkLen;
+            while (chunkOffset < chunkLen) {
+                inputLen = Math.min(chunkLen - chunkOffset, self$2.maxChunkLen - turnOffset);
+                write(chunk, chunkOffset, inputLen, turnOffset);
+                turnOffset += inputLen;
+                chunkOffset += inputLen;
+                if (turnOffset === self$2.maxChunkLen) {
+                    self$2.core.hash(self$2.maxChunkLen, self$2.padMaxChunkLen);
+                    turnOffset = 0;
+                }
+            }
+            return this;
+        };
+        this.getState = function () {
+            var turnOffset = self$2.offset % self$2.maxChunkLen;
+            var heap;
+            if (!turnOffset) {
+                var io = new Int32Array(self$2.heap, self$2.padMaxChunkLen + 320, 5);
+                heap = io.buffer.slice(io.byteOffset, io.byteOffset + io.byteLength);
+            } else {
+                heap = self$2.heap.slice(0);
+            }
+            return {
+                offset: self$2.offset,
+                heap: heap
+            };
+        };
+        this.setState = function (state) {
+            self$2.offset = state.offset;
+            if (state.heap.byteLength === 20) {
+                var io = new Int32Array(self$2.heap, self$2.padMaxChunkLen + 320, 5);
+                io.set(new Int32Array(state.heap));
+            } else {
+                self$2.h32.set(new Int32Array(state.heap));
+            }
+            return this;
+        };
+        var rawEnd = this.rawEnd = function () {
+            var msgLen = self$2.offset;
+            var chunkLen = msgLen % self$2.maxChunkLen;
+            var padChunkLen = padChunk(chunkLen, msgLen);
+            self$2.core.hash(padChunkLen, self$2.padMaxChunkLen);
+            var result = getRawDigest(self$2.heap, self$2.padMaxChunkLen);
+            initState(self$2.heap, self$2.padMaxChunkLen);
+            return result;
+        };
+        this.end = function () {
+            return hex(rawEnd().buffer);
+        };
+    }
+    ;
+    // The low-level RushCore module provides the heart of Rusha,
+    // a high-speed sha1 implementation working on an Int32Array heap.
+    // At first glance, the implementation seems complicated, however
+    // with the SHA1 spec at hand, it is obvious this almost a textbook
+    // implementation that has a few functions hand-inlined and a few loops
+    // hand-unrolled.
+    Rusha._core = function RushaCore(stdlib, foreign, heap) {
+        'use asm';
+        var H = new stdlib.Int32Array(heap);
+        function hash(k, x) {
+            // k in bytes
+            k = k | 0;
+            x = x | 0;
+            var i = 0, j = 0, y0 = 0, z0 = 0, y1 = 0, z1 = 0, y2 = 0, z2 = 0, y3 = 0, z3 = 0, y4 = 0, z4 = 0, t0 = 0, t1 = 0;
+            y0 = H[x + 320 >> 2] | 0;
+            y1 = H[x + 324 >> 2] | 0;
+            y2 = H[x + 328 >> 2] | 0;
+            y3 = H[x + 332 >> 2] | 0;
+            y4 = H[x + 336 >> 2] | 0;
+            for (i = 0; (i | 0) < (k | 0); i = i + 64 | 0) {
+                z0 = y0;
+                z1 = y1;
+                z2 = y2;
+                z3 = y3;
+                z4 = y4;
+                for (j = 0; (j | 0) < 64; j = j + 4 | 0) {
+                    t1 = H[i + j >> 2] | 0;
+                    t0 = ((y0 << 5 | y0 >>> 27) + (y1 & y2 | ~y1 & y3) | 0) + ((t1 + y4 | 0) + 1518500249 | 0) | 0;
+                    y4 = y3;
+                    y3 = y2;
+                    y2 = y1 << 30 | y1 >>> 2;
+                    y1 = y0;
+                    y0 = t0;
+                    H[k + j >> 2] = t1;
+                }
+                for (j = k + 64 | 0; (j | 0) < (k + 80 | 0); j = j + 4 | 0) {
+                    t1 = (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) << 1 | (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) >>> 31;
+                    t0 = ((y0 << 5 | y0 >>> 27) + (y1 & y2 | ~y1 & y3) | 0) + ((t1 + y4 | 0) + 1518500249 | 0) | 0;
+                    y4 = y3;
+                    y3 = y2;
+                    y2 = y1 << 30 | y1 >>> 2;
+                    y1 = y0;
+                    y0 = t0;
+                    H[j >> 2] = t1;
+                }
+                for (j = k + 80 | 0; (j | 0) < (k + 160 | 0); j = j + 4 | 0) {
+                    t1 = (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) << 1 | (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) >>> 31;
+                    t0 = ((y0 << 5 | y0 >>> 27) + (y1 ^ y2 ^ y3) | 0) + ((t1 + y4 | 0) + 1859775393 | 0) | 0;
+                    y4 = y3;
+                    y3 = y2;
+                    y2 = y1 << 30 | y1 >>> 2;
+                    y1 = y0;
+                    y0 = t0;
+                    H[j >> 2] = t1;
+                }
+                for (j = k + 160 | 0; (j | 0) < (k + 240 | 0); j = j + 4 | 0) {
+                    t1 = (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) << 1 | (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) >>> 31;
+                    t0 = ((y0 << 5 | y0 >>> 27) + (y1 & y2 | y1 & y3 | y2 & y3) | 0) + ((t1 + y4 | 0) - 1894007588 | 0) | 0;
+                    y4 = y3;
+                    y3 = y2;
+                    y2 = y1 << 30 | y1 >>> 2;
+                    y1 = y0;
+                    y0 = t0;
+                    H[j >> 2] = t1;
+                }
+                for (j = k + 240 | 0; (j | 0) < (k + 320 | 0); j = j + 4 | 0) {
+                    t1 = (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) << 1 | (H[j - 12 >> 2] ^ H[j - 32 >> 2] ^ H[j - 56 >> 2] ^ H[j - 64 >> 2]) >>> 31;
+                    t0 = ((y0 << 5 | y0 >>> 27) + (y1 ^ y2 ^ y3) | 0) + ((t1 + y4 | 0) - 899497514 | 0) | 0;
+                    y4 = y3;
+                    y3 = y2;
+                    y2 = y1 << 30 | y1 >>> 2;
+                    y1 = y0;
+                    y0 = t0;
+                    H[j >> 2] = t1;
+                }
+                y0 = y0 + z0 | 0;
+                y1 = y1 + z1 | 0;
+                y2 = y2 + z2 | 0;
+                y3 = y3 + z3 | 0;
+                y4 = y4 + z4 | 0;
+            }
+            H[x + 320 >> 2] = y0;
+            H[x + 324 >> 2] = y1;
+            H[x + 328 >> 2] = y2;
+            H[x + 332 >> 2] = y3;
+            H[x + 336 >> 2] = y4;
+        }
+        return { hash: hash };
+    };
+    if (// If we'e running in Node.JS, export a module.
+        true) {
+        module.exports = Rusha;
+    } else if (// If we're running in a DOM context, export
+        // the Rusha object to toplevel.
+        typeof window !== 'undefined') {
+        window.Rusha = Rusha;
+    }
+    if (// If we're running in a webworker, accept
+        // messages containing a jobid and a buffer
+        // or blob object, and return the hash result.
+        typeof FileReaderSync !== 'undefined') {
+        var reader = new FileReaderSync(), hasher = new Rusha(4 * 1024 * 1024);
+        self.onmessage = function onMessage(event) {
+            var hash, data = event.data.data;
+            try {
+                hash = hasher.digest(data);
+                self.postMessage({
+                    id: event.data.id,
+                    hash: hash
+                });
+            } catch (e) {
+                self.postMessage({
+                    id: event.data.id,
+                    error: e.name
+                });
+            }
+        };
+    }
+}());
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)))
+
+/***/ }),
+
+/***/ 36:
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -16686,7 +19553,8 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+
+/***/ 37:
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -17403,70 +20271,84 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+
+/***/ 38:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(126);
+module.exports = (__webpack_require__(5))(124);
 
 /***/ }),
-/* 29 */
+
+/***/ 39:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(127);
+module.exports = (__webpack_require__(5))(127);
 
 /***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(130);
+/***/ 4:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
+/**
+ * Defered promise like in Q and $q
+ *
+ * @returns {{ resolve: (res: any) => void, reject: (res: any) => void, promise: Promise<{}> }}
+ */
+const blueDefer = () => {
+  let resolve, reject;
+  const promise = new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a((rs, rj) => {
+    resolve = rs;
+    reject = rj;
+  });
+  return {
+    resolve,
+    reject,
+    promise
+  };
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = blueDefer;
+
+
+/* harmony default export */ __webpack_exports__["b"] = blueDefer;
 
 /***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(0))(132);
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = (__webpack_require__(0))(62);
-
-/***/ }),
-/* 33 */
+/***/ 40:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_setimmediate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_setimmediate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__smart_timeout__ = __webpack_require__(10);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "smartTimeout", function() { return __WEBPACK_IMPORTED_MODULE_1__smart_timeout__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "blueDefer", function() { return __WEBPACK_IMPORTED_MODULE_2__defer__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__crypto__ = __webpack_require__(7);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "CryptoWorker", function() { return __WEBPACK_IMPORTED_MODULE_3__crypto__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(1);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_4__bin__["bin"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__for_each__ = __webpack_require__(12);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_5__for_each__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__ = __webpack_require__(17);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__store__ = __webpack_require__(6);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_7__store__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_time_manager__ = __webpack_require__(5);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_8__service_time_manager__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__ = __webpack_require__(13);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_9__service_dc_configurator__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_secure_random__ = __webpack_require__(9);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_10__service_secure_random__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__service_networker__ = __webpack_require__(14);
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_11__service_networker__; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__http__ = __webpack_require__(8);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_12__http__["a"]; });
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__smart_timeout__ = __webpack_require__(8);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "smartTimeout", function() { return __WEBPACK_IMPORTED_MODULE_0__smart_timeout__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defer__ = __webpack_require__(4);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "blueDefer", function() { return __WEBPACK_IMPORTED_MODULE_1__defer__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(9);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "CryptoWorker", function() { return __WEBPACK_IMPORTED_MODULE_2__crypto__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bin__ = __webpack_require__(0);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "bin", function() { return __WEBPACK_IMPORTED_MODULE_3__bin__["bin"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__for_each__ = __webpack_require__(15);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return __WEBPACK_IMPORTED_MODULE_4__for_each__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__ = __webpack_require__(12);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "mtpClearStorage", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "api", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "ApiManager", function() { return __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["c"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__store__ = __webpack_require__(7);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "PureStorage", function() { return __WEBPACK_IMPORTED_MODULE_6__store__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__service_time_manager__ = __webpack_require__(6);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpTimeManager", function() { return __WEBPACK_IMPORTED_MODULE_7__service_time_manager__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__service_dc_configurator__ = __webpack_require__(16);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpDcConfigurator", function() { return __WEBPACK_IMPORTED_MODULE_8__service_dc_configurator__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__service_secure_random__ = __webpack_require__(11);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "MtpSecureRandom", function() { return __WEBPACK_IMPORTED_MODULE_9__service_secure_random__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__service_networker__ = __webpack_require__(17);
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "MtpNetworker", function() { return __WEBPACK_IMPORTED_MODULE_10__service_networker__; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__http__ = __webpack_require__(10);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "httpClient", function() { return __WEBPACK_IMPORTED_MODULE_11__http__["a"]; });
+// import 'setimmediate'
 
 
 
@@ -17493,9 +20375,348 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 console.info('source loaded');
 
 
-/* harmony default export */ __webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_6__service_api_manager_index_js__["c" /* ApiManager */];
+/* harmony default export */ __webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_5__service_api_manager_index_js__["c" /* ApiManager */];
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports) {
+
+module.exports = vendor;
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateID", function() { return generateMessageID; });
+
+
+
+
+
+const tsNow = seconds => {
+  let t = +new Date();
+  //eslint-disable-next-line
+  if (!__WEBPACK_IMPORTED_MODULE_0_detect_node___default.a) t += window.tsOffset || 0;
+  return seconds ? Math.floor(t / 1000) : t;
+};
+/* harmony export (immutable) */ __webpack_exports__["tsNow"] = tsNow;
+
+
+const logTimer = new Date().getTime();
+
+const dTime = () => `[${((new Date().getTime() - logTimer) / 1000).toFixed(3)}]`;
+/* harmony export (immutable) */ __webpack_exports__["dTime"] = dTime;
+
+
+let lastMessageID = [0, 0];
+let timerOffset = 0;
+
+const offset = __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].get();
+if (offset) timerOffset = offset;
+
+const generateMessageID = () => {
+  const timeTicks = tsNow(),
+        timeSec = Math.floor(timeTicks / 1000) + timerOffset,
+        timeMSec = timeTicks % 1000,
+        random = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["l" /* nextRandomInt */])(0xFFFF);
+
+  let messageID = [timeSec, timeMSec << 21 | random << 3 | 4];
+  if (lastMessageID[0] > messageID[0] || lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
+    messageID = [lastMessageID[0], lastMessageID[1] + 4];
+  }
+
+  lastMessageID = messageID;
+
+  // console.log('generated msg id', messageID, timerOffset)
+
+  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["t" /* longFromInts */])(messageID[0], messageID[1]);
+};
+
+const applyServerTime = (serverTime, localTime) => {
+  const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000);
+  const changed = Math.abs(timerOffset - newTimeOffset) > 10;
+  __WEBPACK_IMPORTED_MODULE_1__store__["b" /* TimeOffset */].set(newTimeOffset);
+
+  lastMessageID = [0, 0];
+  timerOffset = newTimeOffset;
+  console.log(dTime(), 'Apply server time', serverTime, localTime, newTimeOffset, changed);
+
+  return changed;
+};
+/* harmony export (immutable) */ __webpack_exports__["applyServerTime"] = applyServerTime;
+
+
+
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
+
+
+
+
+const ValueStore = () => {
+  let val = null;
+
+  return {
+    get: () => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val),
+    set: newVal => val = newVal
+  };
+};
+/* unused harmony export ValueStore */
+
+
+const ValueStoreMap = () => {
+  const val = new Map();
+
+  return {
+    get: key => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["clone"])(val.get(key)),
+    set: (key, newVal) => val.set(key, newVal)
+  };
+};
+/* unused harmony export ValueStoreMap */
+
+
+const TimeOffset = ValueStore();
+/* harmony export (immutable) */ __webpack_exports__["b"] = TimeOffset;
+
+const dcList = ValueStoreMap();
+/* unused harmony export dcList */
+
+
+const flatProps = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["pipe"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["flip"])(__WEBPACK_IMPORTED_MODULE_1_ramda__["props"]), __WEBPACK_IMPORTED_MODULE_1_ramda__["unapply"]);
+
+const AsyncStorage = () => {
+  let store = {};
+
+  const flatGet = flatProps(store);
+  const set = obj => store = Object.assign({}, store, obj);
+  const remove = keys => store = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["omit"])(keys, store);
+  const clr = () => store = {};
+  return {
+    get: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(flatGet(...keys)),
+    set: obj => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(set(obj)),
+    remove: (...keys) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(remove(keys)),
+    clear: () => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve(clr()),
+    noPrefix: () => ({})
+  };
+};
+/* unused harmony export AsyncStorage */
+
+
+const PureStorage = AsyncStorage();
+/* harmony export (immutable) */ __webpack_exports__["a"] = PureStorage;
+ /*{
+                                           get     : (...keys) => new Promise(rs => ConfigStorage.get(keys, rs)),
+                                           set     : obj => new Promise(rs => ConfigStorage.set(obj, rs)),
+                                           remove  : (...keys) => new Promise(rs => ConfigStorage.remove(...keys, rs)),
+                                           noPrefix: () => ConfigStorage.noPrefix(),
+                                           clear   : () => new Promise(rs => ConfigStorage.clear(rs))
+                                           }*/
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
+
+
+const cancelToken = Symbol('cancel token');
+
+const timeoutRefs = new WeakSet();
+
+const pause = delay => new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(r => setTimeout(r, delay));
+
+const smartTimeout = (fn, delay = 0, ...args) => {
+  const newToken = Symbol('cancel id');
+  const checkRun = () => {
+    if (timeoutRefs.has(newToken)) {
+      timeoutRefs.delete(newToken);
+      return fn(...args);
+    } else return false;
+  };
+  const promise = pause(delay).then(checkRun);
+  promise[cancelToken] = newToken;
+  return promise;
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = smartTimeout;
+
+
+smartTimeout.cancel = promise => {
+  if (!promise || !promise[cancelToken]) return false;
+  const token = promise[cancelToken];
+  return timeoutRefs.has(token) ? timeoutRefs.delete(token) : false;
+};
+
+smartTimeout.immediate = (fn, ...args) => __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve().then(() => fn(...args));
+
+smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(...args));
+
+/* harmony default export */ __webpack_exports__["b"] = smartTimeout;
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_detect_node__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__smart_timeout__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__bin__ = __webpack_require__(0);
+
+
+
+__webpack_require__(228);
+
+
+
+
+
+const convertIfArray = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["when"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["is"])(Array), __WEBPACK_IMPORTED_MODULE_4__bin__["b" /* convertToUint8Array */]);
+let webWorker = !__WEBPACK_IMPORTED_MODULE_1_detect_node___default.a;
+let taskID = 0;
+const awaiting = {};
+const webCrypto = __WEBPACK_IMPORTED_MODULE_1_detect_node___default.a ? false
+//eslint-disable-next-line
+: window.crypto.subtle || window.crypto.webkitSubtle //TODO remove browser depends
+//eslint-disable-next-line
+|| window.msCrypto && window.msCrypto.subtle;
+const useWebCrypto = webCrypto && !!webCrypto.digest;
+let useSha1Crypto = useWebCrypto;
+let useSha256Crypto = useWebCrypto;
+const finalizeTask = (taskID, result) => {
+  const deferred = awaiting[taskID];
+  if (deferred) {
+    // console.log(rework_d_T(), 'CW done')
+    deferred.resolve(result); //TODO Possibly, can be used as
+    delete awaiting[taskID]; //
+  } //    deferred = Promise.resolve()
+}; //    deferred.resolve( result )
+
+const isCryptoTask = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["both"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])('taskID'), __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["has"])('result'));
+
+//eslint-disable-next-line
+const workerEnable = !__WEBPACK_IMPORTED_MODULE_1_detect_node___default.a && window.Worker;
+if (workerEnable) {
+  const tmpWorker = new Worker('./bundle/hash.worker.js');
+  // tmpWorker.onmessage = function(event) {
+  //   console.info('CW tmpWorker.onmessage', event && event.data)
+  // }
+  tmpWorker.onmessage = e => {
+    if (e.data === 'ready') {
+      console.info('CW ready');
+    } else if (!isCryptoTask(e.data)) {
+      console.info('Not crypto task', e, e.data);
+      return e;
+    } else return webWorker ? finalizeTask(e.data.taskID, e.data.result) : webWorker = tmpWorker;
+  };
+
+  tmpWorker.onerror = function (error) {
+    console.error('CW error', error, error.stack);
+    webWorker = false;
+  };
+  tmpWorker.postMessage('b');
+  webWorker = tmpWorker;
+}
+
+const performTaskWorker = (task, params, embed) => {
+  // console.log(rework_d_T(), 'CW start', task)
+  const deferred = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__defer__["b" /* default */])();
+
+  awaiting[taskID] = deferred;
+
+  params.task = task;
+  params.taskID = taskID;(embed || webWorker).postMessage(params);
+
+  taskID++;
+
+  return deferred.promise;
+};
+
+const sha1Hash = bytes => {
+  if (useSha1Crypto) {
+    // We don't use buffer since typedArray.subarray(...).buffer gives the whole buffer and not sliced one.
+    // webCrypto.digest supports typed array
+    const bytesTyped = convertIfArray(bytes);
+    // console.log(rework_d_T(), 'Native sha1 start')
+    return webCrypto.digest({ name: 'SHA-1' }, bytesTyped).then(digest =>
+    // console.log(rework_d_T(), 'Native sha1 done')
+    digest, e => {
+      console.error('Crypto digest error', e);
+      useSha1Crypto = false;
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */])(bytes);
+    });
+  }
+  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["m" /* sha1HashSync */], bytes);
+};
+
+const sha256Hash = bytes => {
+  if (useSha256Crypto) {
+    const bytesTyped = convertIfArray(bytes);
+    // console.log(rework_d_T(), 'Native sha1 start')
+    return webCrypto.digest({ name: 'SHA-256' }, bytesTyped).then(__WEBPACK_IMPORTED_MODULE_0_ramda__["identity"]
+    // console.log(rework_d_T(), 'Native sha1 done')
+    , e => {
+      console.error('Crypto digest error', e);
+      useSha256Crypto = false;
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */])(bytes);
+    });
+  }
+  return __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["n" /* sha256HashSync */], bytes);
+};
+
+const aesEncrypt = (bytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["o" /* aesEncryptSync */])(bytes, keyBytes, ivBytes)));
+
+const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) => __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(() => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["c" /* convertToArrayBuffer */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["p" /* aesDecryptSync */])(encryptedBytes, keyBytes, ivBytes)));
+
+const factorize = bytes => {
+  bytes = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__bin__["q" /* convertToByteArray */])(bytes);
+  return webWorker ? performTaskWorker('factorize', { bytes }) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["r" /* pqPrimeFactorization */], bytes);
+};
+
+const modPow = (x, y, m) => webWorker ? performTaskWorker('mod-pow', {
+  x,
+  y,
+  m
+}) : __WEBPACK_IMPORTED_MODULE_3__smart_timeout__["b" /* default */].immediate(__WEBPACK_IMPORTED_MODULE_4__bin__["s" /* bytesModPow */], x, y, m);
+
+const CryptoWorker = {
+  sha1Hash,
+  sha256Hash,
+  aesEncrypt,
+  aesDecrypt,
+  factorize,
+  modPow
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = CryptoWorker;
+
+
+/* harmony default export */ __webpack_exports__["b"] = CryptoWorker;
 
 /***/ })
-/******/ ]);
+
+/******/ });
 });
 //# sourceMappingURL=mtproto2-browser.js.map

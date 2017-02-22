@@ -3,7 +3,7 @@ import jsbn from 'jsbn'
 const { BigInteger } = jsbn
 
 import blueDefer from '../defer'
-
+import { smartTimeout } from '../smart-timeout'
 import httpClient from '../http'
 import CryptoWorker from '../crypto'
 
@@ -78,50 +78,50 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
   }
 
   function mtpSendReqPQ(auth) {
-    console.warn('mtpSendReqPQ')
     const deferred = auth.deferred
+    console.log(dTime(), 'Send req_pq', bytesToHex(auth.nonce))
 
     const request = new Serialization({ mtproto: true })
 
     request.storeMethod('req_pq', { nonce: auth.nonce })
 
-    console.log(dTime(), 'Send req_pq', bytesToHex(auth.nonce))
-    mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then((deserializer) => {
-      const response = deserializer.fetchObject('ResPQ')
+    mtpSendPlainRequest(auth.dcUrl, request.getBuffer())
+      .then((deserializer) => {
+        const response = deserializer.fetchObject('ResPQ')
 
-      if (response._ != 'resPQ')
-        throw new Error(`[MT] resPQ response invalid: ${  response._}`)
+        if (response._ != 'resPQ')
+          throw new Error(`[MT] resPQ response invalid: ${  response._}`)
 
-      if (!bytesCmp(auth.nonce, response.nonce))
-        throw new Error('[MT] resPQ nonce mismatch')
+        if (!bytesCmp(auth.nonce, response.nonce))
+          throw new Error('[MT] resPQ nonce mismatch')
 
-      auth.serverNonce = response.server_nonce
-      auth.pq = response.pq
-      auth.fingerprints = response.server_public_key_fingerprints
+        auth.serverNonce = response.server_nonce
+        auth.pq = response.pq
+        auth.fingerprints = response.server_public_key_fingerprints
 
-      console.log(dTime(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
+        // console.log(dTime(), 'Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
 
-      auth.publicKey = select(auth.fingerprints)
+        auth.publicKey = select(auth.fingerprints)
 
-      if (!auth.publicKey)
-        throw new Error('[MT] No public key found')
+        if (!auth.publicKey)
+          throw new Error('[MT] No public key found')
 
-      console.log(dTime(), 'PQ factorization start', auth.pq)
-      CryptoWorker.factorize(auth.pq).then(([ p, q, it ]) => {
-        auth.p = p
-        auth.q = q
-        console.log(dTime(), 'PQ factorization done', it)
-        mtpSendReqDhParams(auth)
+        // console.log(dTime(), 'PQ factorization start', auth.pq)
+        CryptoWorker.factorize(auth.pq).then(([ p, q, it ]) => {
+          auth.p = p
+          auth.q = q
+          console.log(dTime(), 'PQ factorization done', it)
+          mtpSendReqDhParams(auth)
+        }, error => {
+          console.log('Worker error', error, error.stack)
+          deferred.reject(error)
+        })
       }, error => {
-        console.log('Worker error', error, error.stack)
+        console.error(dTime(), 'req_pq error', error.message)
         deferred.reject(error)
       })
-    }, error => {
-      console.error(dTime(), 'req_pq error', error.message)
-      deferred.reject(error)
-    })
 
-    setTimeout(prepare, 0)
+    smartTimeout.immediate(prepare)
   }
 
   function mtpSendReqDhParams(auth) {
@@ -157,7 +157,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     mtpSendPlainRequest(auth.dcUrl, request.getBuffer()).then((deserializer) => {
       const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
 
-      if (response._ != 'server_DH_params_fail' && response._ != 'server_DH_params_ok') {
+      if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
         deferred.reject(new Error(`[MT] Server_DH_Params response invalid: ${  response._}`))
         return false
       }
@@ -246,7 +246,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
   }
 
   function mtpVerifyDhParams(g, dhPrime, gA) {
-    console.log(dTime(), 'Verifying DH params')
+    // console.log(dTime(), 'Verifying DH params')
     const dhPrimeHex = bytesToHex(dhPrime)
     if (g !== 3 || dhPrimeHex !== primeHex)
       // The verified value is from https://core.telegram.org/mtproto/security_guidelines
@@ -263,7 +263,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     if (gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0) {
       throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1')
     }
-    console.log(dTime(), '1 < gA < dhPrime-1 OK')
+    // console.log(dTime(), '1 < gA < dhPrime-1 OK')
 
 
     const two = new BigInteger(null)
@@ -383,7 +383,6 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
   }
 
   function mtpAuth(dcID, cached, dcUrl) {
-    console.count('mtpAuth')
     if (cached[dcID])
       return cached[dcID].promise
     console.warn('mtpAuth')
@@ -402,7 +401,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       deferred: blueDefer()
     }
 
-    setImmediate(() => mtpSendReqPQ(auth))
+    smartTimeout.immediate(() => mtpSendReqPQ(auth))
 
     cached[dcID] = auth.deferred
 

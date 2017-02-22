@@ -55,6 +55,16 @@ const config = {
     new webpack.DllReferencePlugin({
       context : source,
       manifest: vendorDll
+    }),
+    new webpack.LoaderOptionsPlugin({
+			options: {
+				worker: {
+					output: {
+						filename: 'hash.worker.js',
+						chunkFilename: '[id].hash.worker.js'
+          }
+				}
+      }
     })
   ],
   module: {
