@@ -968,7 +968,7 @@ function modInt(x,n) {
 //the returned array stores the bigInt in bpe-bit chunks, little endian (buff[0] is least significant word)
 //Pad the array with leading zeros so that it has at least minSize elements.
 //There will always be at least one leading 0 element.
-function int2bigInt(t,bits,minSize) {
+export function int2bigInt(t,bits,minSize) {
   var i,k;
   k=Math.ceil(bits/bpe)+1;
   k=minSize>k ? minSize : k;
@@ -1126,7 +1126,7 @@ export function copyInt_(x,n) {
 
 //do x=x+n where x is a bigInt and n is an integer.
 //x must be large enough to hold the result.
-function addInt_(x,n) {
+export function addInt_(x,n) {
   var i,k,c,b;
   x[0]+=n;
   k=x.length;
@@ -1171,7 +1171,7 @@ function halve_(x) {
 }
 
 //left shift bigInt x by n bits.
-function leftShift_(x,n) {
+export function leftShift_(x,n) {
   var i;
   var k=Math.floor(n/bpe);
   if (k) {

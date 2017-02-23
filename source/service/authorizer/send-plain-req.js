@@ -29,14 +29,14 @@ const SendPlain = ({ Serialization, Deserialization }) => {
     resultArray.set(requestArray, headerArray.length)
 
     const requestData = resultArray
-    let reqPromise
-    try {
-      reqPromise = httpClient.post(url, requestData, {
-        responseType: 'arraybuffer'
-      })
-    } catch (e) {
-      reqPromise = Promise.reject(new ErrorBadResponse(url, e))
-    }
+    // let reqPromise
+    // try {
+    const reqPromise = httpClient.post(url, requestData, {
+      responseType: 'arraybuffer'
+    })
+    // } catch (e) {
+    //   reqPromise = Promise.reject(new ErrorBadResponse(url, e))
+    // }
     return Promise.props({ url, req: reqPromise })
   }
 

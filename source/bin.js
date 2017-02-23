@@ -1,4 +1,4 @@
-import { BigInteger, SecureRandom } from 'jsbn'
+import { BigInteger } from 'jsbn'
 import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
 const { CryptoJS } = CryptoJSlib
@@ -12,8 +12,8 @@ import { inflate } from 'pako/lib/inflate'
 // import BN from 'bn.js'
 
 import { eGCD_, greater, divide_, str2bigInt, equalsInt,
-  isZero, bigInt2str, copy_, copyInt_, rightShift_,
-  sub_, add_, powMod, bpe, one } from './leemon'
+  isZero, bigInt2str, copy_, copyInt_, rightShift_, addInt_,
+  leftShift_, sub_, add_, powMod, bpe, one, int2bigInt } from './leemon'
 
 // import { bigInt2str } from 'BigInt'
 
@@ -299,11 +299,20 @@ export function longToBytes(sLong) {
   return bytesFromWords({ words: longToInts(sLong), sigBytes: 8 }).reverse()
 }
 
-export function longFromInts(high, low) {
-  return bigint(high)
-    .shiftLeft(32)
-    .add(bigint(low))
-    .toString(10)
+// export function longFromInts(high, low) {
+//   return bigint(high)
+//     .shiftLeft(32)
+//     .add(bigint(low))
+//     .toString(10)
+// }
+
+export function longFromLem(high, low) {
+  const highNum = int2bigInt(high, 96, 0)
+  leftShift_(highNum, 32)
+
+  addInt_(highNum, low)
+  const res = bigInt2str(highNum, 10)
+  return res
 }
 
 export function intToUint(val) {
@@ -425,307 +434,15 @@ export function nextRandomInt(maxValue) {
 // const bytesFromInt = int => bytesFromHex(int.toString(16))
 
 export function pqPrimeFactorization(pqBytes) {
-  const what = new BigInteger(pqBytes)
-  // const whatInt = bytesToInt(pqBytes)
-  // const whatBn = new BN(bytesToHex(pqBytes), 16)
-  let result = false
-  // let intRes = []
-  // const bnRes = []
-  // console.log(dT(), 'PQ start', pqBytes, what.toString(16), what.bitLength())
+  const minSize = Math.ceil(64 / bpe) + 1
 
-  // try {
-  // console.time('pq leemon')
-  // const toHex = bytesToHex(pqBytes)
-  result = pqPrimeLeemon(str2bigInt(what.toString(16), 16, Math.ceil(64 / bpe) + 1))
-  // console.timeEnd('pq leemon')
-  // } catch (e) {
-  //   console.error('Pq leemon Exception', e)
-  // }
-
-  /*if (result === false && what.bitLength() <= 64) {
-    // console.time('PQ long')
-    try {
-      result = pqPrimeLong(goog.math.Long.fromString(what.toString(16), 16))
-    } catch (e) {
-      console.error('Pq long Exception', e)
-    }
-  // console.timeEnd('PQ long')
-  }*/
-  // console.log(result)
-
-  // if (result === false) {
-  // console.time('pq BigInt')
-  // intRes = pqPrimeJsbn(what)
-  // console.timeEnd('pq BigInt')
-
-  // console.time('pq bn')
-  // bnRes = pqPrimeBN(whatBn)
-  // console.timeEnd('pq bn')
-  // }
-  // console.log(...result, ...bnRes)
-  // console.log(dT(), 'PQ finish')
-
+  // const what = new BigInteger(pqBytes)
+  const hex = bytesToHex(pqBytes)
+  const lWhat = str2bigInt(hex, 16, minSize)
+  const result = pqPrimeLeemon(lWhat)
   return result
-    //intRes//result//bnRes
 }
 
-/*export function pqPrimeBN(what) {
-  let it = 0,
-      g
-  const nOne = new BN(1)
-  for (let i = 0; i < 3; i++) {
-    const q = (nextRandomInt(128) & 15) + 17
-    let x = new BN(nextRandomInt(1000000000) + 1)
-    let y = x.clone()
-    const lim = 1 << (i + 18)
-
-    for (let j = 1; j < lim; j++) {
-      ++it
-      let a = x.clone()
-      let b = x.clone()
-      let c = new BN(q)
-
-      while (!b.isZero()) {
-        if (!b.and(nOne).isZero()) {
-          c = c.add(a)
-          if (c.gt(what)) {
-            c = c.sub(what)
-          }
-        }
-        a = a.add(a)
-        if (a.gt(what)) {
-          a = a.sub(what)
-        }
-        b = b.shrn(1)
-      }
-
-      x = c.clone()
-      const z = x.lt(y)
-        ? y.sub(x)
-        : x.sub(y)
-      g = z.gcd(what)
-      if (!g.eq(nOne)) {
-        break
-      }
-      if ((j & (j - 1)) == 0) {
-        y = x.clone()
-      }
-    }
-    if (g.gt(nOne)) {
-      break
-    }
-  }
-
-  let f = what.div(g), P, Q
-
-  if (g.gt(f)) {
-    P = f
-    Q = g
-  } else {
-    P = g
-    Q = f
-  }
-
-  return [P.toArray(), Q.toArray(), it]
-}*/
-
-export function pqPrimeJsbn(what) {
-  let it = 0,
-      g
-  for (let i = 0; i < 3; i++) {
-    const q = (nextRandomInt(128) & 15) + 17
-    let x = bigint(nextRandomInt(1000000000) + 1)
-    let y = x.clone()
-    const lim = 1 << (i + 18)
-
-    for (let j = 1; j < lim; j++) {
-      ++it
-      let a = x.clone()
-      let b = x.clone()
-      let c = bigint(q)
-
-      while (!b.equals(BigInteger.ZERO)) {
-        if (!b.and(BigInteger.ONE).equals(BigInteger.ZERO)) {
-          c = c.add(a)
-          if (c.compareTo(what) > 0) {
-            c = c.subtract(what)
-          }
-        }
-        a = a.add(a)
-        if (a.compareTo(what) > 0) {
-          a = a.subtract(what)
-        }
-        b = b.shiftRight(1)
-      }
-
-      x = c.clone()
-      const z = x.compareTo(y) < 0 ? y.subtract(x) : x.subtract(y)
-      g = z.gcd(what)
-      if (!g.equals(BigInteger.ONE)) {
-        break
-      }
-      if ((j & (j - 1)) == 0) {
-        y = x.clone()
-      }
-    }
-    if (g.compareTo(BigInteger.ONE) > 0) {
-      break
-    }
-  }
-
-  let f = what.divide(g), P, Q
-
-  if (g.compareTo(f) > 0) {
-    P = f
-    Q = g
-  } else {
-    P = g
-    Q = f
-  }
-
-  return [bytesFromBigInt(P), bytesFromBigInt(Q), it]
-}
-
-/*export function pqPrimeBigInteger(what) {
-  let it = 0,
-      g
-  for (let i = 0; i < 3; i++) {
-    const q = (nextRandomInt(128) & 15) + 17
-    let x = Int(nextRandomInt(1000000000) + 1)
-    let y = Int(x)
-    const lim = 1 << (i + 18)
-
-    for (let j = 1; j < lim; j++) {
-      ++it
-      let a = Int(x)
-      let b = Int(x)
-      let c = Int(q)
-
-      while (!b.isZero()) {
-        if (!b.and(Int.one).isZero()) {
-          c = c.add(a)
-          if (c.greater(what))
-            c = c.subtract(what)
-        }
-        a = a.add(a)
-        if (a.greater(what))
-          a = a.subtract(what)
-        b = b.shiftRight(1)
-      }
-
-      x = Int(c)
-      const z = x.lesser(y)
-        ? y.subtract(x)
-        : x.subtract(y)
-      g = Int.gcd(z, what)
-      if (g.notEquals(Int.one))
-        break
-      if ((j & (j - 1)) == 0)
-        y = Int(x)
-    }
-    if (g.greater(Int.one))
-      break
-  }
-
-  const f = what.divide(g)
-  let P, Q
-
-  if (g.greater(f)) {
-    P = f
-    Q = g
-  } else {
-    P = g
-    Q = f
-  }
-
-  return [bytesFromInt(P), bytesFromInt(Q), it]
-}*/
-
-/*export function gcdLong(a, b) {
-  while (a.notEquals(goog.math.Long.ZERO) && b.notEquals(goog.math.Long.ZERO)) {
-    while (b.and(goog.math.Long.ONE).equals(goog.math.Long.ZERO)) {
-      b = b.shiftRight(1)
-    }
-    while (a.and(goog.math.Long.ONE).equals(goog.math.Long.ZERO)) {
-      a = a.shiftRight(1)
-    }
-    if (a.compare(b) > 0) {
-      a = a.subtract(b)
-    } else {
-      b = b.subtract(a)
-    }
-  }
-  return b.equals(goog.math.Long.ZERO) ? a : b
-}
-
-export function pqPrimeLong(what) {
-  let it = 0,
-      g
-  for (let i = 0; i < 3; i++) {
-    const q = goog.math.Long.fromInt((nextRandomInt(128) & 15) + 17)
-    let x = goog.math.Long.fromInt(nextRandomInt(1000000000) + 1)
-    let y = x
-    const lim = 1 << (i + 18)
-
-    for (let j = 1; j < lim; j++) {
-      ++it
-      let a = x
-      let b = x
-      let c = q
-
-      while (b.notEquals(goog.math.Long.ZERO)) {
-        if (b.and(goog.math.Long.ONE).notEquals(goog.math.Long.ZERO)) {
-          c = c.add(a)
-          if (c.compare(what) > 0) {
-            c = c.subtract(what)
-          }
-        }
-        a = a.add(a)
-        if (a.compare(what) > 0) {
-          a = a.subtract(what)
-        }
-        b = b.shiftRight(1)
-      }
-
-      x = c
-      const z = x.compare(y) < 0 ? y.subtract(x) : x.subtract(y)
-      g = gcdLong(z, what)
-      if (g.notEquals(goog.math.Long.ONE)) {
-        break
-      }
-      if ((j & (j - 1)) == 0) {
-        y = x
-      }
-    }
-    if (g.compare(goog.math.Long.ONE) > 0) {
-      break
-    }
-  }
-
-  let f = what.div(g), P, Q
-
-  if (g.compare(f) > 0) {
-    P = f
-    Q = g
-  } else {
-    P = g
-    Q = f
-  }
-
-  return [bytesFromHex(P.toString(16)), bytesFromHex(Q.toString(16)), it]
-}*/
-
-/*//is bigint x equal to integer y?
-//y must have less than bpe bits
-function equalsInt(x,y) {
-  var i;
-  if (x[0]!=y)
-    return 0;
-  for (i=1;i<x.length;i++)
-    if (x[i])
-      return 0;
-  return 1;
-}*/
 
 export function pqPrimeLeemon(what) {
   const minBits = 64
@@ -800,17 +517,17 @@ export function pqPrimeLeemon(what) {
 }
 
 export function bytesModPow(x, y, m) {
-  try {
-    const xBigInt = str2bigInt(bytesToHex(x), 16)
-    const yBigInt = str2bigInt(bytesToHex(y), 16)
-    const mBigInt = str2bigInt(bytesToHex(m), 16)
-    const resBigInt = powMod(xBigInt, yBigInt, mBigInt)
+  // try {
+  const xBigInt = str2bigInt(bytesToHex(x), 16)
+  const yBigInt = str2bigInt(bytesToHex(y), 16)
+  const mBigInt = str2bigInt(bytesToHex(m), 16)
+  const resBigInt = powMod(xBigInt, yBigInt, mBigInt)
 
-    return bytesFromHex(bigInt2str(resBigInt, 16))
-  } catch (e) {
-    console.error('mod pow error', e)
-  }
+  return bytesFromHex(bigInt2str(resBigInt, 16))
+  // } catch (e) {
+  //   console.error('mod pow error', e)
+  // }
 
-  return bytesFromBigInt(new BigInteger(x).modPow(new BigInteger(y), new BigInteger(m)), 256)
+  // return bytesFromBigInt(new BigInteger(x).modPow(new BigInteger(y), new BigInteger(m)), 256)
 }
 

@@ -1,0 +1,13 @@
+[0.445] mtpAuth
+[0.491] Send req_pq b24745529ad95c1acc8cc13a265955a8
+[0.844] Got ResPQ 734c61de89a6f279c63ed1c6c0b71521 1e46b20b2f87dd81 [ '14101943622620965665' ]
+[0.869] PQ factorization start Uint8Array [ 30, 70, 178, 11, 47, 135, 221, 129 ]
+[1.793] PQ factorization done 13502
+[1.808] Send req_DH_params
+[2.020] Done decrypting answer
+[2.022] Verifying DH params
+[2.026] dhPrime cmp OK
+[2.033] 2^{2048-64} < gA < dhPrime-2^{2048-64} OK
+[2.035] Apply server time 1487877064 1487877055188 9 false
+[2.638] Send set_client_DH_params
+[3.523] Got Set_client_DH_params_answer dh_gen_ok

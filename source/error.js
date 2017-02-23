@@ -22,6 +22,6 @@ export class ErrorBadResponse extends MTError {
 export class ErrorNotFound extends MTError {
   constructor(err) {
     super(404, 'REQUEST_FAILED', err.config.url)
-    this.originalError = err
+    // this.originalError = err
   }
 }

@@ -41,12 +41,12 @@ export class ApiManager {
   }
   static apiConfig = {
     invokeWithLayer: 0xda9b0d0d,
-    layer          : NaN,
+    layer          : 57,
     initConnection : 0x69796de9,
-    api_id         : '',
+    api_id         : 49631,
     device_model   : 'Unknown UserAgent',
     system_version : 'Unknown Platform',
-    app_version    : '',
+    app_version    : '1.0.1',
     lang_code      : 'en'
   }
 
@@ -174,7 +174,7 @@ export class ApiManager {
             console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
 
             return switchErrors(error, options, dcID, baseDcID)(
-              error, options, this.emit, rejectPromise, requestThunk,
+              error, options, dcID, this.emit, rejectPromise, requestThunk,
               apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
               this.mtpGetNetworker, this.storage)
           })

@@ -1,0 +1,109 @@
+[0.370] mtpAuth
+[0.409] Send req_pq bf891aafebc4e31d38d7740f5e931524
+[0.761] Got ResPQ 564f9b1ca805ce1bb3d823c3e11afee1 13efb429daeff551 [ '14101943622620965665' ]
+[0.778] PQ factorization start Uint8Array [ 19, 239, 180, 41, 218, 239, 245, 81 ]
+Get networker error { Error: MT[404] REQUEST_FAILED: https://venus.web.telegram.org/apiw_test1
+    at onlySendPlainErr (C:\_projects\Web\mtproto2\source\service\authorizer\send-plain-req.js:47:17)
+From previous event:
+    at mtpSendReqDhParams (C:\_projects\Web\mtproto2\source\service\authorizer\index.js:165:12)
+
+err undefined
+[2.751] PQ factorization done 45485
+[2.764] Send req_DH_params
+[3.001] mtpAuth
+[3.011] Send req_pq e106792300c3abe6ef4ee51eefd90671
+[3.199] Got ResPQ 92571ffa85eb53751520e4c39f40c379 1dfd2e3df63b1b97 [ '14101943622620965665' ]
+[3.208] PQ factorization start Uint8Array [ 29, 253, 46, 61, 246, 59, 27, 151 ]
+
+Get networker error { Error: MT[404] REQUEST_FAILED: https://venus.web.telegram.org/apiw_test1
+    at onlySendPlainErr (C:\_projects\Web\mtproto2\source\service\authorizer\send-plain-req.js:47:17)
+err undefined
+
+[4.646] PQ factorization done 28896
+[4.650] Send req_DH_params
+[4.893] mtpAuth
+[4.896] Send req_pq ace1584e1b027695904863fa2a10a148
+[5.082] Got ResPQ 879b12a6c78145dcf8a9c83923e65ccb 229a6669808c111b [ '14101943622620965665' ]
+[5.090] PQ factorization start Uint8Array [ 34, 154, 102, 105, 128, 140, 17, 27 ]
+[6.163] Apply server time 1487876401 1487876392351 9 false
+[5.917] PQ factorization done 22008
+[5.932] Send req_DH_params
+[6.156] Done decrypting answer
+[6.156] Verifying DH params
+[6.157] dhPrime cmp OK
+[6.162] 2^{2048-64} < gA < dhPrime-2^{2048-64} OK
+[6.666] Send set_client_DH_params
+[7.561] Api call help.getNearestDc {} 6390380488649317148 1 { dcID: 2, createNetworker: true, resultType: 'NearestDc' }
+[7.567] Container [ '6390380488649317148', '6390380488663633540' ] 6390380488663633544 4
+[7.540] Got Set_client_DH_params_answer dh_gen_ok
+(node:20412) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\source\service\networker.js:520:14 but was not returned from it, see http://goo.gl/rR
+qMUw
+    at Function.module.exports.Promise.cast (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:195:13)
+[8.004] MT call http_wait { max_delay: 500, wait_after: 150, max_wait: 25000 } 6390380491777917380 5
+[8.047] Server response 2 { response: { _: 'msg_container', messages: [ [Object], [Object] ] },
+  messageID: '6390380493821942785',
+  sessionID: [ 223, 30, 67, 159, 81, 217, 158, 87 ],
+  seqNo: 4 }
+[8.060] Rpc response { _: 'nearestDc', country: 'RU', this_dc: 2, nearest_dc: 2 }
+getNearestDc { _: 'nearestDc', country: 'RU', this_dc: 2, nearest_dc: 2 }
+[8.070] Api call auth.sendCode { phone_number: '+9996620000',
+  current_number: false,
+  api_id: 49631,
+  api_hash: 'fb050b8f6771e15bfda5df2409931569' } 6390380491916267308 7 { resultType: 'auth.SentCode' }
+[8.079] MT message { _: 'msgs_ack',
+  msg_ids: [ '6390380492935428097', '6390380493174051841' ] } 6390380491935409948 8
+[8.083] Container [ '6390380491916267308',
+  '6390380491935409948',
+  '6390380491943530548' ] 6390380491943775932 10
+(node:20412) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\source\service\networker.js:523:12 but was not returned from it, see http://goo.gl/rR
+qMUw
+    at Function.module.exports.Promise.cast (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:195:13)
+[8.478] Server response 2 { response:
+   { _: 'rpc_result',
+     req_msg_id: '6390380491916267308',
+     result:
+      { _: 'auth.sentCode',
+        pFlags: [Object],
+        flags: 3,
+        type: [Object],
+        phone_code_hash: '0689926c11808148e0',
+        next_type: [Object] } },
+  messageID: '6390380495231232001',
+  sessionID: [ 223, 30, 67, 159, 81, 217, 158, 87 ],
+  seqNo: 5 }
+[8.483] Rpc response { _: 'auth.sentCode',
+  pFlags: { phone_registered: true },
+  flags: 3,
+  type: { _: 'auth.sentCodeTypeApp', length: 5 },
+  phone_code_hash: '0689926c11808148e0',
+  next_type: { _: 'auth.codeTypeSms' } }
+phone_code_hash 0689926c11808148e0
+[8.501] Api call auth.signIn { phone_number: '+9996620000',
+  phone_code_hash: '0689926c11808148e0',
+  phone_code: '22222' } 6390380492820404228 11 { resultType: 'auth.Authorization' }
+[8.509] MT message { _: 'msgs_ack', msg_ids: [ '6390380495231232001' ] } 6390380492837028668 12
+[8.516] Container [ '6390380492820404228',
+  '6390380492837028668',
+  '6390380492849640988' ] 6390380492851751444 14
+(node:20412) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\source\service\networker.js:523:12 but was not returned from it, see http://goo.gl/rR
+qMUw
+[8.922] Server response 2 { response:
+   { _: 'rpc_result',
+     req_msg_id: '6390380492820404228',
+     result: { _: 'auth.authorization', pFlags: {}, flags: 0, user: [Object] } },
+  messageID: '6390380497133619201',
+  sessionID: [ 223, 30, 67, 159, 81, 217, 158, 87 ],
+  seqNo: 7 }
+[8.932] Rpc response { _: 'auth.authorization',
+  pFlags: {},
+  flags: 0,
+  user:
+   { _: 'user',
+     pFlags: { self: true },
+     flags: 1111,
+     id: 297169,
+     access_hash: '6362957075171533052',
+     first_name: 'Qwe',
+     last_name: 'Rty',
+     phone: '9996620000',
+     status: { _: 'userStatusOnline', expires: 1487876464 } } }
