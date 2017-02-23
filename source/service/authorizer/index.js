@@ -6,12 +6,14 @@ import blueDefer from '../../defer'
 import { smartTimeout } from '../../smart-timeout'
 import CryptoWorker from '../../crypto'
 
-import MtpSecureRandom from '../secure-random'
+import random from '../secure-random'
 import { applyServerTime, dTime, tsNow } from '../time-manager'
 
 import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor } from '../../bin'
+import { bpe, str2bigInt, bigInt2str, int2bigInt, one,
+    dup, sub_, sub, greater } from '../../leemon'
 
 // import { ErrorBadResponse } from '../../error'
 
@@ -91,7 +93,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     const deferred = auth.deferred
 
     auth.newNonce = new Array(32)
-    MtpSecureRandom.nextBytes(auth.newNonce)
+    random.nextBytes(auth.newNonce)
 
     const data = new Serialization({ mtproto: true })
     data.storeObject({
@@ -208,6 +210,20 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     applyServerTime(auth.serverTime, auth.localTime)
   }
 
+  const minSize = Math.ceil(64 / bpe) + 1
+
+  const getTwoPow = () => { //Dirty hack to count 2^(2048 - 64)
+                            //This number contains 496 zeroes in hex
+    const arr = Array(496)
+      .fill('0')
+    arr.unshift('1')
+    const hex = arr.join('')
+    const res = str2bigInt(hex, 16, minSize)
+    return res
+  }
+
+  const leemonTwoPow = getTwoPow()
+
   function mtpVerifyDhParams(g, dhPrime, gA) {
     // console.log(dTime(), 'Verifying DH params')
     const dhPrimeHex = bytesToHex(dhPrime)
@@ -216,29 +232,43 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       throw new Error('[MT] DH params are not verified: unknown dhPrime')
     console.log(dTime(), 'dhPrime cmp OK')
 
-    const gABigInt = new BigInteger(bytesToHex(gA), 16)
-    const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16)
+    // const gABigInt = new BigInteger(bytesToHex(gA), 16)
+    // const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16)
 
-    if (gABigInt.compareTo(BigInteger.ONE) <= 0) {
+    const dhPrimeLeemon = str2bigInt(dhPrimeHex, 16, minSize)
+    const gALeemon = str2bigInt(bytesToHex(gA), 16, minSize)
+    const dhDec = dup(dhPrimeLeemon)
+    sub_(dhDec, one)
+    // const dhDecStr = bigInt2str(dhDec, 16)
+    // const comp = dhPrimeBigInt.subtract(BigInteger.ONE).toString(16)
+    // console.log(dhPrimeLeemon, dhDecStr === comp)
+    const case1 = !greater(gALeemon, one)
+      //gABigInt.compareTo(BigInteger.ONE) <= 0
+    const case2 = !greater(dhDec, gALeemon)
+      //gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0
+    if (case1)
       throw new Error('[MT] DH params are not verified: gA <= 1')
-    }
 
-    if (gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0) {
+    if (case2)
       throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1')
-    }
     // console.log(dTime(), '1 < gA < dhPrime-1 OK')
 
 
-    const two = new BigInteger(null)
-    two.fromInt(2)
-    const twoPow = two.pow(2048 - 64)
+    // const two = new BigInteger(null)
+    // two.fromInt(2)
+    // const twoPow = two.pow(2048 - 64)
 
-    if (gABigInt.compareTo(twoPow) < 0) {
+    const case3 = !!greater(leemonTwoPow, gALeemon)
+      //gABigInt.compareTo(twoPow) < 0
+    const dhSubPow = dup(dhPrimeLeemon)
+    sub(dhSubPow, leemonTwoPow)
+    const case4 = !greater(dhSubPow, gALeemon)
+      //gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0
+    // console.log(case3 === gABigInt.compareTo(twoPow) < 0)
+    if (case3)
       throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}')
-    }
-    if (gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0) {
+    if (case4)
       throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}')
-    }
     console.log(dTime(), '2^{2048-64} < gA < dhPrime-2^{2048-64} OK')
 
     return true
@@ -249,7 +279,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     const gBytes = bytesFromHex(auth.g.toString(16))
 
     auth.b = new Array(256)
-    MtpSecureRandom.nextBytes(auth.b)
+    random.nextBytes(auth.b)
 
     const afterPlainRequest = (deserializer) => {
       const response = deserializer.fetchObject('Set_client_DH_params_answer')

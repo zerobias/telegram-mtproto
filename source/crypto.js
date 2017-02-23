@@ -1,8 +1,6 @@
 import { when, is, identity, has, both } from 'ramda'
 import isNode from 'detect-node'
 
-require('worker-loader!./worker.js')
-
 import blueDefer from './defer'
 import smartTimeout from './smart-timeout'
 import { convertToUint8Array, sha1HashSync, sha256HashSync,
@@ -36,6 +34,7 @@ const isCryptoTask = both(has('taskID'), has('result'))
 //eslint-disable-next-line
 const workerEnable = !isNode && window.Worker
 if (workerEnable) {
+  require('worker-loader!./worker.js')
   const tmpWorker = new Worker('./bundle/hash.worker.js')
   // tmpWorker.onmessage = function(event) {
   //   console.info('CW tmpWorker.onmessage', event && event.data)

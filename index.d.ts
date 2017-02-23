@@ -27,15 +27,12 @@ declare module 'telegram-mtproto' {
   class ApiManager {
     constructor()
     constructor({ server, api, app, schema, mtSchema }: Config)
-    // mtpGetNetworker(dc: number): any
-    // mtpGetNetworker(dc: number, options: Object): any
     readonly storage: AsyncStorage
     mtpInvokeApi<T>(method: string): Promise<T>
     mtpInvokeApi<T>(method: string, params: Object): Promise<T>
     mtpInvokeApi<T>(method: string, params: Object, options: Object): Promise<T>
     on(event: string|string[], handler: Function)
   }
-  const api: ApiManager
   interface AsyncStorage {
     get(...keys: string[]): Promise<any[]>
     set(obj: Object): Promise<Object>

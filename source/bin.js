@@ -3,6 +3,8 @@ import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
 const { CryptoJS } = CryptoJSlib
 
+import random from './service/secure-random'
+
 import { inflate } from 'pako/lib/inflate'
 
 // import Int from 'big-integer'
@@ -362,18 +364,14 @@ export function addPadding(bytes, blockSize, zeroes) {
   if (needPadding > 0 && needPadding < blockSize) {
     const padding = new Array(needPadding)
     if (zeroes) {
-      for (let i = 0; i < needPadding; i++) {
+      for (let i = 0; i < needPadding; i++)
         padding[i] = 0
-      }
-    } else {
-      (new SecureRandom()).nextBytes(padding)
-    }
+    } else
+      random.nextBytes(padding)
 
-    if (bytes instanceof ArrayBuffer) {
-      bytes = bufferConcat(bytes, padding)
-    } else {
-      bytes = bytes.concat(padding)
-    }
+    bytes = bytes instanceof ArrayBuffer
+      ? bufferConcat(bytes, padding)
+      : bytes.concat(padding)
   }
 
   return bytes

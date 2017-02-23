@@ -418,7 +418,7 @@ export function powMod(x,y,n) {
 }
 
 //return (x-y) for bigInts x and y.  Negative answers will be 2s complement
-function sub(x,y) {
+export function sub(x,y) {
   var ans=expand(x,(x.length>y.length ? x.length+1 : y.length+1));
   sub_(ans,y);
   return trim(ans,1);
@@ -1098,7 +1098,7 @@ export function bigInt2str(x,base) {
 }
 
 //returns a duplicate of bigInt x
-function dup(x) {
+export function dup(x) {
   var i;
   buff=new Array(x.length);
   copy_(buff,x);

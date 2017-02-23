@@ -20,7 +20,8 @@
     "rebuild:es": "npm run clean:es & npm run build:es",
     "build:es": "babel source/ -d es -s",
     "clean:es": "rimraf es/",
-    "test": "node --harmony test/node.test.js"
+    "test": "node --harmony test/node.test.js",
+    "prepublish": "npm run rebuild:es && npm run rebuild:cjs"
   },
   "author": "Zero Bias",
   "dependencies": {
@@ -58,6 +59,7 @@
   },
   "files": [
     "lib",
+    "test",
     "dist",
     "schema",
     "source",
@@ -83,5 +85,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "2.0.0"
+  "version": "2.0.1"
 }

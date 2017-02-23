@@ -6,7 +6,7 @@ const phone = {
   code: '22222'
 }
 
-const appSettings = {
+const api = {
   invokeWithLayer: 0xda9b0d0d,
   layer          : 57,
   initConnection : 0x69796de9,
@@ -14,7 +14,7 @@ const appSettings = {
   app_version    : '1.0.1',
   lang_code      : 'en'
 }
-const serverConfig = {
+const server = {
   dev     : true,
   webogram: true
 }
@@ -29,7 +29,7 @@ const config = {
 }
 
 
-const telegramMain = new ApiManager({ serverConfig, appSettings, debug })
+const telegramMain = new ApiManager({ server, api, app: { debug } })
 
 test(`Connection test`, async t => {
   t.plan(1)
@@ -52,6 +52,8 @@ test(`Connection test`, async t => {
           phone_code  : phone.code
         })
         console.log('signIn', res)
+        console.log('\n Logined as user')
+        console.dir(res.user, { colors: true })
         t.ok(res, 'result is ok')
         break
       } catch (err) {
