@@ -11,7 +11,7 @@ declare module 'telegram-mtproto' {
     invokeWithLayer?: number
     layer          ?: number
     initConnection ?: number
-    api_id         ?: string
+    api_id         ?: number
     device_model   ?: string
     system_version ?: string
     app_version    ?: string
