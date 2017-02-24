@@ -31,6 +31,7 @@ declare module 'telegram-mtproto' {
     mtpInvokeApi<T>(method: string): Promise<T>
     mtpInvokeApi<T>(method: string, params: Object): Promise<T>
     mtpInvokeApi<T>(method: string, params: Object, options: Object): Promise<T>
+    setUserAuth<T>(dc: number, userAuth: T): void
     on(event: string|string[], handler: Function)
   }
   interface AsyncStorage {
