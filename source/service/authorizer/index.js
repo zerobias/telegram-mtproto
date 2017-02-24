@@ -1,6 +1,4 @@
 import Promise from 'bluebird'
-import jsbn from 'jsbn'
-const { BigInteger } = jsbn
 
 import blueDefer from '../../defer'
 import { smartTimeout } from '../../smart-timeout'

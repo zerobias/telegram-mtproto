@@ -22,6 +22,8 @@ const toUint32 = buf => {
   return res
 }
 
+const billion = bigint(0x100000000)
+
 export const TL = (api, mtApi) => {
 
   class Serialization {
@@ -128,8 +130,7 @@ export const TL = (api, mtApi) => {
         sLong = sLong
           ? sLong.toString()
           : '0'
-      const divRem = bigStringInt(sLong).divideAndRemainder(bigint(0x100000000))
-
+      const divRem = bigStringInt(sLong).divideAndRemainder(billion)
       this.writeInt(intToUint(divRem[1].intValue()), `${ field }:long[low]`)
       this.writeInt(intToUint(divRem[0].intValue()), `${ field }:long[high]`)
     }
@@ -421,14 +422,14 @@ export const TL = (api, mtApi) => {
 
     fetchBool(field = '') {
       const i = this.readInt(`${ field }:bool`)
-      if (i == 0x997275b5) {
-        return true
-      } else if (i == 0xbc799737) {
-        return false
+      switch (i) {
+        case 0x997275b5: return true
+        case 0xbc799737: return false
+        default: {
+          this.offset -= 4
+          return this.fetchObject('Object', field)
+        }
       }
-
-      this.offset -= 4
-      return this.fetchObject('Object', field)
     }
 
     fetchString(field = '') {

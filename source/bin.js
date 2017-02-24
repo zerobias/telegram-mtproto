@@ -7,17 +7,10 @@ import random from './service/secure-random'
 
 import { inflate } from 'pako/lib/inflate'
 
-// import Int from 'big-integer'
-
-// import BN from 'bn.js'
-
 import { eGCD_, greater, divide_, str2bigInt, equalsInt,
   isZero, bigInt2str, copy_, copyInt_, rightShift_, addInt_,
   leftShift_, sub_, add_, powMod, bpe, one, int2bigInt } from './leemon'
 
-// import { bigInt2str } from 'BigInt'
-
-// const { BigInteger } = jsbn
 
 const rushaInstance = new Rusha(1024 * 1024)
 
@@ -29,23 +22,6 @@ export function bigStringInt(strNum) {
   return new BigInteger(strNum, 10)
 }
 
-export function dHexDump(bytes) {
-  const arr = []
-  for (let i = 0; i < bytes.length; i++) {
-    if (i && !(i % 2)) {
-      if (!(i % 16)) {
-        arr.push('\n')
-      } else if (!(i % 4)) {
-        arr.push('  ')
-      } else {
-        arr.push(' ')
-      }
-    }
-    arr.push((bytes[i] < 16 ? '0' : '') + bytes[i].toString(16))
-  }
-
-  console.log(arr.join(''))
-}
 
 export function bytesToHex(bytes = []) {
   const arr = []
@@ -71,87 +47,6 @@ export function bytesFromHex(hexString) {
 
   return bytes
 }
-
-export function bytesToBase64(bytes) {
-  let mod3
-  let result = ''
-
-  for (let nLen = bytes.length, nUint24 = 0, nIdx = 0; nIdx < nLen; nIdx++) {
-    mod3 = nIdx % 3
-    nUint24 |= bytes[nIdx] << (16 >>> mod3 & 24)
-    if (mod3 === 2 || nLen - nIdx === 1) {
-      result += String.fromCharCode(
-        uint6ToBase64(nUint24 >>> 18 & 63),
-        uint6ToBase64(nUint24 >>> 12 & 63),
-        uint6ToBase64(nUint24 >>> 6 & 63),
-        uint6ToBase64(nUint24 & 63)
-      )
-      nUint24 = 0
-    }
-  }
-
-  return result.replace(/A(?=A$|$)/g, '=')
-}
-
-export function uint6ToBase64(nUint6) {
-  return nUint6 < 26
-    ? nUint6 + 65
-    : nUint6 < 52
-      ? nUint6 + 71
-      : nUint6 < 62
-        ? nUint6 - 4
-        : nUint6 === 62
-          ? 43
-          : nUint6 === 63
-            ? 47
-            : 65
-}
-
-// export function base64ToBlob(base64str, mimeType) {
-//   const sliceSize = 1024
-//   const byteCharacters = atob(base64str)
-//   const bytesLength = byteCharacters.length
-//   const slicesCount = Math.ceil(bytesLength / sliceSize)
-//   const byteArrays = new Array(slicesCount)
-
-//   for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-//     const begin = sliceIndex * sliceSize
-//     const end = Math.min(begin + sliceSize, bytesLength)
-
-//     const bytes = new Array(end - begin)
-//     for (let offset = begin, i = 0; offset < end; ++i, ++offset) {
-//       bytes[i] = byteCharacters[offset].charCodeAt(0)
-//     }
-//     byteArrays[sliceIndex] = new Uint8Array(bytes)
-//   }
-
-//   return blobConstruct(byteArrays, mimeType)
-// }
-
-// export function dataUrlToBlob(url) {
-//   // var name = 'b64blob ' + url.length
-//   // console.time(name)
-//   const urlParts = url.split(',')
-//   const base64str = urlParts[1]
-//   const mimeType = urlParts[0].split(':')[1].split(';')[0]
-//   const blob = base64ToBlob(base64str, mimeType)
-//   // console.timeEnd(name)
-//   return blob
-// }
-
-// export function blobConstruct(blobParts, mimeType) {
-//   let blob
-//   try {
-//     blob = new Blob(blobParts, { type: mimeType })
-//   } catch (e) {
-//     const bb = new BlobBuilder
-//     angular.forEach(blobParts, function(blobPart) {
-//       bb.append(blobPart)
-//     })
-//     blob = bb.getBlob(mimeType)
-//   }
-//   return blob
-// }
 
 export function bytesCmp(bytes1, bytes2) {
   const len = bytes1.length
@@ -185,7 +80,7 @@ export function bytesToWords(bytes) {
   const words = []
   let i
   for (i = 0; i < len; i++) {
-    words[i >>> 2] |= bytes[i] << (24 - (i % 4) * 8)
+    words[i >>> 2] |= bytes[i] << 24 - i % 4 * 8
   }
 
   return new CryptoJS.lib.WordArray.init(words, len)
@@ -197,35 +92,14 @@ export function bytesFromWords(wordArray) {
   const bytes = []
 
   for (let i = 0; i < sigBytes; i++) {
-    bytes.push((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff)
+    bytes.push(words[i >>> 2] >>> 24 - i % 4 * 8 & 0xff)
   }
 
   return bytes
 }
 
-export function bytesFromBigInt(bigInt, len) {
-  let bytes = bigInt.toByteArray()
 
-  if (len && bytes.length < len) {
-    const padding = []
-    for (let i = 0, needPadding = len - bytes.length; i < needPadding; i++) {
-      padding[i] = 0
-    }
-    if (bytes instanceof ArrayBuffer) {
-      bytes = bufferConcat(padding, bytes)
-    } else {
-      bytes = padding.concat(bytes)
-    }
-  } else {
-    while (!bytes[0] && (!len || bytes.length > len)) {
-      bytes = bytes.slice(1)
-    }
-  }
-
-  return bytes
-}
-
-export function bytesFromLeemonBigInt(bigInt, len) {
+export function bytesFromLeemonBigInt(bigInt) {
   const str = bigInt2str(bigInt, 16)
   return bytesFromHex(str)
 }
@@ -247,21 +121,18 @@ export function convertToArrayBuffer(bytes) {
 }
 
 export function convertToUint8Array(bytes) {
-  if (bytes.buffer !== undefined) {
+  if (bytes.buffer !== undefined)
     return bytes
-  }
   return new Uint8Array(bytes)
 }
 
 export function convertToByteArray(bytes) {
-  if (Array.isArray(bytes)) {
+  if (Array.isArray(bytes))
     return bytes
-  }
   bytes = convertToUint8Array(bytes)
   const newBytes = []
-  for (let i = 0, len = bytes.length; i < len; i++) {
+  for (let i = 0, len = bytes.length; i < len; i++)
     newBytes.push(bytes[i])
-  }
   return newBytes
 }
 
@@ -299,13 +170,6 @@ export function longToBytes(sLong) {
   return bytesFromWords({ words: longToInts(sLong), sigBytes: 8 }).reverse()
 }
 
-// export function longFromInts(high, low) {
-//   return bigint(high)
-//     .shiftLeft(32)
-//     .add(bigint(low))
-//     .toString(10)
-// }
-
 export function longFromLem(high, low) {
   const highNum = int2bigInt(high, 96, 0)
   leftShift_(highNum, 32)
@@ -317,16 +181,14 @@ export function longFromLem(high, low) {
 
 export function intToUint(val) {
   val = parseInt(val)
-  if (val < 0) {
+  if (val < 0)
     val = val + 4294967296
-  }
   return val
 }
 
 export function uintToInt(val) {
-  if (val > 2147483647) {
+  if (val > 2147483647)
     val = val - 4294967296
-  }
   return val
 }
 
@@ -355,13 +217,11 @@ export function sha256HashSync(bytes) {
 export function rsaEncrypt(publicKey, bytes) {
   bytes = addPadding(bytes, 255)
 
-  // console.log('RSA encrypt start')
-  const N = new BigInteger(publicKey.modulus, 16)
-  const E = new BigInteger(publicKey.exponent, 16)
-  const X = new BigInteger(bytes)
-  const encryptedBigInt = X.modPowInt(E, N),
-        encryptedBytes = bytesFromBigInt(encryptedBigInt, 256)
-    // console.log('RSA encrypt finish')
+  const N = str2bigInt(publicKey.modulus, 16, 256)
+  const E = str2bigInt(publicKey.exponent, 16, 256)
+  const X = str2bigInt(bytesToHex(bytes), 16, 256)
+  const encryptedBigInt = powMod(X, E, N),
+        encryptedBytes = bytesFromHex(bigInt2str(encryptedBigInt, 16))
 
   return encryptedBytes
 }
@@ -369,7 +229,7 @@ export function rsaEncrypt(publicKey, bytes) {
 export function addPadding(bytes, blockSize, zeroes) {
   blockSize = blockSize || 16
   const len = bytes.byteLength || bytes.length
-  const needPadding = blockSize - (len % blockSize)
+  const needPadding = blockSize - len % blockSize
   if (needPadding > 0 && needPadding < blockSize) {
     const padding = new Array(needPadding)
     if (zeroes) {
@@ -430,8 +290,6 @@ export function nextRandomInt(maxValue) {
   return Math.floor(Math.random() * maxValue)
 }
 
-// const bytesToInt = bytes => Int(bytesToHex(bytes), 16)
-// const bytesFromInt = int => bytesFromHex(int.toString(16))
 
 export function pqPrimeFactorization(pqBytes) {
   const minSize = Math.ceil(64 / bpe) + 1
@@ -461,7 +319,7 @@ export function pqPrimeLeemon(what) {
     q = (nextRandomInt(128) & 15) + 17
     copyInt_(x, nextRandomInt(1000000000) + 1)
     copy_(y, x)
-    lim = 1 << (i + 18)
+    lim = 1 << i + 18
 
     for (let j = 1; j < lim; j++) {
       ++it
@@ -495,7 +353,7 @@ export function pqPrimeLeemon(what) {
       if (!equalsInt(g, 1)) {
         break
       }
-      if ((j & (j - 1)) === 0) {
+      if ((j & j - 1) === 0) {
         copy_(y, x)
       }
     }
@@ -517,17 +375,11 @@ export function pqPrimeLeemon(what) {
 }
 
 export function bytesModPow(x, y, m) {
-  // try {
   const xBigInt = str2bigInt(bytesToHex(x), 16)
   const yBigInt = str2bigInt(bytesToHex(y), 16)
   const mBigInt = str2bigInt(bytesToHex(m), 16)
   const resBigInt = powMod(xBigInt, yBigInt, mBigInt)
 
   return bytesFromHex(bigInt2str(resBigInt, 16))
-  // } catch (e) {
-  //   console.error('mod pow error', e)
-  // }
-
-  // return bytesFromBigInt(new BigInteger(x).modPow(new BigInteger(y), new BigInteger(m)), 256)
 }
 
