@@ -1,15 +1,18 @@
+import { toLower } from 'ramda'
 import { BigInteger } from 'jsbn'
 import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
 const { CryptoJS } = CryptoJSlib
+import { inflate } from 'pako/lib/inflate'
+
+// import Timer from 'hirestime' //TODO remove in prod!
 
 import random from './service/secure-random'
 
-import { inflate } from 'pako/lib/inflate'
 
 import { eGCD_, greater, divide_, str2bigInt, equalsInt,
   isZero, bigInt2str, copy_, copyInt_, rightShift_, addInt_,
-  leftShift_, sub_, add_, powMod, bpe, one, int2bigInt } from './leemon'
+  leftShift_, sub_, add_, powMod, bpe, one, int2bigInt } from './vendor/leemon'
 
 
 const rushaInstance = new Rusha(1024 * 1024)
@@ -22,6 +25,15 @@ export function bigStringInt(strNum) {
   return new BigInteger(strNum, 10)
 }
 
+export const rShift32 = str => {
+  const num = str2bigInt(str, 10, 0)
+  rightShift_(num, 32)
+  return bigInt2str(num, 10)
+}
+export const strDecToHex = str => toLower(
+  bigInt2str(
+    str2bigInt(str, 10, 0), 16
+  ))
 
 export function bytesToHex(bytes = []) {
   const arr = []
@@ -160,10 +172,37 @@ export function bufferConcat(buffer1, buffer2) {
   return tmp.buffer
 }
 
-export function longToInts(sLong) {
-  const divRem = bigStringInt(sLong).divideAndRemainder(bigint(0x100000000))
+// const dividerBig = bigint(0x100000000)
+const dividerLem = str2bigInt('100000000', 16, 4)
 
-  return [divRem[0].intValue(), divRem[1].intValue()]
+// const printTimers = (timeL, timeB, a, b, n) => setTimeout(
+//   () => console.log(`Timer L ${timeL} B ${timeB}`, ...a, ...b, n || ''),
+//   100)
+
+export function longToInts(sLong) {
+  /*const bigTime = Timer()
+  const divRem = bigStringInt(sLong).divideAndRemainder(dividerBig)
+  const divIntB = divRem[0].intValue()
+  const remIntB = divRem[1].intValue()
+  const resB = [
+    intToUint(divIntB),
+    intToUint(remIntB)
+  ]
+  const timeB = bigTime()*/
+
+  // const lemTime = Timer()
+  const lemNum = str2bigInt(sLong, 10, 6)
+  const div = new Array(lemNum.length)
+  const rem = new Array(lemNum.length)
+  divide_(lemNum, dividerLem, div, rem)
+  const resL = [
+    ~~bigInt2str(div, 10),
+    ~~bigInt2str(rem, 10)
+  ]
+  // const timeL = lemTime()
+
+  // printTimers(timeL, timeB, resL, resB)
+  return resL
 }
 
 export function longToBytes(sLong) {
@@ -180,7 +219,7 @@ export function longFromLem(high, low) {
 }
 
 export function intToUint(val) {
-  val = parseInt(val)
+  val = parseInt(val) //TODO PERF parseInt is a perfomance issue
   if (val < 0)
     val = val + 4294967296
   return val

@@ -1,7 +1,7 @@
 import isNode from 'detect-node'
 import { is, isNil, type as rType } from 'ramda'
-import { bigint, bigStringInt, uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer } from './bin'
+import { bigint, uintToInt, intToUint, bytesToHex,
+  gzipUncompress, bytesToArrayBuffer, longToInts } from './bin'
 
 const toUint32 = buf => {
   let ln, res
@@ -21,8 +21,6 @@ const toUint32 = buf => {
   }
   return res
 }
-
-const billion = bigint(0x100000000)
 
 export const TL = (api, mtApi) => {
 
@@ -130,9 +128,9 @@ export const TL = (api, mtApi) => {
         sLong = sLong
           ? sLong.toString()
           : '0'
-      const divRem = bigStringInt(sLong).divideAndRemainder(billion)
-      this.writeInt(intToUint(divRem[1].intValue()), `${ field }:long[low]`)
-      this.writeInt(intToUint(divRem[0].intValue()), `${ field }:long[high]`)
+      const [int1, int2] = longToInts(sLong)
+      this.writeInt(int2, `${ field }:long[low]`)
+      this.writeInt(int1, `${ field }:long[high]`)
     }
 
     storeDouble(f, field = '') {

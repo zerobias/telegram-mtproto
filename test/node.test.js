@@ -63,4 +63,6 @@ test(`Connection test`, async t => {
     }
   }
   await run()
+}).then(() => {
+  process.exit(0)
 })

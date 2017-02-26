@@ -1,5 +1,6 @@
 import Promise from 'bluebird'
-import { bytesToHex, sha1BytesSync, bytesFromHex, bigStringInt } from '../bin'
+import { bytesToHex, sha1BytesSync,
+  bytesFromHex, strDecToHex } from '../bin'
 
 /**
 *  Server public key, obtained from here: https://core.telegram.org/api/obtaining_api_id
@@ -21,8 +22,10 @@ const publisKeysHex = [{
   exponent: '010001'
 }]
 
-const publicKeysParsed = {}
+const publicKeysParsed = {} //TODO Move cache to ApiManager
 let prepared = false
+
+
 
 export const KeyManager = (Serialization) => {
 
@@ -44,17 +47,16 @@ export const KeyManager = (Serialization) => {
 
   const setPrepared = () => { prepared = true }
 
-  const prepareRsaKeys = () => {
-    if (prepared) return Promise.resolve()
-    return Promise
+  const prepareRsaKeys = () => prepared
+    ? Promise.resolve()
+    : Promise
       .map(publisKeysHex, mapPrepare)
       .then(setPrepared)
-  }
 
   const selectRsaKey = fingerprints => () => {
     let fingerprintHex, foundKey
     for (let i = 0; i < fingerprints.length; i++) {
-      fingerprintHex = bigStringInt(fingerprints[i]).toString(16)
+      fingerprintHex = strDecToHex(fingerprints[i])
       foundKey = publicKeysParsed[fingerprintHex]
       if (foundKey)
         return { fingerprint: fingerprints[i], ...foundKey }

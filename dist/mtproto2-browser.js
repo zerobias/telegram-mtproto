@@ -80,30 +80,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(6))(125);
+module.exports = (__webpack_require__(6))(128);
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = (__webpack_require__(6))(128);
+module.exports = (__webpack_require__(6))(125);
 
 /***/ }),
 /* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jsbn__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rusha___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rusha__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__service_secure_random__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_jsbn___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_jsbn__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rusha__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rusha___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rusha__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__goodmind_node_cryptojs_aes__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__goodmind_node_cryptojs_aes___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__goodmind_node_cryptojs_aes__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_pako_lib_inflate__ = __webpack_require__(41);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_pako_lib_inflate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_pako_lib_inflate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__leemon__ = __webpack_require__(17);
-/* harmony export (immutable) */ __webpack_exports__["x"] = bigint;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__service_secure_random__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__vendor_leemon__ = __webpack_require__(17);
+/* harmony export (immutable) */ __webpack_exports__["A"] = bigint;
 /* harmony export (immutable) */ __webpack_exports__["k"] = bigStringInt;
 /* harmony export (immutable) */ __webpack_exports__["f"] = bytesToHex;
 /* harmony export (immutable) */ __webpack_exports__["u"] = bytesFromHex;
@@ -118,10 +120,10 @@ module.exports = (__webpack_require__(6))(128);
 /* harmony export (immutable) */ __webpack_exports__["q"] = convertToByteArray;
 /* harmony export (immutable) */ __webpack_exports__["g"] = bytesFromArrayBuffer;
 /* unused harmony export bufferConcat */
-/* unused harmony export longToInts */
+/* harmony export (immutable) */ __webpack_exports__["y"] = longToInts;
 /* harmony export (immutable) */ __webpack_exports__["i"] = longToBytes;
 /* harmony export (immutable) */ __webpack_exports__["t"] = longFromLem;
-/* harmony export (immutable) */ __webpack_exports__["y"] = intToUint;
+/* harmony export (immutable) */ __webpack_exports__["z"] = intToUint;
 /* harmony export (immutable) */ __webpack_exports__["j"] = uintToInt;
 /* harmony export (immutable) */ __webpack_exports__["m"] = sha1HashSync;
 /* harmony export (immutable) */ __webpack_exports__["d"] = sha1BytesSync;
@@ -130,7 +132,7 @@ module.exports = (__webpack_require__(6))(128);
 /* unused harmony export addPadding */
 /* harmony export (immutable) */ __webpack_exports__["o"] = aesEncryptSync;
 /* harmony export (immutable) */ __webpack_exports__["p"] = aesDecryptSync;
-/* harmony export (immutable) */ __webpack_exports__["z"] = gzipUncompress;
+/* harmony export (immutable) */ __webpack_exports__["B"] = gzipUncompress;
 /* harmony export (immutable) */ __webpack_exports__["l"] = nextRandomInt;
 /* harmony export (immutable) */ __webpack_exports__["r"] = pqPrimeFactorization;
 /* unused harmony export pqPrimeLeemon */
@@ -138,23 +140,36 @@ module.exports = (__webpack_require__(6))(128);
 
 
 
-const { CryptoJS } = __WEBPACK_IMPORTED_MODULE_2__goodmind_node_cryptojs_aes__;
+
+const { CryptoJS } = __WEBPACK_IMPORTED_MODULE_3__goodmind_node_cryptojs_aes__;
+
+
+// import Timer from 'hirestime' //TODO remove in prod!
 
 
 
 
 
-
-
-const rushaInstance = new __WEBPACK_IMPORTED_MODULE_1_rusha___default.a(1024 * 1024);
+const rushaInstance = new __WEBPACK_IMPORTED_MODULE_2_rusha___default.a(1024 * 1024);
 
 function bigint(num) {
-  return new __WEBPACK_IMPORTED_MODULE_0_jsbn__["BigInteger"](num.toString(16), 16);
+  return new __WEBPACK_IMPORTED_MODULE_1_jsbn__["BigInteger"](num.toString(16), 16);
 }
 
 function bigStringInt(strNum) {
-  return new __WEBPACK_IMPORTED_MODULE_0_jsbn__["BigInteger"](strNum, 10);
+  return new __WEBPACK_IMPORTED_MODULE_1_jsbn__["BigInteger"](strNum, 10);
 }
+
+const rShift32 = str => {
+  const num = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(str, 10, 0);
+  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["b" /* rightShift_ */])(num, 32);
+  return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(num, 10);
+};
+/* unused harmony export rShift32 */
+
+const strDecToHex = str => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_ramda__["toLower"])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(str, 10, 0), 16));
+/* harmony export (immutable) */ __webpack_exports__["x"] = strDecToHex;
+
 
 function bytesToHex(bytes = []) {
   const arr = [];
@@ -231,7 +246,7 @@ function bytesFromWords(wordArray) {
 }
 
 function bytesFromLeemonBigInt(bigInt) {
-  const str = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["a" /* bigInt2str */])(bigInt, 16);
+  const str = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(bigInt, 16);
   return bytesFromHex(str);
 }
 
@@ -279,10 +294,34 @@ function bufferConcat(buffer1, buffer2) {
   return tmp.buffer;
 }
 
-function longToInts(sLong) {
-  const divRem = bigStringInt(sLong).divideAndRemainder(bigint(0x100000000));
+// const dividerBig = bigint(0x100000000)
+const dividerLem = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])('100000000', 16, 4);
 
-  return [divRem[0].intValue(), divRem[1].intValue()];
+// const printTimers = (timeL, timeB, a, b, n) => setTimeout(
+//   () => console.log(`Timer L ${timeL} B ${timeB}`, ...a, ...b, n || ''),
+//   100)
+
+function longToInts(sLong) {
+  /*const bigTime = Timer()
+  const divRem = bigStringInt(sLong).divideAndRemainder(dividerBig)
+  const divIntB = divRem[0].intValue()
+  const remIntB = divRem[1].intValue()
+  const resB = [
+    intToUint(divIntB),
+    intToUint(remIntB)
+  ]
+  const timeB = bigTime()*/
+
+  // const lemTime = Timer()
+  const lemNum = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(sLong, 10, 6);
+  const div = new Array(lemNum.length);
+  const rem = new Array(lemNum.length);
+  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["d" /* divide_ */])(lemNum, dividerLem, div, rem);
+  const resL = [~~__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(div, 10), ~~__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(rem, 10)];
+  // const timeL = lemTime()
+
+  // printTimers(timeL, timeB, resL, resB)
+  return resL;
 }
 
 function longToBytes(sLong) {
@@ -290,16 +329,16 @@ function longToBytes(sLong) {
 }
 
 function longFromLem(high, low) {
-  const highNum = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["b" /* int2bigInt */])(high, 96, 0);
-  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["c" /* leftShift_ */])(highNum, 32);
+  const highNum = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["e" /* int2bigInt */])(high, 96, 0);
+  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["f" /* leftShift_ */])(highNum, 32);
 
-  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["d" /* addInt_ */])(highNum, low);
-  const res = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["a" /* bigInt2str */])(highNum, 10);
+  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["g" /* addInt_ */])(highNum, low);
+  const res = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(highNum, 10);
   return res;
 }
 
 function intToUint(val) {
-  val = parseInt(val);
+  val = parseInt(val); //TODO PERF parseInt is a perfomance issue
   if (val < 0) val = val + 4294967296;
   return val;
 }
@@ -334,11 +373,11 @@ function sha256HashSync(bytes) {
 function rsaEncrypt(publicKey, bytes) {
   bytes = addPadding(bytes, 255);
 
-  const N = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(publicKey.modulus, 16, 256);
-  const E = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(publicKey.exponent, 16, 256);
-  const X = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(bytesToHex(bytes), 16, 256);
-  const encryptedBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["f" /* powMod */])(X, E, N),
-        encryptedBytes = bytesFromHex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["a" /* bigInt2str */])(encryptedBigInt, 16));
+  const N = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(publicKey.modulus, 16, 256);
+  const E = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(publicKey.exponent, 16, 256);
+  const X = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(bytesToHex(bytes), 16, 256);
+  const encryptedBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["h" /* powMod */])(X, E, N),
+        encryptedBytes = bytesFromHex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(encryptedBigInt, 16));
 
   return encryptedBytes;
 }
@@ -351,7 +390,7 @@ function addPadding(bytes, blockSize, zeroes) {
     const padding = new Array(needPadding);
     if (zeroes) {
       for (let i = 0; i < needPadding; i++) padding[i] = 0;
-    } else __WEBPACK_IMPORTED_MODULE_3__service_secure_random__["a" /* default */].nextBytes(padding);
+    } else __WEBPACK_IMPORTED_MODULE_5__service_secure_random__["a" /* default */].nextBytes(padding);
 
     bytes = bytes instanceof ArrayBuffer ? bufferConcat(bytes, padding) : bytes.concat(padding);
   }
@@ -404,18 +443,18 @@ function nextRandomInt(maxValue) {
 }
 
 function pqPrimeFactorization(pqBytes) {
-  const minSize = Math.ceil(64 / __WEBPACK_IMPORTED_MODULE_5__leemon__["g" /* bpe */]) + 1;
+  const minSize = Math.ceil(64 / __WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["i" /* bpe */]) + 1;
 
   // const what = new BigInteger(pqBytes)
   const hex = bytesToHex(pqBytes);
-  const lWhat = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(hex, 16, minSize);
+  const lWhat = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(hex, 16, minSize);
   const result = pqPrimeLeemon(lWhat);
   return result;
 }
 
 function pqPrimeLeemon(what) {
   const minBits = 64;
-  const minLen = Math.ceil(minBits / __WEBPACK_IMPORTED_MODULE_5__leemon__["g" /* bpe */]) + 1;
+  const minLen = Math.ceil(minBits / __WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["i" /* bpe */]) + 1;
   let it = 0;
   let q, lim;
   const a = new Array(minLen);
@@ -428,54 +467,54 @@ function pqPrimeLeemon(what) {
 
   for (let i = 0; i < 3; i++) {
     q = (nextRandomInt(128) & 15) + 17;
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["h" /* copyInt_ */])(x, nextRandomInt(1000000000) + 1);
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(y, x);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["j" /* copyInt_ */])(x, nextRandomInt(1000000000) + 1);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(y, x);
     lim = 1 << i + 18;
 
     for (let j = 1; j < lim; j++) {
       ++it;
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(a, x);
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(b, x);
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["h" /* copyInt_ */])(c, q);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(a, x);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(b, x);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["j" /* copyInt_ */])(c, q);
 
-      while (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["j" /* isZero */])(b)) {
+      while (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["l" /* isZero */])(b)) {
         if (b[0] & 1) {
-          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["k" /* add_ */])(c, a);
-          if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["l" /* greater */])(c, what)) {
-            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["m" /* sub_ */])(c, what);
+          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["m" /* add_ */])(c, a);
+          if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["n" /* greater */])(c, what)) {
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["o" /* sub_ */])(c, what);
           }
         }
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["k" /* add_ */])(a, a);
-        if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["l" /* greater */])(a, what)) {
-          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["m" /* sub_ */])(a, what);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["m" /* add_ */])(a, a);
+        if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["n" /* greater */])(a, what)) {
+          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["o" /* sub_ */])(a, what);
         }
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["n" /* rightShift_ */])(b, 1);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["b" /* rightShift_ */])(b, 1);
       }
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(x, c);
-      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["l" /* greater */])(x, y)) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(z, x);
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["m" /* sub_ */])(z, y);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(x, c);
+      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["n" /* greater */])(x, y)) {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(z, x);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["o" /* sub_ */])(z, y);
       } else {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(z, y);
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["m" /* sub_ */])(z, x);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(z, y);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["o" /* sub_ */])(z, x);
       }
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["o" /* eGCD_ */])(z, what, g, a, b);
-      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["p" /* equalsInt */])(g, 1)) {
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["p" /* eGCD_ */])(z, what, g, a, b);
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["q" /* equalsInt */])(g, 1)) {
         break;
       }
       if ((j & j - 1) === 0) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["i" /* copy_ */])(y, x);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["k" /* copy_ */])(y, x);
       }
     }
-    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["l" /* greater */])(g, __WEBPACK_IMPORTED_MODULE_5__leemon__["q" /* one */])) {
+    if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["n" /* greater */])(g, __WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["r" /* one */])) {
       break;
     }
   }
 
-  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["r" /* divide_ */])(what, g, x, y);
+  __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["d" /* divide_ */])(what, g, x, y);
 
-  const [P, Q] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["l" /* greater */])(g, x) ? [x, g] : [g, x];
+  const [P, Q] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["n" /* greater */])(g, x) ? [x, g] : [g, x];
 
   // console.log(dT(), 'done', bigInt2str(what, 10), bigInt2str(P, 10), bigInt2str(Q, 10))
 
@@ -483,12 +522,12 @@ function pqPrimeLeemon(what) {
 }
 
 function bytesModPow(x, y, m) {
-  const xBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(bytesToHex(x), 16);
-  const yBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(bytesToHex(y), 16);
-  const mBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["e" /* str2bigInt */])(bytesToHex(m), 16);
-  const resBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["f" /* powMod */])(xBigInt, yBigInt, mBigInt);
+  const xBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(bytesToHex(x), 16);
+  const yBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(bytesToHex(y), 16);
+  const mBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["a" /* str2bigInt */])(bytesToHex(m), 16);
+  const resBigInt = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["h" /* powMod */])(xBigInt, yBigInt, mBigInt);
 
-  return bytesFromHex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__leemon__["a" /* bigInt2str */])(resBigInt, 16));
+  return bytesFromHex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__vendor_leemon__["c" /* bigInt2str */])(resBigInt, 16));
 }
 
 /***/ }),
@@ -1216,7 +1255,7 @@ exports.CryptoJS = CryptoJS;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 
 /**
@@ -1338,7 +1377,7 @@ const random = new __WEBPACK_IMPORTED_MODULE_0_jsbn__["SecureRandom"]();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 
 
@@ -1380,7 +1419,7 @@ smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay).then(() => fn(..
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_detect_node__);
@@ -1538,9 +1577,9 @@ delete httpClient.defaults.headers.common['Accept'];
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 
 
@@ -1610,11 +1649,11 @@ const PureStorage = AsyncStorage();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = __webpack_require__(35);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_eventemitter2___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__networker__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__authorizer__ = __webpack_require__(30);
@@ -1846,7 +1885,7 @@ try {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 
 
@@ -1863,7 +1902,7 @@ const forEach = (data, func) => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_ramda__);
 
 
@@ -1907,9 +1946,9 @@ const chooseServer = (chosenServers, {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__crypto__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__time_manager__ = __webpack_require__(5);
@@ -2885,26 +2924,26 @@ const setUpdatesProcessor = callback => updatesProcessor = callback;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return bpe; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "q", function() { return one; });
-/* harmony export (immutable) */ __webpack_exports__["f"] = powMod;
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return bpe; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "r", function() { return one; });
+/* harmony export (immutable) */ __webpack_exports__["h"] = powMod;
 /* harmony export (immutable) */ __webpack_exports__["t"] = sub;
-/* harmony export (immutable) */ __webpack_exports__["o"] = eGCD_;
-/* harmony export (immutable) */ __webpack_exports__["l"] = greater;
-/* harmony export (immutable) */ __webpack_exports__["r"] = divide_;
-/* harmony export (immutable) */ __webpack_exports__["b"] = int2bigInt;
-/* harmony export (immutable) */ __webpack_exports__["e"] = str2bigInt;
-/* harmony export (immutable) */ __webpack_exports__["p"] = equalsInt;
-/* harmony export (immutable) */ __webpack_exports__["j"] = isZero;
-/* harmony export (immutable) */ __webpack_exports__["a"] = bigInt2str;
+/* harmony export (immutable) */ __webpack_exports__["p"] = eGCD_;
+/* harmony export (immutable) */ __webpack_exports__["n"] = greater;
+/* harmony export (immutable) */ __webpack_exports__["d"] = divide_;
+/* harmony export (immutable) */ __webpack_exports__["e"] = int2bigInt;
+/* harmony export (immutable) */ __webpack_exports__["a"] = str2bigInt;
+/* harmony export (immutable) */ __webpack_exports__["q"] = equalsInt;
+/* harmony export (immutable) */ __webpack_exports__["l"] = isZero;
+/* harmony export (immutable) */ __webpack_exports__["c"] = bigInt2str;
 /* harmony export (immutable) */ __webpack_exports__["s"] = dup;
-/* harmony export (immutable) */ __webpack_exports__["i"] = copy_;
-/* harmony export (immutable) */ __webpack_exports__["h"] = copyInt_;
-/* harmony export (immutable) */ __webpack_exports__["d"] = addInt_;
-/* harmony export (immutable) */ __webpack_exports__["n"] = rightShift_;
-/* harmony export (immutable) */ __webpack_exports__["c"] = leftShift_;
-/* harmony export (immutable) */ __webpack_exports__["m"] = sub_;
-/* harmony export (immutable) */ __webpack_exports__["k"] = add_;
+/* harmony export (immutable) */ __webpack_exports__["k"] = copy_;
+/* harmony export (immutable) */ __webpack_exports__["j"] = copyInt_;
+/* harmony export (immutable) */ __webpack_exports__["g"] = addInt_;
+/* harmony export (immutable) */ __webpack_exports__["b"] = rightShift_;
+/* harmony export (immutable) */ __webpack_exports__["f"] = leftShift_;
+/* harmony export (immutable) */ __webpack_exports__["o"] = sub_;
+/* harmony export (immutable) */ __webpack_exports__["m"] = add_;
 ////////////////////////////////////////////////////////////////////////////////////////
 // Big Integer Library v. 5.5
 // Created 2000, last modified 2013
@@ -3106,8 +3145,8 @@ var one = int2bigInt(1, 1, 1); //constant used in powMod_()
 var t = new Array(0);
 var ss = t; //used in mult_()
 var s0 = t; //used in multMod_(), squareMod_()
-var s1 = t; //used in powMod_(), multMod_(), squareMod_()
-var s2 = t; //used in powMod_(), multMod_()
+// var s1=t;       //used in powMod_(), multMod_(), squareMod_()
+// var s2=t;       //used in powMod_(), multMod_()
 var s3 = t; //used in powMod_()
 var s4 = t,
     s5 = t; //used in mod_()
@@ -3124,18 +3163,11 @@ eg_v = t,
     eg_A = t,
     eg_B = t,
     eg_C = t,
-    eg_D = t,
-    //used in eGCD_(), inverseMod_()
-md_q1 = t,
-    md_q2 = t,
-    md_q3 = t,
-    md_r = t,
-    md_r1 = t,
-    md_r2 = t,
-    md_tt = t,
-    //used in mod_()
+    eg_D = t //used in eGCD_(), inverseMod_()
+//, md_q1=t, md_q2=t, md_q3=t, md_r=t, md_r1=t, md_r2=t, md_tt=t, //used in mod_()
 
-primes = t,
+,
+    primes = t,
     pows = t,
     s_i = t,
     s_i2 = t,
@@ -3379,7 +3411,7 @@ function multMod(x, y, n) {
 //and put it into ans.  The bigInt ans must be large enough to hold it.
 function randTruePrime_(ans, k) {
   var c, m, pm, dd, j, r, B, divisible, z, zz, recSize;
-
+  var w;
   if (primes.length == 0) primes = findPrimes(30000); //check for divisibility by primes <=30000
 
   if (pows.length == 0) {
@@ -3392,7 +3424,7 @@ function randTruePrime_(ans, k) {
   //c and m should be tuned for a particular machine and value of k, to maximize speed
   c = 0.1; //c=0.1 in HAC
   m = 20; //generate this k-bit number by first recursively generating a number that has between k/2 and k-m bits
-  recLimit = 20; //stop recursion when k <=recLimit.  Must have recLimit >= 2
+  var recLimit = 20; //stop recursion when k <=recLimit.  Must have recLimit >= 2
 
   if (s_i2.length != ans.length) {
     s_i2 = dup(ans);
@@ -3400,7 +3432,7 @@ function randTruePrime_(ans, k) {
     s_n1 = dup(ans);
     s_r2 = dup(ans);
     s_d = dup(ans);
-    s_x1 = dup(ans);
+    s_x1 = dup(ans); //TODO Seems like a bug in eslint, reports as unused
     s_x2 = dup(ans);
     s_b = dup(ans);
     s_n = dup(ans);
@@ -3542,6 +3574,7 @@ function GCD(x, y) {
 //y is destroyed.
 function GCD_(x, y) {
   var i, xp, yp, A, B, C, D, q, sing;
+  var qp;
   if (T.length != x.length) T = dup(x);
 
   sing = 1;
@@ -3911,7 +3944,7 @@ function str2bigInt(s, base, minSize) {
     for (;;) {
       y = new Array(x.length + 1);
       for (i = 0; i < x.length; i++) y[i + 1] = x[i];
-      y[0] = parseInt(s, 10);
+      y[0] = parseInt(s, 10); //TODO PERF Should we replace that with ~~ (not not)? https://jsperf.com/number-vs-parseint-vs-plus/7
       x = y;
       d = s.indexOf(',', 0);
       if (d < 1) break;
@@ -3983,7 +4016,7 @@ function isZero(x) {
 function bigInt2str(x, base) {
   var i,
       t,
-      s = "";
+      s = '';
 
   if (s6.length != x.length) s6 = dup(x);else copy_(s6, x);
 
@@ -3998,7 +4031,7 @@ function bigInt2str(x, base) {
       s = digitsStr.substring(t, t + 1) + s;
     }
   }
-  if (s.length == 0) s = "0";
+  if (s.length == 0) s = '0';
   return s;
 }
 
@@ -4021,7 +4054,8 @@ function copy_(x, y) {
 //do x=y on bigInt x and integer y.
 function copyInt_(x, n) {
   var i, c;
-  for (c = n, i = 0; i < x.length; i++) {
+  var len = x.length; //TODO .length in for loop have perfomance costs. Bench this
+  for (c = n, i = 0; i < len; i++) {
     x[i] = c & mask;
     c >>= bpe;
   }
@@ -6415,9 +6449,9 @@ class ErrorNotFound extends MTError {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__switch__ = __webpack_require__(33);
@@ -6528,7 +6562,7 @@ const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defer__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__smart_timeout__ = __webpack_require__(8);
@@ -6536,7 +6570,7 @@ const switchErrors = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__switch__
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__secure_random__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__time_manager__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__bin__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__leemon__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__vendor_leemon__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__send_plain_req__ = __webpack_require__(31);
 
 
@@ -6721,7 +6755,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__time_manager__["applyServerTime"])(auth.serverTime, auth.localTime);
   }
 
-  const minSize = Math.ceil(64 / __WEBPACK_IMPORTED_MODULE_7__leemon__["g" /* bpe */]) + 1;
+  const minSize = Math.ceil(64 / __WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["i" /* bpe */]) + 1;
 
   const getTwoPow = () => {
     //Dirty hack to count 2^(2048 - 64)
@@ -6729,7 +6763,7 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     const arr = Array(496).fill('0');
     arr.unshift('1');
     const hex = arr.join('');
-    const res = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["e" /* str2bigInt */])(hex, 16, minSize);
+    const res = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["a" /* str2bigInt */])(hex, 16, minSize);
     return res;
   };
 
@@ -6746,16 +6780,16 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     // const gABigInt = new BigInteger(bytesToHex(gA), 16)
     // const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16)
 
-    const dhPrimeLeemon = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["e" /* str2bigInt */])(dhPrimeHex, 16, minSize);
-    const gALeemon = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["e" /* str2bigInt */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__bin__["f" /* bytesToHex */])(gA), 16, minSize);
-    const dhDec = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["s" /* dup */])(dhPrimeLeemon);
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["m" /* sub_ */])(dhDec, __WEBPACK_IMPORTED_MODULE_7__leemon__["q" /* one */]);
+    const dhPrimeLeemon = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["a" /* str2bigInt */])(dhPrimeHex, 16, minSize);
+    const gALeemon = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["a" /* str2bigInt */])(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__bin__["f" /* bytesToHex */])(gA), 16, minSize);
+    const dhDec = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["s" /* dup */])(dhPrimeLeemon);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["o" /* sub_ */])(dhDec, __WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["r" /* one */]);
     // const dhDecStr = bigInt2str(dhDec, 16)
     // const comp = dhPrimeBigInt.subtract(BigInteger.ONE).toString(16)
     // console.log(dhPrimeLeemon, dhDecStr === comp)
-    const case1 = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["l" /* greater */])(gALeemon, __WEBPACK_IMPORTED_MODULE_7__leemon__["q" /* one */]);
+    const case1 = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["n" /* greater */])(gALeemon, __WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["r" /* one */]);
     //gABigInt.compareTo(BigInteger.ONE) <= 0
-    const case2 = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["l" /* greater */])(dhDec, gALeemon);
+    const case2 = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["n" /* greater */])(dhDec, gALeemon);
     //gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0
     if (case1) throw new Error('[MT] DH params are not verified: gA <= 1');
 
@@ -6767,11 +6801,11 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
     // two.fromInt(2)
     // const twoPow = two.pow(2048 - 64)
 
-    const case3 = !!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["l" /* greater */])(leemonTwoPow, gALeemon);
+    const case3 = !!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["n" /* greater */])(leemonTwoPow, gALeemon);
     //gABigInt.compareTo(twoPow) < 0
-    const dhSubPow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["s" /* dup */])(dhPrimeLeemon);
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["t" /* sub */])(dhSubPow, leemonTwoPow);
-    const case4 = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__leemon__["l" /* greater */])(dhSubPow, gALeemon);
+    const dhSubPow = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["s" /* dup */])(dhPrimeLeemon);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["t" /* sub */])(dhSubPow, leemonTwoPow);
+    const case4 = !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7__vendor_leemon__["n" /* greater */])(dhSubPow, gALeemon);
     //gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0
     // console.log(case3 === gABigInt.compareTo(twoPow) < 0)
     if (case3) throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}');
@@ -6924,9 +6958,9 @@ const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__http__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__error__ = __webpack_require__(28);
@@ -7015,7 +7049,7 @@ const SendPlain = ({ Serialization, Deserialization }) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bin__ = __webpack_require__(2);
 
@@ -7040,7 +7074,7 @@ const publisKeysHex = [{
   exponent: '010001'
 }];
 
-const publicKeysParsed = {};
+const publicKeysParsed = {}; //TODO Move cache to ApiManager
 let prepared = false;
 
 const KeyManager = Serialization => {
@@ -7065,15 +7099,12 @@ const KeyManager = Serialization => {
     prepared = true;
   };
 
-  const prepareRsaKeys = () => {
-    if (prepared) return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve();
-    return __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.map(publisKeysHex, mapPrepare).then(setPrepared);
-  };
+  const prepareRsaKeys = () => prepared ? __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.resolve() : __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.map(publisKeysHex, mapPrepare).then(setPrepared);
 
   const selectRsaKey = fingerprints => () => {
     let fingerprintHex, foundKey;
     for (let i = 0; i < fingerprints.length; i++) {
-      fingerprintHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["k" /* bigStringInt */])(fingerprints[i]).toString(16);
+      fingerprintHex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__bin__["x" /* strDecToHex */])(fingerprints[i]);
       foundKey = publicKeysParsed[fingerprintHex];
       if (foundKey) return Object.assign({ fingerprint: fingerprints[i] }, foundKey);
     }
@@ -7115,7 +7146,7 @@ const Switch = (patterns, protector = e => e) => (matches, mProtector = e => e) 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_detect_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_detect_node__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ramda___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_ramda__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bin__ = __webpack_require__(2);
 
@@ -7138,8 +7169,6 @@ const toUint32 = buf => {
   }
   return res;
 };
-
-const billion = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["x" /* bigint */])(0x100000000);
 
 const TL = (api, mtApi) => {
 
@@ -7244,9 +7273,9 @@ const TL = (api, mtApi) => {
       if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_ramda__["is"])(Array, sLong)) return sLong.length === 2 ? this.storeLongP(sLong[0], sLong[1], field) : this.storeIntBytes(sLong, 64, field);
 
       if (typeof sLong !== 'string') sLong = sLong ? sLong.toString() : '0';
-      const divRem = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["k" /* bigStringInt */])(sLong).divideAndRemainder(billion);
-      this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(divRem[1].intValue()), `${field}:long[low]`);
-      this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(divRem[0].intValue()), `${field}:long[high]`);
+      const [int1, int2] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* longToInts */])(sLong);
+      this.writeInt(int2, `${field}:long[low]`);
+      this.writeInt(int1, `${field}:long[high]`);
     }
 
     storeDouble(f, field = '') {
@@ -7360,7 +7389,7 @@ const TL = (api, mtApi) => {
         throw new Error(`No method ${methodName} found`);
       }
 
-      this.storeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(methodData.id), `${methodName}[id]`);
+      this.storeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* intToUint */])(methodData.id), `${methodName}[id]`);
 
       let param, type;
       let condType;
@@ -7444,7 +7473,7 @@ const TL = (api, mtApi) => {
 
       if (predicate == type) isBare = true;
 
-      if (!isBare) this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["y" /* intToUint */])(constructorData.id), `${field}[${predicate}][id]`);
+      if (!isBare) this.writeInt(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* intToUint */])(constructorData.id), `${field}[${predicate}][id]`);
 
       let param;
       let condType;
@@ -7513,7 +7542,7 @@ const TL = (api, mtApi) => {
       const iLow = this.readInt(`${field}:long[low]`);
       const iHigh = this.readInt(`${field}:long[high]`);
 
-      const longDec = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["x" /* bigint */])(iHigh).shiftLeft(32).add(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["x" /* bigint */])(iLow)).toString();
+      const longDec = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["A" /* bigint */])(iHigh).shiftLeft(32).add(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["A" /* bigint */])(iLow)).toString();
 
       return longDec;
     }
@@ -7655,7 +7684,7 @@ const TL = (api, mtApi) => {
           if (constructorCmp === 0x3072cfa1) {
             // Gzip packed
             const compressed = this.fetchBytes(`${field}[packed_string]`);
-            const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* gzipUncompress */])(compressed);
+            const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["B" /* gzipUncompress */])(compressed);
             const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["h" /* bytesToArrayBuffer */])(uncompressed);
             const newDeserializer = new Deserialization(buffer);
 
@@ -7703,7 +7732,7 @@ const TL = (api, mtApi) => {
         if (constructorCmp == 0x3072cfa1) {
           // Gzip packed
           const compressed = this.fetchBytes(`${field}[packed_string]`);
-          const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["z" /* gzipUncompress */])(compressed);
+          const uncompressed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["B" /* gzipUncompress */])(compressed);
           const buffer = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__bin__["h" /* bytesToArrayBuffer */])(uncompressed);
           const newDeserializer = new Deserialization(buffer);
 

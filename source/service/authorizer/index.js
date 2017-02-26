@@ -10,8 +10,8 @@ import { applyServerTime, dTime, tsNow } from '../time-manager'
 import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor } from '../../bin'
-import { bpe, str2bigInt, bigInt2str, int2bigInt, one,
-    dup, sub_, sub, greater } from '../../leemon'
+import { bpe, str2bigInt, one,
+    dup, sub_, sub, greater } from '../../vendor/leemon'
 
 // import { ErrorBadResponse } from '../../error'
 
