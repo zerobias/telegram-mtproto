@@ -2,8 +2,8 @@ import Promise from 'bluebird'
 
 import { propOr, isNil } from 'ramda'
 
-import blueDefer from '../../defer'
-import Switch from '../../switch'
+import blueDefer from '../../util/defer'
+import Switch from '../../util/switch'
 import { tsNow } from '../time-manager'
 
 const cachedExportPromise = {}

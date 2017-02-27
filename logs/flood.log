@@ -1,0 +1,175 @@
+[42.374] Api call messages.getHistory
+[42.730] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[42.738] Api call messages.getHistory
+[43.096] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[43.104] Api call messages.getHistory
+[43.460] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[43.468] Api call messages.getHistory
+[43.848] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[43.882] Api call messages.getHistory
+[44.232] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[44.241] Api call messages.getHistory
+[44.609] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[44.615] Api call messages.getHistory
+[44.964] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[44.974] Api call messages.getHistory
+[45.338] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[45.346] Api call messages.getHistory
+[45.697] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[45.704] Api call messages.getHistory
+[46.055] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[46.064] Api call messages.getHistory
+[46.441] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[46.452] Api call messages.getHistory
+[46.792] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[46.800] Api call messages.getHistory
+[47.143] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[47.152] Api call messages.getHistory
+[47.510] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[47.516] Api call messages.getHistory
+[47.861] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[47.867] Api call messages.getHistory
+[48.206] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[48.213] Api call messages.getHistory
+[48.553] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[48.565] Api call messages.getHistory
+[48.921] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[48.927] Api call messages.getHistory
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[49.268] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[49.275] Api call messages.getHistory
+[49.631] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[49.636] Api call messages.getHistory
+[49.995] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[50.000] Api call messages.getHistory
+[50.372] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[50.383] Api call messages.getHistory
+[50.744] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[50.750] Api call messages.getHistory
+[51.085] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[51.091] Api call messages.getHistory
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[51.442] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[51.446] Api call messages.getHistory
+[51.811] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[51.819] Api call messages.getHistory
+[52.152] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[52.163] Api call messages.getHistory
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[52.561] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[52.567] Api call messages.getHistory
+[52.937] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[52.942] Api call messages.getHistory
+[53.303] Rpc response messages.channelMessages
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[53.311] Api call messages.getHistory
+[53.631] Rpc error { code: 420,
+  type: 'FLOOD_WAIT_19',
+  description: 'CODE#420 FLOOD_WAIT_19',
+  originalError:
+   { _: 'rpc_error',
+     error_code: 420,
+     error_message: 'FLOOD_WAIT_19' } }
+(node:18200) Warning: a promise was rejected with a non-error: [object Object]
+(node:18200) Warning: a promise was created in a handler at C:\_projects\Web\mtproto2\lib\service\networker.js:832:14 but was not returned from it, see h
+ttp://goo.gl/rRqMUw
+    at new Promise (C:\_projects\Web\mtproto2\node_modules\bluebird\js\release\promise.js:77:14)
+[53.641] Error 420 FLOOD_WAIT_19 2 2

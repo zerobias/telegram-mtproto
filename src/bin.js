@@ -25,11 +25,11 @@ export function bigStringInt(strNum) {
   return new BigInteger(strNum, 10)
 }
 
-export const rShift32 = str => {
-  const num = str2bigInt(str, 10, 0)
-  rightShift_(num, 32)
-  return bigInt2str(num, 10)
-}
+// export const rShift32 = str => {
+//   const num = str2bigInt(str, 10, 0)
+//   rightShift_(num, 32)
+//   return bigInt2str(num, 10)
+// }
 export const strDecToHex = str => toLower(
   bigInt2str(
     str2bigInt(str, 10, 0), 16
@@ -209,7 +209,7 @@ export function longToBytes(sLong) {
   return bytesFromWords({ words: longToInts(sLong), sigBytes: 8 }).reverse()
 }
 
-export function longFromLem(high, low) {
+export function lshift32(high, low) {
   const highNum = int2bigInt(high, 96, 0)
   leftShift_(highNum, 32)
 
@@ -217,6 +217,15 @@ export function longFromLem(high, low) {
   const res = bigInt2str(highNum, 10)
   return res
 }
+
+// export function longFromLem(high, low) {
+//   const highNum = int2bigInt(high, 96, 0)
+//   leftShift_(highNum, 32)
+
+//   addInt_(highNum, low)
+//   const res = bigInt2str(highNum, 10)
+//   return res
+// }
 
 export function intToUint(val) {
   val = parseInt(val) //TODO PERF parseInt is a perfomance issue

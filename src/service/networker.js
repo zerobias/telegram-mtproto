@@ -5,9 +5,9 @@ import { pipeP, is, values, mapObjIndexed } from 'ramda'
 import CryptoWorker from '../crypto'
 import { dTime, tsNow, generateID, applyServerTime } from './time-manager'
 import MtpSecureRandom from './secure-random'
-import forEach from '../for-each'
-import smartTimeout from '../smart-timeout'
-import blueDefer from '../defer'
+import forEach from '../util/for-each'
+import smartTimeout from '../util/smart-timeout'
+import blueDefer from '../util/defer'
 import { httpClient } from '../http'
 
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
@@ -519,7 +519,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       const afterSendRequest = result => {
         this.toggleOffline(false)
         // console.log('parse for', message)
-        this
+        return this
           .parseResponse(result.data)
           .then(afterResponseParse)
       }
@@ -550,12 +550,13 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         forEach(noResponseMsgs, this.onNoResponseMsgReject)
 
         this.toggleOffline(true)
+        return Promise.reject(error)
       }
-      this.sendEncryptedRequest(message)
+      if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
+
+      return this.sendEncryptedRequest(message)
         .then(afterSendRequest)
         .catch(onRequestFail)
-
-      if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
     }
 
     getEncryptedMessage(bytes) {

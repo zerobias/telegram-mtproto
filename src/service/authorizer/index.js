@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 
-import blueDefer from '../../defer'
-import { smartTimeout } from '../../smart-timeout'
+import blueDefer from '../../util/defer'
+import { smartTimeout } from '../../util/smart-timeout'
 import CryptoWorker from '../../crypto'
 
 import random from '../secure-random'

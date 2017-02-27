@@ -83,7 +83,7 @@ test('try login', t => {
 
     t.equal(text, data.sel1.im, 'valid welcome message')
     t.end()
-    process.exit(0)
+    // process.exit(0)
       // })
   }, 'smoke test')
 })

@@ -1,7 +1,7 @@
 import isNode from 'detect-node'
 
 import { TimeOffset } from '../store'
-import { nextRandomInt, longFromLem } from '../bin'
+import { nextRandomInt, lshift32 } from '../bin'
 
 export const tsNow = seconds => {
   let t = +new Date()
@@ -38,7 +38,7 @@ const generateMessageID = () => {
 
   // console.log('generated msg id', messageID, timerOffset)
 
-  return longFromLem(messageID[0], messageID[1])
+  return lshift32(messageID[0], messageID[1])
 }
 
 export const applyServerTime = (serverTime, localTime) => {

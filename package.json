@@ -15,10 +15,10 @@
     "build:webogram": "webpack --config config/webogram/webpack.config.js",
     "rebuild:webogram": "npm run build:webogram:vendor && npm run build:webogram",
     "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
-    "build:cjs": "cross-env BABEL_ENV=commonjs babel source/ -d lib -s",
+    "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
     "clean:cjs": "rimraf lib/",
     "rebuild:es": "npm run clean:es & npm run build:es",
-    "build:es": "babel source/ -d es -s",
+    "build:es": "babel src/ -d es -s",
     "clean:es": "rimraf es/",
     "test": "node --harmony test/node.test.js",
     "prepublish": "npm run rebuild:es && npm run rebuild:cjs"
@@ -26,6 +26,8 @@
   "author": "Zero Bias",
   "dependencies": {
     "@goodmind/node-cryptojs-aes": "^0.5.0",
+    "ajv": "^4.11.3",
+    "ajv-keywords": "^1.5.1",
     "axios": "^0.15.3",
     "bluebird": "^3.4.7",
     "detect-node": "^2.0.3",
@@ -51,6 +53,7 @@
     "eslint-plugin-promise": "^3.4.2",
     "hirestime": "^3.1.0",
     "nightmare": "^2.9.1",
+    "prompt": "^1.0.0",
     "rimraf": "^2.5.4",
     "tap": "^10.1.1",
     "webpack": "^2.2.1"

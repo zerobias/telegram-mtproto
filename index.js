@@ -1,3 +1,3 @@
-const mtproto = require('./source')
+const mtproto = require('./src')
 
 module.exports = mtproto

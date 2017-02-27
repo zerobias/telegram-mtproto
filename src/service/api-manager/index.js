@@ -1,12 +1,13 @@
 import Promise from 'bluebird'
 import EventEmitter from 'eventemitter2'
 
-import { pathSatisfies, complement, isNil, unless, is, always, propEq, reject, type, both } from 'ramda'
+import { pathSatisfies, complement, isNil, unless, is,
+  always, propEq, has } from 'ramda'
 
 import NetworkerFabric from '../networker'
 import Auth from '../authorizer'
 import { PureStorage } from '../../store'
-import blueDefer from '../../defer'
+import blueDefer from '../../util/defer'
 import { dTime } from '../time-manager'
 import { chooseServer } from '../dc-configurator'
 import TL from '../../tl'
@@ -15,17 +16,35 @@ import KeyManager from '../rsa-keys-manger'
 import { bytesFromHex, bytesToHex } from '../../bin'
 
 import { switchErrors } from './error-cases'
-
+import configValidator from './config-validation'
 const api57 = require('../../../schema/api-57.json')
 const mtproto57 = require('../../../schema/mtproto-57.json')
 
 const hasPath = pathSatisfies( complement( isNil ) )
 const defDc = unless( is(Number), always(2) )
-const withoutNil = reject( isNil )
 
 const baseDcID = 2
 
 const Ln = (length, obj) => obj && propEq('length', length, obj)
+
+/**
+*  Server public key, obtained from here: https://core.telegram.org/api/obtaining_api_id
+*
+* -----BEGIN RSA PUBLIC KEY-----
+* MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zwrzKOaaQdr01vAbU4E1pvkfj4sqDsm6
+* lyDONS789sVoD/xCS9Y0hkkC3gtL1tSfTlgCMOOul9lcixlEKzwKENj1Yz/s7daS
+* an9tqw3bfUV/nqgbhGX81v/+7RFAEd+RwFnK7a+XYl9sluzHRyVVaTTveB2GazTw
+* Efzk2DWgkBluml8OREmvfraX3bkHZJTKX4EQSjBbbdJ2ZXIsRrYOXfaA+xayEGB+
+* 8hdlLmAjbCVfaigxX0CDqWeR1yFL9kwd9P0NsZRPsmoqVwMbMu7mStFai6aIhc3n
+* Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB
+* -----END RSA PUBLIC KEY-----
+*/
+
+const publisKeysHex = [{ //TODO Move this to ApiManager config
+  //eslint-disable-next-line
+  modulus : 'c150023e2f70db7985ded064759cfecf0af328e69a41daf4d6f01b538135a6f91f8f8b2a0ec9ba9720ce352efcf6c5680ffc424bd634864902de0b4bd6d49f4e580230e3ae97d95c8b19442b3c0a10d8f5633fecedd6926a7f6dab0ddb7d457f9ea81b8465fcd6fffeed114011df91c059caedaf97625f6c96ecc74725556934ef781d866b34f011fce4d835a090196e9a5f0e4449af7eb697ddb9076494ca5f81104a305b6dd27665722c46b60e5df680fb16b210607ef217652e60236c255f6a28315f4083a96791d7214bf64c1df4fd0db1944fb26a2a57031b32eee64ad15a8ba68885cde74a5bfc920f6abf59ba5c75506373e7130f9042da922179251f',
+  exponent: '010001'
+}]
 
 export class ApiManager {
   emitter = new EventEmitter({
@@ -37,7 +56,8 @@ export class ApiManager {
     uploader  : {},
     downloader: {},
     auth      : {},
-    servers   : {}
+    servers   : {},
+    keysParsed: {}
   }
   static apiConfig = {
     invokeWithLayer: 0xda9b0d0d,
@@ -55,11 +75,21 @@ export class ApiManager {
       api = {},
       app: {
         debug = false,
-        storage = PureStorage
+        storage = PureStorage,
+        publicKeys = publisKeysHex
       } = {},
       schema = api57,
       mtSchema = mtproto57,
     } = {}) {
+    const fullCfg = {
+      server,
+      api,
+      app: { debug, storage, publicKeys },
+      schema,
+      mtSchema
+    }
+    configValidator(fullCfg)
+    this.publicKeys = publicKeys
     this.storage = storage
     this.serverConfig = server
     this.debug = debug
@@ -70,9 +100,9 @@ export class ApiManager {
     this.setUserAuth = this.setUserAuth.bind(this)
 
     this.TL = TL(schema, mtSchema)
-    this.keyManager = KeyManager(this.TL.Serialization)
+    this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
     this.auth = Auth(this.TL, this.keyManager)
-    this.apiConfig = { ...ApiManager.apiConfig, ...withoutNil(api) }
+    this.apiConfig = { ...ApiManager.apiConfig, ...api }
     this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
                                          storage, this.emit, debug)
 
@@ -83,7 +113,18 @@ export class ApiManager {
     //     return result
     //   }
     // })
+
+    const apiManager = this.mtpInvokeApi
+    apiManager.setUserAuth = this.setUserAuth
+    apiManager.on = this.on
+    return apiManager
   }
+  networkSetter = (cache, dc, options) =>
+    (authKey, serverSalt) => {
+      const networker = new this.networkFabric(dc, authKey, serverSalt, options)
+      cache[dc] = networker
+      return networker
+    }
   mtpGetNetworker = (dcID, options = {}) => {
     const isUpload = options.fileUpload || options.fileDownload
     const cache = isUpload
@@ -91,40 +132,41 @@ export class ApiManager {
       : this.cache.downloader
     if (!dcID) throw new Error('get Networker without dcID')
 
-    if (!isNil(cache[dcID])) return cache[dcID]
+    if (has(dcID, cache)) return cache[dcID]
 
     const akk = `dc${  dcID  }_auth_key`
     const ssk = `dc${  dcID  }_server_salt`
 
     const dcUrl = this.chooseServer(dcID, isUpload)
 
+    const networkSetter = this.networkSetter(cache, dcID, options)
+
+    const onDcAuth = ({ authKey, serverSalt }) => {
+      const storeObj = {
+        [akk]: bytesToHex(authKey),
+        [ssk]: bytesToHex(serverSalt)
+      }
+      this.storage.set(storeObj)
+
+      return networkSetter(authKey, serverSalt)
+    }
+
     const networkGetter = result => {
       if (cache[dcID]) return cache[dcID]
 
       const authKeyHex = result[0]
       let serverSaltHex = result[1]
-      // console.log('ass', dcID, authKeyHex, serverSaltHex)
       if (Ln(512, authKeyHex)) {
         if (!serverSaltHex || serverSaltHex.length !== 16)
           serverSaltHex = 'AAAAAAAAAAAAAAAA'
         const authKey = bytesFromHex(authKeyHex)
         const serverSalt = bytesFromHex(serverSaltHex)
 
-        return cache[dcID] = new this.networkFabric(dcID, authKey, serverSalt, options)
+        return networkSetter(authKey, serverSalt)
       }
 
       if (!options.createNetworker)
-        return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 })
-
-      const onDcAuth = ({ authKey, serverSalt }) => {
-        const storeObj = {
-          [akk]: bytesToHex(authKey),
-          [ssk]: bytesToHex(serverSalt)
-        }
-        this.storage.set(storeObj)
-
-        return cache[dcID] = new this.networkFabric(dcID, authKey, serverSalt, options)
-      }
+        return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 }) //TODO Implement returning real Error
 
       return this.auth(dcID, this.cache.auth, dcUrl)
         .then(onDcAuth, netError)
@@ -194,7 +236,7 @@ export class ApiManager {
 
     return deferred.promise
   }
-  setUserAuth(dcID, userAuth) {
+  setUserAuth = (dcID, userAuth) => {
     const fullUserAuth = { dcID, ...userAuth }
     this.storage.set({
       dc       : dcID,

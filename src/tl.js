@@ -1,7 +1,7 @@
 import isNode from 'detect-node'
 import { is, isNil, type as rType } from 'ramda'
 import { bigint, uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer, longToInts } from './bin'
+  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from './bin'
 
 const toUint32 = buf => {
   let ln, res
@@ -264,13 +264,27 @@ export const TL = (api, mtApi) => {
           }
           type = condType[1]
         }
-
-        this.storeObject(params[param.name], type, `${methodName  }[${  param.name  }]`)
+        const paramName = param.name
+        let stored = params[paramName]
+        /*if (!stored)
+          stored = this.emptyOfType(type, schema)
+        if (!stored)
+          throw new Error(`Method ${methodName}.`+
+            ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)*/
+        this.storeObject(stored, type, `${methodName  }[${  paramName  }]`)
       }
 
       return methodData.type
     }
-
+    emptyOfType(ofType, schema) {
+      const resultConstruct = schema.constructors.find(
+        ({ type, predicate }) =>
+          type === ofType &&
+          predicate.indexOf('Empty') !== -1)
+      return resultConstruct
+        ? { _: resultConstruct.predicate }
+        : null
+    }
     storeObject(obj, type, field) {
       switch (type) {
         case '#':
@@ -410,11 +424,13 @@ export const TL = (api, mtApi) => {
       const iLow = this.readInt(`${ field }:long[low]`)
       const iHigh = this.readInt(`${ field }:long[high]`)
 
+      const res = lshift32(iHigh, iLow)
       const longDec = bigint(iHigh)
         .shiftLeft(32)
         .add(bigint(iLow))
         .toString()
-
+      // if (res!==longDec)
+      //   console.log(res, longDec, )
       return longDec
     }
 

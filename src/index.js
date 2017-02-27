@@ -1,10 +1,10 @@
 // import 'setimmediate'
 
-export { smartTimeout } from './smart-timeout'
-export { blueDefer } from './defer'
+export { smartTimeout } from './util/smart-timeout'
+export { blueDefer } from './util/defer'
 export { CryptoWorker } from './crypto'
 export { bin } from './bin'
-export { forEach } from './for-each'
+export { forEach } from './util/for-each'
 export { ApiManager } from './service/api-manager/index.js'
 export { PureStorage } from './store'
 

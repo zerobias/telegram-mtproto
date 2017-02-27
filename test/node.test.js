@@ -29,7 +29,7 @@ const config = {
 }
 
 
-const telegramMain = new ApiManager({ server, api, app: { debug } })
+const telegram = new ApiManager({ server, api, app: { debug } })
 
 test(`Connection test`, async t => {
   t.plan(1)
@@ -37,23 +37,23 @@ test(`Connection test`, async t => {
     let res, i = 0
     while (i<5) {
       try {
-        res = await telegramMain.mtpInvokeApi('help.getNearestDc', {}, { dcID: 2, createNetworker: true })
+        res = await telegram('help.getNearestDc', {}, { dcID: 2, createNetworker: true })
         console.log('getNearestDc', res)
-        const { phone_code_hash } = await telegramMain.mtpInvokeApi('auth.sendCode', {
+        const { phone_code_hash } = await telegram('auth.sendCode', {
               phone_number  : phone.num,
               current_number: false,
               api_id        : config.id,
               api_hash      : config.hash
         })
         console.log('phone_code_hash', phone_code_hash)
-        res = await telegramMain.mtpInvokeApi('auth.signIn', {
+        res = await telegram('auth.signIn', {
           phone_number: phone.num,
           phone_code_hash,
           phone_code  : phone.code
         })
         console.log('signIn', res)
         console.log('\n Logined as user')
-        console.dir(res.user, { colors: true })
+        // console.dir(res.user, { colors: true })
         t.ok(res, 'result is ok')
         break
       } catch (err) {

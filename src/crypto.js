@@ -1,8 +1,8 @@
 import { when, is, identity, has, both } from 'ramda'
 import isNode from 'detect-node'
 
-import blueDefer from './defer'
-import smartTimeout from './smart-timeout'
+import blueDefer from './util/defer'
+import smartTimeout from './util/smart-timeout'
 import { convertToUint8Array, sha1HashSync, sha256HashSync,
   aesEncryptSync, aesDecryptSync, convertToByteArray, convertToArrayBuffer,
   pqPrimeFactorization, bytesModPow } from './bin'
