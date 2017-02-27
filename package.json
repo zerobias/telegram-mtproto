@@ -5,7 +5,6 @@
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
-  "browser": "dist/mtproto2-browser.js",
   "typings": "index.d.ts",
   "scripts": {
     "build": "npm run build:cjs && npm run build:es",
@@ -64,6 +63,7 @@
   "files": [
     "lib",
     "test",
+    "examples",
     "dist",
     "schema",
     "source",
@@ -89,5 +89,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "2.0.1"
+  "version": "2.1.0"
 }

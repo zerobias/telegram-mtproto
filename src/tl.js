@@ -678,8 +678,8 @@ export const TL = (api, mtApi) => {
         for (let i = 0; i < len; i++) {
           param = constructorData.params[i]
           type = param.type
-          if (type === '#' && isNil(result.pFlags))
-            result.pFlags = {}
+          // if (type === '#' && isNil(result.pFlags))
+          //   result.pFlags = {}
 
           isCond = type.indexOf('?') !== -1
           if (isCond) {
@@ -689,13 +689,10 @@ export const TL = (api, mtApi) => {
               continue
             type = condType[1]
           }
+          const paramName = param.name
+          value = this.fetchObject(type, `${field  }[${  predicate  }][${ paramName }]`)
 
-          value = this.fetchObject(type, `${field  }[${  predicate  }][${  param.name  }]`)
-
-          if (isCond && type === 'true')
-            result.pFlags[param.name] = value
-          else
-            result[param.name] = value
+          result[paramName] = value
         }
       }
 

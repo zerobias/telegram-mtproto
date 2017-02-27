@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "src/*"
+      ]
+    },
+    "outDir": "lib",
+    "module": "es2015",
+    "target": "es2015",
+    "pretty": true,
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    "experimentalDecorators": false,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "moduleResolution": "node",
+    "lib": [
+      "es2015",
+      "webworker"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

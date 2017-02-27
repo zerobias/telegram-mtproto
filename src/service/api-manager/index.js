@@ -117,6 +117,7 @@ export class ApiManager {
     const apiManager = this.mtpInvokeApi
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
+    apiManager.storage = storage
     return apiManager
   }
   networkSetter = (cache, dc, options) =>

@@ -1,10 +1,21 @@
 declare module 'telegram-mtproto' {
+  type DC = {
+    id: number
+    host: string
+    port: number
+  }
   type ServerConfig = {
     dev?: boolean
     webogram?: boolean
+    dcList?: Array<DC>
+  }
+  type PublicKey = {
+    modulus: string
+    exponent: string
   }
   type AppConfig = {
     debug?: boolean
+    publicKeys?: Array<PublicKey>
     storage?: AsyncStorage
   }
   type ApiConfig = {
@@ -24,17 +35,19 @@ declare module 'telegram-mtproto' {
     schema?: Object
     mtSchema?: Object
   }
-  class ApiManager {
-    constructor()
-    constructor({ server, api, app, schema, mtSchema }: Config)
+  interface ApiManagerInstance {
     readonly storage: AsyncStorage
-    mtpInvokeApi<T>(method: string): Promise<T>
-    mtpInvokeApi<T>(method: string, params: Object): Promise<T>
-    mtpInvokeApi<T>(method: string, params: Object, options: Object): Promise<T>
+    <T>(method: string): Promise<T>
+    <T>(method: string, params: Object): Promise<T>
+    <T>(method: string, params: Object, options: Object): Promise<T>
     setUserAuth<T>(dc: number, userAuth: T): void
     on(event: string|string[], handler: Function)
   }
-  interface AsyncStorage {
+  export interface ApiManager {
+    new (): ApiManagerInstance
+    new ({ server, api, app, schema, mtSchema }: Config): ApiManagerInstance
+  }
+  export interface AsyncStorage {
     get(...keys: string[]): Promise<any[]>
     set(obj: Object): Promise<Object>
     remove(...keys: string[]): Promise<any>
