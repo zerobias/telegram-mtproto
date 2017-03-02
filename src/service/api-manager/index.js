@@ -81,9 +81,10 @@ export class ApiManager {
       schema = api57,
       mtSchema = mtproto57,
     } = {}) {
+    this.apiConfig = { ...ApiManager.apiConfig, ...api }
     const fullCfg = {
       server,
-      api,
+      api: this.apiConfig,
       app: { debug, storage, publicKeys },
       schema,
       mtSchema
@@ -102,7 +103,6 @@ export class ApiManager {
     this.TL = TL(schema, mtSchema)
     this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
     this.auth = Auth(this.TL, this.keyManager)
-    this.apiConfig = { ...ApiManager.apiConfig, ...api }
     this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
                                          storage, this.emit, debug)
 
