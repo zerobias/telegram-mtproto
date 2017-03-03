@@ -981,14 +981,14 @@ const getDeserializeOpts = msgGetter => ({
   mtproto : true,
   override: {
     mt_message(result, field) {
-      result.msg_id = this.fetchLong(`${field  }[msg_id]`)
-      result.seqno = this.fetchInt(`${field  }[seqno]`)
-      result.bytes = this.fetchInt(`${field  }[bytes]`)
+      result.msg_id = this.fetchLong(`${ field }[msg_id]`)
+      result.seqno = this.fetchInt(`${ field }[seqno]`)
+      result.bytes = this.fetchInt(`${ field }[bytes]`)
 
       const offset = this.getOffset()
 
       try {
-        result.body = this.fetchObject('Object', `${field  }[body]`)
+        result.body = this.fetchObject('Object', `${ field }[body]`)
       } catch (e) {
         console.error(dTime(), 'parse error', e.message, e.stack)
         result.body = { _: 'parse_error', error: e }

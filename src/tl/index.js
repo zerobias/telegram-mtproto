@@ -3,12 +3,14 @@ import { is, isNil, type as rType } from 'ramda'
 import { bigint, uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
 
-import Debug from 'debug'
+import Logger from '../util/log'
 
-const debug = Debug('telegram-mtproto:tl')
+const debug = Logger`tl`
 
 import { readInt, TypeBuffer, getNakedType,
   getPredicate, getString, getTypeConstruct } from './types'
+
+const PACKED = 0x3072cfa1
 
 export const TL = (api, mtApi) => {
 
@@ -395,14 +397,17 @@ export const TL = (api, mtApi) => {
       const iLow = this.readInt(`${ field }:long[low]`)
       const iHigh = this.readInt(`${ field }:long[high]`)
 
-      // const res = lshift32(iHigh, iLow)
+      const res = lshift32(iHigh, iLow)
       const longDec = bigint(iHigh)
         .shiftLeft(32)
         .add(bigint(iLow))
         .toString()
+      debug`long, iLow, iHigh`(iLow, iHigh)
+      debug`long, leemon`(res)
+      debug`long, bigint`(longDec)
       // if (res!==longDec)
       //   console.log(res, longDec, )
-      return longDec
+      return res
     }
 
     fetchBool(field = '') {
@@ -435,7 +440,7 @@ export const TL = (api, mtApi) => {
         s = sUTF8
       }
 
-      debug('[string]', s, `${field}:string`)
+      debug`string`(s, `${field}:string`)
 
       return s
     }
@@ -452,7 +457,7 @@ export const TL = (api, mtApi) => {
       const bytes = this.typeBuffer.next(len)
       this.typeBuffer.addPadding()
 
-      debug('[bytes]', bytesToHex(bytes), `${ field }:bytes`)
+      debug`bytes`(bytesToHex(bytes), `${ field }:bytes`)
 
       return bytes
     }
@@ -465,7 +470,7 @@ export const TL = (api, mtApi) => {
 
       const bytes = this.typeBuffer.next(len)
 
-      debug('[int bytes]', bytesToHex(bytes), `${ field }:int${  bits}`)
+      debug`int bytes`(bytesToHex(bytes), `${ field }:int${  bits}`)
 
       return bytes
     }
@@ -477,7 +482,7 @@ export const TL = (api, mtApi) => {
           throw new Error(`Invalid raw bytes length: ${  len  }, buffer len: ${this.typeBuffer.byteView.byteLength}`)
       }
       const bytes = this.typeBuffer.next(len)
-      debug('[raw bytes]', bytesToHex(bytes), field)
+      debug`raw bytes`(bytesToHex(bytes), field)
 
       return bytes
     }
@@ -496,7 +501,7 @@ export const TL = (api, mtApi) => {
         const constructor = this.readInt(`${field}[id]`)
         const constructorCmp = uintToInt(constructor)
 
-        if (constructorCmp === 0x3072cfa1)
+        if (constructorCmp === PACKED)
           return this.fetchPacked(type, field)
         if (constructorCmp !== 0x1cb5c415)
           throw new Error(`Invalid vector constructor ${constructor}`)
@@ -555,7 +560,7 @@ export const TL = (api, mtApi) => {
         const constructor = this.readInt(`${field}[id]`)
         const constructorCmp = uintToInt(constructor)
 
-        if (constructorCmp === 0x3072cfa1)
+        if (constructorCmp === PACKED)
           return this.fetchPacked(type, field)
 
         let index = schema.constructorsIndex
@@ -591,26 +596,21 @@ export const TL = (api, mtApi) => {
       if (this.override[overrideKey]) {
         this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`])
       } else {
-        let param, isCond
-        let condType, fieldBit
-        let value
         const len = constructorData.params.length
         for (let i = 0; i < len; i++) {
-          param = constructorData.params[i]
+          const param = constructorData.params[i]
           type = param.type
           // if (type === '#' && isNil(result.pFlags))
           //   result.pFlags = {}
-
-          isCond = type.indexOf('?') !== -1
-          if (isCond) {
-            condType = type.split('?')
-            fieldBit = condType[0].split('.')
+          if (type.indexOf('?') !== -1) {
+            const condType = type.split('?')
+            const fieldBit = condType[0].split('.')
             if (!(result[fieldBit[0]] & 1 << fieldBit[1]))
               continue
             type = condType[1]
           }
           const paramName = param.name
-          value = this.fetchObject(type, `${field}[${predicate}][${paramName}]`)
+          const value = this.fetchObject(type, `${field}[${predicate}][${paramName}]`)
 
           result[paramName] = value
         }
