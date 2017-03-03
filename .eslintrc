@@ -7,12 +7,19 @@
     }
   },
   "extends": [
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:flowtype/recommended"
   ],
   "plugins": [
     "babel",
-    "promise"
+    "promise",
+    "flowtype"
   ],
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
+    }
+  },
   "globals": {
     "inject": true,
     "setZeroTimeout": true

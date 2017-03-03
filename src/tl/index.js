@@ -1,7 +1,13 @@
 import isNode from 'detect-node'
 import { is, isNil, type as rType } from 'ramda'
 import { bigint, uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from './bin'
+  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
+
+import Debug from 'debug'
+
+const debug = Debug('telegram-mtproto:tl')
+
+import { readInt, TypeBuffer } from './types'
 
 const toUint32 = buf => {
   let ln, res
@@ -163,14 +169,12 @@ export const TL = (api, mtApi) => {
         this.byteView[this.offset++] = (len & 0xFF00) >> 8
         this.byteView[this.offset++] = (len & 0xFF0000) >> 16
       }
-      for (let i = 0; i < len; i++) {
+      for (let i = 0; i < len; i++)
         this.byteView[this.offset++] = sUTF8.charCodeAt(i)
-      }
 
       // Padding
-      while (this.offset % 4) {
+      while (this.offset % 4)
         this.byteView[this.offset++] = 0
-      }
     }
 
     storeBytes(bytes, field = '') {
@@ -382,28 +386,13 @@ export const TL = (api, mtApi) => {
 
   class Deserialization {
     constructor(buffer, { mtproto = false, override = {} } = {}) {
-      this.offset = 0 // in bytes
       this.override = override
 
-      this.buffer = buffer
-      this.intView = toUint32(this.buffer)
-      this.byteView = new Uint8Array(this.buffer)
+      this.typeBuffer = new TypeBuffer(buffer)
       this.mtproto = mtproto
     }
 
-    readInt(field) {
-      if (this.offset >= this.intView.length * 4) {
-        throw new Error(`Nothing to fetch: ${  field}`)
-      }
-
-      const i = this.intView[this.offset / 4]
-
-      this.debug && console.log('<<<', i.toString(16), i, field)
-
-      this.offset += 4
-
-      return i
-    }
+    readInt = readInt(this)
 
     fetchInt(field = '') {
       return this.readInt(`${ field }:int`)
@@ -414,8 +403,8 @@ export const TL = (api, mtApi) => {
       const intView = new Int32Array(buffer)
       const doubleView = new Float64Array(buffer)
 
-      intView[0] = this.readInt(`${ field }:double[low]`),
-        intView[1] = this.readInt(`${ field }:double[high]`)
+      intView[0] = this.readInt(`${ field }:double[low]`)
+      intView[1] = this.readInt(`${ field }:double[high]`)
 
       return doubleView[0]
     }
@@ -424,7 +413,7 @@ export const TL = (api, mtApi) => {
       const iLow = this.readInt(`${ field }:long[low]`)
       const iHigh = this.readInt(`${ field }:long[high]`)
 
-      const res = lshift32(iHigh, iLow)
+      // const res = lshift32(iHigh, iLow)
       const longDec = bigint(iHigh)
         .shiftLeft(32)
         .add(bigint(iLow))
@@ -440,30 +429,27 @@ export const TL = (api, mtApi) => {
         case 0x997275b5: return true
         case 0xbc799737: return false
         default: {
-          this.offset -= 4
+          this.typeBuffer.offset -= 4
           return this.fetchObject('Object', field)
         }
       }
     }
 
     fetchString(field = '') {
-      let len = this.byteView[this.offset++]
+      let len = this.typeBuffer.nextByte()
 
       if (len == 254) {
-        len = this.byteView[this.offset++] |
-            this.byteView[this.offset++] << 8 |
-            this.byteView[this.offset++] << 16
+        len = this.typeBuffer.nextByte() |
+            this.typeBuffer.nextByte() << 8 |
+            this.typeBuffer.nextByte() << 16
       }
 
       let sUTF8 = ''
-      for (let i = 0; i < len; i++) {
-        sUTF8 += String.fromCharCode(this.byteView[this.offset++])
-      }
+      for (let i = 0; i < len; i++)
+        sUTF8 += String.fromCharCode(this.typeBuffer.nextByte())
 
-        // Padding
-      while (this.offset % 4) {
-        this.offset++
-      }
+      this.typeBuffer.addPadding()
+
       let s
       try {
         s = decodeURIComponent(escape(sUTF8))
@@ -471,72 +457,49 @@ export const TL = (api, mtApi) => {
         s = sUTF8
       }
 
-      this.debug && console.log('<<<', s, `${ field }:string`)
+      debug('[string]', s, `${ field }:string`)
 
       return s
     }
 
     fetchBytes(field = '') {
-      let len = this.byteView[this.offset++]
+      let len = this.typeBuffer.nextByte()
 
       if (len == 254) {
-        len = this.byteView[this.offset++] |
-            this.byteView[this.offset++] << 8 |
-            this.byteView[this.offset++] << 16
+        len = this.typeBuffer.nextByte() |
+            this.typeBuffer.nextByte() << 8 |
+            this.typeBuffer.nextByte() << 16
       }
 
-      const bytes = this.byteView.subarray(this.offset, this.offset + len)
-      this.offset += len
+      const bytes = this.typeBuffer.next(len)
+      this.typeBuffer.addPadding()
 
-      // Padding
-      while (this.offset % 4)
-        this.offset++
-
-      this.debug && console.log('<<<', bytesToHex(bytes), `${ field }:bytes`)
+      debug('[bytes]', bytesToHex(bytes), `${ field }:bytes`)
 
       return bytes
     }
 
-    fetchIntBytes(bits, typed, field = '') {
+    fetchIntBytes(bits, field = '') {
       if (bits % 32)
-        throw new Error(`Invalid bits: ${  bits}`)
+        throw new Error(`Invalid bits: ${bits}`)
 
       const len = bits / 8
-      if (typed) {
-        const result = this.byteView.subarray(this.offset, this.offset + len)
-        this.offset += len
-        return result
-      }
 
-      const bytes = []
-      for (let i = 0; i < len; i++) {
-        bytes.push(this.byteView[this.offset++])
-      }
+      const bytes = this.typeBuffer.next(len)
 
-      this.debug && console.log('<<<', bytesToHex(bytes), `${ field }:int${  bits}`)
+      debug('[int bytes]', bytesToHex(bytes), `${ field }:int${  bits}`)
 
       return bytes
     }
 
-    fetchRawBytes(len, typed, field = '') {
+    fetchRawBytes(len, field = '') {
       if (len === false) {
         len = this.readInt(`${ field }_length`)
-        if (len > this.byteView.byteLength)
-          throw new Error(`Invalid raw bytes length: ${  len  }, buffer len: ${  this.byteView.byteLength}`)
+        if (len > this.typeBuffer.byteView.byteLength)
+          throw new Error(`Invalid raw bytes length: ${  len  }, buffer len: ${this.typeBuffer.byteView.byteLength}`)
       }
-      let bytes
-      if (typed) {
-        bytes = new Uint8Array(len)
-        bytes.set(this.byteView.subarray(this.offset, this.offset + len))
-        this.offset += len
-        return bytes
-      }
-
-      bytes = []
-      for (let i = 0; i < len; i++)
-        bytes.push(this.byteView[this.offset++])
-
-      this.debug && console.log('<<<', bytesToHex(bytes), field)
+      const bytes = this.typeBuffer.next(len)
+      debug('[raw bytes]', bytesToHex(bytes), field)
 
       return bytes
     }
@@ -549,11 +512,11 @@ export const TL = (api, mtApi) => {
         case 'long':
           return this.fetchLong(field)
         case 'int128':
-          return this.fetchIntBytes(128, false, field)
+          return this.fetchIntBytes(128, field)
         case 'int256':
-          return this.fetchIntBytes(256, false, field)
+          return this.fetchIntBytes(256, field)
         case 'int512':
-          return this.fetchIntBytes(512, false, field)
+          return this.fetchIntBytes(512, field)
         case 'string':
           return this.fetchString(field)
         case 'bytes':
@@ -589,7 +552,7 @@ export const TL = (api, mtApi) => {
         if (len > 0) {
           const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
           for (let i = 0; i < len; i++)
-            result.push(this.fetchObject(itemType, `${field  }[${  i  }]`))
+            result.push(this.fetchObject(itemType, `${field}[${i}]`))
         }
 
         return result
@@ -609,9 +572,8 @@ export const TL = (api, mtApi) => {
             break
           }
         }
-        if (!constructorData) {
-          throw new Error(`Constructor not found for type: ${  type}`)
-        }
+        if (!constructorData)
+          throw new Error(`Constructor not found for type: ${type}`)
       }
       else if (type.charAt(0) >= 97 && type.charAt(0) <= 122) {
         for (let i = 0; i < schema.constructors.length; i++) {
@@ -623,11 +585,11 @@ export const TL = (api, mtApi) => {
         if (!constructorData)
           throw new Error(`Constructor not found for predicate: ${  type}`)
       } else {
-        const constructor = this.readInt(`${field  }[id]`)
+        const constructor = this.readInt(`${field}[id]`)
         const constructorCmp = uintToInt(constructor)
 
         if (constructorCmp == 0x3072cfa1) { // Gzip packed
-          const compressed = this.fetchBytes(`${field  }[packed_string]`)
+          const compressed = this.fetchBytes(`${field}[packed_string]`)
           const uncompressed = gzipUncompress(compressed)
           const buffer = bytesToArrayBuffer(uncompressed)
           const newDeserializer = new Deserialization(buffer)
@@ -659,7 +621,7 @@ export const TL = (api, mtApi) => {
           }
         }
         if (!constructorData) {
-          throw new Error(`Constructor not found: ${  constructor  } ${  this.fetchInt()  } ${  this.fetchInt()}`)
+          throw new Error(`Constructor not found: ${  constructor  } ${this.fetchInt()} ${this.fetchInt()}`)
         }
       }
 
@@ -703,11 +665,11 @@ export const TL = (api, mtApi) => {
     }
 
     getOffset() {
-      return this.offset
+      return this.typeBuffer.offset
     }
 
     fetchEnd() {
-      if (this.offset !== this.byteView.length)
+      if (!this.typeBuffer.isEnd())
         throw new Error('Fetch end with non-empty buffer')
       return true
     }

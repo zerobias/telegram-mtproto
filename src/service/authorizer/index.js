@@ -30,6 +30,26 @@ const asyncLog = (...data) => {
   console.log(time, ...data)
   // setTimeout(() => console.log(time, ...data), 300)
 }
+
+const concat = (e1, e2) => [...e1, ...e2]
+
+const tmpAesKey = (serverNonce, newNonce) => {
+  const arr1 = concat(newNonce, serverNonce)
+  const arr2 = concat(serverNonce, newNonce)
+  const key1 = sha1BytesSync(arr1)
+  const key2 = sha1BytesSync(arr2).slice(0, 12)
+  return key1.concat(key2)
+}
+
+const tmpAesIv = (serverNonce, newNonce) => {
+  const arr1 = concat(serverNonce, newNonce)
+  const arr2 = concat(newNonce, newNonce)
+  const arr3 = newNonce.slice(0, 4)
+  const key1 = sha1BytesSync(arr1)
+  const key2 = sha1BytesSync(arr2)
+  return key1.slice(12).concat(key2, arr3)
+}
+
 export const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
   const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
 
@@ -166,20 +186,13 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
   }
 
   function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
-    auth.tmpAesKey = sha1BytesSync(
-      auth.newNonce
-        .concat(auth.serverNonce))
-          .concat(sha1BytesSync(auth.serverNonce.concat(auth.newNonce)).slice(0, 12))
-    auth.tmpAesIv = sha1BytesSync(
-      auth
-        .serverNonce
-        .concat(auth.newNonce))
-          .slice(12)
-          .concat(
-            sha1BytesSync([].concat(auth.newNonce, auth.newNonce)),
-            auth.newNonce.slice(0, 4))
+    auth.tmpAesKey = tmpAesKey(auth.serverNonce, auth.newNonce)
+    auth.tmpAesIv = tmpAesIv(auth.serverNonce, auth.newNonce)
 
-    const answerWithHash = aesDecryptSync(encryptedAnswer, auth.tmpAesKey, auth.tmpAesIv)
+    const answerWithHash = aesDecryptSync(
+      encryptedAnswer,
+      auth.tmpAesKey,
+      auth.tmpAesIv)
 
     const hash = answerWithHash.slice(0, 20)
     const answerWithPadding = answerWithHash.slice(20)

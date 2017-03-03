@@ -648,22 +648,21 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
       const deserializer = new Deserialization(responseBuffer)
 
-      const authKeyID = deserializer.fetchIntBytes(64, false, 'auth_key_id')
+      const authKeyID = deserializer.fetchIntBytes(64, 'auth_key_id')
       if (!bytesCmp(authKeyID, this.authKeyID)) {
         throw new Error(`[MT] Invalid server auth_key_id: ${  bytesToHex(authKeyID)}`)
       }
-      const msgKey = deserializer.fetchIntBytes(128, true, 'msg_key')
+      const msgKey = deserializer.fetchIntBytes(128, 'msg_key')
       const encryptedData = deserializer.fetchRawBytes(
         responseBuffer.byteLength - deserializer.getOffset(),
-        true,
         'encrypted_data')
 
       const afterDecrypt = dataWithPadding => {
         // console.log(dTime(), 'after decrypt')
         const deserializer = new Deserialization(dataWithPadding, { mtproto: true })
 
-        const salt = deserializer.fetchIntBytes(64, false, 'salt')
-        const sessionID = deserializer.fetchIntBytes(64, false, 'session_id')
+        const salt = deserializer.fetchIntBytes(64, 'salt')
+        const sessionID = deserializer.fetchIntBytes(64, 'session_id')
         const messageID = deserializer.fetchLong('message_id')
 
         const isInvalidSession =
@@ -685,7 +684,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
             messageBodyLength > totalLength - offset) {
           throw new Error(`[MT] Invalid body length: ${  messageBodyLength}`)
         }
-        const messageBody = deserializer.fetchRawBytes(messageBodyLength, true, 'message_data')
+        const messageBody = deserializer.fetchRawBytes(messageBodyLength, 'message_data')
 
         offset = deserializer.getOffset()
         const paddingLength = totalLength - offset
