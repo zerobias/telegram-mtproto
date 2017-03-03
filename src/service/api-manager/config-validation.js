@@ -13,7 +13,6 @@ const type = {
 const app = {
   type      : 'object',
   properties: {
-    debug     : type.bool,
     publicKeys: {
       type       : 'array',
       uniqueItems: true,

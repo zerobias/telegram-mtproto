@@ -74,7 +74,6 @@ export class ApiManager {
       server = {},
       api = {},
       app: {
-        debug = false,
         storage = PureStorage,
         publicKeys = publisKeysHex
       } = {},
@@ -85,7 +84,7 @@ export class ApiManager {
     const fullCfg = {
       server,
       api: this.apiConfig,
-      app: { debug, storage, publicKeys },
+      app: { storage, publicKeys },
       schema,
       mtSchema
     }
@@ -93,7 +92,6 @@ export class ApiManager {
     this.publicKeys = publicKeys
     this.storage = storage
     this.serverConfig = server
-    this.debug = debug
     this.schema = schema
     this.mtSchema = mtSchema
     this.chooseServer = chooseServer(this.cache.servers, server)
@@ -104,15 +102,7 @@ export class ApiManager {
     this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
     this.auth = Auth(this.TL, this.keyManager)
     this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
-                                         storage, this.emit, debug)
-
-    // return new Proxy(this, {
-    //   get(ctx, name) {
-    //     const result = Reflect.get(ctx, name)
-    //     console.info('get', name, type(result))
-    //     return result
-    //   }
-    // })
+                                         storage, this.emit)
 
     const apiManager = this.mtpInvokeApi
     apiManager.setUserAuth = this.setUserAuth

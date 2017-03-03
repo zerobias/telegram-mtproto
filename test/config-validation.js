@@ -13,7 +13,6 @@ const type = {
 const app = {
   type      : 'object',
   properties: {
-    debug  : type.bool,
     storage: {
       type      : 'object',
       required  : ['get', 'set', 'remove', 'clear'],
@@ -90,7 +89,6 @@ test('full module config validation', t => {
 
   const opts = {
     app: {
-      debug  : true,
       storage: {
         get() {},
         set() {},

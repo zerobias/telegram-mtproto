@@ -18,7 +18,6 @@ const server = {
   dev     : true,
   webogram: true
 }
-const debug = true
 
 const config = {
   // NOTE: if you FORK the project you MUST use your APP ID.
@@ -29,7 +28,7 @@ const config = {
 }
 
 
-const telegram = new ApiManager({ server, api, app: { debug } })
+const telegram = new ApiManager({ server, api, app: { } })
 
 test(`Connection test`, async t => {
   t.plan(1)

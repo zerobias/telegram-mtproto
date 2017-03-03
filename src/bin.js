@@ -10,19 +10,11 @@ import random from './service/secure-random'
 
 
 import { eGCD_, greater, divide_, str2bigInt, equalsInt,
-  isZero, bigInt2str, copy_, copyInt_, rightShift_, addInt_,
-  leftShift_, sub_, add_, powMod, bpe, one, int2bigInt } from './vendor/leemon'
+  isZero, bigInt2str, copy_, copyInt_, rightShift_,
+  leftShift_, sub_, add_, powMod, bpe, one } from './vendor/leemon'
 
 
 const rushaInstance = new Rusha(1024 * 1024)
-
-// export function bigint(num) {
-//   return new BigInteger(num.toString(16), 16)
-// }
-
-// export function bigStringInt(strNum) {
-//   return new BigInteger(strNum, 10)
-// }
 
 export const strDecToHex = str => toLower(
   bigInt2str(
@@ -174,17 +166,6 @@ const dividerLem = str2bigInt('100000000', 16, 4)
 //   100)
 
 export function longToInts(sLong) {
-  /*const bigTime = Timer()
-  const divRem = bigStringInt(sLong).divideAndRemainder(dividerBig)
-  const divIntB = divRem[0].intValue()
-  const remIntB = divRem[1].intValue()
-  const resB = [
-    intToUint(divIntB),
-    intToUint(remIntB)
-  ]
-  const timeB = bigTime()*/
-
-  // const lemTime = Timer()
   const lemNum = str2bigInt(sLong, 10, 6)
   const div = new Array(lemNum.length)
   const rem = new Array(lemNum.length)
@@ -193,9 +174,6 @@ export function longToInts(sLong) {
     ~~bigInt2str(div, 10),
     ~~bigInt2str(rem, 10)
   ]
-  // const timeL = lemTime()
-
-  // printTimers(timeL, timeB, resL, resB)
   return resL
 }
 

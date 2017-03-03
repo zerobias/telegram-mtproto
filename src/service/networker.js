@@ -22,12 +22,9 @@ let updatesProcessor
 let iii = 0
 let offlineInited = false
 let akStopped = false
-// const chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/)
-// const chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false
-// const xhrSendBuffer = !('ArrayBufferView' in window) && (!chromeVersion || chromeVersion < 30)
 
 
-export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, storage, emit, debug) =>
+export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, storage, emit) =>
   class NetworkerThread {
     constructor(dc, authKey, serverSalt, options = {}) {
       this.dcID = dc
@@ -122,8 +119,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         body  : serializer.getBytes()
       }
 
-      if (debug)
-        console.log(dTime(), 'MT call', method, params, messageID, seqNo)
+      log`MT call`(method, params, messageID, seqNo)
 
       return this.pushMessage(message, options)
     }
@@ -141,8 +137,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         body  : serializer.getBytes()
       }
 
-      if (debug)
-        console.log(dTime(), 'MT message', object, messageID, seqNo)
+      log`MT message`(object, messageID, seqNo)
 
       return this.pushMessage(message, options)
     }
@@ -178,10 +173,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         isAPI : true
       }
 
-      if (debug)
-        console.log(dTime(), 'Api call', method, params, messageID, seqNo, options)
-      else
-        console.log(dTime(), 'Api call', method)
+      log`Api call`(method, params, messageID, seqNo, options)
 
       return this.pushMessage(message, options)
     }
@@ -511,8 +503,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
         this.sentMessages[message.msg_id] = containerSentMessage
 
-        if (debug)
-          console.log(dTime(), 'Container', innerMessages, message.msg_id, message.seq_no)
+        log`Container`(innerMessages, message.msg_id, message.seq_no)
       } else {
         if (message.noResponse)
           noResponseMsgs.push(message.msg_id)
@@ -528,8 +519,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           .then(afterResponseParse)
       }
       const afterResponseParse = response => {
-        if (debug)
-          console.log(dTime(), 'Server response', this.dcID, response)
+        log`Server response`(this.dcID, response)
 
         this.processMessage(
           response.response,
@@ -949,7 +939,8 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
             }
           } else {
             if (deferred) {
-              if (debug) {
+              log`Rpc response`(message.result)
+              /*if (debug) {
                 console.log(dTime(), 'Rpc response', message.result)
               } else {
                 let dRes = message.result._
@@ -958,7 +949,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
                     ? `[..${  message.result.length  }..]`
                     : message.result
                 console.log(dTime(), 'Rpc response', dRes)
-              }
+              }*/
               sentMessage.deferred.resolve(message.result)
             }
             if (sentMessage.isAPI)

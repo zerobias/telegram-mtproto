@@ -25,7 +25,6 @@
   "author": "Zero Bias",
   "dependencies": {
     "@goodmind/node-cryptojs-aes": "^0.5.0",
-    "@types/debug": "0.0.29",
     "ajv": "^4.11.3",
     "ajv-keywords": "^1.5.1",
     "axios": "^0.15.3",
@@ -41,6 +40,7 @@
     "worker-loader": "^0.7.1"
   },
   "devDependencies": {
+    "@types/debug": "0.0.29",
     "babel-cli": "^6.23.0",
     "babel-core": "^6.23.1",
     "babel-eslint": "^7.1.1",
