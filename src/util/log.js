@@ -1,7 +1,7 @@
 //@flow
 
 import Debug from 'debug'
-import { trim, map, chain, pipe, split, toUpper,
+import { trim, map, chain, pipe, split,
   both, is, when, take, reject, isEmpty, join } from 'ramda'
 import { dTime } from '../service/time-manager'
 
@@ -34,7 +34,8 @@ const Logger = (...moduleName: string[]) => {
     const tagStr = fullNormalize(tags)
     return (...objects: any[]) => {
       const time = dTime()
-      const [ first, ...other ] = objects.map(stringNormalize)
+      //$FlowIssue
+      const [ first = '', ...other ] = objects.map(stringNormalize)
       const firstLine = [tagStr, time, first].join('  ')
       setTimeout(debug, 200, firstLine, ...other)
     }

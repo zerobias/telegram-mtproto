@@ -1,6 +1,5 @@
-import isNode from 'detect-node'
-import { is, isNil, type as rType } from 'ramda'
-import { bigint, uintToInt, intToUint, bytesToHex,
+import { is, type as rType } from 'ramda'
+import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
 
 import Logger from '../util/log'
@@ -398,15 +397,18 @@ export const TL = (api, mtApi) => {
       const iHigh = this.readInt(`${ field }:long[high]`)
 
       const res = lshift32(iHigh, iLow)
-      const longDec = bigint(iHigh)
-        .shiftLeft(32)
-        .add(bigint(iLow))
-        .toString()
-      debug`long, iLow, iHigh`(iLow, iHigh)
-      debug`long, leemon`(res)
-      debug`long, bigint`(longDec)
-      // if (res!==longDec)
-      //   console.log(res, longDec, )
+      // const longDec = bigint(iHigh)
+      //   .shiftLeft(32)
+      //   .add(bigint(iLow))
+      //   .toString()
+
+
+      // debug`long, iLow, iHigh`(strDecToHex(iLow.toString()),
+      //                          strDecToHex(iHigh.toString()))
+      // debug`long, leemon`(res, strDecToHex(res.toString()))
+      // debug`long, bigint`(longDec, strDecToHex(longDec.toString()))
+
+
       return res
     }
 

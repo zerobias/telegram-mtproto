@@ -1,5 +1,4 @@
 import { toLower } from 'ramda'
-import { BigInteger } from 'jsbn'
 import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
 const { CryptoJS } = CryptoJSlib
@@ -17,19 +16,14 @@ import { eGCD_, greater, divide_, str2bigInt, equalsInt,
 
 const rushaInstance = new Rusha(1024 * 1024)
 
-export function bigint(num) {
-  return new BigInteger(num.toString(16), 16)
-}
-
-export function bigStringInt(strNum) {
-  return new BigInteger(strNum, 10)
-}
-
-// export const rShift32 = str => {
-//   const num = str2bigInt(str, 10, 0)
-//   rightShift_(num, 32)
-//   return bigInt2str(num, 10)
+// export function bigint(num) {
+//   return new BigInteger(num.toString(16), 16)
 // }
+
+// export function bigStringInt(strNum) {
+//   return new BigInteger(strNum, 10)
+// }
+
 export const strDecToHex = str => toLower(
   bigInt2str(
     str2bigInt(str, 10, 0), 16
@@ -210,12 +204,19 @@ export function longToBytes(sLong) {
 }
 
 export function lshift32(high, low) {
-  const highNum = int2bigInt(high, 96, 0)
+  const highNum = str2bigInt(high.toString(), 10, 6)
+  const nLow = str2bigInt(low.toString(), 10, 6)
   leftShift_(highNum, 32)
 
-  addInt_(highNum, low)
+  add_(highNum, nLow)
   const res = bigInt2str(highNum, 10)
   return res
+}
+
+export const rshift32 = str => {
+  const num = str2bigInt(str, 10, 6)
+  rightShift_(num, 32)
+  return bigInt2str(num, 10)
 }
 
 // export function longFromLem(high, low) {
@@ -230,13 +231,13 @@ export function lshift32(high, low) {
 export function intToUint(val) {
   val = parseInt(val) //TODO PERF parseInt is a perfomance issue
   if (val < 0)
-    val = val + 4294967296
+    val = val + 0x100000000
   return val
 }
 
 export function uintToInt(val) {
   if (val > 2147483647)
-    val = val - 4294967296
+    val = val - 0x100000000
   return val
 }
 
@@ -284,7 +285,7 @@ export function addPadding(bytes, blockSize, zeroes) {
       for (let i = 0; i < needPadding; i++)
         padding[i] = 0
     } else
-      random.nextBytes(padding)
+      random(padding)
 
     bytes = bytes instanceof ArrayBuffer
       ? bufferConcat(bytes, padding)

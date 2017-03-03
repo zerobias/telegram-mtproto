@@ -33,9 +33,9 @@
     "debug": "^2.6.1",
     "detect-node": "^2.0.3",
     "eventemitter2": "^3.0.0",
-    "jsbn": "^1.1.0",
     "pako": "^1.0.4",
     "ramda": "^0.23.0",
+    "randombytes": "^2.0.3",
     "rusha": "^0.8.5",
     "setimmediate": "^1.0.5",
     "worker-loader": "^0.7.1"

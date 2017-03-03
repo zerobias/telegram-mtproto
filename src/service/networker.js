@@ -4,15 +4,19 @@ import { pipeP, is, values, mapObjIndexed } from 'ramda'
 
 import CryptoWorker from '../crypto'
 import { dTime, tsNow, generateID, applyServerTime } from './time-manager'
-import MtpSecureRandom from './secure-random'
+import random from './secure-random'
 import forEach from '../util/for-each'
 import smartTimeout from '../util/smart-timeout'
 import blueDefer from '../util/defer'
 import { httpClient } from '../http'
 
+import Logger from '../util/log'
+
+const log = Logger`networker`
+
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   nextRandomInt, bytesCmp, bytesToHex, bytesFromArrayBuffer,
-  bytesToArrayBuffer, longToBytes, uintToInt, bigStringInt } from '../bin'
+  bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../bin'
 
 let updatesProcessor
 let iii = 0
@@ -65,7 +69,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       this.seqNo = 0
       this.prevSessionID = this.sessionID
       this.sessionID = new Array(8)
-      MtpSecureRandom.nextBytes(this.sessionID)
+      random(this.sessionID)
     }
 
     updateSentMessage(sentMessageID) {
@@ -838,10 +842,10 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           break
         }
         case 'bad_server_salt': {
-          console.log(dTime(), 'Bad server salt', message)
+          log`Bad server salt`(message)
           const sentMessage = this.sentMessages[message.bad_msg_id]
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-            console.log(message.bad_msg_id, message.bad_msg_seqno)
+            log`invalid message`(message.bad_msg_id, message.bad_msg_seqno)
             throw new Error('[MT] Bad server salt for invalid message')
           }
 
@@ -851,20 +855,18 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           break
         }
         case 'bad_msg_notification': {
-          console.log(dTime(), 'Bad msg notification', message)
+          log`Bad msg notification`(message)
           const sentMessage = this.sentMessages[message.bad_msg_id]
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-            console.log(message.bad_msg_id, message.bad_msg_seqno)
+            log`invalid message`(message.bad_msg_id, message.bad_msg_seqno)
             throw new Error('[MT] Bad msg notification for invalid message')
           }
 
           if (message.error_code == 16 || message.error_code == 17) {
             if (applyServerTime(
-                bigStringInt(messageID)
-                  .shiftRight(32)
-                  .toString(10)
+                rshift32(messageID)
               )) {
-              console.log(dTime(), 'Update session')
+              log`Update session`()
               this.updateSession()
             }
             const badMessage = this.updateSentMessage(message.bad_msg_id)

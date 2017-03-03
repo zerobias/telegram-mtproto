@@ -116,7 +116,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     const deferred = auth.deferred
 
     auth.newNonce = new Array(32)
-    random.nextBytes(auth.newNonce)
+    random(auth.newNonce)
 
     const data = new Serialization({ mtproto: true })
     data.storeObject({
@@ -297,7 +297,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     const gBytes = bytesFromHex(auth.g.toString(16))
 
     auth.b = new Array(256)
-    random.nextBytes(auth.b)
+    random(auth.b)
 
 
 

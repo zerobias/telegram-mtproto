@@ -69,7 +69,7 @@ const getChar = (e: number) => String.fromCharCode(e)
 
 export const getString = (length: number, buffer: TypeBuffer) => {
   const bytes = buffer.next(length)
-  //$FlowIssue
+
   const result = [...bytes].map(getChar).join('')
   buffer.addPadding()
   return result
@@ -110,7 +110,7 @@ export class TypeBuffer {
   }
 }
 
-const toUint32 = (buf: any) => {
+const toUint32 = (buf: Buffer) => {
   let ln, res
   if (!isNode) //TODO browser behavior not equals, why?
     return new Uint32Array( buf )
