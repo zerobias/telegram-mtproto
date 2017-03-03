@@ -7,26 +7,8 @@ import Debug from 'debug'
 
 const debug = Debug('telegram-mtproto:tl')
 
-import { readInt, TypeBuffer } from './types'
-
-const toUint32 = buf => {
-  let ln, res
-  if (!isNode) //TODO browser behavior not equals, why?
-    return new Uint32Array( buf )
-  if (buf.readUInt32LE) {
-    ln = buf.byteLength / 4
-    res = new Uint32Array( ln )
-    for (let i = 0; i < ln; i++)
-      res[i] = buf.readUInt32LE( i*4 )
-  } else {
-    const data = new DataView( buf )
-    ln = data.byteLength / 4
-    res = new Uint32Array( ln )
-    for (let i = 0; i < ln; i++)
-      res[i] = data.getUint32( i*4, true )
-  }
-  return res
-}
+import { readInt, TypeBuffer, getNakedType,
+  getPredicate, getString, getTypeConstruct } from './types'
 
 export const TL = (api, mtApi) => {
 
@@ -269,7 +251,7 @@ export const TL = (api, mtApi) => {
           type = condType[1]
         }
         const paramName = param.name
-        let stored = params[paramName]
+        const stored = params[paramName]
         /*if (!stored)
           stored = this.emptyOfType(type, schema)
         if (!stored)
@@ -444,11 +426,7 @@ export const TL = (api, mtApi) => {
             this.typeBuffer.nextByte() << 16
       }
 
-      let sUTF8 = ''
-      for (let i = 0; i < len; i++)
-        sUTF8 += String.fromCharCode(this.typeBuffer.nextByte())
-
-      this.typeBuffer.addPadding()
+      const sUTF8 = getString(len, this.typeBuffer)
 
       let s
       try {
@@ -457,7 +435,7 @@ export const TL = (api, mtApi) => {
         s = sUTF8
       }
 
-      debug('[string]', s, `${ field }:string`)
+      debug('[string]', s, `${field}:string`)
 
       return s
     }
@@ -504,6 +482,36 @@ export const TL = (api, mtApi) => {
       return bytes
     }
 
+    fetchPacked(type, field) {
+      const compressed = this.fetchBytes(`${field}[packed_string]`)
+      const uncompressed = gzipUncompress(compressed)
+      const buffer = bytesToArrayBuffer(uncompressed)
+      const newDeserializer = new Deserialization(buffer)
+
+      return newDeserializer.fetchObject(type, field)
+    }
+
+    fetchVector(type, field) {
+      if (type.charAt(0) === 'V') {
+        const constructor = this.readInt(`${field}[id]`)
+        const constructorCmp = uintToInt(constructor)
+
+        if (constructorCmp === 0x3072cfa1)
+          return this.fetchPacked(type, field)
+        if (constructorCmp !== 0x1cb5c415)
+          throw new Error(`Invalid vector constructor ${constructor}`)
+      }
+      const len = this.readInt(`${field}[count]`)
+      const result = []
+      if (len > 0) {
+        const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
+        for (let i = 0; i < len; i++)
+          result.push(this.fetchObject(itemType, `${field}[${i}]`))
+      }
+
+      return result
+    }
+
     fetchObject(type, field) {
       switch (type) {
         case '#':
@@ -530,33 +538,8 @@ export const TL = (api, mtApi) => {
       }
       let fallback
       field = field || type || 'Object'
-      const subpart = type.substr(0, 6)
-      if (subpart === 'Vector' || subpart === 'vector') {
-        if (type.charAt(0) === 'V') {
-          const constructor = this.readInt(`${field}[id]`)
-          const constructorCmp = uintToInt(constructor)
-
-          if (constructorCmp === 0x3072cfa1) { // Gzip packed
-            const compressed = this.fetchBytes(`${field}[packed_string]`)
-            const uncompressed = gzipUncompress(compressed)
-            const buffer = bytesToArrayBuffer(uncompressed)
-            const newDeserializer = new Deserialization(buffer)
-
-            return newDeserializer.fetchObject(type, field)
-          }
-          if (constructorCmp !== 0x1cb5c415)
-            throw new Error(`Invalid vector constructor ${constructor}`)
-        }
-        const len = this.readInt(`${field}[count]`)
-        const result = []
-        if (len > 0) {
-          const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
-          for (let i = 0; i < len; i++)
-            result.push(this.fetchObject(itemType, `${field}[${i}]`))
-        }
-
-        return result
-      }
+      if (type.substr(0, 6).toLowerCase() === 'vector')
+        return this.fetchVector(type, field)
 
       const schema = this.mtproto
         ? mtApi
@@ -564,38 +547,16 @@ export const TL = (api, mtApi) => {
       let predicate = false
       let constructorData = false
 
-      if (type.charAt(0) == '%') {
-        const checkType = type.substr(1)
-        for (let i = 0; i < schema.constructors.length; i++) {
-          if (schema.constructors[i].type == checkType) {
-            constructorData = schema.constructors[i]
-            break
-          }
-        }
-        if (!constructorData)
-          throw new Error(`Constructor not found for type: ${type}`)
-      }
-      else if (type.charAt(0) >= 97 && type.charAt(0) <= 122) {
-        for (let i = 0; i < schema.constructors.length; i++) {
-          if (schema.constructors[i].predicate == type) {
-            constructorData = schema.constructors[i]
-            break
-          }
-        }
-        if (!constructorData)
-          throw new Error(`Constructor not found for predicate: ${  type}`)
-      } else {
+      if (type.charAt(0) === '%')
+        constructorData = getNakedType(type, schema)
+      else if (type.charAt(0) >= 97 && type.charAt(0) <= 122)
+        constructorData = getPredicate(type, schema)
+      else {
         const constructor = this.readInt(`${field}[id]`)
         const constructorCmp = uintToInt(constructor)
 
-        if (constructorCmp == 0x3072cfa1) { // Gzip packed
-          const compressed = this.fetchBytes(`${field}[packed_string]`)
-          const uncompressed = gzipUncompress(compressed)
-          const buffer = bytesToArrayBuffer(uncompressed)
-          const newDeserializer = new Deserialization(buffer)
-
-          return newDeserializer.fetchObject(type, field)
-        }
+        if (constructorCmp === 0x3072cfa1)
+          return this.fetchPacked(type, field)
 
         let index = schema.constructorsIndex
         if (!index) {
@@ -603,25 +564,22 @@ export const TL = (api, mtApi) => {
           for (let i = 0; i < schema.constructors.length; i++)
             index[schema.constructors[i].id] = i
         }
-        let i = index[constructorCmp]
+        const i = index[constructorCmp]
         if (i)
           constructorData = schema.constructors[i]
 
         fallback = false
         if (!constructorData && this.mtproto) {
           const schemaFallback = api
-          for (i = 0; i < schemaFallback.constructors.length; i++) {
-            if (schemaFallback.constructors[i].id == constructorCmp) {
-              constructorData = schemaFallback.constructors[i]
-
-              delete this.mtproto
-              fallback = true
-              break
-            }
+          const finded = getTypeConstruct(constructorCmp, schemaFallback)
+          if (finded) {
+            constructorData = finded
+            delete this.mtproto
+            fallback = true
           }
         }
         if (!constructorData) {
-          throw new Error(`Constructor not found: ${  constructor  } ${this.fetchInt()} ${this.fetchInt()}`)
+          throw new Error(`Constructor not found: ${constructor} ${this.fetchInt()} ${this.fetchInt()}`)
         }
       }
 
@@ -631,7 +589,7 @@ export const TL = (api, mtApi) => {
       const overrideKey = (this.mtproto ? 'mt_' : '') + predicate
 
       if (this.override[overrideKey]) {
-        this.override[overrideKey].apply(this, [result, `${field  }[${  predicate  }]`])
+        this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`])
       } else {
         let param, isCond
         let condType, fieldBit
@@ -652,7 +610,7 @@ export const TL = (api, mtApi) => {
             type = condType[1]
           }
           const paramName = param.name
-          value = this.fetchObject(type, `${field  }[${  predicate  }][${ paramName }]`)
+          value = this.fetchObject(type, `${field}[${predicate}][${paramName}]`)
 
           result[paramName] = value
         }
