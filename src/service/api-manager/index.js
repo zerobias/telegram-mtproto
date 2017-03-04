@@ -116,7 +116,7 @@ export class ApiManager {
       cache[dc] = networker
       return networker
     }
-  mtpGetNetworker = (dcID, options = {}) => {
+  mtpGetNetworker = Promise.coroutine(function* (dcID, options = {}) {
     const isUpload = options.fileUpload || options.fileDownload
     const cache = isUpload
       ? this.cache.uploader
@@ -142,31 +142,25 @@ export class ApiManager {
       return networkSetter(authKey, serverSalt)
     }
 
-    const networkGetter = result => {
-      if (cache[dcID]) return cache[dcID]
+    let [authKeyHex, serverSaltHex] = yield this.storage.get(akk, ssk)
 
-      const authKeyHex = result[0]
-      let serverSaltHex = result[1]
-      if (Ln(512, authKeyHex)) {
-        if (!serverSaltHex || serverSaltHex.length !== 16)
-          serverSaltHex = 'AAAAAAAAAAAAAAAA'
-        const authKey = bytesFromHex(authKeyHex)
-        const serverSalt = bytesFromHex(serverSaltHex)
+    if (cache[dcID]) return cache[dcID]
 
-        return networkSetter(authKey, serverSalt)
-      }
+    if (Ln(512, authKeyHex)) {
+      if (!serverSaltHex || serverSaltHex.length !== 16)
+        serverSaltHex = 'AAAAAAAAAAAAAAAA'
+      const authKey = bytesFromHex(authKeyHex)
+      const serverSalt = bytesFromHex(serverSaltHex)
 
-      if (!options.createNetworker)
-        return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 }) //TODO Implement returning real Error
-
-      return this.auth(dcID, this.cache.auth, dcUrl)
-        .then(onDcAuth, netError)
+      return networkSetter(authKey, serverSalt)
     }
 
-    return this.storage
-      .get(akk, ssk)
-      .then(networkGetter)
-  }
+    if (!options.createNetworker)
+      return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 }) //TODO Implement returning real Error
+
+    return this.auth(dcID, this.cache.auth, dcUrl)
+      .then(onDcAuth, netError)
+  })
   mtpInvokeApi(method, params, options = {}) {
     // const self = this
     const deferred = blueDefer()
@@ -177,7 +171,8 @@ export class ApiManager {
         error = { message: error }
       deferred.reject(error)
 
-      if (!options.noErrorBox) { //TODO weird code. `error` changed after `.reject`?
+      if (!options.noErrorBox) {
+        //TODO weird code. `error` changed after `.reject`?
         error.input = method
         error.stack =
           stack ||
@@ -249,7 +244,7 @@ export class ApiManager {
         const restoreObj = {}
         saveKeys.forEach((key, i) => {
           const value = values[i]
-          if (value !== false && value !== undefined)
+          if (value)
             restoreObj[key] = value
         })
         this.storage.noPrefix()

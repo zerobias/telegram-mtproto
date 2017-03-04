@@ -136,9 +136,8 @@ export const TL = (api, mtApi) => {
     storeString(s, field = '') {
       this.debug && console.log('>>>', s, `${ field }:string`)
 
-      if (s === undefined) {
+      if (!s)
         s = ''
-      }
       const sUTF8 = unescape(encodeURIComponent(s))
 
       this.checkLength(sUTF8.length + 8)
@@ -164,9 +163,8 @@ export const TL = (api, mtApi) => {
       if (bytes instanceof ArrayBuffer) {
         bytes = new Uint8Array(bytes)
       }
-      else if (bytes === undefined) {
+      else if (!bytes)
         bytes = []
-      }
       this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
 
       const len = bytes.byteLength || bytes.length

@@ -56,7 +56,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
       this.pendingTimeouts = []
 
-      setInterval(this.checkLongPoll, 10000)
+      setInterval(this.checkLongPoll, 10000) //TODO make configurable interval
       this.checkLongPoll()
 
       if (!offlineInited)
@@ -137,7 +137,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         body  : serializer.getBytes()
       }
 
-      log`MT message`(object, messageID, seqNo)
+      log`MT message`(messageID, object, seqNo)
 
       return this.pushMessage(message, options)
     }
@@ -205,7 +205,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         return this.sendLongPoll()
       }
 
-      storage.get('dc')
+      storage.get('dc') //TODO Not returning promise
         .then(afterGetDc)
     }
 
@@ -327,19 +327,20 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         body  : serializer.getBytes()
       }
 
-      this.sendEncryptedRequest(pingMessage, { timeout: 15000 }).then(result =>
-        this.toggleOffline(false)
-      , () => {
-        console.log(dTime(), 'Delay ', this.checkConnectionPeriod * 1000)
-        this.checkConnectionPromise = smartTimeout(
-          this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
-        this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
-      })
+      this.sendEncryptedRequest(pingMessage, { timeout: 15000 }) //TODO Not returning promise
+        .then(
+        result => this.toggleOffline(false),
+        () => {
+          console.log(dTime(), 'Delay ', this.checkConnectionPeriod * 1000)
+          this.checkConnectionPromise = smartTimeout(
+            this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
+          this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
+        })
     }
 
     toggleOffline(enabled) {
       // console.log('toggle ', enabled, this.dcID, this.iii)
-      if (this.offline !== undefined && this.offline == enabled)
+      if (!!this.offline && this.offline == enabled)
         return false
 
       this.offline = enabled
@@ -569,12 +570,11 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       return encryptFlow(bytes)
     }
 
-    getDecryptedMessage(msgKey, encryptedData) {
-      const getKeyCurry = key => this.getMsgKeyIv(key, false)
-      const cryptoAesCurry = keyIv => CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
-      const decryptFlow = pipeP(getKeyCurry, cryptoAesCurry)
-      return decryptFlow(msgKey)
-    }
+    getDecryptedMessage = Promise.coroutine(function* (msgKey, encryptedData) {
+      const keyIv = yield this.getMsgKeyIv(msgKey, false)
+      const result = yield CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
+      return result
+    })
 
     getRequestUrl = () => chooseServer(this.dcID, this.upload)
 
@@ -763,13 +763,13 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       // console.log('clean start', this.dcID/*, this.sentMessages*/)
       const cleanMessages = (message, msgID) => {
         // console.log('clean iter', msgID, message)
-        if (message.notContentRelated && this.pendingMessages[msgID] === undefined) {
+        if (message.notContentRelated && !this.pendingMessages[msgID]) {
           // console.log('clean notContentRelated', msgID)
           delete this.sentMessages[msgID]
         }
         else if (message.container) {
           for (let i = 0; i < message.inner.length; i++) {
-            if (this.sentMessages[message.inner[i]] !== undefined) {
+            if (this.sentMessages[message.inner[i]]) {
               // console.log('clean failed, found', msgID, message.inner[i], this.sentMessages[message.inner[i]].seq_no)
               notEmpty = true
               return
