@@ -5,7 +5,12 @@
   "plugins": [
     "transform-flow-strip-types",
     "transform-class-properties",
-    ["transform-object-rest-spread", { "useBuiltIns": true }]
+    ["transform-async-to-module-method", {
+      "module": "bluebird",
+      "method": "coroutine"
+    }],
+    ["transform-object-rest-spread", { "useBuiltIns": true }],
+    "closure-elimination"
   ],
   "env": {
     "commonjs": {
