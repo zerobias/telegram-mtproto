@@ -261,7 +261,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       this.sheduleRequest(delay)
     }
 
-    async getMsgKeyIv(msgKey, isOut) {
+    getMsgKeyIv(msgKey, isOut) {
       const authKey = this.authKeyUint8
       const x = isOut
         ? 0
@@ -270,44 +270,46 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       const sha1bText = new Uint8Array(48)
       const sha1cText = new Uint8Array(48)
       const sha1dText = new Uint8Array(48)
-      const promises = Array(4)
+      const promises = {}
 
       sha1aText.set(msgKey, 0)
       sha1aText.set(authKey.subarray(x, x + 32), 16)
-      promises[0] = CryptoWorker.sha1Hash(sha1aText)
+      promises.sha1a = CryptoWorker.sha1Hash(sha1aText)
 
       sha1bText.set(authKey.subarray(x + 32, x + 48), 0)
       sha1bText.set(msgKey, 16)
       sha1bText.set(authKey.subarray(x + 48, x + 64), 32)
-      promises[1] = CryptoWorker.sha1Hash(sha1bText)
+      promises.sha1b = CryptoWorker.sha1Hash(sha1bText)
 
       sha1cText.set(authKey.subarray(x + 64, x + 96), 0)
       sha1cText.set(msgKey, 32)
-      promises[2] = CryptoWorker.sha1Hash(sha1cText)
+      promises.sha1c = CryptoWorker.sha1Hash(sha1cText)
 
       sha1dText.set(msgKey, 0)
       sha1dText.set(authKey.subarray(x + 96, x + 128), 16)
-      promises[3] = CryptoWorker.sha1Hash(sha1dText)
+      promises.sha1d = CryptoWorker.sha1Hash(sha1dText)
 
-      const result = await Promise.all(promises)
+      const onAll = result => {
+        const aesKey = new Uint8Array(32),
+              aesIv = new Uint8Array(32),
+              sha1a = new Uint8Array(result[0]),
+              sha1b = new Uint8Array(result[1]),
+              sha1c = new Uint8Array(result[2]),
+              sha1d = new Uint8Array(result[3])
 
-      const aesKey = new Uint8Array(32),
-            aesIv = new Uint8Array(32),
-            sha1a = new Uint8Array(result[0]),
-            sha1b = new Uint8Array(result[1]),
-            sha1c = new Uint8Array(result[2]),
-            sha1d = new Uint8Array(result[3])
+        aesKey.set(sha1a.subarray(0, 8))
+        aesKey.set(sha1b.subarray(8, 20), 8)
+        aesKey.set(sha1c.subarray(4, 16), 20)
 
-      aesKey.set(sha1a.subarray(0, 8))
-      aesKey.set(sha1b.subarray(8, 20), 8)
-      aesKey.set(sha1c.subarray(4, 16), 20)
+        aesIv.set(sha1a.subarray(8, 20))
+        aesIv.set(sha1b.subarray(0, 8), 12)
+        aesIv.set(sha1c.subarray(16, 20), 20)
+        aesIv.set(sha1d.subarray(0, 8), 24)
 
-      aesIv.set(sha1a.subarray(8, 20))
-      aesIv.set(sha1b.subarray(0, 8), 12)
-      aesIv.set(sha1c.subarray(16, 20), 20)
-      aesIv.set(sha1d.subarray(0, 8), 24)
+        return [aesKey, aesIv]
+      }
 
-      return [aesKey, aesIv]
+      return Promise.all(values(promises)).then(onAll)
     }
 
     checkConnection = event => {
@@ -552,22 +554,27 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         .catch(onRequestFail)
     }
 
-    async getEncryptedMessage(bytes) {
-      const bytesHash = await CryptoWorker.sha1Hash(bytes)
-      const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
-      const keyIv = await this.getMsgKeyIv(msgKey, true)
-      const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
-      return {
+    getEncryptedMessage(bytes) {
+      let msgKey
+      const f1 = CryptoWorker.sha1Hash
+      const f2 = bytesHash => {
+        msgKey = new Uint8Array(bytesHash).subarray(4, 20)
+        return this.getMsgKeyIv(msgKey, true)
+      }
+      const f3 = keyIv => CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
+      const f4 = encryptedBytes => ({
         bytes: encryptedBytes,
         msgKey
-      }
+      })
+      const encryptFlow = pipeP(f1, f2, f3, f4)
+      return encryptFlow(bytes)
     }
 
-    async getDecryptedMessage(msgKey, encryptedData) {
-      const keyIv = await this.getMsgKeyIv(msgKey, false)
-      const result = await CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
+    getDecryptedMessage = Promise.coroutine(function* (msgKey, encryptedData) {
+      const keyIv = yield this.getMsgKeyIv(msgKey, false)
+      const result = yield CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
       return result
-    }
+    })
 
     getRequestUrl = () => chooseServer(this.dcID, this.upload)
 
