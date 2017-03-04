@@ -23,15 +23,17 @@ export const KeyManager = (Serialization, publisKeysHex, publicKeysParsed) => {
     }
   }
 
-  const setPrepared = () => { prepared = true }
+  const prepareRsaKeys = Promise.coroutine(function* () {
+    if (prepared) return
 
-  const prepareRsaKeys = () => prepared
-    ? Promise.resolve()
-    : Promise
-      .map(publisKeysHex, mapPrepare)
-      .then(setPrepared)
+    yield Promise.map(publisKeysHex, mapPrepare)
 
-  const selectRsaKey = fingerprints => () => {
+    prepared = true
+  })
+
+  const selectRsaKeyByFingerPrint = Promise.coroutine(function*  (fingerprints) {
+    yield prepareRsaKeys()
+
     let fingerprintHex, foundKey
     for (let i = 0; i < fingerprints.length; i++) {
       fingerprintHex = strDecToHex(fingerprints[i])
@@ -41,12 +43,7 @@ export const KeyManager = (Serialization, publisKeysHex, publicKeysParsed) => {
     }
 
     return false
-  }
-
-  const selectRsaKeyByFingerPrint = fingerprints =>
-    prepareRsaKeys()
-      .then(selectRsaKey(fingerprints))
-
+  })
   return {
     prepare: prepareRsaKeys,
     select : selectRsaKeyByFingerPrint
