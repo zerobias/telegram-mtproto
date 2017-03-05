@@ -41,15 +41,12 @@ const matchProtect =
       apiRecall,
       deferResolve,
       mtpInvokeApi,
-      mtpGetNetworker,
       storage
     ) =>
       matched({
         invoke   : mtpInvokeApi,
         throwNext: () => rejectPromise(error),
         reject   : rejectPromise,
-        getNet   : mtpGetNetworker,
-        error,
         options,
         dcID,
         emit,

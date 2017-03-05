@@ -26,6 +26,11 @@ import { type TLSchema } from '../../tl/types'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 import configValidator from './config-validation'
+import Request from './request'
+
+import type { Bytes, PublicKey, ApiConfig, ConfigType,
+  LeftOptions, AsyncStorage, NetworkerType, Cache } from './index.h'
+
 const api57 = require('../../../schema/api-57.json')
 const mtproto57 = require('../../../schema/mtproto-57.json')
 
@@ -54,66 +59,7 @@ const publisKeysHex = [{ //TODO Move this to ApiManager config
   exponent: '010001'
 }]
 
-type Bytes = number[]
 
-type PublicKey = {
-  modulus: string,
-  exponent: string
-}
-
-type ApiConfig = {
-  invokeWithLayer?: number,
-  layer          ?: number,
-  initConnection ?: number,
-  api_id         ?: number,
-  device_model   ?: string,
-  system_version ?: string,
-  app_version    ?: string,
-  lang_code      ?: string
-}
-
-type ConfigType = {
-  server?: {},
-  api?: ApiConfig,
-  app?: {
-    storage?: AsyncStorage,
-    publicKeys?: PublicKey[]
-  },
-  schema?: TLSchema,
-  mtSchema?: TLSchema,
-}
-
-type LeftOptions = {
-  dcID?: number,
-  createNetworker?: boolean,
-  fileDownload?: boolean,
-  fileUpload?: boolean
-}
-
-type AsyncStorage = {
-  get(...keys: string[]): Promise<any[]>,
-  set(obj: Object): Promise<Object>,
-  remove(...keys: string[]): Promise<any>,
-  clear(): Promise<{}>,
-  setPrefix(): void,
-  noPrefix(): void
-}
-
-type Cached<Model> = {
-  [id: number]: Model
-}
-
-type NetworkerType = {
-  wrapApiCall: (method: string, params?: Object, options?: LeftOptions) => Promise<any>
-}
-
-type Cache = {
-  uploader: Cached<NetworkerType>,
-  downloader: Cached<NetworkerType>,
-  auth: Cached<*>,
-  servers: Cached<*>,
-  keysParsed: Cached<PublicKey>,
-}
 
 export class ApiManager {
   emitter = new EventEmitter({
@@ -181,6 +127,7 @@ export class ApiManager {
     this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
                                          storage, this.emit)
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
+    this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
     const apiManager = this.mtpInvokeApi
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
@@ -193,7 +140,7 @@ export class ApiManager {
       this.cache.downloader[dc] = networker
       return networker
     }
-  async mtpGetNetworker(dcID: number, options: LeftOptions = {}): Promise<NetworkerType> {
+  mtpGetNetworker = async (dcID: number, options: LeftOptions = {}): Promise<NetworkerType> => {
     // const isUpload = options.fileUpload || options.fileDownload
     // const cache = isUpload
     //   ? this.cache.uploader
@@ -290,50 +237,7 @@ export class ApiManager {
 
     await this.initConnection()
 
-    const requestThunk = waitTime => setTimeout(performRequest, waitTime * 1e3, cachedNetworker)
-
-
-    const performRequest = (networker: NetworkerType) =>
-      networker
-        .wrapApiCall(method, params, options)
-        .catch({ code: 303 }, async (err: MTError) => {
-
-          const newDcID = err.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2]
-          if (newDcID === dcID) return Promise.reject(err)
-          if (options.dcID)
-            options.dcID = newDcID
-          else
-            await this.storage.set('dc', newDcID)
-          const newNetworker = await this.mtpGetNetworker(newDcID, options)
-          //NOTE Shouldn't we must reassign current networker/cachedNetworker?
-          return newNetworker.wrapApiCall(method, params, options)
-        })
-        .catch({ code: 420 }, async (err: MTError) => {
-          const waitTime = +err.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10
-          console.error(`Flood error! It means that mtproto server bans you on ${waitTime} seconds`)
-          return waitTime > 60
-            ? Promise.reject(err)
-            : delayedCall(
-              networker.wrapApiCall,
-              waitTime * 1e3,
-              method, params, options)
-        })
-        // .catch({ code: 500, type: 'MSG_WAIT_FAILED' }, async (err: MTError) => {
-
-        // })
-        .then(
-          deferred.resolve,
-          error => {
-            const deferResolve = deferred.resolve
-            const apiSavedNet = () => cachedNetworker = networker
-            const apiRecall = networker => networker.wrapApiCall(method, params, options)
-            console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
-
-            return switchErrors(error, options, dcID, baseDcID)(
-              error, options, dcID, this.emit, rejectPromise, requestThunk,
-              apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
-              this.mtpGetNetworker, this.storage)
-          })
+    const requestThunk = waitTime => delayedCall(req.performRequest, +waitTime * 1e3)
 
     const dcID = options.dcID
       ? options.dcID
@@ -341,9 +245,36 @@ export class ApiManager {
 
     const networker = await this.mtpGetNetworker(dcID, options)
 
+    const cfg = {
+      networker,
+      dc          : dcID,
+      storage     : this.storage,
+      getNetworker: this.mtpGetNetworker,
+      netOpts     : options
+    }
+    const req = new Request(cfg, method, params)
+
     cachedNetworker = networker
-    performRequest(networker)
+
+    req.performRequest()
+      .then(
+        deferred.resolve,
+        error => {
+          const deferResolve = deferred.resolve
+          const apiSavedNet = () => cachedNetworker = networker
+          const apiRecall = networker => {
+            req.config.networker = networker
+            return req.performRequest()
+          }
+          console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
+
+          return switchErrors(error, options, dcID, baseDcID)(
+            error, options, dcID, this.emit, rejectPromise, requestThunk,
+            apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
+            this.storage)
+        })
       .catch(rejectPromise)
+
     return deferred.promise
   }
   setUserAuth = (dcID: number, userAuth: any) => {
