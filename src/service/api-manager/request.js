@@ -33,21 +33,20 @@ class Request {
     this.error420 = this.error420.bind(this)
     this.initNetworker = this.initNetworker.bind(this)
   }
-  initNetworker = async (): Promise<NetworkerType> => {
+  initNetworker = (): Promise<NetworkerType> => {
     if (!this.config.networker) {
       const { getNetworker, netOpts, dc } = this.config
-      const newNetworker = await getNetworker(dc, netOpts)
-      this.config.networker = newNetworker
+      return getNetworker(dc, netOpts)
+        .then(this.saveNetworker)
     }
-    return this.config.networker
+    return Promise.resolve(this.config.networker)
   }
-  performRequest = async () => {
-    const networker = await this.initNetworker()
-    return networker
-      .wrapApiCall(this.method, this.params, this.config.netOpts)
-      .catch({ code: 303 }, this.error303)
-      .catch({ code: 420 }, this.error420)
-  }
+  saveNetworker = (networker: NetworkerType) => this.config.networker = networker
+  performRequest = () => this.initNetworker().then(this.requestWith)
+  requestWith = (networker: NetworkerType) => networker
+    .wrapApiCall(this.method, this.params, this.config.netOpts)
+    .catch({ code: 303 }, this.error303)
+    .catch({ code: 420 }, this.error420)
   error303(err: MTError) {
     const matched = err.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)
     if (!matched || matched.length < 2) return Promise.reject(err)

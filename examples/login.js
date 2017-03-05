@@ -14,8 +14,6 @@ const login = async () => {
   try {
     const phone = await inputField('phone')
     console.log(phone)
-    await telegram('help.getNearestDc', {},
-      { dcID: 2, createNetworker: true })
     const { phone_code_hash } = await telegram('auth.sendCode', {
             phone_number  : phone,
             current_number: false,
