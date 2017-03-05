@@ -27,18 +27,19 @@ export const dcList = ValueStoreMap()
 const flatProps = pipe(flip(props), unapply)
 
 export const AsyncStorage = () => {
-  let store = {}
+  const store = new Map
 
-  const flatGet = flatProps(store)
-  const set = obj => store = { ...store, ...obj }
-  const remove = keys => store = omit(keys, store)
-  const clr = () => store = {}
+  const get = key => store.get(key)
+  const set = (key, val) => store.set(key, val)
+  const remove = keys => keys.map(e => store.delete(e))
+  const clr = () => store.clear()
   return {
-    get     : (...keys) => Promise.resolve(flatGet(...keys)),
-    set     : obj => Promise.resolve(set(obj)),
+    get     : (key) => Promise.resolve(get(key)),
+    set     : (key, val) => Promise.resolve(set(key, val)),
     remove  : (...keys) => Promise.resolve(remove(keys)),
     clear   : () => Promise.resolve(clr()),
     noPrefix: () => ({}),
+    store
   }
 }
 

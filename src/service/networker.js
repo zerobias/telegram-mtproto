@@ -1,3 +1,5 @@
+//@flow
+
 import Promise from 'bluebird'
 
 import { pipeP, is, values, mapObjIndexed } from 'ramda'
@@ -717,11 +719,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
     applyServerSalt(newServerSalt) {
       const serverSalt = longToBytes(newServerSalt)
-
-      const storeObj = {
-        [`dc${ this.dcID }_server_salt`]: bytesToHex(serverSalt)
-      }
-      storage.set(storeObj)
+      storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
 
       this.serverSalt = serverSalt
       return true
@@ -933,13 +931,13 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           const deferred = sentMessage.deferred
           if (message.result._ == 'rpc_error') {
             const error = this.processError(message.result)
-            console.log(dTime(), 'Rpc error', error)
+            log`ERROR, Rpc error`('%O', error)
             if (deferred) {
               deferred.reject(error)
             }
           } else {
             if (deferred) {
-              log`Rpc response`(message.result)
+              log`Rpc response`('%O', message.result)
               /*if (debug) {
                 console.log(dTime(), 'Rpc response', message.result)
               } else {

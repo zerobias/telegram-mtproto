@@ -1,3 +1,5 @@
+//@flow
+
 import Promise from 'bluebird'
 import { pathEq, allPass, has } from 'ramda'
 
@@ -8,8 +10,10 @@ import { generateID } from '../time-manager'
 const is404 = pathEq(['response', 'status'], 404)
 const notError = allPass([has('message'), has('type')])
 
-const SendPlain = ({ Serialization, Deserialization }) => {
-  const onlySendPlainReq = (url, requestBuffer) => {
+export type TLs = { Serialization: any, Deserialization: any }
+
+const SendPlain = ({ Serialization, Deserialization }: TLs) => {
+  const onlySendPlainReq = (url: string, requestBuffer: ArrayBuffer) => {
     const requestLength = requestBuffer.byteLength,
           requestArray = new Int32Array(requestBuffer)
 
@@ -18,7 +22,7 @@ const SendPlain = ({ Serialization, Deserialization }) => {
     header.storeLong(generateID(), 'msg_id') // Msg_id
     header.storeInt(requestLength, 'request_length')
 
-    const headerBuffer = header.getBuffer(),
+    const headerBuffer: ArrayBuffer = header.getBuffer(),
           headerArray = new Int32Array(headerBuffer)
     const headerLength = headerBuffer.byteLength
 
@@ -71,7 +75,7 @@ const SendPlain = ({ Serialization, Deserialization }) => {
     return deserializer
   }
 
-  const sendPlainReq = (url, requestBuffer) =>
+  const sendPlainReq = (url: string, requestBuffer: ArrayBuffer) =>
     onlySendPlainReq(url, requestBuffer)
       .then(
         onlySendPlainRes,

@@ -1,20 +1,28 @@
+//@flow
+
 import Promise from 'bluebird'
 import EventEmitter from 'eventemitter2'
 
 import { pathSatisfies, complement, isNil, unless, is,
   always, propEq, has } from 'ramda'
 
+import Logger from '../../util/log'
+const debug = Logger`api-manager`
+
 import NetworkerFabric from '../networker'
-import Auth from '../authorizer'
+import Auth, { type Args } from '../authorizer'
 import { PureStorage } from '../../store'
 import blueDefer from '../../util/defer'
 import { dTime } from '../time-manager'
 import { chooseServer } from '../dc-configurator'
 import TL from '../../tl'
 import KeyManager from '../rsa-keys-manger'
+import { AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
+import { type TLs } from '../authorizer/send-plain-req'
+import { type TLSchema } from '../../tl/types'
 import { switchErrors } from './error-cases'
 import configValidator from './config-validation'
 const api57 = require('../../../schema/api-57.json')
@@ -46,6 +54,55 @@ const publisKeysHex = [{ //TODO Move this to ApiManager config
   exponent: '010001'
 }]
 
+type Bytes = number[]
+
+type PublicKey = {
+  modulus: string,
+  exponent: string
+}
+
+type ApiConfig = {
+  invokeWithLayer?: number,
+  layer          ?: number,
+  initConnection ?: number,
+  api_id         ?: number,
+  device_model   ?: string,
+  system_version ?: string,
+  app_version    ?: string,
+  lang_code      ?: string
+}
+
+type ConfigType = {
+  server?: {},
+  api?: ApiConfig,
+  app?: {
+    storage?: AsyncStorage,
+    publicKeys?: PublicKey[]
+  },
+  schema?: TLSchema,
+  mtSchema?: TLSchema,
+}
+
+type LeftOptions = {
+  dcID?: number,
+  createNetworker?: boolean,
+  fileDownload?: boolean,
+  fileUpload?: boolean
+}
+
+type AsyncStorage = {
+  get(...keys: string[]): Promise<any[]>,
+  set(obj: Object): Promise<Object>,
+  remove(...keys: string[]): Promise<any>,
+  clear(): Promise<{}>,
+  setPrefix(): void,
+  noPrefix(): void
+}
+
+type Cached<Model> = {
+  [id: number]: Model
+}
+
 export class ApiManager {
   emitter = new EventEmitter({
     wildcard: true
@@ -59,7 +116,7 @@ export class ApiManager {
     servers   : {},
     keysParsed: {}
   }
-  static apiConfig = {
+  static apiConfig: ApiConfig = {
     invokeWithLayer: 0xda9b0d0d,
     layer          : 57,
     initConnection : 0x69796de9,
@@ -69,7 +126,17 @@ export class ApiManager {
     app_version    : '1.0.1',
     lang_code      : 'en'
   }
-
+  apiConfig: ApiConfig
+  publicKeys: PublicKey[]
+  storage: AsyncStorage
+  TL: TLs
+  serverConfig: {}
+  schema: TLSchema
+  mtSchema: TLSchema
+  keyManager: Args
+  networkFabric: any
+  auth: any
+  chooseServer: (dcID: number, upload?: boolean) => {}
   constructor({
       server = {},
       api = {},
@@ -79,7 +146,7 @@ export class ApiManager {
       } = {},
       schema = api57,
       mtSchema = mtproto57,
-    } = {}) {
+    }: ConfigType = {}) {
     this.apiConfig = { ...ApiManager.apiConfig, ...api }
     const fullCfg = {
       server,
@@ -95,32 +162,32 @@ export class ApiManager {
     this.schema = schema
     this.mtSchema = mtSchema
     this.chooseServer = chooseServer(this.cache.servers, server)
-    this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
-    this.setUserAuth = this.setUserAuth.bind(this)
 
     this.TL = TL(schema, mtSchema)
     this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
     this.auth = Auth(this.TL, this.keyManager)
     this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
                                          storage, this.emit)
-
+    this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     const apiManager = this.mtpInvokeApi
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
     apiManager.storage = storage
     return apiManager
   }
-  networkSetter = (cache, dc, options) =>
-    (authKey, serverSalt) => {
+  networkSetter = (dc: number, options: LeftOptions) =>
+    (authKey: Bytes, serverSalt: Bytes) => {
       const networker = new this.networkFabric(dc, authKey, serverSalt, options)
-      cache[dc] = networker
+      this.cache.downloader[dc] = networker
       return networker
     }
-  mtpGetNetworker = Promise.coroutine(function* (dcID, options = {}) {
-    const isUpload = options.fileUpload || options.fileDownload
-    const cache = isUpload
-      ? this.cache.uploader
-      : this.cache.downloader
+  async mtpGetNetworker(dcID: number, options: LeftOptions = {}) {
+    // const isUpload = options.fileUpload || options.fileDownload
+    // const cache = isUpload
+    //   ? this.cache.uploader
+    //   : this.cache.downloader
+
+    const cache = this.cache.downloader
     if (!dcID) throw new Error('get Networker without dcID')
 
     if (has(dcID, cache)) return cache[dcID]
@@ -128,21 +195,12 @@ export class ApiManager {
     const akk = `dc${  dcID  }_auth_key`
     const ssk = `dc${  dcID  }_server_salt`
 
-    const dcUrl = this.chooseServer(dcID, isUpload)
+    const dcUrl = this.chooseServer(dcID, false)
 
-    const networkSetter = this.networkSetter(cache, dcID, options)
+    const networkSetter = this.networkSetter(dcID, options)
 
-    const onDcAuth = ({ authKey, serverSalt }) => {
-      const storeObj = {
-        [akk]: bytesToHex(authKey),
-        [ssk]: bytesToHex(serverSalt)
-      }
-      this.storage.set(storeObj)
-
-      return networkSetter(authKey, serverSalt)
-    }
-
-    let [authKeyHex, serverSaltHex] = yield this.storage.get(akk, ssk)
+    const authKeyHex = await this.storage.get(akk)
+    let serverSaltHex = await this.storage.get(ssk)
 
     if (cache[dcID]) return cache[dcID]
 
@@ -156,25 +214,44 @@ export class ApiManager {
     }
 
     if (!options.createNetworker)
-      return Promise.reject({ type: 'AUTH_KEY_EMPTY', code: 401 }) //TODO Implement returning real Error
+      throw new AuthKeyError()
 
-    return this.auth(dcID, this.cache.auth, dcUrl)
-      .then(onDcAuth, netError)
-  })
-  mtpInvokeApi(method, params, options = {}) {
+    let auth
+    try {
+      auth = await this.auth(dcID, this.cache.auth, dcUrl)
+    } catch (error) {
+      return netError(error)
+    }
+
+    const { authKey, serverSalt } = auth
+
+    await this.storage.set(akk, bytesToHex(authKey))
+    await this.storage.set(ssk, bytesToHex(serverSalt))
+
+    return networkSetter(authKey, serverSalt)
+
+    //  .then(onDcAuth, netError)
+  }
+  mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
     // const self = this
+    const defError = new Error()
+    const stack = defError.stack || 'empty stack'
     const deferred = blueDefer()
-    const rejectPromise = error => {
+    const rejectPromise = (error: any) => {
+      let err
       if (!error)
-        error = { type: 'ERROR_EMPTY' }
+        err = { type: 'ERROR_EMPTY', input: '' }
       else if (!is(Object, error))
-        error = { message: error }
-      deferred.reject(error)
+        err = { message: error }
+      else err = error
+      deferred.reject(err)
 
       if (!options.noErrorBox) {
         //TODO weird code. `error` changed after `.reject`?
-        error.input = method
-        error.stack =
+        //$FlowIssue
+        err.input = method
+        //$FlowIssue
+        err.stack =
           stack ||
           hasPath(['originalError', 'stack'], error) ||
           error.stack ||
@@ -182,16 +259,28 @@ export class ApiManager {
         this.emit('error.invoke', error)
       }
     }
-    let dcID,
-        cachedNetworker
+    let cachedNetworker
 
-    const cachedNetThunk = () => performRequest(cachedNetworker)
-    const requestThunk = waitTime => setTimeout(cachedNetThunk, waitTime * 1e3)
+    if (!isAnyNetworker(this)) {
+      const storedBaseDc = await this.storage.get('dc')
+      const baseDc = storedBaseDc || baseDcID
+      const opts = {
+        dcID           : baseDc,
+        createNetworker: true
+      }
+      const networker = await this.mtpGetNetworker(baseDc, opts)
+      const nearestDc = await networker.wrapApiCall(
+        'help.getNearestDc', {}, opts)
+      const { nearest_dc } = nearestDc
+      await this.storage.set('dc', nearest_dc)
+      debug`nearest Dc`('%O', nearestDc)
+    }
 
-    const defError = new Error()
-    const stack = defError.stack || 'empty stack'
+    const requestThunk = waitTime => setTimeout(performRequest, waitTime * 1e3, cachedNetworker)
+
+
     const performRequest = networker =>
-      (cachedNetworker = networker)
+      networker
         .wrapApiCall(method, params, options)
         .then(
           deferred.resolve,
@@ -206,23 +295,19 @@ export class ApiManager {
               apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
               this.mtpGetNetworker, this.storage)
           })
-    const getDcNetworker = (baseDcID = 2) =>
-      this.mtpGetNetworker(dcID = defDc(baseDcID), options)
 
-    dcID = options.dcID || baseDcID
-    if (dcID)
-      Promise.resolve(this.mtpGetNetworker(dcID, options))
-        .then(performRequest)
-        .catch(rejectPromise)
-    else
-      this.storage.get('dc')
-        .then(getDcNetworker)
-        .then(performRequest)
-        .catch(rejectPromise)
+    const dcID = options.dcID
+      ? options.dcID
+      : await this.storage.get('dc')
 
+    const networker = await this.mtpGetNetworker(dcID, options)
+
+    cachedNetworker = networker
+    performRequest(networker)
+      .catch(rejectPromise)
     return deferred.promise
   }
-  setUserAuth = (dcID, userAuth) => {
+  setUserAuth = (dcID: number, userAuth: any) => {
     const fullUserAuth = { dcID, ...userAuth }
     this.storage.set({
       dc       : dcID,
@@ -230,29 +315,31 @@ export class ApiManager {
     })
     this.emit('auth.dc', { dc: dcID, auth: userAuth })
   }
-  mtpClearStorage = function() {
+  async mtpClearStorage() {
     const saveKeys = []
     for (let dcID = 1; dcID <= 5; dcID++) {
       saveKeys.push(`dc${  dcID  }_auth_key`)
       saveKeys.push(`t_dc${  dcID  }_auth_key`)
     }
     this.storage.noPrefix() //TODO Remove noPrefix
-    return this.storage
-      .get(saveKeys)
-      .tap(this.storage.clear)
-      .then(values => {
-        const restoreObj = {}
-        saveKeys.forEach((key, i) => {
-          const value = values[i]
-          if (value)
-            restoreObj[key] = value
-        })
-        this.storage.noPrefix()
-        return restoreObj
-      })
-      .then(this.storage.set)
+
+    const values = await this.storage.get(...saveKeys)
+
+    await this.storage.clear()
+
+    const restoreObj = {}
+    saveKeys.forEach((key, i) => {
+      const value = values[i]
+      if (value)
+        restoreObj[key] = value
+    })
+    this.storage.noPrefix()
+
+    return this.storage.set(restoreObj) //TODO definitely broken
   }
 }
+
+const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0
 
 const netError = error => {
   console.log('Get networker error', error, error.stack)

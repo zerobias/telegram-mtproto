@@ -108,9 +108,9 @@ const migrate = ({ error, dcID, options, reject,
   if (options.dcID)
     options.dcID = newDcID
   else
-    storage.set({ dc: /*baseDcID =*/ newDcID })
+    storage.set('dc', newDcID)
 
-  getNet(newDcID, options)
+  getNet(newDcID, options) //TODO not returning promise
     .then(apiRecall)
     .then(deferResolve)
     .catch(reject)

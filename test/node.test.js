@@ -36,8 +36,8 @@ test(`Connection test`, async t => {
     let res, i = 0
     while (i<5) {
       try {
-        res = await telegram('help.getNearestDc', {}, { dcID: 2, createNetworker: true })
-        console.log('getNearestDc', res)
+        // res = await telegram('help.getNearestDc', {}, { dcID: 2, createNetworker: true })
+        // console.log('getNearestDc', res)
         const { phone_code_hash } = await telegram('auth.sendCode', {
               phone_number  : phone.num,
               current_number: false,
@@ -56,7 +56,7 @@ test(`Connection test`, async t => {
         t.ok(res, 'result is ok')
         break
       } catch (err) {
-        console.log('err', res)
+        console.log('err', err)
       }
       i++
     }

@@ -1,3 +1,5 @@
+//@flow
+
 import Promise from 'bluebird'
 
 import blueDefer from '../../util/defer'
@@ -15,7 +17,7 @@ import { bpe, str2bigInt, one,
 
 // import { ErrorBadResponse } from '../../error'
 
-import SendPlainReq from './send-plain-req'
+import SendPlainReq, { type TLs } from './send-plain-req'
 
 const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' +
   '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' +
@@ -50,10 +52,53 @@ const tmpAesIv = (serverNonce, newNonce) => {
   return key1.slice(12).concat(key2, arr3)
 }
 
-export const Auth = ({ Serialization, Deserialization }, { select, prepare }) => {
+type Defer = {
+  resolve: (res: any) => void,
+  reject: (res: any) => void,
+  promise: Promise<any>
+}
+
+type Cached = {[id: number]: Defer}
+
+export type Args = {
+  select: () => Promise<string>,
+  prepare: () => Promise<void>
+}
+
+type Bytes = number[]
+
+type AuthBasic = {
+  dcID: number,
+  dcUrl: string,
+  nonce: Bytes,
+  deferred: Defer,
+  serverNonce: Bytes,
+  pq: Bytes,
+  fingerprints: Bytes,
+  p: number,
+  q: number,
+  publicKey: {
+    fingerprint: string
+  },
+  newNonce: number[],
+  b: Bytes,
+  g: number,
+  gA: any,
+  retry: number,
+  dhPrime: any,
+  serverTime: number,
+  localTime: number,
+  tmpAesKey: Bytes,
+  tmpAesIv: Bytes,
+  authKeyID: Bytes,
+  authKey: string,
+  serverSalt: Bytes
+}
+
+export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare }: Args) => {
   const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
 
-  function mtpSendReqPQ(auth) {
+  function mtpSendReqPQ(auth: AuthBasic) {
     const deferred = auth.deferred
     asyncLog('Send req_pq', bytesToHex(auth.nonce))
 
@@ -112,7 +157,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       })
   }
 
-  function mtpSendReqDhParams(auth) {
+  function mtpSendReqDhParams(auth: AuthBasic) {
     const deferred = auth.deferred
 
     auth.newNonce = new Array(32)
@@ -185,7 +230,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       .then(afterReqDH, deferred.reject)
   }
 
-  function mtpDecryptServerDhDataAnswer(auth, encryptedAnswer) {
+  function mtpDecryptServerDhDataAnswer(auth: AuthBasic, encryptedAnswer) {
     auth.tmpAesKey = tmpAesKey(auth.serverNonce, auth.newNonce)
     auth.tmpAesIv = tmpAesIv(auth.serverNonce, auth.newNonce)
 
@@ -292,7 +337,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
     return true
   }
 
-  function mtpSendSetClientDhParams(auth) {
+  function mtpSendSetClientDhParams(auth: AuthBasic) {
     const deferred = auth.deferred
     const gBytes = bytesFromHex(auth.g.toString(16))
 
@@ -400,7 +445,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       .then(onGb)
   }
 
-  function mtpAuth(dcID, cached, dcUrl) {
+  function mtpAuth(dcID: number, cached: Cached, dcUrl: string) {
     if (cached[dcID])
       return cached[dcID].promise
     asyncLog('mtpAuth')
@@ -412,7 +457,7 @@ export const Auth = ({ Serialization, Deserialization }, { select, prepare }) =>
       return Promise.reject(
         new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`))
 
-    const auth = {
+    const auth: any = {
       dcID,
       dcUrl,
       nonce,

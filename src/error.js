@@ -38,3 +38,9 @@ export class TypeBufferIntError extends MTError {
     this.typeBuffer = ctx
   }
 }
+
+export class AuthKeyError extends MTError {
+  constructor() {
+    super(401, 'AUTH_KEY_EMPTY', '')
+  }
+}

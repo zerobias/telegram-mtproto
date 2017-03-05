@@ -22,7 +22,7 @@ type TLConstruct = {
   param: TLParam[]
 }
 
-type TLSchema = {
+export type TLSchema = {
   constructors: TLConstruct[],
   methods: any[],
   constructorsIndex?: number[]
@@ -115,7 +115,6 @@ const toUint32 = (buf: Buffer) => {
   if (!isNode) //TODO browser behavior not equals, why?
     return new Uint32Array( buf )
   if (buf.readUInt32LE) {
-    //$FlowIssue
     ln = buf.byteLength / 4
     res = new Uint32Array( ln )
     for (let i = 0; i < ln; i++)
