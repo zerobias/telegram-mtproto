@@ -300,7 +300,7 @@ export class ApiManager {
     const restoreObj = {}
     saveKeys.forEach((key, i) => {
       const value = values[i]
-      if (value)
+      if (value !== false && value !== undefined)
         restoreObj[key] = value
     })
     this.storage.noPrefix()

@@ -111,7 +111,7 @@ export function convertToArrayBuffer(bytes) {
   if (bytes instanceof ArrayBuffer) {
     return bytes
   }
-  if (!!bytes.buffer &&
+  if (bytes.buffer !== undefined &&
     bytes.buffer.byteLength == bytes.length * bytes.BYTES_PER_ELEMENT) {
     return bytes.buffer
   }
@@ -119,7 +119,7 @@ export function convertToArrayBuffer(bytes) {
 }
 
 export function convertToUint8Array(bytes) {
-  if (bytes.buffer)
+  if (bytes.buffer !== undefined)
     return bytes
   return new Uint8Array(bytes)
 }

@@ -344,7 +344,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
     toggleOffline(enabled) {
       // console.log('toggle ', enabled, this.dcID, this.iii)
-      if (!!this.offline && this.offline == enabled)
+      if (!this.offline !== undefined && this.offline == enabled)
         return false
 
       this.offline = enabled
@@ -763,13 +763,13 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       // console.log('clean start', this.dcID/*, this.sentMessages*/)
       const cleanMessages = (message, msgID) => {
         // console.log('clean iter', msgID, message)
-        if (message.notContentRelated && !this.pendingMessages[msgID]) {
+        if (message.notContentRelated && this.pendingMessages[msgID] === undefined) {
           // console.log('clean notContentRelated', msgID)
           delete this.sentMessages[msgID]
         }
         else if (message.container) {
           for (let i = 0; i < message.inner.length; i++) {
-            if (this.sentMessages[message.inner[i]]) {
+            if (this.sentMessages[message.inner[i]] !== undefined) {
               // console.log('clean failed, found', msgID, message.inner[i], this.sentMessages[message.inner[i]].seq_no)
               notEmpty = true
               return

@@ -136,7 +136,7 @@ export const TL = (api, mtApi) => {
     storeString(s, field = '') {
       this.debug && console.log('>>>', s, `${ field }:string`)
 
-      if (!s)
+      if (s === undefined)
         s = ''
       const sUTF8 = unescape(encodeURIComponent(s))
 
@@ -163,7 +163,7 @@ export const TL = (api, mtApi) => {
       if (bytes instanceof ArrayBuffer) {
         bytes = new Uint8Array(bytes)
       }
-      else if (!bytes)
+      else if (bytes === undefined)
         bytes = []
       this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
 
