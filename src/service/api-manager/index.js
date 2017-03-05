@@ -3,8 +3,8 @@
 import Promise from 'bluebird'
 import EventEmitter from 'eventemitter2'
 
-import { pathSatisfies, complement, isNil, unless, is,
-  always, propEq, has } from 'ramda'
+import { pathSatisfies, complement, isNil, is,
+  propEq, has } from 'ramda'
 
 import Logger from '../../util/log'
 const debug = Logger`api-manager`
@@ -17,19 +17,19 @@ import { dTime } from '../time-manager'
 import { chooseServer } from '../dc-configurator'
 import TL from '../../tl'
 import KeyManager from '../rsa-keys-manger'
-import { AuthKeyError } from '../../error'
+import { MTError, AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
 import { type TLs } from '../authorizer/send-plain-req'
 import { type TLSchema } from '../../tl/types'
 import { switchErrors } from './error-cases'
+import { delayedCall } from '../../util/smart-timeout'
 import configValidator from './config-validation'
 const api57 = require('../../../schema/api-57.json')
 const mtproto57 = require('../../../schema/mtproto-57.json')
 
 const hasPath = pathSatisfies( complement( isNil ) )
-const defDc = unless( is(Number), always(2) )
 
 const baseDcID = 2
 
@@ -103,13 +103,25 @@ type Cached<Model> = {
   [id: number]: Model
 }
 
+type NetworkerType = {
+  wrapApiCall: (method: string, params?: Object, options?: LeftOptions) => Promise<any>
+}
+
+type Cache = {
+  uploader: Cached<NetworkerType>,
+  downloader: Cached<NetworkerType>,
+  auth: Cached<*>,
+  servers: Cached<*>,
+  keysParsed: Cached<PublicKey>,
+}
+
 export class ApiManager {
   emitter = new EventEmitter({
     wildcard: true
   })
   on = this.emitter.on.bind(this.emitter)
   emit = this.emitter.emit.bind(this.emitter)
-  cache = {
+  cache: Cache = {
     uploader  : {},
     downloader: {},
     auth      : {},
@@ -176,12 +188,12 @@ export class ApiManager {
     return apiManager
   }
   networkSetter = (dc: number, options: LeftOptions) =>
-    (authKey: Bytes, serverSalt: Bytes) => {
+    (authKey: Bytes, serverSalt: Bytes): NetworkerType => {
       const networker = new this.networkFabric(dc, authKey, serverSalt, options)
       this.cache.downloader[dc] = networker
       return networker
     }
-  async mtpGetNetworker(dcID: number, options: LeftOptions = {}) {
+  async mtpGetNetworker(dcID: number, options: LeftOptions = {}): Promise<NetworkerType> {
     // const isUpload = options.fileUpload || options.fileDownload
     // const cache = isUpload
     //   ? this.cache.uploader
@@ -229,8 +241,23 @@ export class ApiManager {
     await this.storage.set(ssk, bytesToHex(serverSalt))
 
     return networkSetter(authKey, serverSalt)
-
-    //  .then(onDcAuth, netError)
+  }
+  async initConnection() {
+    if (!isAnyNetworker(this)) {
+      const storedBaseDc = await this.storage.get('dc')
+      const baseDc = storedBaseDc || baseDcID
+      const opts = {
+        dcID           : baseDc,
+        createNetworker: true
+      }
+      const networker = await this.mtpGetNetworker(baseDc, opts)
+      const nearestDc = await networker.wrapApiCall(
+        'help.getNearestDc', {}, opts)
+      const { nearest_dc } = nearestDc
+      await this.storage.set('dc', nearest_dc)
+      //$FlowIssue
+      debug`nearest Dc`('%O', nearestDc)
+    }
   }
   mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
     // const self = this
@@ -261,27 +288,39 @@ export class ApiManager {
     }
     let cachedNetworker
 
-    if (!isAnyNetworker(this)) {
-      const storedBaseDc = await this.storage.get('dc')
-      const baseDc = storedBaseDc || baseDcID
-      const opts = {
-        dcID           : baseDc,
-        createNetworker: true
-      }
-      const networker = await this.mtpGetNetworker(baseDc, opts)
-      const nearestDc = await networker.wrapApiCall(
-        'help.getNearestDc', {}, opts)
-      const { nearest_dc } = nearestDc
-      await this.storage.set('dc', nearest_dc)
-      debug`nearest Dc`('%O', nearestDc)
-    }
+    await this.initConnection()
 
     const requestThunk = waitTime => setTimeout(performRequest, waitTime * 1e3, cachedNetworker)
 
 
-    const performRequest = networker =>
+    const performRequest = (networker: NetworkerType) =>
       networker
         .wrapApiCall(method, params, options)
+        .catch({ code: 303 }, async (err: MTError) => {
+
+          const newDcID = err.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)[2]
+          if (newDcID === dcID) return Promise.reject(err)
+          if (options.dcID)
+            options.dcID = newDcID
+          else
+            await this.storage.set('dc', newDcID)
+          const newNetworker = await this.mtpGetNetworker(newDcID, options)
+          //NOTE Shouldn't we must reassign current networker/cachedNetworker?
+          return newNetworker.wrapApiCall(method, params, options)
+        })
+        .catch({ code: 420 }, async (err: MTError) => {
+          const waitTime = +err.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10
+          console.error(`Flood error! It means that mtproto server bans you on ${waitTime} seconds`)
+          return waitTime > 60
+            ? Promise.reject(err)
+            : delayedCall(
+              networker.wrapApiCall,
+              waitTime * 1e3,
+              method, params, options)
+        })
+        // .catch({ code: 500, type: 'MSG_WAIT_FAILED' }, async (err: MTError) => {
+
+        // })
         .then(
           deferred.resolve,
           error => {

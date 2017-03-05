@@ -1,10 +1,12 @@
+//@flow
+
 import Promise from 'bluebird'
 
 const cancelToken = Symbol('cancel token')
 
 const timeoutRefs = new WeakSet
 
-const pause = delay => new Promise(r => setTimeout(r, delay))
+const pause = (delay: number): Promise<void> => new Promise(r => setTimeout(r, delay))
 
 export const smartTimeout = (fn, delay = 0, ...args) => {
   const newToken = Symbol('cancel id')
@@ -27,12 +29,18 @@ smartTimeout.cancel = promise => {
     : false
 }
 
-smartTimeout.immediate = (fn, ...args) =>
+export const immediate = (fn, ...args) =>
   Promise
     .resolve()
     .then(() => fn(...args))
 
-smartTimeout.promise = (fn, delay = 0, ...args) => pause(delay)
-  .then(() => fn(...args))
+
+export const delayedCall =
+  <T, Args>(fn: (...args: Args[]) => T, delay = 0, ...args: Args[]) =>
+    pause(delay)
+      .then(() => fn(...args))
+
+smartTimeout.immediate = immediate
+smartTimeout.promise = delayedCall
 
 export default smartTimeout

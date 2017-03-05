@@ -37,6 +37,8 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       this.authKeyBuffer = convertToArrayBuffer(authKey)
       this.authKeyID = sha1BytesSync(authKey).slice(-8)
 
+      this.wrapApiCall = this.wrapApiCall.bind(this)
+
       this.serverSalt = serverSalt
 
       this.upload = options.fileUpload || options.fileDownload || false
@@ -58,7 +60,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
       this.pendingTimeouts = []
 
-      setInterval(this.checkLongPoll, 10000) //TODO make configurable interval
+      setInterval(this.checkLongPoll, 10000) //NOTE make configurable interval
       this.checkLongPoll()
 
       if (!offlineInited)

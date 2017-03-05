@@ -24,8 +24,6 @@ const protect = (
 const patterns = {
   noBaseAuth: ({ code, dcID, base })  =>  code === 401 && dcID === base,
   noDcAuth  : ({ code, dcID, base })  =>  code === 401 && dcID !== base,
-  migrate   : ({ code })              =>  code === 303,
-  floodWait : ({ code, errR })        =>  !errR && code === 420,
   waitFail  : ({ code, type, errR })  =>  !errR && (code === 500 || type === 'MSG_WAIT_FAILED'),
   _         : ()                      =>  true
 }
@@ -93,13 +91,13 @@ const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }
 
 
 
-  cachedExportPromise[dcID]
+  cachedExportPromise[dcID] //TODO not returning promise
     .then(apiSavedNet)
     .then(apiRecall)
     .then(deferResolve)
     .catch(reject)
 }
-
+/*
 const migrate = ({ error, dcID, options, reject,
     apiRecall, deferResolve, getNet, storage
   }) => {
@@ -110,18 +108,18 @@ const migrate = ({ error, dcID, options, reject,
   else
     storage.set('dc', newDcID)
 
-  getNet(newDcID, options) //TODO not returning promise
+  getNet(newDcID, options)
     .then(apiRecall)
     .then(deferResolve)
     .catch(reject)
-}
+}*/
 
-const floodWait = ({ error, options, throwNext, requestThunk }) => {
+/*const floodWait = ({ error, options, throwNext, requestThunk }) => {
   const waitTime = error.type.match(/^FLOOD_WAIT_(\d+)/)[1] || 10
   if (waitTime > (options.timeout || 60))
     return throwNext()
   requestThunk(waitTime)
-}
+}*/
 
 const waitFail = ({ options, throwNext, requestThunk }) => {
   const now = tsNow()
@@ -142,8 +140,6 @@ const def = ({ throwNext }) => throwNext()
 export const switchErrors = Switch(patterns, protect)({
   noBaseAuth,
   noDcAuth,
-  migrate,
-  floodWait,
   waitFail,
   _: def
 }, matchProtect)

@@ -37,7 +37,6 @@ test(`Connection test`, async t => {
     while (i<5) {
       try {
         // res = await telegram('help.getNearestDc', {}, { dcID: 2, createNetworker: true })
-        // console.log('getNearestDc', res)
         const { phone_code_hash } = await telegram('auth.sendCode', {
               phone_number  : phone.num,
               current_number: false,

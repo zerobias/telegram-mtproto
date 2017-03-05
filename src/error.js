@@ -1,9 +1,14 @@
+//@flow
+
+import type { TypeBuffer } from './tl/types'
 
 export class MTError extends Error {
-  static getMessage(code, type, message) {
+  static getMessage(code: number, type: string, message: string) {
     return `MT[${code}] ${type}: ${message}`
   }
-  constructor(code, type, message) {
+  code: number
+  type: string
+  constructor(code: number, type: string, message: string) {
     const fullMessage = MTError.getMessage(code, type, message)
     super(fullMessage)
     this.code = code
@@ -12,7 +17,8 @@ export class MTError extends Error {
 }
 
 export class ErrorBadResponse extends MTError {
-  constructor(url, originalError = null) {
+  originalError: Error
+  constructor(url: string, originalError?: Error | null = null) {
     super(406, 'NETWORK_BAD_RESPONSE', url)
     if (originalError)
       this.originalError = originalError
@@ -20,20 +26,21 @@ export class ErrorBadResponse extends MTError {
 }
 
 export class ErrorNotFound extends MTError {
-  constructor(err) {
+  constructor(err: Object) {
     super(404, 'REQUEST_FAILED', err.config.url)
     // this.originalError = err
   }
 }
 
 export class TypeBufferIntError extends MTError {
-  static getMessage(ctx) {
+  static getTypeBufferMessage(ctx: TypeBuffer) {
     const offset = ctx.offset
     const length = ctx.intView.length * 4
     return `Can not get next int: offset ${offset} length: ${length}`
   }
-  constructor(ctx) {
-    const message = TypeBufferIntError.getMessage(ctx)
+  typeBuffer: TypeBuffer
+  constructor(ctx: TypeBuffer) {
+    const message = TypeBufferIntError.getTypeBufferMessage(ctx)
     super(800, 'NO_NEXT_INT', message)
     this.typeBuffer = ctx
   }

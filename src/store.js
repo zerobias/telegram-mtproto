@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 
-import { clone, unapply, pipe, omit, flip, props } from 'ramda'
+import { clone } from 'ramda'
 
 export const ValueStore = () => {
   let val = null
@@ -22,9 +22,6 @@ export const ValueStoreMap = () => {
 
 export const TimeOffset = ValueStore()
 export const dcList = ValueStoreMap()
-
-
-const flatProps = pipe(flip(props), unapply)
 
 export const AsyncStorage = () => {
   const store = new Map
