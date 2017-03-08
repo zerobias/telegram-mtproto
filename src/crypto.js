@@ -34,8 +34,8 @@ const isCryptoTask = both(has('taskID'), has('result'))
 //eslint-disable-next-line
 const workerEnable = !isNode && window.Worker
 if (workerEnable) {
-  require('worker-loader!./worker.js')
-  const tmpWorker = new Worker('./bundle/hash.worker.js')
+  const TmpWorker = require('worker-loader?inline!./worker.js')
+  const tmpWorker = new TmpWorker()
   // tmpWorker.onmessage = function(event) {
   //   console.info('CW tmpWorker.onmessage', event && event.data)
   // }
