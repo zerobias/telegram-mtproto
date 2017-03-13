@@ -15,6 +15,7 @@
     "rebuild:webogram": "npm run build:webogram:vendor && npm run build:webogram",
     "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
+    "build:async": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --no-babelrc --plugins=transform-flow-strip-types,transform-es2015-modules-commonjs,transform-class-properties,transform-object-rest-spread,closure-elimination",
     "clean:cjs": "rimraf lib/",
     "rebuild:es": "npm run clean:es & npm run build:es",
     "build:es": "babel src/ -d es -s",

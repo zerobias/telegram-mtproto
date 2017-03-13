@@ -7,7 +7,6 @@
     // ["fast-async", {
     //   "useRuntimeModule":true
     // }],
-    // "transform-es2015-modules-commonjs",
     "transform-class-properties",
     "transform-async-to-generator",
     // ["transform-async-to-module-method", {
