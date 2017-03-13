@@ -28,6 +28,7 @@ import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 import configValidator from './config-validation'
 import Request from './request'
+import UpdatesManager from '../updates'
 
 import type { Bytes, PublicKey, ApiConfig, ConfigType,
   LeftOptions, AsyncStorage, NetworkerType, Cache } from './index.h'
@@ -133,6 +134,9 @@ export class ApiManager {
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
     apiManager.storage = storage
+
+    this.updatesManager = UpdatesManager(apiManager)
+
     return apiManager
   }
   networkSetter = (dc: number, options: LeftOptions) =>

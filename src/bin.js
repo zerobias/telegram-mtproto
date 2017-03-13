@@ -212,9 +212,9 @@ export function intToUint(val) {
     val = val + 0x100000000
   return val
 }
-
+const middle = 0x100000000 / 2 - 1
 export function uintToInt(val) {
-  if (val > 2147483647)
+  if (val > middle)
     val = val - 0x100000000
   return val
 }

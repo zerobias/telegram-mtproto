@@ -60,3 +60,12 @@ export type Cache = {
   servers: Cached<*>,
   keysParsed: Cached<PublicKey>,
 }
+
+export type ApiManagerInstance = {
+  storage: AsyncStorage,
+  (method: string): Promise<*>,
+  (method: string, params: Object): Promise<*>,
+  (method: string, params: Object, options: Object): Promise<*>,
+  setUserAuth(dc: number, userAuth: *): void,
+  on(event: string|string[], handler: Function): void
+}
