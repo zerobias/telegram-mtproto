@@ -22,7 +22,12 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   const channelStates = {}
 
   let myID = 0
-  api.getUserID().then(id => myID = id)
+  getUserID().then(id => myID = id)
+
+  const getUserID = async () => {
+    const auth = await api.storage.get('user_auth')
+    return auth.id || 0
+  }
 
   function popPendingSeqUpdate() {
     const nextSeq = updatesState.seq + 1

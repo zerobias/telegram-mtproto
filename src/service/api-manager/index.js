@@ -283,11 +283,6 @@ export class ApiManager {
     return deferred.promise
   }
 
-  getUserID = async () => {
-    const auth = await this.storage.get('user_auth')
-    return auth.id || 0
-  }
-
   setUserAuth = (dcID: number, userAuth: any) => {
     const fullUserAuth = { dcID, ...userAuth }
     this.storage.set({
