@@ -17,7 +17,8 @@ import { bpe, str2bigInt, one,
 
 // import { ErrorBadResponse } from '../../error'
 
-import SendPlainReq, { type TLs } from './send-plain-req'
+import SendPlainReq from './send-plain-req'
+import type { TLs } from './send-plain-req'
 
 const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' +
   '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' +

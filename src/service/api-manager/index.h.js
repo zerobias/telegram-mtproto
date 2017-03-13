@@ -1,4 +1,4 @@
-import { type TLSchema } from '../../tl/types'
+import type { TLSchema } from '../../tl/types'
 
 export type Bytes = number[]
 

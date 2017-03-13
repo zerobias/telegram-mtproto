@@ -4,11 +4,16 @@
   ],
   "plugins": [
     "transform-flow-strip-types",
+    // ["fast-async", {
+    //   "useRuntimeModule":true
+    // }],
+    // "transform-es2015-modules-commonjs",
     "transform-class-properties",
-    ["transform-async-to-module-method", {
-      "module": "bluebird",
-      "method": "coroutine"
-    }],
+    "transform-async-to-generator",
+    // ["transform-async-to-module-method", {
+    //   "module": "bluebird",
+    //   "method": "coroutine"
+    // }],
     ["transform-object-rest-spread", { "useBuiltIns": true }],
     "closure-elimination"
   ],

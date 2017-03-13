@@ -10,7 +10,8 @@ import Logger from '../../util/log'
 const debug = Logger`api-manager`
 
 import NetworkerFabric from '../networker'
-import Auth, { type Args } from '../authorizer'
+import Auth from '../authorizer'
+import type { Args } from '../authorizer'
 import { PureStorage } from '../../store'
 import blueDefer from '../../util/defer'
 import { dTime } from '../time-manager'
@@ -21,8 +22,8 @@ import { MTError, AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-import { type TLs } from '../authorizer/send-plain-req'
-import { type TLSchema } from '../../tl/types'
+import type { TLs } from '../authorizer/send-plain-req'
+import type { TLSchema } from '../../tl/types'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 import configValidator from './config-validation'
@@ -202,8 +203,7 @@ export class ApiManager {
         'help.getNearestDc', {}, opts)
       const { nearest_dc } = nearestDc
       await this.storage.set('dc', nearest_dc)
-      //$FlowIssue
-      debug`nearest Dc`('%O', nearestDc)
+      debug(`nearest Dc`)('%O', nearestDc)
     }
   }
   mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
@@ -233,7 +233,6 @@ export class ApiManager {
         this.emit('error.invoke', error)
       }
     }
-    let cachedNetworker
 
     await this.initConnection()
 
@@ -254,14 +253,13 @@ export class ApiManager {
     }
     const req = new Request(cfg, method, params)
 
-    cachedNetworker = networker
 
     req.performRequest()
       .then(
         deferred.resolve,
         error => {
           const deferResolve = deferred.resolve
-          const apiSavedNet = () => cachedNetworker = networker
+          const apiSavedNet = () => networker
           const apiRecall = networker => {
             req.config.networker = networker
             return req.performRequest()

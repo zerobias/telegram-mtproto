@@ -1,34 +1,58 @@
 //@flow
 
 import Promise from 'bluebird'
+import isNode from 'detect-node'
 
-import { pipeP, is, values, mapObjIndexed } from 'ramda'
+import { is, values, mapObjIndexed, type } from 'ramda'
 
-import CryptoWorker from '../crypto'
-import { dTime, tsNow, generateID, applyServerTime } from './time-manager'
-import random from './secure-random'
-import forEach from '../util/for-each'
-import smartTimeout from '../util/smart-timeout'
-import blueDefer from '../util/defer'
-import { httpClient } from '../http'
+import CryptoWorker from '../../crypto'
+import { dTime, tsNow, generateID, applyServerTime } from '../time-manager'
+import random from '../secure-random'
+import forEach from '../../util/for-each'
+import { NetMessage, NetContainer } from './net-message'
+import smartTimeout, { immediate } from '../../util/smart-timeout'
+import blueDefer from '../../util/defer'
+import { httpClient } from '../../http'
 
-import Logger from '../util/log'
+import { ErrorBadRequest, ErrorBadResponse } from '../../error'
+
+import Logger from '../../util/log'
 
 const log = Logger`networker`
 
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   nextRandomInt, bytesCmp, bytesToHex, bytesFromArrayBuffer,
-  bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../bin'
+  bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../../bin'
 
 let updatesProcessor
 let iii = 0
-let offlineInited = false
 let akStopped = false
 
+//eslint-disable-next-line
+const xhrSendBuffer = !isNode && !('ArrayBufferView' in window)
 
+type NetOptions = {
+  fileUpload?: boolean,
+  fileDownload?: boolean,
+  notContentRelated?: boolean,
+}
+type Bytes = number[]
 export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deserialization }, storage, emit) =>
   class NetworkerThread {
-    constructor(dc, authKey, serverSalt, options = {}) {
+    dcID: number
+    authKey: string
+    authKeyUint8: Uint8Array
+    authKeyBuffer: ArrayBuffer
+    serverSalt: string
+    iii: number
+    authKeyID: Bytes
+    upload: boolean
+    currentRequests: number
+    pendingAcks: number[]
+    seqNo: number
+    sessionID: Bytes
+    prevSessionID: Bytes
+    constructor(dc: number, authKey: string, serverSalt: string, options: NetOptions = {}) {
       this.dcID = dc
       this.iii = iii++
 
@@ -37,6 +61,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       this.authKeyBuffer = convertToArrayBuffer(authKey)
       this.authKeyID = sha1BytesSync(authKey).slice(-8)
 
+      //$FlowIssue
       this.wrapApiCall = this.wrapApiCall.bind(this)
 
       this.serverSalt = serverSalt
@@ -62,9 +87,6 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
       setInterval(this.checkLongPoll, 10000) //NOTE make configurable interval
       this.checkLongPoll()
-
-      if (!offlineInited)
-        offlineInited = true
     }
     updateSession() {
       this.seqNo = 0
@@ -73,7 +95,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       random(this.sessionID)
     }
 
-    updateSentMessage(sentMessageID) {
+    updateSentMessage(sentMessageID: string) {
       const sentMessage = this.sentMessages[sentMessageID]
       if (!sentMessage) return false
 
@@ -99,7 +121,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       return sentMessage
     }
 
-    generateSeqNo(notContentRelated) {
+    generateSeqNo(notContentRelated?: boolean) {
       let seqNo = this.seqNo * 2
 
       if (!notContentRelated) {
@@ -110,43 +132,38 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       return seqNo
     }
 
-    wrapMtpCall(method, params, options) {
+    wrapMtpCall(method: string, params: Object, options: NetOptions) {
       const serializer = new Serialization({ mtproto: true })
 
       serializer.storeMethod(method, params)
 
-      const messageID = generateID()
       const seqNo = this.generateSeqNo()
-      const message = {
-        msg_id: messageID,
-        seq_no: seqNo,
-        body  : serializer.getBytes()
-      }
-
-      log`MT call`(method, params, messageID, seqNo)
+      const message = new NetMessage(
+        seqNo,
+        serializer.getBytes(true)
+      )
+      log([`MT call`])(method, params, message.msg_id, seqNo)
 
       return this.pushMessage(message, options)
     }
 
-    wrapMtpMessage(object, options = {}) {
+    wrapMtpMessage(object: Object, options: NetOptions = {}) {
 
       const serializer = new Serialization({ mtproto: true })
       serializer.storeObject(object, 'Object')
 
-      const messageID = generateID()
       const seqNo = this.generateSeqNo(options.notContentRelated)
-      const message = {
-        msg_id: messageID,
-        seq_no: seqNo,
-        body  : serializer.getBytes()
-      }
-
-      log`MT message`(messageID, object, seqNo)
-
-      return this.pushMessage(message, options)
+      const message = new NetMessage(
+        seqNo,
+        serializer.getBytes(true)
+      )
+      log([`MT message`])(message.msg_id, object, seqNo)
+      verifyInnerMessages(object.msg_ids)
+      this.pushMessage(message, options)
+      return message.msg_id
     }
 
-    wrapApiCall(method, params, options) {
+    wrapApiCall(method: string, params: Object, options: NetOptions) {
       const serializer = new Serialization(options)
 
       if (!this.connectionInited) {
@@ -168,16 +185,14 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
       options.resultType = serializer.storeMethod(method, params)
 
-      const messageID = generateID()
       const seqNo = this.generateSeqNo()
-      const message = {
-        msg_id: messageID,
-        seq_no: seqNo,
-        body  : serializer.getBytes(true),
-        isAPI : true
-      }
+      const message = new NetMessage(
+        seqNo,
+        serializer.getBytes(true)
+      )
+      message.isAPI = true
 
-      log`Api call`(method, params, messageID, seqNo, options)
+      log([`Api call`])(method, params, message.msg_id, seqNo, options)
 
       return this.pushMessage(message, options)
     }
@@ -188,68 +203,60 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       !!this.offline ||
       akStopped
 
-    checkLongPollAfterDcCond = (isClean, baseDc) => isClean && (
+    checkLongPollAfterDcCond = (isClean: boolean, baseDc: number) => isClean && (
       this.dcID !== baseDc ||
       this.upload ||
       this.sleepAfter &&
         this.sleepAfter < tsNow()
     )
 
-    checkLongPoll = force => {
+    checkLongPoll = async () => {
       const isClean = this.cleanupSent()
       // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean)
       if (this.checkLongPollCond())
         return false
 
-      const afterGetDc = baseDc => {
-        if (this.checkLongPollAfterDcCond(isClean, baseDc))
-          // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
-          return
-
-        return this.sendLongPoll()
-      }
-
-      storage.get('dc') //TODO Not returning promise
-        .then(afterGetDc)
+      const baseDc: number = await storage.get('dc')
+      if (this.checkLongPollAfterDcCond(isClean, baseDc))
+        // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
+        return
+      return this.sendLongPoll()
     }
 
     onHttpWait = () => {
       delete this.longPollPending
-      return smartTimeout.immediate(this.checkLongPoll)
+      return immediate(this.checkLongPoll)
     }
 
-    sendLongPoll = () => {
+    sendLongPoll: () => Promise<boolean | void> = async () => {
       const maxWait = 25000
       this.longPollPending = tsNow() + maxWait
       // console.log('Set lp', this.longPollPending, tsNow())
 
-      return this.wrapMtpCall('http_wait', {
+      await this.wrapMtpCall('http_wait', {
         max_delay : 500,
         wait_after: 150,
         max_wait  : maxWait
       }, {
         noResponse: true,
         longPoll  : true
-      }).then(this.onHttpWait, () => {
-        console.log('Long-poll failed')
       })
+      delete this.longPollPending
+      return this.checkLongPoll()
     }
 
-    pushMessage(message, options = {}) {
-      const deferred = blueDefer()
+    pushMessage(message: NetMessage, options: NetOptions = {}) {
 
-      this.sentMessages[message.msg_id] = { ...message, ...options, deferred }
+      this.sentMessages[message.msg_id] = { ...message, ...options }
       this.pendingMessages[message.msg_id] = 0
 
       if (!options || !options.noShedule)
         this.sheduleRequest()
       if (is(Object, options))
         options.messageID = message.msg_id
-
-      return deferred.promise
     }
 
-    pushResend(messageID, delay) {
+    pushResend(messageID, delay: number) {
       const value = delay
         ? tsNow() + delay
         : 0
@@ -316,8 +323,8 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       return Promise.all(values(promises)).then(onAll)
     }
 
-    checkConnection = event => {
-      console.log(dTime(), 'Check connection', event)
+    checkConnection = async event => {
+      log([`Check connection`])('%O', event)
       smartTimeout.cancel(this.checkConnectionPromise)
 
       const serializer = new Serialization({ mtproto: true })
@@ -325,21 +332,27 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
       serializer.storeMethod('ping', { ping_id: pingID })
 
-      const pingMessage = {
-        msg_id: generateID(),
-        seq_no: this.generateSeqNo(true),
-        body  : serializer.getBytes()
-      }
+      const pingMessage = new NetMessage(
+        this.generateSeqNo(true),
+        serializer.getBytes()
+      )
 
-      this.sendEncryptedRequest(pingMessage, { timeout: 15000 }) //TODO Not returning promise
-        .then(
-        result => this.toggleOffline(false),
-        () => {
-          console.log(dTime(), 'Delay ', this.checkConnectionPeriod * 1000)
-          this.checkConnectionPromise = smartTimeout(
-            this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
-          this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
-        })
+      let succ = false
+
+      try {
+        const result = await this.sendEncryptedRequest(pingMessage, { timeout: 15000 })
+        succ = true
+        this.toggleOffline(false)
+        log(`checkConnection, result`)('%O', result)
+      } catch (err) {
+        log(`encrypted request fail`)('%O', err)
+      }
+      if (succ) return
+      const delay = this.checkConnectionPeriod * 1e3
+      log(`checkConnection, Delay`)(delay)
+      this.checkConnectionPromise = smartTimeout(
+            this.checkConnection, delay)
+      this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
     }
 
     toggleOffline(enabled) {
@@ -365,23 +378,26 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         emit('net.offline', this.onOnlineCb)
       } else {
         delete this.longPollPending
-        this.checkLongPoll()
+        //NOTE check long pool was here
+        this.checkLongPoll().then(() => {})
         this.sheduleRequest()
 
         if (this.onOnlineCb)
           emit('net.online', this.onOnlineCb)
 
         smartTimeout.cancel(this.checkConnectionPromise)
+
       }
     }
-    onNoResponseMsg = msgID => {
+    onNoResponseMsg = (msgID: string) => {
+      if (!is(String, msgID)) log('!!!WARN!!!')(msgID, type(msgID)) //TODO remove in prod
       if (this.sentMessages[msgID]) {
         const deferred = this.sentMessages[msgID].deferred
         delete this.sentMessages[msgID]
         return deferred.resolve()
       }
     }
-    onNoResponseMsgReject = msgID => {
+    onNoResponseMsgReject = (msgID: string) => {
       if (this.sentMessages[msgID]) {
         const deferred = this.sentMessages[msgID].deferred
         delete this.sentMessages[msgID]
@@ -389,11 +405,11 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         return deferred.reject()
       }
     }
-    resetPendingMessage = msgID => this.pendingMessages[msgID] = 0
-    performSheduledRequest = () => { //TODO extract huge method
+    resetPendingMessage = (msgID: string) => this.pendingMessages[msgID] = 0
+    performSheduledRequest = async () => { //TODO extract huge method
       // console.log(dTime(), 'sheduled', this.dcID, this.iii)
       if (this.offline || akStopped) {
-        console.log(dTime(), 'Cancel sheduled')
+        log(`Cancel sheduled`)(``)
         return false
       }
       delete this.nextReq
@@ -413,8 +429,8 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           resendMsgIDs.push(this.pendingResends[i])
         }
         // console.log('resendReq messages', resendMsgIDs)
-        this.wrapMtpMessage({ _: 'msg_resend_req', msg_ids: resendMsgIDs }, resendOpts)
-        this.lastResendReq = { req_msg_id: resendOpts.messageID, resend_msg_ids: resendMsgIDs }
+        const messageID = this.wrapMtpMessage({ _: 'msg_resend_req', msg_ids: resendMsgIDs }, resendOpts)
+        this.lastResendReq = { req_msg_id: messageID, resend_msg_ids: resendMsgIDs }
       }
 
       const messages = []
@@ -466,11 +482,10 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           wait_after: 150,
           max_wait  : 3000
         })
-        messages.push({
-          msg_id: generateID(),
-          seq_no: this.generateSeqNo(),
-          body  : serializer.getBytes()
-        })
+        messages.push(new NetMessage(
+          this.generateSeqNo(),
+          serializer.getBytes()
+        ))
       }
 
       if (!messages.length) {
@@ -484,47 +499,43 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         const container = new Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
         container.storeInt(0x73f1f8dc, 'CONTAINER[id]')
         container.storeInt(messages.length, 'CONTAINER[count]')
-        const onloads = []
         const innerMessages = []
         for (let i = 0; i < messages.length; i++) {
-          container.storeLong(messages[i].msg_id, `CONTAINER[${  i  }][msg_id]`)
+          container.storeLong(messages[i].msg_id, `CONTAINER[${i}][msg_id]`)
           innerMessages.push(messages[i].msg_id)
-          container.storeInt(messages[i].seq_no, `CONTAINER[${  i  }][seq_no]`)
-          container.storeInt(messages[i].body.length, `CONTAINER[${  i  }][bytes]`)
-          container.storeRawBytes(messages[i].body, `CONTAINER[${  i  }][body]`)
-          if (messages[i].noResponse) {
+          container.storeInt(messages[i].seq_no, `CONTAINER[${i}][seq_no]`)
+          container.storeInt(messages[i].body.length, `CONTAINER[${i}][bytes]`)
+          container.storeRawBytes(messages[i].body, `CONTAINER[${i}][body]`)
+          if (messages[i].noResponse)
             noResponseMsgs.push(messages[i].msg_id)
-          }
         }
 
-        const containerSentMessage = {
-          msg_id   : generateID(),
-          seq_no   : this.generateSeqNo(true),
-          container: true,
-          inner    : innerMessages
-        }
+        const containerSentMessage = new NetContainer(
+          this.generateSeqNo(true),
+          container.getBytes(true),
+          innerMessages)
 
-        message = { body: container.getBytes(true), ...containerSentMessage }
+        message = containerSentMessage
+
+        //{ body: container.getBytes(true), ...containerSentMessage }
 
         this.sentMessages[message.msg_id] = containerSentMessage
 
-        log`Container`(innerMessages, message.msg_id, message.seq_no)
+        log(`Container`)(innerMessages, message.msg_id, message.seq_no)
       } else {
         if (message.noResponse)
           noResponseMsgs.push(message.msg_id)
         this.sentMessages[message.msg_id] = message
       }
 
-      this.pendingAcks = []
-      const afterSendRequest = result => {
+      this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
+      if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
+
+      try {
+        const result = await this.sendEncryptedRequest(message)
         this.toggleOffline(false)
-        // console.log('parse for', message)
-        return this
-          .parseResponse(result.data)
-          .then(afterResponseParse)
-      }
-      const afterResponseParse = response => {
-        log`Server response`(this.dcID, response)
+        const response = await this.parseResponse(result.data)
+        log(`Server response`)(this.dcID, response)
 
         this.processMessage(
           response.response,
@@ -533,11 +544,10 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
 
         forEach(noResponseMsgs, this.onNoResponseMsg)
 
-        this.checkLongPoll()
-
         this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod))
-      }
-      const onRequestFail = error => {
+
+        return this.checkLongPoll() //TODO Bluebird warning here
+      } catch (error) {
         console.log('Encrypted request failed', error)
 
         if (message.container) {
@@ -551,38 +561,26 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         this.toggleOffline(true)
         return Promise.reject(error)
       }
-      if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
-
-      return this.sendEncryptedRequest(message)
-        .then(afterSendRequest)
-        .catch(onRequestFail)
     }
 
-    getEncryptedMessage(bytes) {
-      let msgKey
-      const f1 = CryptoWorker.sha1Hash
-      const f2 = bytesHash => {
-        msgKey = new Uint8Array(bytesHash).subarray(4, 20)
-        return this.getMsgKeyIv(msgKey, true)
-      }
-      const f3 = keyIv => CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
-      const f4 = encryptedBytes => ({
+    async getEncryptedMessage(bytes) {
+      const bytesHash = await CryptoWorker.sha1Hash(bytes)
+      const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
+      const keyIv = await this.getMsgKeyIv(msgKey, true)
+      const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
+      return {
         bytes: encryptedBytes,
         msgKey
-      })
-      const encryptFlow = pipeP(f1, f2, f3, f4)
-      return encryptFlow(bytes)
+      }
     }
 
-    getDecryptedMessage = Promise.coroutine(function* (msgKey, encryptedData) {
-      const keyIv = yield this.getMsgKeyIv(msgKey, false)
-      const result = yield CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
+    async getDecryptedMessage(msgKey, encryptedData) {
+      const keyIv = await this.getMsgKeyIv(msgKey, false)
+      const result = await CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
       return result
-    })
+    }
 
-    getRequestUrl = () => chooseServer(this.dcID, this.upload)
-
-    sendEncryptedRequest = (message, options = {}) => {
+    sendEncryptedRequest = async (message, options = {}) => {
       // console.log(dTime(), 'Send encrypted'/*, message*/)
       // console.trace()
       const data = new Serialization({ startMaxLength: message.body.length + 64 })
@@ -596,46 +594,32 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
       data.storeInt(message.body.length, 'message_data_length')
       data.storeRawBytes(message.body, 'message_data')
 
-      const url = this.getRequestUrl()
-      const baseError = { code: 406, type: 'NETWORK_BAD_RESPONSE', url }
+      const url = chooseServer(this.dcID, this.upload)
 
-      const afterRequestData = result => {
-        if (!result.data || !result.data.byteLength)
-          return Promise.reject(baseError)
-        return result
-      }
-
-      const afterRequestReject = error => {
-        if (!error.message && !error.type)
-          error = { type: 'NETWORK_BAD_REQUEST', originalError: error, ...baseError }
-        return Promise.reject(error)
-      }
-
-      const onEncryptedResult = encryptedResult => {
-        // console.log(dTime(), 'Got encrypted out message'/*, encryptedResult*/)
-        const request = new Serialization({ startMaxLength: encryptedResult.bytes.byteLength + 256 })
-        request.storeIntBytes(this.authKeyID, 64, 'auth_key_id')
-        request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key')
-        request.storeRawBytes(encryptedResult.bytes, 'encrypted_data')
-
-        const requestData = /*xhrSendBuffer
-          ? request.getBuffer()
-          : */request.getArray()
-
-        try {
-          options = { responseType: 'arraybuffer', ...options }
-          return httpClient.post(url, requestData, options)
-        } catch (e) {
-          return Promise.reject(e)
-        }
-      }
-
-      return this
+      const encryptedResult = await this
         .getEncryptedMessage(data.getBuffer())
-        .then(onEncryptedResult)
-        .then(
-          afterRequestData,
-          afterRequestReject)
+
+      const request = new Serialization({ startMaxLength: encryptedResult.bytes.byteLength + 256 })
+      request.storeIntBytes(this.authKeyID, 64, 'auth_key_id')
+      request.storeIntBytes(encryptedResult.msgKey, 128, 'msg_key')
+      request.storeRawBytes(encryptedResult.bytes, 'encrypted_data')
+
+      const requestData = xhrSendBuffer
+        ? request.getBuffer()
+        : request.getArray()
+
+      options = { responseType: 'arraybuffer', ...options }
+      let result
+
+      try {
+        result = await httpClient.post(url, requestData, options)
+      } catch (error) {
+        return Promise.reject(new ErrorBadRequest(url, error))
+      }
+
+      return !result.data || !result.data.byteLength
+        ? Promise.reject(new ErrorBadResponse(url, result))
+        : result
     }
 
     getMsgById = ({ req_msg_id }) => this.sentMessages[req_msg_id]
@@ -741,7 +725,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
         this.nextReqPromise = smartTimeout(
           this.performSheduledRequest, delay)
       else
-        smartTimeout.immediate(this.performSheduledRequest)
+        immediate(this.performSheduledRequest)
 
       this.nextReq = nextReq
     }
@@ -753,7 +737,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
     }
 
     reqResendMessage(msgID) {
-      console.log(dTime(), 'Req resend', msgID)
+      log(`Req resend`)(msgID)
       this.pendingResends.push(msgID)
       this.sheduleRequest(100)
     }
@@ -832,10 +816,10 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           break
         }
         case 'bad_server_salt': {
-          log`Bad server salt`(message)
+          log(`Bad server salt`)(message)
           const sentMessage = this.sentMessages[message.bad_msg_id]
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-            log`invalid message`(message.bad_msg_id, message.bad_msg_seqno)
+            log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
             throw new Error('[MT] Bad server salt for invalid message')
           }
 
@@ -845,10 +829,10 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           break
         }
         case 'bad_msg_notification': {
-          log`Bad msg notification`(message)
+          log(`Bad msg notification`)(message)
           const sentMessage = this.sentMessages[message.bad_msg_id]
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-            log`invalid message`(message.bad_msg_id, message.bad_msg_seqno)
+            log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
             throw new Error('[MT] Bad msg notification for invalid message')
           }
 
@@ -856,7 +840,7 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
             if (applyServerTime(
                 rshift32(messageID)
               )) {
-              log`Update session`()
+              log(`Update session`)()
               this.updateSession()
             }
             const badMessage = this.updateSentMessage(message.bad_msg_id)
@@ -933,13 +917,13 @@ export const NetworkerFabric = (appConfig, chooseServer, { Serialization, Deseri
           const deferred = sentMessage.deferred
           if (message.result._ == 'rpc_error') {
             const error = this.processError(message.result)
-            log`ERROR, Rpc error`('%O', error)
+            log(`ERROR, Rpc error`)('%O', error)
             if (deferred) {
               deferred.reject(error)
             }
           } else {
             if (deferred) {
-              log`Rpc response`('%O', message.result)
+              log(`Rpc response`)('%O', message.result)
               /*if (debug) {
                 console.log(dTime(), 'Rpc response', message.result)
               } else {
@@ -975,7 +959,7 @@ const getDeserializeOpts = msgGetter => ({
   override: {
     mt_message(result, field) {
       result.msg_id = this.fetchLong(`${ field }[msg_id]`)
-      result.seqno = this.fetchInt(`${ field }[seqno]`)
+      result.seqno = this.fetchInt(`${ field }[seqno]`) //TODO WARN! Why everywhere seqno is seq_no and only there its seqno?!?
       result.bytes = this.fetchInt(`${ field }[bytes]`)
 
       const offset = this.getOffset()
@@ -1022,3 +1006,11 @@ export const setUpdatesProcessor = callback =>
   updatesProcessor = callback
 
 export default NetworkerFabric
+
+
+const verifyInnerMessages = (messages) => {
+  if (messages.length !== new Set(messages).size) {
+    console.log(`!!!!!!WARN!!!!!!`, 'container check failed', messages)
+    // throw new Error('Container bug')
+  }
+}

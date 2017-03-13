@@ -2,18 +2,24 @@
 
 import Debug from 'debug'
 import { trim, map, chain, pipe, split,
-  both, is, when, take, reject, isEmpty, join } from 'ramda'
+  both, is, when, take, reject, isEmpty, join,
+  unapply, unnest, tail } from 'ramda'
 import { dTime } from '../service/time-manager'
 
+type VariString = string | string[]
+
 type Normalize = (tag: string) => string
-type FullNormalize = (tags: string[]) => string
+type FullNormalize = (tags: VariString) => string
 
 const tagNormalize: Normalize = pipe(
   // toUpper,
   e => `[${e}]`
 )
 
+const arrify = unapply(unnest)
+
 const fullNormalize: FullNormalize = pipe(
+  arrify,
   chain(split(',')),
   map(trim),
   reject(isEmpty),
@@ -26,16 +32,18 @@ const stringNormalize = when(
   take(50)
 )
 
-const Logger = (...moduleName: string[]) => {
-  moduleName.unshift('telegram-mtproto')
-  const fullname = moduleName.join(':')
+const Logger = (moduleName: VariString, ...thanksFlow: string[]) => {
+  const fullModule: string[] = arrify(moduleName, ...thanksFlow)
+  fullModule.unshift('telegram-mtproto')
+  const fullname = fullModule.join(':')
   const debug = Debug(fullname)
-  const logger = (tags: string[]) => {
+  const logger = (tags: string | string[]) => {
     const tagStr = fullNormalize(tags)
     return (...objects: any[]) => {
       const time = dTime()
-      //$FlowIssue
-      const [ first = '', ...other ] = objects.map(stringNormalize)
+      const results = objects.map(stringNormalize)
+      const first = results[0] || ''
+      const other = tail(results)
       const firstLine = [tagStr, time, first].join('  ')
       setTimeout(debug, 200, firstLine, ...other)
     }

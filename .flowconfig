@@ -1,4 +1,11 @@
 [ignore]
+<PROJECT_ROOT>/lib/**/.*
+<PROJECT_ROOT>/es/**/.*
+<PROJECT_ROOT>/dist/.*
+<PROJECT_ROOT>/logs/.*
+<PROJECT_ROOT>/examples/.*
+<PROJECT_ROOT>/.vscode/.*
+<PROJECT_ROOT>/typings/**/.*
 
 [include]
 

@@ -25,6 +25,15 @@ export class ErrorBadResponse extends MTError {
   }
 }
 
+export class ErrorBadRequest extends MTError {
+  originalError: Error
+  constructor(url: string, originalError?: Error | null = null) {
+    super(406, 'NETWORK_BAD_REQUEST', url)
+    if (originalError)
+      this.originalError = originalError
+  }
+}
+
 export class ErrorNotFound extends MTError {
   constructor(err: Object) {
     super(404, 'REQUEST_FAILED', err.config.url)

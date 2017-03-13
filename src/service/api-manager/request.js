@@ -3,7 +3,7 @@
 import Promise from 'bluebird'
 
 import Logger from '../../util/log'
-const debug = Logger`request`
+const debug = Logger([`request`])
 
 import { MTError } from '../../error'
 import { delayedCall } from '../../util/smart-timeout'

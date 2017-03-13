@@ -68,7 +68,7 @@
     //General
     "arrow-body-style"     : ["error", "as-needed"],
     "no-var"               : "error",
-    "no-duplicate-imports" : "error",
+    "no-duplicate-imports" : "off",
 
     //Style rules. Freely varies according to projects
     "quotes"               : ["error", "single",{

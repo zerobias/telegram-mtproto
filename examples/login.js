@@ -12,15 +12,17 @@ const config = {
 
 const login = async () => {
   try {
-    const phone = await inputField('phone')
-    console.log(phone)
+    // const phone = await inputField('phone')
+    // console.log(phone)
+    const phone = '+9996620000'
     const { phone_code_hash } = await telegram('auth.sendCode', {
             phone_number  : phone,
             current_number: false,
             api_id        : config.id,
             api_hash      : config.hash
     })
-    const code = await inputField('code')
+    // const code = await inputField('code')
+    const code = '22222'
     const res = await telegram('auth.signIn', {
       phone_number: phone,
       phone_code_hash,
