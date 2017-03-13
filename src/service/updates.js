@@ -6,9 +6,14 @@ const debug = Logger`updates`
 
 import { setUpdatesProcessor } from './networker'
 import type { ApiManagerInstance } from './api-manager/index.h'
+import type { UpdatesState, CurState } from './updates.h'
+
+const AppPeersManager = null
+const AppUsersManager = null
+const AppChatsManager = null
 
 const UpdatesManager = (api: ApiManagerInstance) => {
-  const updatesState = {
+  const updatesState: any = {
     pendingPtsUpdates: [],
     pendingSeqUpdates: {},
     syncPending      : false,
@@ -17,9 +22,12 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   const channelStates = {}
 
   let myID = 0
-  MtpApiManager.getUserID().then((id) => {
-    myID = id
-  })
+  getUserID().then(id => myID = id)
+
+  const getUserID = async () => {
+    const auth = await api.storage.get('user_auth')
+    return auth.id || 0
+  }
 
   function popPendingSeqUpdate() {
     const nextSeq = updatesState.seq + 1
@@ -60,7 +68,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
 
     let curPts = curState.pts
     let goodPts = false
-    let goodIndex = false
+    let goodIndex = 0
     let update
     let i = 0
     for (const update of curState.pendingPtsUpdates) {
@@ -103,7 +111,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
   }
 
-  function processUpdateMessage(updateMessage) {
+  function processUpdateMessage(updateMessage: any) {
     // return forceGetDifference()
     const processOpts = {
       date    : updateMessage.date,
@@ -122,10 +130,10 @@ const UpdatesManager = (api: ApiManagerInstance) => {
         break
 
       case 'updateShortMessage':
-      case 'updateShortChatMessage':
-        var isOut = updateMessage.flags & 2
-        var fromID = updateMessage.from_id || (isOut ? myID : updateMessage.user_id)
-        var toID = updateMessage.chat_id
+      case 'updateShortChatMessage': {
+        const isOut = updateMessage.flags & 2
+        const fromID = updateMessage.from_id || (isOut ? myID : updateMessage.user_id)
+        const toID = updateMessage.chat_id
           ? -updateMessage.chat_id
           : isOut ? updateMessage.user_id : myID
 
@@ -147,6 +155,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
           pts      : updateMessage.pts,
           pts_count: updateMessage.pts_count
         }, processOpts)
+      }
         break
 
       case 'updatesCombined':
@@ -154,7 +163,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
         AppUsersManager.saveApiUsers(updateMessage.users)
         AppChatsManager.saveApiChats(updateMessage.chats)
 
-        angular.forEach(updateMessage.updates, (update) => {
+        updateMessage.updates.forEach(update => {
           processUpdate(update, processOpts)
         })
         break
@@ -197,7 +206,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     // console.log(dT(), 'applying', differenceResult.other_updates.length, 'other updates')
 
     const channelsUpdates = []
-    angular.forEach(differenceResult.other_updates, (update) => {
+    differenceResult.other_updates.forEach(update => {
       switch (update._) {
         case 'updateChannelTooLong':
         case 'updateNewChannelMessage':
@@ -209,7 +218,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     })
 
     // console.log(dT(), 'applying', differenceResult.new_messages.length, 'new messages')
-    angular.forEach(differenceResult.new_messages, (apiMessage) => {
+    differenceResult.new_messages.forEach(apiMessage => {
       saveUpdate({
         _        : 'updateNewMessage',
         message  : apiMessage,
@@ -234,7 +243,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
   }
 
-  async function getChannelDifference(channelID) {
+  async function getChannelDifference(channelID: number) {
     const channelState = getChannelState(channelID)
     if (!channelState.syncLoading) {
       channelState.syncLoading = true
@@ -277,7 +286,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     differenceResult.other_updates.map(saveUpdate)
 
     debug('applying')(differenceResult.new_messages.length, 'channel new messages')
-    angular.forEach(differenceResult.new_messages, (apiMessage) => {
+    differenceResult.new_messages.forEach(apiMessage => {
       saveUpdate({
         _        : 'updateNewChannelMessage',
         message  : apiMessage,
@@ -298,7 +307,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
   }
 
-  function addChannelState(channelID, pts) {
+  function addChannelState(channelID: number, pts: ?number) {
     if (!pts) {
       throw new Error(`Add channel state without pts ${channelID}`)
     }
@@ -314,7 +323,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     return false
   }
 
-  function getChannelState(channelID, pts) {
+  function getChannelState(channelID: number, pts?: ?number) {
     if (channelStates[channelID] === undefined) {
       addChannelState(channelID, pts)
     }
@@ -322,7 +331,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   }
 
   function processUpdate(update, options = {}) {
-    let channelID = false
+    let channelID
     switch (update._) {
       case 'updateNewChannelMessage':
       case 'updateEditChannelMessage':
@@ -339,7 +348,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
         break
     }
 
-    const curState = channelID ? getChannelState(channelID, update.pts) : updatesState
+    const curState: CurState = channelID ? getChannelState(channelID, update.pts) : updatesState
 
     // console.log(dT(), 'process', channelID, curState.pts, update)
 
@@ -348,7 +357,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
 
     if (update._ == 'updateChannelTooLong') {
-      getChannelDifference(channelID)
+      getChannelDifference(channelID || 0)
       return false
     }
 
@@ -394,7 +403,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
               } else {
                 getDifference()
               }
-            }, 5000)
+            }, 5000),
           }
         }
         curState.syncPending.ptsAwaiting = true
@@ -459,7 +468,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
   }
 
-  function saveUpdate(update) {
+  function saveUpdate(update: any) {
     // api.on('apiUpdate', update)
   }
 

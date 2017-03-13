@@ -95,6 +95,7 @@ export class ApiManager {
   mtSchema: TLSchema
   keyManager: Args
   networkFabric: any
+  updatesManager: any
   auth: any
   chooseServer: (dcID: number, upload?: boolean) => {}
   constructor({
@@ -281,6 +282,7 @@ export class ApiManager {
 
     return deferred.promise
   }
+
   setUserAuth = (dcID: number, userAuth: any) => {
     const fullUserAuth = { dcID, ...userAuth }
     this.storage.set({
