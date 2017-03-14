@@ -1,4 +1,5 @@
-import { is, type as rType } from 'ramda'
+import is from 'ramda/src/is'
+
 import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
 
@@ -82,11 +83,10 @@ export const TL = (api, mtApi) => {
     }
 
     storeIntString = (value, field) => {
-      const valType = rType(value)
       switch (true) {
         case is(String, value): return this.storeString(value, field)
         case is(Number, value): return this.storeInt(value, field)
-        default: throw new Error(`tl storeIntString field ${field} value type ${valType}`)
+        default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
       }
     }
 

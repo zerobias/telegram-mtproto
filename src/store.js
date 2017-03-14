@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 
-import { clone } from 'ramda'
+import clone from 'ramda/src/clone'
 
 export const ValueStore = () => {
   let val = null

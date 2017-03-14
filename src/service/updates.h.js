@@ -6,5 +6,21 @@ export type CurState = {
   }
 }
 
-export type UpdatesState = any;
+export type UpdatesState = {
+  pts : number,
+  qts : number,
+  date: number,
+  seq : number,
+  unread_count: number,
 
+}
+
+export type ProcessUpdate = {
+
+}
+
+export type DifferenceEmpty = {
+  _: 'updates.differenceEmpty',
+  date: number,
+  seq: number
+}

@@ -1,9 +1,23 @@
 //@flow
 
 import Debug from 'debug'
-import { trim, map, chain, pipe, split,
-  both, is, when, take, reject, isEmpty, join,
-  unapply, unnest, tail } from 'ramda'
+
+import trim from 'ramda/src/trim'
+import map from 'ramda/src/map'
+import chain from 'ramda/src/chain'
+import pipe from 'ramda/src/pipe'
+import split from 'ramda/src/split'
+import both from 'ramda/src/both'
+import is from 'ramda/src/is'
+import when from 'ramda/src/when'
+import take from 'ramda/src/take'
+import reject from 'ramda/src/reject'
+import isEmpty from 'ramda/src/isEmpty'
+import join from 'ramda/src/join'
+import unapply from 'ramda/src/unapply'
+import unnest from 'ramda/src/unnest'
+import tail from 'ramda/src/tail'
+
 import { dTime } from '../service/time-manager'
 
 type VariString = string | string[]
@@ -11,10 +25,7 @@ type VariString = string | string[]
 type Normalize = (tag: string) => string
 type FullNormalize = (tags: VariString) => string
 
-const tagNormalize: Normalize = pipe(
-  // toUpper,
-  e => `[${e}]`
-)
+const tagNormalize: Normalize = e => `[${e}]`
 
 const arrify = unapply(unnest)
 

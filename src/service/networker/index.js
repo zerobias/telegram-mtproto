@@ -3,14 +3,15 @@
 import Promise from 'bluebird'
 import isNode from 'detect-node'
 
-import { is, contains, mapObjIndexed, type } from 'ramda'
+import is from 'ramda/src/is'
+import contains from 'ramda/src/contains'
+import mapObjIndexed from 'ramda/src/mapObjIndexed'
 
 import CryptoWorker from '../../crypto'
 import { dTime, tsNow, generateID, applyServerTime } from '../time-manager'
 import random from '../secure-random'
-import forEach from '../../util/for-each'
 import { NetMessage, NetContainer } from './net-message'
-import Pool from './pool'
+import State from './state'
 import smartTimeout, { immediate } from '../../util/smart-timeout'
 import { httpClient } from '../../http'
 
@@ -35,6 +36,8 @@ type NetOptions = {
   fileUpload?: boolean,
   fileDownload?: boolean,
   notContentRelated?: boolean,
+  afterMessageID?: string,
+  resultType?: any
 }
 type Bytes = number[]
 export const NetworkerFabric = (appConfig, chooseServer,
@@ -48,12 +51,15 @@ export const NetworkerFabric = (appConfig, chooseServer,
     iii: number
     authKeyID: Bytes
     upload: boolean
-    currentRequests: number
-    pendingAcks: number[]
+    pendingAcks: number[] = []
     seqNo: number
     sessionID: Bytes
     prevSessionID: Bytes
-    pool = new Pool
+    state = new State
+    connectionInited = false
+    checkConnectionPeriod = 0
+    checkConnectionPromise: Promise<*>
+    lastServerMessages: string[] = []
     constructor(dc: number, authKey: string, serverSalt: string, options: NetOptions = {}) {
       this.dcID = dc
       this.iii = iii++
@@ -72,20 +78,6 @@ export const NetworkerFabric = (appConfig, chooseServer,
 
       this.updateSession()
 
-      this.lastServerMessages = []
-
-      this.currentRequests = 0
-      this.checkConnectionPeriod = 0
-
-      this.clientMessages = []
-
-      this.pendingMessages = {}
-      this.pendingAcks = []
-      this.pendingResends = []
-      this.connectionInited = false
-
-      this.pendingTimeouts = []
-
       setInterval(this.checkLongPoll, 10000) //NOTE make configurable interval
       this.checkLongPoll()
     }
@@ -97,27 +89,26 @@ export const NetworkerFabric = (appConfig, chooseServer,
     }
 
     updateSentMessage(sentMessageID: string) {
-      if (!this.pool.hasSent(sentMessageID)) return false
-      const sentMessage = this.pool.getSent(sentMessageID)
+      if (!this.state.hasSent(sentMessageID)) return false
+      const sentMessage = this.state.getSent(sentMessageID)
 
-      if (sentMessage.container) {
+      if (sentMessage instanceof NetContainer) {
         const newInner = []
-        const updateInner = innerSentMessageID => {
-          const innerSentMessage = this.updateSentMessage(innerSentMessageID)
+        for (const innerID of sentMessage.inner) {
+          const innerSentMessage = this.updateSentMessage(innerID)
           if (innerSentMessage)
             newInner.push(innerSentMessage.msg_id)
         }
-        forEach(sentMessage.inner, updateInner)
         sentMessage.inner = newInner
       }
-      this.pool.deleteSent(sentMessage)
+      this.state.deleteSent(sentMessage)
       const newId = generateID()
       sentMessage.msg_id = newId
       sentMessage.seq_no = this.generateSeqNo(
         sentMessage.notContentRelated ||
         sentMessage.container
       )
-      this.pool.addSent(sentMessage)
+      this.state.addSent(sentMessage)
 
       return sentMessage
     }
@@ -159,7 +150,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
         seqNo,
         serializer.getBytes(true)
       )
-      log([`MT message`])(message.msg_id, object, seqNo)
+      log(`MT message`)(message.msg_id, object, seqNo)
       verifyInnerMessages(object.msg_ids)
       this.pushMessage(message, options)
       return message
@@ -226,11 +217,6 @@ export const NetworkerFabric = (appConfig, chooseServer,
       return this.sendLongPoll()
     }
 
-    onHttpWait = () => {
-      delete this.longPollPending
-      return immediate(this.checkLongPoll)
-    }
-
     sendLongPoll: () => Promise<boolean | void> = async () => {
       const maxWait = 25000
       this.longPollPending = tsNow() + maxWait
@@ -250,8 +236,8 @@ export const NetworkerFabric = (appConfig, chooseServer,
 
     pushMessage(message: NetMessage, options: NetOptions = {}) {
       message.copyOptions(options)
-      this.pool.addSent(message)
-      this.pendingMessages[message.msg_id] = 0
+      this.state.addSent(message)
+      this.state.setPending(message.msg_id)
 
       if (!options || !options.noShedule)
         this.sheduleRequest()
@@ -263,14 +249,12 @@ export const NetworkerFabric = (appConfig, chooseServer,
       const value = delay
         ? tsNow() + delay
         : 0
-      const sentMessage = this.pool.getSent(messageID)
+      const sentMessage = this.state.getSent(messageID)
       if (sentMessage instanceof NetContainer)
         for (const msg of sentMessage.inner)
-          this.pendingMessages[msg] = value
+          this.state.setPending(msg, value)
       else
-        this.pendingMessages[messageID] = value
-
-      // console.log('Resend due', messageID, this.pendingMessages)
+        this.state.setPending(messageID, value)
 
       this.sheduleRequest(delay)
     }
@@ -378,7 +362,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
         emit('net.offline', this.onOnlineCb)
       } else {
         delete this.longPollPending
-        //NOTE check long pool was here
+        //NOTE check long state was here
         this.checkLongPoll().then(() => {})
         this.sheduleRequest()
 
@@ -389,7 +373,18 @@ export const NetworkerFabric = (appConfig, chooseServer,
 
       }
     }
-
+    performResend() {
+      if (this.state.hasResends()) {
+        const resendMsgIDs = [...this.state.getResends()]
+        const resendOpts = { noShedule: true, notContentRelated: true }
+        // console.log('resendReq messages', resendMsgIDs)
+        const msg = this.wrapMtpMessage({
+          _      : 'msg_resend_req',
+          msg_ids: resendMsgIDs
+        }, resendOpts)
+        this.lastResendReq = { req_msg_id: msg.msg_id, resend_msg_ids: resendMsgIDs }
+      }
+    }
     performSheduledRequest = async () => { //TODO extract huge method
       // console.log(dTime(), 'sheduled', this.dcID, this.iii)
       if (this.offline || akStopped) {
@@ -399,9 +394,6 @@ export const NetworkerFabric = (appConfig, chooseServer,
       delete this.nextReq
       if (this.pendingAcks.length) {
         const ackMsgIDs = []
-        if (this.pendingAcks.length !== new Set(this.pendingAcks).size) {
-          debugger
-        }
         for (const ack of this.pendingAcks)
           ackMsgIDs.push(ack)
         // console.log('acking messages', ackMsgIDs)
@@ -416,17 +408,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
         // log(`AWAITED`, `ack`)(res)
       }
 
-      if (this.pendingResends.length) {
-        const resendMsgIDs = []
-        const resendOpts = { noShedule: true, notContentRelated: true }
-        for (const resend of this.pendingResends)
-          resendMsgIDs.push(resend)
-        // console.log('resendReq messages', resendMsgIDs)
-        const msg = this.wrapMtpMessage({ _: 'msg_resend_req', msg_ids: resendMsgIDs }, resendOpts)
-        this.lastResendReq = { req_msg_id: msg.msg_id, resend_msg_ids: resendMsgIDs }
-        const res = await msg.deferred.promise
-        log(`AWAITED`, `resend`)(res)
-      }
+      this.performResend()
 
       const messages = []
       let message: NetMessage
@@ -437,38 +419,34 @@ export const NetworkerFabric = (appConfig, chooseServer,
       let lengthOverflow = false
       let singlesCount = 0
 
-      const onPendingMessage = (value, messageID) => {
-        if (!(!value || value >= currentTime)) return
-        message = this.pool.getSent(messageID)
-        if (message) {
-          const messageByteLength = (message.body.byteLength || message.body.length) + 32
-          const cond1 = !message.notContentRelated && lengthOverflow
-          const cond2 =
-            !message.notContentRelated &&
-            messagesByteLen &&
-            messagesByteLen + messageByteLength > 655360 // 640 Kb
-          if (cond1) return
-          if (cond2) {
-            lengthOverflow = true
-            return
-          }
-          if (message.singleInRequest) {
-            singlesCount++
-            if (singlesCount > 1) return
-          }
-          messages.push(message)
-          messagesByteLen += messageByteLength
-          if (message.isAPI)
-            hasApiCall = true
-          else if (message.longPoll)
-            hasHttpWait = true
-        } else {
-          // console.log(message, messageID)
+      for (const [messageID, value] of this.state.pendingIterator()) {
+        if (value && value < currentTime) continue
+        this.state.deletePending(messageID)
+        if (!this.state.hasSent(messageID)) continue
+        message = this.state.getSent(messageID)
+        const messageByteLength = message.size() + 32
+        const cond1 = !message.notContentRelated && lengthOverflow
+        const cond2 =
+          !message.notContentRelated &&
+          messagesByteLen &&
+          //eslint-disable-next-line
+          messagesByteLen + messageByteLength > 655360; // 640 Kb
+        if (cond1) continue
+        if (cond2) {
+          lengthOverflow = true
+          continue
         }
-        delete this.pendingMessages[messageID]
+        if (message.singleInRequest) {
+          singlesCount++
+          if (singlesCount > 1) continue
+        }
+        messages.push(message)
+        messagesByteLen += messageByteLength
+        if (message.isAPI)
+          hasApiCall = true
+        else if (message.longPoll)
+          hasHttpWait = true
       }
-
-      forEach(this.pendingMessages, onPendingMessage)
 
       if (hasApiCall && !hasHttpWait) {
         const serializer = new Serialization({ mtproto: true })
@@ -512,16 +490,13 @@ export const NetworkerFabric = (appConfig, chooseServer,
           container.getBytes(true),
           innerMessages)
 
-        //{ body: container.getBytes(true), ...containerSentMessage }
-
-        this.pool.addSent(message)
-
         log(`Container`)(innerMessages, message.msg_id, message.seq_no)
       } else {
         if (message.noResponse)
           noResponseMsgs.push(message.msg_id)
-        this.pool.addSent(message)
       }
+
+      this.state.addSent(message)
 
       this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
       if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
@@ -538,9 +513,9 @@ export const NetworkerFabric = (appConfig, chooseServer,
           response.sessionID)
 
         for (const msgID of noResponseMsgs)
-          if (this.pool.hasSent(msgID)) {
-            const msg = this.pool.getSent(msgID)
-            this.pool.deleteSent(msg)
+          if (this.state.hasSent(msgID)) {
+            const msg = this.state.getSent(msgID)
+            this.state.deleteSent(msg)
             msg.deferred.resolve()
           }
 
@@ -552,17 +527,17 @@ export const NetworkerFabric = (appConfig, chooseServer,
 
         if (message instanceof NetContainer) {
           for (const msgID of message.inner)
-            this.pendingMessages[msgID] = 0
-          this.pool.deleteSent(message)
+            this.state.setPending(msgID)
+          this.state.deleteSent(message)
         } else
-          this.pendingMessages[message.msg_id] = 0
+          this.state.setPending(message.msg_id)
 
 
         for (const msgID of noResponseMsgs)
-          if (this.pool.hasSent(msgID)) {
-            const msg = this.pool.getSent(msgID)
-            this.pool.deleteSent(msg)
-            delete this.pendingMessages[msgID]
+          if (this.state.hasSent(msgID)) {
+            const msg = this.state.getSent(msgID)
+            this.state.deleteSent(msg)
+            this.state.deletePending(msgID)
             msg.deferred.reject()
           }
 
@@ -616,7 +591,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
       }
     }
 
-    getMsgById = ({ req_msg_id }) => this.pool.getSent(req_msg_id)
+    getMsgById = ({ req_msg_id }) => this.state.getSent(req_msg_id)
 
     async parseResponse(responseBuffer) {
       // console.log(dTime(), 'Start parsing response')
@@ -729,25 +704,26 @@ export const NetworkerFabric = (appConfig, chooseServer,
       this.sheduleRequest(30000)
     }
 
-    reqResendMessage(msgID) {
+    reqResendMessage(msgID: string) {
       log(`Req resend`)(msgID)
-      this.pendingResends.push(msgID)
+      this.state.addResend(msgID)
       this.sheduleRequest(100)
     }
 
     cleanupSent() {
       let notEmpty = false
-      // console.log('clean start', this.dcID/*, this.pool.sent*/)
+      // console.log('clean start', this.dcID/*, this.state.sent*/)
 
-      for (const [msgID, message] of this.pool.iterator()) {
+      for (const [msgID, message] of this.state.sentIterator()) {
         let complete = true
-        if (message.notContentRelated && this.pendingMessages[msgID] === undefined) {
+        if (message.notContentRelated && !this.state.hasPending(msgID))
           // console.log('clean notContentRelated', msgID)
-          this.pool.deleteSent(message)
-        } else if (message instanceof NetContainer) {
+          this.state.deleteSent(message)
+        else if (message instanceof NetContainer) {
           for (const inner of message.inner) {
-            if (this.pool.hasSent(inner)) {
-              // console.log('clean failed, found', msgID, message.inner[i], this.pool.getSent(message.inner[i]).seq_no)
+            if (this.state.hasSent(inner)) {
+              // console.log('clean failed, found', msgID, message.inner[i],
+              // this.state.getSent(message.inner[i]).seq_no)
               notEmpty = true
               complete = false
               break
@@ -755,7 +731,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
           }
           // console.log('clean container', msgID)
           if (complete)
-            this.pool.deleteSent(message)
+            this.state.deleteSent(message)
         } else
           notEmpty = true
       }
@@ -763,7 +739,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
     }
 
     processMessageAck = (messageID: string) => {
-      const sentMessage = this.pool.getSent(messageID)
+      const sentMessage = this.state.getSent(messageID)
       if (sentMessage && !sentMessage.acked) {
         delete sentMessage.body
         sentMessage.acked = true
@@ -801,7 +777,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
         }
         case 'bad_server_salt': {
           log(`Bad server salt`)(message)
-          const sentMessage = this.pool.getSent(message.bad_msg_id)
+          const sentMessage = this.state.getSent(message.bad_msg_id)
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
             log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
             throw new Error('[MT] Bad server salt for invalid message')
@@ -814,7 +790,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
         }
         case 'bad_msg_notification': {
           log(`Bad msg notification`)(message)
-          const sentMessage = this.pool.getSent(message.bad_msg_id)
+          const sentMessage = this.state.getSent(message.bad_msg_id)
           if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
             log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
             throw new Error('[MT] Bad msg notification for invalid message')
@@ -868,7 +844,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
           break
         }
         case 'msg_detailed_info': {
-          if (!this.pool.hasSent(message.msg_id)) {
+          if (!this.state.hasSent(message.msg_id)) {
             this.ackMessage(message.answer_msg_id)
             break
           }
@@ -883,22 +859,18 @@ export const NetworkerFabric = (appConfig, chooseServer,
           this.ackMessage(message.answer_msg_id)
           const spliceCond =
             this.lastResendReq &&
-            this.lastResendReq.req_msg_id == message.req_msg_id &&
             //eslint-disable-next-line
-            this.pendingResends.length;
+            this.lastResendReq.req_msg_id == message.req_msg_id;
           if (spliceCond)
-            for (const badMsgID of this.lastResendReq.resend_msg_ids) {
-              const pos = this.pendingResends.indexOf(badMsgID)
-              if (pos !== -1)
-                this.pendingResends.splice(pos, 1)
-            }
+            for (const badMsgID of this.lastResendReq.resend_msg_ids)
+              this.state.deleteResent(badMsgID)
           break
         }
         case 'rpc_result': {
           this.ackMessage(messageID)
 
           const sentMessageID = message.req_msg_id
-          const sentMessage = this.pool.getSent(sentMessageID)
+          const sentMessage = this.state.getSent(sentMessageID)
 
           this.processMessageAck(sentMessageID)
           if (!sentMessage) break
@@ -928,7 +900,7 @@ export const NetworkerFabric = (appConfig, chooseServer,
             if (sentMessage.isAPI)
               this.connectionInited = true
           }
-          this.pool.deleteSent(sentMessage)
+          this.state.deleteSent(sentMessage)
           break
         }
         default: {
@@ -947,7 +919,8 @@ const getDeserializeOpts = msgGetter => ({
   override: {
     mt_message(result, field) {
       result.msg_id = this.fetchLong(`${ field }[msg_id]`)
-      result.seqno = this.fetchInt(`${ field }[seqno]`) //TODO WARN! Why everywhere seqno is seq_no and only there its seqno?!?
+      result.seqno = this.fetchInt(`${ field }[seqno]`)
+      //TODO WARN! Why everywhere seqno is seq_no and only there its seqno?!?
       result.bytes = this.fetchInt(`${ field }[bytes]`)
 
       const offset = this.getOffset()

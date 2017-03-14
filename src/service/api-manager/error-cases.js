@@ -1,6 +1,5 @@
-import Promise from 'bluebird'
-
-import { propOr, isNil } from 'ramda'
+import isNil from 'ramda/src/isNil'
+import propOr from 'ramda/src/propOr'
 
 import blueDefer from '../../util/defer'
 import Switch from '../../util/switch'

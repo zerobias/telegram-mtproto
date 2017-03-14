@@ -3,8 +3,12 @@
 import Promise from 'bluebird'
 import EventEmitter from 'eventemitter2'
 
-import { pathSatisfies, complement, isNil, is,
-  propEq, has } from 'ramda'
+import isNil from 'ramda/src/isNil'
+import is from 'ramda/src/is'
+import propEq from 'ramda/src/propEq'
+import has from 'ramda/src/has'
+import pathSatisfies from 'ramda/src/pathSatisfies'
+import complement from 'ramda/src/complement'
 
 import Logger from '../../util/log'
 const debug = Logger`api-manager`
@@ -18,7 +22,7 @@ import { dTime } from '../time-manager'
 import { chooseServer } from '../dc-configurator'
 import TL from '../../tl'
 import KeyManager from '../rsa-keys-manger'
-import { MTError, AuthKeyError } from '../../error'
+import { AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
@@ -28,7 +32,6 @@ import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 import configValidator from './config-validation'
 import Request from './request'
-import UpdatesManager from '../updates'
 
 import type { Bytes, PublicKey, ApiConfig, ConfigType,
   LeftOptions, AsyncStorage, NetworkerType, Cache } from './index.h'
@@ -95,7 +98,6 @@ export class ApiManager {
   mtSchema: TLSchema
   keyManager: Args
   networkFabric: any
-  updatesManager: any
   auth: any
   chooseServer: (dcID: number, upload?: boolean) => {}
   constructor({
@@ -135,8 +137,6 @@ export class ApiManager {
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
     apiManager.storage = storage
-
-    this.updatesManager = UpdatesManager(apiManager)
 
     return apiManager
   }

@@ -1,7 +1,10 @@
 //@flow
 
 import Promise from 'bluebird'
-import { pathEq, allPass, has } from 'ramda'
+
+import has from 'ramda/src/has'
+import pathEq from 'ramda/src/pathEq'
+import allPass from 'ramda/src/allPass'
 
 import httpClient from '../../http'
 import { ErrorBadResponse, ErrorNotFound } from '../../error'

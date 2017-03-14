@@ -1,7 +1,6 @@
 //@flow
 
-import Promise from 'bluebird'
-import { forEachObjIndexed } from 'ramda'
+import forEachObjIndexed from 'ramda/src/forEachObjIndexed'
 
 import { generateID } from '../time-manager'
 import blueDefer from '../../util/defer'
@@ -26,6 +25,12 @@ export class NetMessage {
   copyHelper = (value: any, key: string) => {
     //$FlowIssue
     this[key] = value
+  }
+  size() {
+    if (this.body instanceof Uint8Array)
+      return this.body.byteLength
+    else
+      return this.body.length
   }
 }
 

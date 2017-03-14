@@ -1,4 +1,3 @@
-//@flow
 
 import Promise from 'bluebird'
 import Logger from '../util/log'
@@ -11,6 +10,37 @@ import type { UpdatesState, CurState } from './updates.h'
 const AppPeersManager = null
 const AppUsersManager = null
 const AppChatsManager = null
+
+class Updates {
+  api: ApiManagerInstance
+  syncLoading = true
+  syncPending = false
+  pendingSeq = new Map
+  pendingPts = new Set
+  lastUpdate = {
+    pts : 0,
+    date: 0,
+    qts : -1
+    //NOTE Because we must set `qts: -1` if end-to-end encryption is not supported
+    //https://core.telegram.org/method/updates.getDifference
+  }
+  constructor(api: ApiManagerInstance) {
+    this.api = api
+
+  }
+  async getDifference() {
+    if (!this.syncLoading) {
+      this.syncLoading = true
+      this.pendingSeq.clear()
+      this.pendingPts.clear()
+    }
+    // if (this.syncPending) {
+    //   clearTimeout(this.syncPending.timeout)
+    //   this.syncPending = false
+    // }
+    const differenceResult = await this.api('updates.getDifference', this.lastUpdate)
+  }
+}
 
 const UpdatesManager = (api: ApiManagerInstance) => {
   const updatesState: any = {
