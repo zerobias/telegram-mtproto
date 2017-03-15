@@ -8,8 +8,8 @@ import { setUpdatesProcessor } from './networker'
 import type { ApiManagerInstance } from './api-manager/index.h'
 import type { UpdatesState, CurState } from './updates.h'
 
-const AppPeersManager = null
-const AppUsersManager = null
+// const AppPeersManager = null
+// const AppUsersManager = null
 const AppChatsManager = null
 
 const UpdatesManager = (api: ApiManagerInstance) => {
@@ -36,8 +36,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       return false
     }
     const updates = pendingUpdatesData.updates
-    for (const update of updates)
-      saveUpdate(update)
+    updates.forEach(saveUpdate)
     updatesState.seq = pendingUpdatesData.seq
     if (pendingUpdatesData.date && updatesState.date < pendingUpdatesData.date) {
       updatesState.date = pendingUpdatesData.date
@@ -136,32 +135,20 @@ const UpdatesManager = (api: ApiManagerInstance) => {
         const toID = updateMessage.chat_id
           ? -updateMessage.chat_id
           : isOut ? updateMessage.user_id : myID
-
-        processUpdate({
-          _      : 'updateNewMessage',
-          message: {
-            _              : 'message',
-            flags          : updateMessage.flags,
-            pFlags         : updateMessage.pFlags,
-            id             : updateMessage.id,
-            from_id        : fromID,
-            to_id          : AppPeersManager.getOutputPeer(toID),
-            date           : updateMessage.date,
-            message        : updateMessage.message,
-            fwd_from       : updateMessage.fwd_from,
-            reply_to_msg_id: updateMessage.reply_to_msg_id,
-            entities       : updateMessage.entities
-          },
-          pts      : updateMessage.pts,
-          pts_count: updateMessage.pts_count
-        }, processOpts)
+        
+        api.emit('updateShortMessage', { 
+          processUpdate,
+          processOpts,
+          updateMessage,
+          fromID,
+          toID
+        })
       }
         break
 
       case 'updatesCombined':
-      case 'updates':
-        AppUsersManager.saveApiUsers(updateMessage.users)
-        AppChatsManager.saveApiChats(updateMessage.chats)
+      case 'updates': 
+        api.emit('apiUpdate', updateMessage)
 
         updateMessage.updates.forEach(update => {
           processUpdate(update, processOpts)
@@ -195,12 +182,11 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       updatesState.date = differenceResult.date
       updatesState.seq = differenceResult.seq
       updatesState.syncLoading = false
-      api.on('stateSynchronized')
+      api.emit('stateSynchronized')
       return false
     }
 
-    AppUsersManager.saveApiUsers(differenceResult.users)
-    AppChatsManager.saveApiChats(differenceResult.chats)
+    api.emit('difference', differenceResult)
 
     // Should be first because of updateMessageID
     // console.log(dT(), 'applying', differenceResult.other_updates.length, 'other updates')
@@ -238,7 +224,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       getDifference()
     } else {
       // console.log(dT(), 'finished get diff')
-      api.on('stateSynchronized')
+      api.emit('stateSynchronized')
       updatesState.syncLoading = false
     }
   }
@@ -266,7 +252,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     if (differenceResult._ == 'updates.channelDifferenceEmpty') {
       debug('apply channel empty diff')(differenceResult)
       channelState.syncLoading = false
-      api.on('stateSynchronized')
+      api.emit('stateSynchronized')
       return false
     }
 
@@ -278,8 +264,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       return false
     }
 
-    AppUsersManager.saveApiUsers(differenceResult.users)
-    AppChatsManager.saveApiChats(differenceResult.chats)
+    api.emit('difference', differenceResult)
 
     // Should be first because of updateMessageID
     debug('applying')(differenceResult.other_updates.length, 'channel other updates')
@@ -302,7 +287,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       getChannelDifference(channelID)
     } else {
       debug('finished channel get diff')()
-      api.on('stateSynchronized')
+      api.emit('stateSynchronized')
       channelState.syncLoading = false
     }
   }
@@ -335,7 +320,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     switch (update._) {
       case 'updateNewChannelMessage':
       case 'updateEditChannelMessage':
-        channelID = -AppPeersManager.getPeerID(update.message.to_id)
+        channelID = update.message.to_id.channel_id || update.message.to_id.chat_id
         break
       case 'updateDeleteChannelMessages':
         channelID = update.channel_id
@@ -361,39 +346,13 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       return false
     }
 
-    if (update._ == 'updateNewMessage' ||
-      update._ == 'updateEditMessage' ||
-      update._ == 'updateNewChannelMessage' ||
-      update._ == 'updateEditChannelMessage') {
-      const message = update.message
-      const toPeerID = AppPeersManager.getPeerID(message.to_id)
-      const fwdHeader = message.fwd_from || {}
-      if (message.from_id && !AppUsersManager.hasUser(message.from_id, message.pFlags.post) ||
-        fwdHeader.from_id && !AppUsersManager.hasUser(fwdHeader.from_id, !!fwdHeader.channel_id) ||
-        fwdHeader.channel_id && !AppChatsManager.hasChat(fwdHeader.channel_id, true) ||
-        toPeerID > 0 && !AppUsersManager.hasUser(toPeerID) ||
-        toPeerID < 0 && !AppChatsManager.hasChat(-toPeerID)) {
-        debug('Not enough data for message update')(message)
-        if (channelID && AppChatsManager.hasChat(channelID)) {
-          getChannelDifference(channelID)
-        } else {
-          forceGetDifference()
-        }
-        return false
-      }
-    }
-    else if (channelID && !AppChatsManager.hasChat(channelID)) {
-      // console.log(dT(), 'skip update, missing channel', channelID, update)
-      return false
-    }
-
     let popPts
     let popSeq
 
     if (update.pts) {
       const newPts = curState.pts + (update.pts_count || 0)
       if (newPts < update.pts) {
-        debug('Pts hole')(curState, update, channelID && AppChatsManager.getChat(channelID))
+        // debug('Pts hole')(curState, update, channelID && AppChatsManager.getChat(channelID))
         curState.pendingPtsUpdates.push(update)
         if (!curState.syncPending) {
           curState.syncPending = {
@@ -469,7 +428,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   }
 
   function saveUpdate(update: any) {
-    // api.on('apiUpdate', update)
+    api.emit('apiUpdate', update)
   }
 
   async function attach() {
@@ -481,11 +440,6 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     setTimeout(() => {
       updatesState.syncLoading = false
     }, 1000)
-
-    // updatesState.seq = 1
-    // updatesState.pts = stateResult.pts - 5000
-    // updatesState.date = 1
-    // getDifference()
   }
 
   return {
