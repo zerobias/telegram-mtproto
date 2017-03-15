@@ -1,5 +1,5 @@
 const test = require('tap').test
-const { ApiManager } = require('../lib/index')
+const MTProto = require('../lib/index')
 
 const phone = {
   num : '+9996620000',
@@ -28,7 +28,7 @@ const config = {
 }
 
 
-const telegram = new ApiManager({ server, api, app: { } })
+const telegram = MTProto({ server, api, app: { } })
 
 test(`Connection test`, async t => {
   t.plan(1)

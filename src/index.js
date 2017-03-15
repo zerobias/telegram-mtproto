@@ -4,7 +4,7 @@ export { smartTimeout } from './util/smart-timeout'
 export { blueDefer } from './util/defer'
 export { CryptoWorker } from './crypto'
 export { bin } from './bin'
-export { ApiManager } from './service/api-manager/index.js'
+export { ApiManager } from './service/api-manager/index'
 export { PureStorage } from './store'
 
 import * as MtpTimeManager from './service/time-manager'
@@ -21,5 +21,6 @@ export { MtpNetworker }
 
 export { httpClient } from './http'
 
-import { ApiManager } from './service/api-manager/index.js'
-export default ApiManager
+import MTProto from './service/main/wrap'
+export default MTProto
+module.exports = MTProto

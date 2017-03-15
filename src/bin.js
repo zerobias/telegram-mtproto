@@ -272,8 +272,6 @@ export function addPadding(bytes, blockSize, zeroes) {
 }
 
 export function aesEncryptSync(bytes, keyBytes, ivBytes) {
-  const len = bytes.byteLength || bytes.length
-
   // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/)
   bytes = addPadding(bytes)
 
