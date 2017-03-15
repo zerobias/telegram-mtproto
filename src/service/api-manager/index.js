@@ -1,6 +1,7 @@
 //@flow
 
 import Promise from 'bluebird'
+import UpdatesManager from '../updates'
 
 import isNil from 'ramda/src/isNil'
 import is from 'ramda/src/is'
@@ -64,6 +65,7 @@ export class ApiManager {
   mtSchema: TLSchema
   keyManager: Args
   networkFabric: any
+  updatesManager: any
   auth: any
   on: On
   emit: Emit
@@ -97,7 +99,11 @@ export class ApiManager {
     const apiManager = this.mtpInvokeApi
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
+    apiManager.emit = this.emit
     apiManager.storage = storage
+
+    this.updatesManager = UpdatesManager(apiManager)
+    apiManager.updates = this.updatesManager
 
     return apiManager
   }
