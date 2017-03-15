@@ -500,7 +500,7 @@ export class Deserialization {
     const compressed = this.fetchBytes(`${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
-    const newDeserializer = new Deserialization(buffer)
+    const newDeserializer = new Deserialization(buffer, { mtproto: this.mtproto, override: this.override }, this.api, this.mtApi)
 
     return newDeserializer.fetchObject(type, field)
   }

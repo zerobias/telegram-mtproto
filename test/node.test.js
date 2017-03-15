@@ -1,5 +1,5 @@
 const test = require('tap').test
-const MTProto = require('../lib/index')
+const { MTProto } = require('../lib')
 
 const phone = {
   num : '+9996620000',
@@ -16,7 +16,7 @@ const api = {
 }
 const server = {
   dev     : true,
-  webogram: true
+  webogram: false
 }
 
 const config = {

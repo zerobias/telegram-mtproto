@@ -1,4 +1,4 @@
-const { ApiManager } = require('../lib/index')
+const { MTProto } = require('../lib')
 
 const api = {
   invokeWithLayer: 0xda9b0d0d,
@@ -11,6 +11,6 @@ const api = {
 
 const server = { webogram: true, dev: true }
 
-const telegram = new ApiManager({ api, server })
+const telegram = MTProto({ api, server })
 
 module.exports = telegram
