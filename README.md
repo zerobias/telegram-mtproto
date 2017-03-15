@@ -6,7 +6,7 @@
 
 ## About MTProto..
 
-**MTProto** is the [Telegram Messenger](http://www.telegram.org ) protocol
+**MTProto** is the [Telegram Messenger](http://www.telegram.org) protocol
 _"designed for access to a server API from applications running on mobile devices"_.
 
 The Mobile Protocol is subdivided into three components ([from the official site](https://core.telegram.org/mtproto#general-description)):
@@ -31,7 +31,9 @@ The **telegram-mtproto** library implements the **Mobile Protocol** and provides
 
  - Promise-based API
 
- - Both **TCP** and **HTTP connections** implemented in the transport layer
+ - **HTTP connections** implemented in the transport layer
+
+ - **Web worker** support for blazing fast crypto math works in background
 
  - A cipher implementation for **AES and RSA encryption** in the security layer
 
@@ -41,60 +43,112 @@ The **telegram-mtproto** library implements the **Mobile Protocol** and provides
 
  - **MTProto TL-Schema** compilation as **javascript classes and functions**
 
-## Usage
+ - Custom **async storage** support for saving user data between sessions
 
-```javascript
-const { Telegram, network } = require('telegram-mtproto')
-
-const fileSchema = require('./api-schema-57.json')
-
-const telegram = new Telegram(fileSchema)
-const addKey = key => telegram.addPublicKey(key)
-publicKeys.forEach(addKey)
-
-const connection = new network.http(server)
-const client = telegram.createClient()
-
-client.setConnection(connection)
-connection.connect()
-  .then(() => console.log(`api ready for requests`))
-  .then(() => client.callApi('auth.sendCode', {
-    phone_number  : phone.num,
-    current_number: false,
-    api_id        : config.id,
-    api_hash      : config.hash
-  }).then(
-  ({ phone_code_hash }) =>
-    client.callApi('auth.signIn', {
-      phone_number   : phone.num,
-      phone_code_hash: phone_code_hash,
-      phone_code     : phone.code
-    }))
-```
 
 ## Installation
 
 ```bash
-$ npm install --save telegram-mtproto
+$ npm install --save telegram-mtproto@beta
 ```
 
-## API
+## Usage
 
-- **network**. Classes for network connection
+```javascript
+import MTProto from 'telegram-mtproto'
 
-  - **http**
+const phone = {
+  num : '+9996620001',
+  code: '22222'
+}
 
-  - **tcp**
+const api = {
+  invokeWithLayer: 0xda9b0d0d,
+  layer          : 57,
+  initConnection : 0x69796de9,
+  api_id         : 49631
+}
 
-- **tl**. Telegram schema api
+const server = {
+  dev: true //We will connect to the test server.
+}           //Any empty configurations fields can just not be specified
 
-- **Telegram**. High level api.
+const client = MTProto({ server, api })
 
-  - **createClient** *() => TelegramClient*
+async function connect(){
+  const { phone_code_hash } = await client('auth.sendCode', {
+    phone_number  : phone.num,
+    current_number: false,
+    api_id        : 49631,
+    api_hash      : 'fb050b8f6771e15bfda5df2409931569'
+  })
+  const { user } = await client('auth.signIn', {
+    phone_number   : phone.num,
+    phone_code_hash: phone_code_hash,
+    phone_code     : phone.code
+  })
+
+  console.log('signed as ', user)
+}
+
+connect()
+```
+
+Above we used two functions from the API.
+```typescript
+type auth.sendCode = (phone_number: string, sms_type: int,
+  api_id: int, api_hash: string, lang_code: string) => {
+    phone_registered: boolean,
+    phone_code_hash: string,
+    send_call_timeout: int,
+    is_password: boolean
+  }
+
+type auth.signIn = (phone_number: string, phone_code_hash: string, phone_code: string) => {
+  expires: int,
+  user: User
+}
+```
+[More][send-code] about [them][sign-in], as well as about many other methods, you can read in the [official documentation][docs].
+
+Additional examples can be obtained from [examples][examples] folder.
+
+## Storage
+
+You can use your own storages like [localForage][localForage] for saving data.
+Module accepts the following interface
+
+```typescript
+interface AsyncStorage {
+  get(key: string): Promise<any>;
+  set(obj: any): Promise<void>;
+  remove(...keys: string[]): Promise<void>;
+  clear(): Promise<void>;
+}
+```
+
+```javascript
+import { MTProto } from 'telegram-mtproto'
+import { api } from './config'
+import CustomStorage from './storage'
+
+const client = MTProto({
+  api,
+  app: {
+    storage: CustomStorage
+  }
+})
+
+```
 
 ## License
 
 The project is released under the [Mit License](./LICENSE)
 
+[examples]: https://github.com/zerobias/telegram-mtproto/tree/develop/examples
+[localForage]: https://github.com/localForage/localForage
+[docs]: https://core.telegram.org/
+[send-code]: https://core.telegram.org/method/auth.sendCode
+[sign-in]: https://core.telegram.org/method/auth.signIn
 [npm-url]: https://www.npmjs.org/package/telegram-mtproto
 [npm-image]: https://badge.fury.io/js/telegram-mtproto.svg

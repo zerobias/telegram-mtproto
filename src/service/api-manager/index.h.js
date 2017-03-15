@@ -1,32 +1,10 @@
-import type { TLSchema } from '../../tl/types'
+//@flow
 
 export type Bytes = number[]
 
-export type PublicKey = {
+export type PublicKey = { //TODO remove this
   modulus: string,
   exponent: string
-}
-
-export type ApiConfig = {
-  invokeWithLayer?: number,
-  layer          ?: number,
-  initConnection ?: number,
-  api_id         ?: number,
-  device_model   ?: string,
-  system_version ?: string,
-  app_version    ?: string,
-  lang_code      ?: string
-}
-
-export type ConfigType = {
-  server?: {},
-  api?: ApiConfig,
-  app?: {
-    storage?: AsyncStorage,
-    publicKeys?: PublicKey[]
-  },
-  schema?: TLSchema,
-  mtSchema?: TLSchema,
 }
 
 export type LeftOptions = {
@@ -36,7 +14,7 @@ export type LeftOptions = {
   fileUpload?: boolean
 }
 
-export type AsyncStorage = {
+export type AsyncStorage = { //TODO remove this
   get(...keys: string[]): Promise<any[]>,
   set(obj: Object): Promise<Object>,
   remove(...keys: string[]): Promise<any>,
@@ -62,10 +40,10 @@ export type Cache = {
 }
 
 export type ApiManagerInstance = {
+  (method: string): Promise<any>,
+  (method: string, params: Object): Promise<any>,
+  (method: string, params: Object, options: Object): Promise<any>,
   storage: AsyncStorage,
-  (method: string): Promise<*>,
-  (method: string, params: Object): Promise<*>,
-  (method: string, params: Object, options: Object): Promise<*>,
-  setUserAuth(dc: number, userAuth: *): void,
-  on(event: string|string[], handler: Function): void
+  setUserAuth(dc: number, userAuth: any): void,
+  on: (event: string | string[], handler: Function) => void
 }

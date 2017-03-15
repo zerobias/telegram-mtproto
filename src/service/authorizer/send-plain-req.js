@@ -1,23 +1,26 @@
 //@flow
 
 import Promise from 'bluebird'
-import { pathEq, allPass, has } from 'ramda'
+
+import has from 'ramda/src/has'
+import pathEq from 'ramda/src/pathEq'
+import allPass from 'ramda/src/allPass'
 
 import httpClient from '../../http'
 import { ErrorBadResponse, ErrorNotFound } from '../../error'
 import { generateID } from '../time-manager'
 
+import type { TLFabric } from '../../tl'
+
 const is404 = pathEq(['response', 'status'], 404)
 const notError = allPass([has('message'), has('type')])
 
-export type TLs = { Serialization: any, Deserialization: any }
-
-const SendPlain = ({ Serialization, Deserialization }: TLs) => {
+const SendPlain = ({ Serialization, Deserialization }: TLFabric) => {
   const onlySendPlainReq = (url: string, requestBuffer: ArrayBuffer) => {
     const requestLength = requestBuffer.byteLength,
           requestArray = new Int32Array(requestBuffer)
 
-    const header = new Serialization()
+    const header = Serialization()
     header.storeLongP(0, 0, 'auth_key_id') // Auth key
     header.storeLong(generateID(), 'msg_id') // Msg_id
     header.storeInt(requestLength, 'request_length')
@@ -64,10 +67,10 @@ const SendPlain = ({ Serialization, Deserialization }: TLs) => {
       return Promise.reject(new ErrorBadResponse(url))
     let deserializer
     try {
-      deserializer = new Deserialization(req.data, { mtproto: true })
-      const auth_key_id = deserializer.fetchLong('auth_key_id')
-      const msg_id = deserializer.fetchLong('msg_id')
-      const msg_len = deserializer.fetchInt('msg_len')
+      deserializer = Deserialization(req.data, { mtproto: true })
+      deserializer.fetchLong('auth_key_id')
+      deserializer.fetchLong('msg_id')
+      deserializer.fetchInt('msg_len')
     } catch (e) {
       return Promise.reject(new ErrorBadResponse(url, e))
     }

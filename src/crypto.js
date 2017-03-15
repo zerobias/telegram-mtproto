@@ -1,4 +1,8 @@
-import { when, is, identity, has, both } from 'ramda'
+import when from 'ramda/src/when'
+import is from 'ramda/src/is'
+import identity from 'ramda/src/identity'
+import has from 'ramda/src/has'
+import both from 'ramda/src/both'
 import isNode from 'detect-node'
 
 import blueDefer from './util/defer'

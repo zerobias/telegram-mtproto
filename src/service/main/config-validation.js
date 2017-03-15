@@ -1,6 +1,6 @@
 import Ajv from 'ajv'
 import AjvKeys from 'ajv-keywords/keywords/typeof'
-import { propIs } from 'ramda'
+import propIs from 'ramda/src/propIs'
 
 const type = {
   func: { typeof: 'function' },

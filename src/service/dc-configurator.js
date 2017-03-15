@@ -1,4 +1,8 @@
-import { propEq, find, pipe, has, prop } from 'ramda'
+import has from 'ramda/src/has'
+import propEq from 'ramda/src/propEq'
+import find from 'ramda/src/find'
+import pipe from 'ramda/src/pipe'
+import prop from 'ramda/src/prop'
 
 const sslSubdomains = ['pluto', 'venus', 'aurora', 'vesta', 'flora']
 

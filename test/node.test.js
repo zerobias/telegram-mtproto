@@ -1,5 +1,5 @@
 const test = require('tap').test
-const { ApiManager } = require('../lib/index')
+const { MTProto } = require('../lib')
 
 const phone = {
   num : '+9996620000',
@@ -16,7 +16,7 @@ const api = {
 }
 const server = {
   dev     : true,
-  webogram: true
+  webogram: false
 }
 
 const config = {
@@ -28,7 +28,7 @@ const config = {
 }
 
 
-const telegram = new ApiManager({ server, api, app: { } })
+const telegram = MTProto({ server, api, app: { } })
 
 test(`Connection test`, async t => {
   t.plan(1)
@@ -36,7 +36,6 @@ test(`Connection test`, async t => {
     let res, i = 0
     while (i<5) {
       try {
-        // res = await telegram('help.getNearestDc', {}, { dcID: 2, createNetworker: true })
         const { phone_code_hash } = await telegram('auth.sendCode', {
               phone_number  : phone.num,
               current_number: false,
@@ -49,9 +48,9 @@ test(`Connection test`, async t => {
           phone_code_hash,
           phone_code  : phone.code
         })
-        console.log('signIn', res)
+        // console.log('signIn', res)
         console.log('\n Logined as user')
-        // console.dir(res.user, { colors: true })
+        console.dir(res.user, { colors: true })
         t.ok(res, 'result is ok')
         break
       } catch (err) {

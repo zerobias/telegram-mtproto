@@ -1,10 +1,8 @@
-import { toLower } from 'ramda'
+import toLower from 'ramda/src/toLower'
 import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
 const { CryptoJS } = CryptoJSlib
 import { inflate } from 'pako/lib/inflate'
-
-// import Timer from 'hirestime' //TODO remove in prod!
 
 import random from './service/secure-random'
 
@@ -274,8 +272,6 @@ export function addPadding(bytes, blockSize, zeroes) {
 }
 
 export function aesEncryptSync(bytes, keyBytes, ivBytes) {
-  const len = bytes.byteLength || bytes.length
-
   // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/)
   bytes = addPadding(bytes)
 

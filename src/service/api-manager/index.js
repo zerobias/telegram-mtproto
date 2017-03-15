@@ -1,40 +1,43 @@
 //@flow
 
 import Promise from 'bluebird'
-import EventEmitter from 'eventemitter2'
 
-import { pathSatisfies, complement, isNil, is,
-  propEq, has } from 'ramda'
+import isNil from 'ramda/src/isNil'
+import is from 'ramda/src/is'
+import propEq from 'ramda/src/propEq'
+import has from 'ramda/src/has'
+import pathSatisfies from 'ramda/src/pathSatisfies'
+import complement from 'ramda/src/complement'
 
 import Logger from '../../util/log'
 const debug = Logger`api-manager`
 
-import NetworkerFabric from '../networker'
 import Auth from '../authorizer'
 import type { Args } from '../authorizer'
-import { PureStorage } from '../../store'
+
 import blueDefer from '../../util/defer'
 import { dTime } from '../time-manager'
 import { chooseServer } from '../dc-configurator'
-import TL from '../../tl'
+
 import KeyManager from '../rsa-keys-manger'
-import { MTError, AuthKeyError } from '../../error'
+import { AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-import type { TLs } from '../authorizer/send-plain-req'
+import type { TLFabric } from '../../tl'
 import type { TLSchema } from '../../tl/types'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
-import configValidator from './config-validation'
+
 import Request from './request'
-import UpdatesManager from '../updates'
 
-import type { Bytes, PublicKey, ApiConfig, ConfigType,
-  LeftOptions, AsyncStorage, NetworkerType, Cache } from './index.h'
+import type { Bytes, PublicKey, LeftOptions, AsyncStorage, Cache } from './index.h'
 
-const api57 = require('../../../schema/api-57.json')
-const mtproto57 = require('../../../schema/mtproto-57.json')
+import type { ApiConfig, StrictConfig } from '../main/index.h'
+
+import type { Networker } from '../networker'
+
+import type { Emit, On } from '../main/index.h'
 
 const hasPath = pathSatisfies( complement( isNil ) )
 
@@ -42,33 +45,9 @@ const baseDcID = 2
 
 const Ln = (length, obj) => obj && propEq('length', length, obj)
 
-/**
-*  Server public key, obtained from here: https://core.telegram.org/api/obtaining_api_id
-*
-* -----BEGIN RSA PUBLIC KEY-----
-* MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zwrzKOaaQdr01vAbU4E1pvkfj4sqDsm6
-* lyDONS789sVoD/xCS9Y0hkkC3gtL1tSfTlgCMOOul9lcixlEKzwKENj1Yz/s7daS
-* an9tqw3bfUV/nqgbhGX81v/+7RFAEd+RwFnK7a+XYl9sluzHRyVVaTTveB2GazTw
-* Efzk2DWgkBluml8OREmvfraX3bkHZJTKX4EQSjBbbdJ2ZXIsRrYOXfaA+xayEGB+
-* 8hdlLmAjbCVfaigxX0CDqWeR1yFL9kwd9P0NsZRPsmoqVwMbMu7mStFai6aIhc3n
-* Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB
-* -----END RSA PUBLIC KEY-----
-*/
-
-const publisKeysHex = [{ //TODO Move this to ApiManager config
-  //eslint-disable-next-line
-  modulus : 'c150023e2f70db7985ded064759cfecf0af328e69a41daf4d6f01b538135a6f91f8f8b2a0ec9ba9720ce352efcf6c5680ffc424bd634864902de0b4bd6d49f4e580230e3ae97d95c8b19442b3c0a10d8f5633fecedd6926a7f6dab0ddb7d457f9ea81b8465fcd6fffeed114011df91c059caedaf97625f6c96ecc74725556934ef781d866b34f011fce4d835a090196e9a5f0e4449af7eb697ddb9076494ca5f81104a305b6dd27665722c46b60e5df680fb16b210607ef217652e60236c255f6a28315f4083a96791d7214bf64c1df4fd0db1944fb26a2a57031b32eee64ad15a8ba68885cde74a5bfc920f6abf59ba5c75506373e7130f9042da922179251f',
-  exponent: '010001'
-}]
-
 
 
 export class ApiManager {
-  emitter = new EventEmitter({
-    wildcard: true
-  })
-  on = this.emitter.on.bind(this.emitter)
-  emit = this.emitter.emit.bind(this.emitter)
   cache: Cache = {
     uploader  : {},
     downloader: {},
@@ -76,59 +55,43 @@ export class ApiManager {
     servers   : {},
     keysParsed: {}
   }
-  static apiConfig: ApiConfig = {
-    invokeWithLayer: 0xda9b0d0d,
-    layer          : 57,
-    initConnection : 0x69796de9,
-    api_id         : 49631,
-    device_model   : 'Unknown UserAgent',
-    system_version : 'Unknown Platform',
-    app_version    : '1.0.1',
-    lang_code      : 'en'
-  }
   apiConfig: ApiConfig
   publicKeys: PublicKey[]
   storage: AsyncStorage
-  TL: TLs
+  TL: TLFabric
   serverConfig: {}
   schema: TLSchema
   mtSchema: TLSchema
   keyManager: Args
   networkFabric: any
-  updatesManager: any
   auth: any
+  on: On
+  emit: Emit
   chooseServer: (dcID: number, upload?: boolean) => {}
-  constructor({
-      server = {},
-      api = {},
-      app: {
-        storage = PureStorage,
-        publicKeys = publisKeysHex
-      } = {},
-      schema = api57,
-      mtSchema = mtproto57,
-    }: ConfigType = {}) {
-    this.apiConfig = { ...ApiManager.apiConfig, ...api }
-    const fullCfg = {
+  constructor(config: StrictConfig, tls: TLFabric, netFabric: Function, { on, emit }: { on: On, emit: Emit }) {
+    const {
       server,
-      api: this.apiConfig,
-      app: { storage, publicKeys },
+      api,
+      app: {
+        storage,
+        publicKeys
+      },
       schema,
       mtSchema
-    }
-    configValidator(fullCfg)
+    } = config
+    this.apiConfig = api
     this.publicKeys = publicKeys
     this.storage = storage
     this.serverConfig = server
     this.schema = schema
     this.mtSchema = mtSchema
     this.chooseServer = chooseServer(this.cache.servers, server)
-
-    this.TL = TL(schema, mtSchema)
+    this.on = on
+    this.emit = emit
+    this.TL = tls
     this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
     this.auth = Auth(this.TL, this.keyManager)
-    this.networkFabric = NetworkerFabric(this.apiConfig, this.chooseServer, this.TL,
-                                         storage, this.emit)
+    this.networkFabric = netFabric(this.chooseServer)
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
     const apiManager = this.mtpInvokeApi
@@ -136,17 +99,15 @@ export class ApiManager {
     apiManager.on = this.on
     apiManager.storage = storage
 
-    this.updatesManager = UpdatesManager(apiManager)
-
     return apiManager
   }
   networkSetter = (dc: number, options: LeftOptions) =>
-    (authKey: Bytes, serverSalt: Bytes): NetworkerType => {
-      const networker = new this.networkFabric(dc, authKey, serverSalt, options)
+    (authKey: Bytes, serverSalt: Bytes): Networker => {
+      const networker = this.networkFabric(dc, authKey, serverSalt, options)
       this.cache.downloader[dc] = networker
       return networker
     }
-  mtpGetNetworker = async (dcID: number, options: LeftOptions = {}): Promise<NetworkerType> => {
+  mtpGetNetworker = async (dcID: number, options: LeftOptions = {}) => {
     // const isUpload = options.fileUpload || options.fileDownload
     // const cache = isUpload
     //   ? this.cache.uploader
@@ -206,8 +167,6 @@ export class ApiManager {
       const networker = await this.mtpGetNetworker(baseDc, opts)
       const nearestDc = await networker.wrapApiCall(
         'help.getNearestDc', {}, opts)
-      let a = 0
-      a += 1
       const { nearest_dc } = nearestDc
       await this.storage.set('dc', nearest_dc)
       debug(`nearest Dc`)('%O', nearestDc)
