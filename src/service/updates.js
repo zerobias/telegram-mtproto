@@ -24,7 +24,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   let myID = 0
   getUserID().then(id => myID = id)
 
-  const getUserID = async () => {
+  async function getUserID() {
     const auth = await api.storage.get('user_auth')
     return auth.id || 0
   }
