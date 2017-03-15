@@ -1,5 +1,7 @@
 //@flow
 
+import type { Emit, On } from '../main/index.h'
+
 export type Bytes = number[]
 
 export type PublicKey = { //TODO remove this
@@ -45,5 +47,6 @@ export type ApiManagerInstance = {
   (method: string, params: Object, options: Object): Promise<any>,
   storage: AsyncStorage,
   setUserAuth(dc: number, userAuth: any): void,
-  on: (event: string | string[], handler: Function) => void
+  on: On,
+  emit: Emit
 }
