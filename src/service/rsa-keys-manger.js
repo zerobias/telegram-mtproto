@@ -2,13 +2,13 @@ import Promise from 'bluebird'
 import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../bin'
 
+import type { SerializationFabric } from '../tl'
 
-
-export const KeyManager = (Serialization, publisKeysHex, publicKeysParsed) => {
+export const KeyManager = (Serialization: SerializationFabric, publisKeysHex, publicKeysParsed) => {
   let prepared = false
 
   const mapPrepare = ({ modulus, exponent }) => {
-    const RSAPublicKey = new Serialization()
+    const RSAPublicKey = Serialization()
     RSAPublicKey.storeBytes(bytesFromHex(modulus), 'n')
     RSAPublicKey.storeBytes(bytesFromHex(exponent), 'e')
 

@@ -25,6 +25,9 @@ import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   nextRandomInt, bytesCmp, bytesToHex, bytesFromArrayBuffer,
   bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../../bin'
 
+import type { TLFabric, SerializationFabric, DeserializationFabric } from '../../tl'
+import type { Emit } from '../main/index.h'
+
 let updatesProcessor
 let iii = 0
 let akStopped = false
@@ -40,6 +43,12 @@ type NetOptions = {
   resultType?: any
 }
 type Bytes = number[]
+
+type ContextConfig = {
+  Serialization: SerializationFabric,
+  Deserialization: DeserializationFabric,
+  emit: Emit
+}
 
 export class NetworkerThread {
   dcID: number
@@ -58,6 +67,9 @@ export class NetworkerThread {
   connectionInited = false
   checkConnectionPeriod = 0
   checkConnectionPromise: Promise<*>
+  Serialization: SerializationFabric
+  Deserialization: DeserializationFabric
+  emit: Emit
   lastServerMessages: string[] = []
   constructor(
     {
@@ -67,7 +79,7 @@ export class NetworkerThread {
       Deserialization,
       storage,
       emit
-    },
+    }: ContextConfig,
     dc: number,
     authKey: string,
     serverSalt: string,
@@ -142,7 +154,7 @@ export class NetworkerThread {
   }
 
   wrapMtpCall(method: string, params: Object, options: NetOptions) {
-    const serializer = new this.Serialization({ mtproto: true })
+    const serializer = this.Serialization({ mtproto: true })
 
     serializer.storeMethod(method, params)
 
@@ -159,7 +171,7 @@ export class NetworkerThread {
 
   wrapMtpMessage(object: Object, options: NetOptions = {}) {
 
-    const serializer = new this.Serialization({ mtproto: true })
+    const serializer = this.Serialization({ mtproto: true })
     serializer.storeObject(object, 'Object')
 
     const seqNo = this.generateSeqNo(options.notContentRelated)
@@ -174,7 +186,7 @@ export class NetworkerThread {
   }
 
   wrapApiCall(method: string, params: Object, options: NetOptions) {
-    const serializer = new this.Serialization(options)
+    const serializer = this.Serialization(options)
 
     if (!this.connectionInited) {
       // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
@@ -328,7 +340,7 @@ export class NetworkerThread {
     log([`Check connection`])('%O', event)
     smartTimeout.cancel(this.checkConnectionPromise)
 
-    const serializer = new this.Serialization({ mtproto: true })
+    const serializer = this.Serialization({ mtproto: true })
     const pingID = [nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF)]
 
     serializer.storeMethod('ping', { ping_id: pingID })
@@ -466,7 +478,7 @@ export class NetworkerThread {
     }
 
     if (hasApiCall && !hasHttpWait) {
-      const serializer = new this.Serialization({ mtproto: true })
+      const serializer = this.Serialization({ mtproto: true })
       serializer.storeMethod('http_wait', {
         max_delay : 500,
         wait_after: 150,
@@ -486,7 +498,7 @@ export class NetworkerThread {
     const noResponseMsgs = []
 
     if (messages.length > 1) {
-      const container = new this.Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
+      const container = this.Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
       container.storeInt(0x73f1f8dc, 'CONTAINER[id]')
       container.storeInt(messages.length, 'CONTAINER[count]')
       const innerMessages = []
@@ -567,7 +579,7 @@ export class NetworkerThread {
   sendEncryptedRequest = async (message: NetMessage, options = {}) => {
     // console.log(dTime(), 'Send encrypted'/*, message*/)
     // console.trace()
-    const data = new this.Serialization({ startMaxLength: message.body.length + 64 })
+    const data = this.Serialization({ startMaxLength: message.body.length + 64 })
 
     data.storeIntBytes(this.serverSalt, 64, 'salt')
     data.storeIntBytes(this.sessionID, 64, 'session_id')
@@ -587,7 +599,7 @@ export class NetworkerThread {
     const keyIv = await this.getMsgKeyIv(msgKey, true)
     const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
 
-    const request = new this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 })
+    const request = this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 })
     request.storeIntBytes(this.authKeyID, 64, 'auth_key_id')
     request.storeIntBytes(msgKey, 128, 'msg_key')
     request.storeRawBytes(encryptedBytes, 'encrypted_data')
@@ -614,7 +626,7 @@ export class NetworkerThread {
     // console.log(dTime(), 'Start parsing response')
     // const self = this
 
-    const deserializerRaw = new this.Deserialization(responseBuffer)
+    const deserializerRaw = this.Deserialization(responseBuffer)
 
     const authKeyID = deserializerRaw.fetchIntBytes(64, 'auth_key_id')
     if (!bytesCmp(authKeyID, this.authKeyID)) {
@@ -629,7 +641,7 @@ export class NetworkerThread {
     const keyIv = await this.getMsgKeyIv(msgKey, false)
     const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
     // console.log(dTime(), 'after decrypt')
-    const deserializer = new this.Deserialization(dataWithPadding, { mtproto: true })
+    const deserializer = this.Deserialization(dataWithPadding, { mtproto: true })
 
     deserializer.fetchIntBytes(64, 'salt')
     const sessionID = deserializer.fetchIntBytes(64, 'session_id')
@@ -672,7 +684,7 @@ export class NetworkerThread {
 
     const buffer = bytesToArrayBuffer(messageBody)
     const deserializerOptions = getDeserializeOpts(this.getMsgById)
-    const deserializerData = new this.Deserialization(buffer, deserializerOptions)
+    const deserializerData = this.Deserialization(buffer, deserializerOptions)
     const response = deserializerData.fetchObject('', 'INPUT')
 
     return {
@@ -931,11 +943,13 @@ export class NetworkerThread {
   }
 }
 
+export type Networker = NetworkerThread
+
 export const NetworkerFabric = (
   appConfig,
-  { Serialization, Deserialization },
+  { Serialization, Deserialization }: TLFabric,
   storage,
-  emit) => chooseServer =>
+  emit: Emit) => chooseServer =>
     (dc: number,
     authKey: string,
     serverSalt: string,

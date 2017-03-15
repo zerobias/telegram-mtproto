@@ -1,3 +1,5 @@
+//@flow
+
 import type { TLSchema } from '../../tl/types'
 
 export type ApiConfig = {
@@ -12,12 +14,12 @@ export type ApiConfig = {
 }
 
 export type AsyncStorage = {
-  get(...keys: string[]): Promise<any[]>,
-  set(obj: Object): Promise<Object>,
-  remove(...keys: string[]): Promise<any>,
-  clear(): Promise<{}>,
-  setPrefix(): void,
-  noPrefix(): void
+  get: (...keys: string[]) => Promise<any[]>,
+  set: (obj: Object) => Promise<Object>,
+  remove: (...keys: string[]) => Promise<any>,
+  clear: () => Promise<{}>,
+  setPrefix: () => void,
+  noPrefix: () => void
 }
 
 export type PublicKey = {
@@ -46,3 +48,7 @@ export type StrictConfig = {
   schema: TLSchema,
   mtSchema: TLSchema,
 }
+
+export type Emit = (event: string | string[], ...values: any[]) => boolean
+
+export type On = (event: string, listener: (...values: any[]) => void) => void

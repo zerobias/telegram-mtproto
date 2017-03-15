@@ -2,20 +2,19 @@
 
 import EventEmitter from 'eventemitter2'
 
-import Logger from '../../util/log'
-const debug = Logger`main`
 import { ApiManager } from '../api-manager'
 import NetworkerFabric from '../networker'
 import { PureStorage } from '../../store'
 import TL from '../../tl'
-const api57 = require('../../../schema/api-57.json')
-const mtproto57 = require('../../../schema/mtproto-57.json')
 
 import configValidator from './config-validation'
 
+import type { TLFabric } from '../../tl'
+import type { ApiConfig, ConfigType, StrictConfig, Emit, On, PublicKey } from './index.h'
+import type { ApiManagerInstance } from '../api-manager/index.h'
 
-import type { TLs } from '../authorizer/send-plain-req'
-import type { ApiConfig, ConfigType, StrictConfig } from './index.h'
+const api57 = require('../../../schema/api-57.json')
+const mtproto57 = require('../../../schema/mtproto-57.json')
 
 const apiConfig: ApiConfig = {
   invokeWithLayer: 0xda9b0d0d,
@@ -30,17 +29,18 @@ const apiConfig: ApiConfig = {
 
 class MTProto {
   config: StrictConfig
-  tls: TLs
+  tls: TLFabric
   emitter = new EventEmitter({
     wildcard: true
   })
-  on = this.emitter.on.bind(this.emitter)
-  emit = this.emitter.emit.bind(this.emitter)
+  api: ApiManagerInstance
+  on: On = this.emitter.on.bind(this.emitter)
+  emit: Emit = this.emitter.emit.bind(this.emitter)
   constructor(config: ConfigType) {
     this.config = configNormalization(config)
     this.tls = TL(this.config.schema, this.config.mtSchema)
-    this.netFabric = NetworkerFabric(this.config.api, this.tls, this.config.app.storage, this.emit)
-    this.api = new ApiManager(this.config, this.tls, this.netFabric, { on: this.on, emit: this.emit })
+    const netFabric = NetworkerFabric(this.config.api, this.tls, this.config.app.storage, this.emit)
+    this.api = new ApiManager(this.config, this.tls, netFabric, { on: this.on, emit: this.emit })
   }
 }
 
@@ -82,8 +82,15 @@ const configNormalization = (config: ConfigType): StrictConfig => {
 * -----END RSA PUBLIC KEY-----
 */
 
-const publisKeysHex = [{ //TODO Move this to ApiManager config
-  //eslint-disable-next-line
-  modulus : 'c150023e2f70db7985ded064759cfecf0af328e69a41daf4d6f01b538135a6f91f8f8b2a0ec9ba9720ce352efcf6c5680ffc424bd634864902de0b4bd6d49f4e580230e3ae97d95c8b19442b3c0a10d8f5633fecedd6926a7f6dab0ddb7d457f9ea81b8465fcd6fffeed114011df91c059caedaf97625f6c96ecc74725556934ef781d866b34f011fce4d835a090196e9a5f0e4449af7eb697ddb9076494ca5f81104a305b6dd27665722c46b60e5df680fb16b210607ef217652e60236c255f6a28315f4083a96791d7214bf64c1df4fd0db1944fb26a2a57031b32eee64ad15a8ba68885cde74a5bfc920f6abf59ba5c75506373e7130f9042da922179251f',
+const publisKeysHex: PublicKey[] = [{
+  modulus:
+  'c150023e2f70db7985ded064759cfecf0af328e69a41daf4d6f01b538135a6f91f' +
+  '8f8b2a0ec9ba9720ce352efcf6c5680ffc424bd634864902de0b4bd6d49f4e5802' +
+  '30e3ae97d95c8b19442b3c0a10d8f5633fecedd6926a7f6dab0ddb7d457f9ea81b' +
+  '8465fcd6fffeed114011df91c059caedaf97625f6c96ecc74725556934ef781d86' +
+  '6b34f011fce4d835a090196e9a5f0e4449af7eb697ddb9076494ca5f81104a305b' +
+  '6dd27665722c46b60e5df680fb16b210607ef217652e60236c255f6a28315f4083' +
+  'a96791d7214bf64c1df4fd0db1944fb26a2a57031b32eee64ad15a8ba68885cde7' +
+  '4a5bfc920f6abf59ba5c75506373e7130f9042da922179251f',
   exponent: '010001'
 }]

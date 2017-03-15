@@ -1,3 +1,4 @@
+//@flow
 
 export type Bytes = number[]
 
@@ -39,10 +40,10 @@ export type Cache = {
 }
 
 export type ApiManagerInstance = {
+  (method: string): Promise<any>,
+  (method: string, params: Object): Promise<any>,
+  (method: string, params: Object, options: Object): Promise<any>,
   storage: AsyncStorage,
-  (method: string): Promise<*>,
-  (method: string, params: Object): Promise<*>,
-  (method: string, params: Object, options: Object): Promise<*>,
-  setUserAuth(dc: number, userAuth: *): void,
-  on(event: string|string[], handler: Function): void
+  setUserAuth(dc: number, userAuth: any): void,
+  on: (event: string | string[], handler: Function) => void
 }

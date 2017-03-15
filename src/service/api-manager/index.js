@@ -24,15 +24,20 @@ import { AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-import type { TLs } from '../authorizer/send-plain-req'
+import type { TLFabric } from '../../tl'
 import type { TLSchema } from '../../tl/types'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 
 import Request from './request'
 
-import type { Bytes, PublicKey, ApiConfig, ConfigType,
-  LeftOptions, AsyncStorage, NetworkerType, Cache } from './index.h'
+import type { Bytes, PublicKey, LeftOptions, AsyncStorage, Cache } from './index.h'
+
+import type { ApiConfig, StrictConfig } from '../main/index.h'
+
+import type { Networker } from '../networker'
+
+import type { Emit, On } from '../main/index.h'
 
 const hasPath = pathSatisfies( complement( isNil ) )
 
@@ -53,15 +58,17 @@ export class ApiManager {
   apiConfig: ApiConfig
   publicKeys: PublicKey[]
   storage: AsyncStorage
-  TL: TLs
+  TL: TLFabric
   serverConfig: {}
   schema: TLSchema
   mtSchema: TLSchema
   keyManager: Args
   networkFabric: any
   auth: any
+  on: On
+  emit: Emit
   chooseServer: (dcID: number, upload?: boolean) => {}
-  constructor(config: ConfigType = {}, tls: TLs, netFabric: Function, { on, emit }: any) {
+  constructor(config: StrictConfig, tls: TLFabric, netFabric: Function, { on, emit }: { on: On, emit: Emit }) {
     const {
       server,
       api,
@@ -95,12 +102,12 @@ export class ApiManager {
     return apiManager
   }
   networkSetter = (dc: number, options: LeftOptions) =>
-    (authKey: Bytes, serverSalt: Bytes): NetworkerType => {
+    (authKey: Bytes, serverSalt: Bytes): Networker => {
       const networker = this.networkFabric(dc, authKey, serverSalt, options)
       this.cache.downloader[dc] = networker
       return networker
     }
-  mtpGetNetworker = async (dcID: number, options: LeftOptions = {}): Promise<NetworkerType> => {
+  mtpGetNetworker = async (dcID: number, options: LeftOptions = {}) => {
     // const isUpload = options.fileUpload || options.fileDownload
     // const cache = isUpload
     //   ? this.cache.uploader

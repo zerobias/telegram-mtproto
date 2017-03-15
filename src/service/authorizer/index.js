@@ -18,7 +18,8 @@ import { bpe, str2bigInt, one,
 // import { ErrorBadResponse } from '../../error'
 
 import SendPlainReq from './send-plain-req'
-import type { TLs } from './send-plain-req'
+
+import type { TLFabric } from '../../tl'
 
 const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' +
   '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' +
@@ -96,14 +97,14 @@ type AuthBasic = {
   serverSalt: Bytes
 }
 
-export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare }: Args) => {
+export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, prepare }: Args) => {
   const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
 
   function mtpSendReqPQ(auth: AuthBasic) {
     const deferred = auth.deferred
     asyncLog('Send req_pq', bytesToHex(auth.nonce))
 
-    const request = new Serialization({ mtproto: true })
+    const request = Serialization({ mtproto: true })
 
     request.storeMethod('req_pq', { nonce: auth.nonce })
 
@@ -164,7 +165,7 @@ export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare 
     auth.newNonce = new Array(32)
     random(auth.newNonce)
 
-    const data = new Serialization({ mtproto: true })
+    const data = Serialization({ mtproto: true })
     data.storeObject({
       _           : 'p_q_inner_data',
       pq          : auth.pq,
@@ -177,7 +178,7 @@ export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare 
 
     const dataWithHash = sha1BytesSync(data.getBuffer()).concat(data.getBytes())
 
-    const request = new Serialization({ mtproto: true })
+    const request = Serialization({ mtproto: true })
     request.storeMethod('req_DH_params', {
       nonce                 : auth.nonce,
       server_nonce          : auth.serverNonce,
@@ -244,7 +245,7 @@ export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare 
     const answerWithPadding = answerWithHash.slice(20)
     const buffer = bytesToArrayBuffer(answerWithPadding)
 
-    const deserializer = new Deserialization(buffer, { mtproto: true })
+    const deserializer = Deserialization(buffer, { mtproto: true })
     const response = deserializer.fetchObject('Server_DH_inner_data')
 
     if (response._ !== 'server_DH_inner_data')
@@ -417,7 +418,7 @@ export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare 
     }
 
     const onGb = (gB) => {
-      const data = new Serialization({ mtproto: true })
+      const data = Serialization({ mtproto: true })
       data.storeObject({
         _           : 'client_DH_inner_data',
         nonce       : auth.nonce,
@@ -430,7 +431,7 @@ export const Auth = ({ Serialization, Deserialization }: TLs, { select, prepare 
 
       const encryptedData = aesEncryptSync(dataWithHash, auth.tmpAesKey, auth.tmpAesIv)
 
-      const request = new Serialization({ mtproto: true })
+      const request = Serialization({ mtproto: true })
       request.storeMethod('set_client_DH_params', {
         nonce         : auth.nonce,
         server_nonce  : auth.serverNonce,
