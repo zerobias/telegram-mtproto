@@ -15,6 +15,10 @@ import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
 import { bpe, str2bigInt, one,
     dup, sub_, sub, greater } from '../../vendor/leemon'
 
+import Logger from '../../util/log'
+
+const log = Logger`auth`
+
 // import { ErrorBadResponse } from '../../error'
 
 import SendPlainReq from './send-plain-req'
@@ -28,12 +32,6 @@ const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93
   '4d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9c' +
   'a3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851' +
   'f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b'
-
-const asyncLog = (...data) => {
-  const time = dTime()
-  console.log(time, ...data)
-  // setTimeout(() => console.log(time, ...data), 300)
-}
 
 const concat = (e1, e2) => [...e1, ...e2]
 
@@ -97,12 +95,26 @@ type AuthBasic = {
   serverSalt: Bytes
 }
 
+const minSize = Math.ceil(64 / bpe) + 1
+
+const getTwoPow = () => { //Dirty hack to count 2^(2048 - 64)
+                          //This number contains 496 zeroes in hex
+  const arr = Array(496)
+    .fill('0')
+  arr.unshift('1')
+  const hex = arr.join('')
+  const res = str2bigInt(hex, 16, minSize)
+  return res
+}
+
+const leemonTwoPow = getTwoPow()
+
 export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, prepare }: Args) => {
   const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
 
   function mtpSendReqPQ(auth: AuthBasic) {
     const deferred = auth.deferred
-    asyncLog('Send req_pq', bytesToHex(auth.nonce))
+    log('Send req_pq')(bytesToHex(auth.nonce))
 
     const request = Serialization({ mtproto: true })
 
@@ -113,18 +125,18 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       : Promise.reject(new Error('[MT] No public key found'))
 
     const factorizeThunk = () => {
-      asyncLog('PQ factorization start', auth.pq)
+      log('PQ factorization start')(auth.pq)
       return CryptoWorker.factorize(auth.pq)
     }
     const factDone = ([ p, q, it ]) => {
       auth.p = p
       auth.q = q
-      asyncLog('PQ factorization done', it)
+      log('PQ factorization done')(it)
       return mtpSendReqDhParams(auth)
     }
 
     const factFail = error => {
-      asyncLog('Worker error', error, error.stack)
+      log('Worker error')(error, error.stack)
       deferred.reject(error)
     }
 
@@ -141,7 +153,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       auth.pq = response.pq
       auth.fingerprints = response.server_public_key_fingerprints
 
-      asyncLog('Got ResPQ', bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
+      log('Got ResPQ')(bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
 
       return select(auth.fingerprints)
         .then(keyFoundCheck)
@@ -227,7 +239,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       mtpSendSetClientDhParams(auth)
     }
 
-    asyncLog('Send req_DH_params')
+    log('afterReqDH')('Send req_DH_params')
     return sendPlainReq(auth.dcUrl, request.getBuffer())
       .then(afterReqDH, deferred.reject)
   }
@@ -257,7 +269,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     if (!bytesCmp(auth.serverNonce, response.server_nonce))
       throw new Error('[MT] server_DH_inner_data serverNonce mismatch')
 
-    asyncLog('Done decrypting answer')
+    log('DecryptServerDhDataAnswer')('Done decrypting answer')
     auth.g = response.g
     auth.dhPrime = response.dh_prime
     auth.gA = response.g_a
@@ -275,27 +287,14 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     applyServerTime(auth.serverTime, auth.localTime)
   }
 
-  const minSize = Math.ceil(64 / bpe) + 1
-
-  const getTwoPow = () => { //Dirty hack to count 2^(2048 - 64)
-                            //This number contains 496 zeroes in hex
-    const arr = Array(496)
-      .fill('0')
-    arr.unshift('1')
-    const hex = arr.join('')
-    const res = str2bigInt(hex, 16, minSize)
-    return res
-  }
-
-  const leemonTwoPow = getTwoPow()
-
   function mtpVerifyDhParams(g, dhPrime, gA) {
-    asyncLog('Verifying DH params')
+    const innerLog = log('VerifyDhParams')
+    innerLog('begin')
     const dhPrimeHex = bytesToHex(dhPrime)
     if (g !== 3 || dhPrimeHex !== primeHex)
       // The verified value is from https://core.telegram.org/mtproto/security_guidelines
       throw new Error('[MT] DH params are not verified: unknown dhPrime')
-    asyncLog('dhPrime cmp OK')
+    innerLog('dhPrime cmp OK')
 
     // const gABigInt = new BigInteger(bytesToHex(gA), 16)
     // const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16)
@@ -334,7 +333,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}')
     if (case4)
       throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}')
-    asyncLog('2^{2048-64} < gA < dhPrime-2^{2048-64} OK')
+    innerLog('2^{2048-64} < gA < dhPrime-2^{2048-64} OK')
 
     return true
   }
@@ -356,7 +355,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
               authKeyAux = authKeyHash.slice(0, 8),
               authKeyID = authKeyHash.slice(-8)
 
-        asyncLog('Got Set_client_DH_params_answer', response._)
+        log('Got Set_client_DH_params_answer')(response._)
         switch (response._) {
           case 'dh_gen_ok': {
             const newNonceHash1 = sha1BytesSync(auth.newNonce.concat([1], authKeyAux)).slice(-16)
@@ -438,7 +437,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
         encrypted_data: encryptedData
       })
 
-      asyncLog('Send set_client_DH_params')
+      log('onGb')('Send set_client_DH_params')
       return sendPlainReq(auth.dcUrl, request.getBuffer())
         .then(afterPlainRequest)
     }
@@ -450,7 +449,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
   function mtpAuth(dcID: number, cached: Cached, dcUrl: string) {
     if (cached[dcID])
       return cached[dcID].promise
-    asyncLog('mtpAuth')
+    log('mtpAuth', 'dcID', 'dcUrl')(dcID, dcUrl)
     const nonce = []
     for (let i = 0; i < 16; i++)
       nonce.push(nextRandomInt(0xFF))

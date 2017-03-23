@@ -26,7 +26,7 @@ import { AuthKeyError } from '../../error'
 import { bytesFromHex, bytesToHex } from '../../bin'
 
 import type { TLFabric } from '../../tl'
-import type { TLSchema } from '../../tl/types'
+import type { TLSchema } from '../../tl/type-buffer'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 

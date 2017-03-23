@@ -10,7 +10,8 @@ import Logger from '../util/log'
 const debug = Logger`tl`
 
 import { readInt, TypeBuffer, getNakedType,
-  getPredicate, getString, getTypeConstruct } from './types'
+  getPredicate, getString, getTypeConstruct } from './type-buffer'
+import type { TLSchema } from './type-buffer'
 
 const PACKED = 0x3072cfa1
 
@@ -21,7 +22,9 @@ export class Serialization {
   intView: Int32Array
   byteView: Uint8Array
   mtproto: boolean
-  constructor({ mtproto, startMaxLength }, api, mtApi) {
+  api: TLSchema
+  mtApi: TLSchema
+  constructor({ mtproto, startMaxLength }, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
 
@@ -90,19 +93,19 @@ export class Serialization {
     this.offset += 4
   }
 
-  storeIntString = (value, field) => {
-    switch (true) {
-      case is(String, value): return this.storeString(value, field)
-      case is(Number, value): return this.storeInt(value, field)
+  storeIntString = (value: number | string, field: string) => {
+    switch (typeof value) {
+      case 'string': return this.storeString(value, field)
+      case 'number': return this.storeInt(value, field)
       default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
     }
   }
 
-  storeInt = (i, field = '') => {
+  storeInt = (i: number, field: string = '') => {
     this.writeInt(i, `${ field }:int`)
   }
 
-  storeBool(i, field = '') {
+  storeBool(i: boolean, field: string = '') {
     if (i) {
       this.writeInt(0x997275b5, `${ field }:bool`)
     } else {
@@ -110,12 +113,12 @@ export class Serialization {
     }
   }
 
-  storeLongP(iHigh, iLow, field) {
+  storeLongP(iHigh, iLow, field: string) {
     this.writeInt(iLow, `${ field }:long[low]`)
     this.writeInt(iHigh, `${ field }:long[high]`)
   }
 
-  storeLong(sLong, field = '') {
+  storeLong(sLong, field: string = '') {
     if (is(Array, sLong))
       return sLong.length === 2
         ? this.storeLongP(sLong[0], sLong[1], field)
@@ -130,7 +133,7 @@ export class Serialization {
     this.writeInt(int1, `${ field }:long[high]`)
   }
 
-  storeDouble(f, field = '') {
+  storeDouble(f, field: string = '') {
     const buffer = new ArrayBuffer(8)
     const intView = new Int32Array(buffer)
     const doubleView = new Float64Array(buffer)
@@ -224,13 +227,13 @@ export class Serialization {
     this.offset += len
   }
 
-  storeMethod(methodName, params) {
+  storeMethod(methodName: string, params) {
     const schema = selectSchema(this.mtproto, this.api, this.mtApi)
     let methodData = false
 
-    for (let i = 0; i < schema.methods.length; i++) {
-      if (schema.methods[i].method == methodName) {
-        methodData = schema.methods[i]
+    for (const method of schema.methods) {
+      if (method.method == methodName) {
+        methodData = method
         break
       }
     }
@@ -240,13 +243,10 @@ export class Serialization {
 
     this.storeInt(intToUint(methodData.id), `${methodName  }[id]`)
 
-    let param, type
     let condType
     let fieldBit
-    const len = methodData.params.length
-    for (let i = 0; i < len; i++) {
-      param = methodData.params[i]
-      type = param.type
+    for (const param of methodData.params) {
+      let type = param.type
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
         fieldBit = condType[0].split('.')
@@ -262,21 +262,21 @@ export class Serialization {
       if (!stored)
         throw new Error(`Method ${methodName}.`+
           ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)*/
-      this.storeObject(stored, type, `${methodName  }[${  paramName  }]`)
+      this.storeObject(stored, type, `f{${methodName}}(${paramName})`)
     }
 
     return methodData.type
   }
-  emptyOfType(ofType, schema) {
+  /*emptyOfType(ofType, schema: TLSchema) {
     const resultConstruct = schema.constructors.find(
-      ({ type, predicate }) =>
+      ({ type, predicate }: TLConstruct) =>
         type === ofType &&
         predicate.indexOf('Empty') !== -1)
     return resultConstruct
       ? { _: resultConstruct.predicate }
       : null
-  }
-  storeObject(obj, type, field) {
+  }*/
+  storeObject(obj, type: string, field: string) {
     switch (type) {
       case '#':
       case 'int':
@@ -326,13 +326,13 @@ export class Serialization {
     const predicate = obj['_']
     let isBare = false
     let constructorData = false
-
-    if (isBare = type.charAt(0) == '%')
+    isBare = type.charAt(0) == '%'
+    if (isBare)
       type = type.substr(1)
 
-    for (let i = 0; i < schema.constructors.length; i++) {
-      if (schema.constructors[i].predicate == predicate) {
-        constructorData = schema.constructors[i]
+    for (const tlConst of schema.constructors) {
+      if (tlConst.predicate == predicate) {
+        constructorData = tlConst
         break
       }
     }
@@ -343,14 +343,11 @@ export class Serialization {
       isBare = true
 
     if (!isBare)
-      this.writeInt(intToUint(constructorData.id), `${field  }[${  predicate  }][id]`)
+      this.writeInt(intToUint(constructorData.id), `${field  }.${  predicate  }[id]`)
 
-    let param
     let condType
     let fieldBit
-    const len = constructorData.params.length
-    for (let i = 0; i < len; i++) {
-      param = constructorData.params[i]
+    for (const param of constructorData.params) {
       type = param.type
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
@@ -361,7 +358,7 @@ export class Serialization {
         type = condType[1]
       }
 
-      this.storeObject(obj[param.name], type, `${field  }[${  predicate  }][${  param.name  }]`)
+      this.storeObject(obj[param.name], type, `${field}.${  predicate  }.${  param.name  }`)
     }
 
     return constructorData.type
@@ -373,7 +370,9 @@ export class Deserialization {
   typeBuffer: TypeBuffer
   override: Object
   mtproto: boolean
-  constructor(buffer: Buffer, { mtproto, override }: DConfig, api, mtApi) {
+  api: TLSchema
+  mtApi: TLSchema
+  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
     this.override = override
@@ -384,11 +383,11 @@ export class Deserialization {
 
   readInt = readInt(this)
 
-  fetchInt(field = '') {
+  fetchInt(field: string = '') {
     return this.readInt(`${ field }:int`)
   }
 
-  fetchDouble(field = '') {
+  fetchDouble(field: string = '') {
     const buffer = new ArrayBuffer(8)
     const intView = new Int32Array(buffer)
     const doubleView = new Float64Array(buffer)
@@ -399,27 +398,15 @@ export class Deserialization {
     return doubleView[0]
   }
 
-  fetchLong(field = '') {
+  fetchLong(field: string = '') {
     const iLow = this.readInt(`${ field }:long[low]`)
     const iHigh = this.readInt(`${ field }:long[high]`)
 
     const res = lshift32(iHigh, iLow)
-    // const longDec = bigint(iHigh)
-    //   .shiftLeft(32)
-    //   .add(bigint(iLow))
-    //   .toString()
-
-
-    // debug`long, iLow, iHigh`(strDecToHex(iLow.toString()),
-    //                          strDecToHex(iHigh.toString()))
-    // debug`long, leemon`(res, strDecToHex(res.toString()))
-    // debug`long, bigint`(longDec, strDecToHex(longDec.toString()))
-
-
     return res
   }
 
-  fetchBool(field = '') {
+  fetchBool(field: string = '') {
     const i = this.readInt(`${ field }:bool`)
     switch (i) {
       case 0x997275b5: return true
@@ -431,7 +418,7 @@ export class Deserialization {
     }
   }
 
-  fetchString(field = '') {
+  fetchString(field: string = '') {
     let len = this.typeBuffer.nextByte()
 
     if (len == 254) {
@@ -454,7 +441,7 @@ export class Deserialization {
     return s
   }
 
-  fetchBytes(field = '') {
+  fetchBytes(field: string = '') {
     let len = this.typeBuffer.nextByte()
 
     if (len == 254) {
@@ -471,7 +458,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchIntBytes(bits, field = '') {
+  fetchIntBytes(bits, field: string = '') {
     if (bits % 32)
       throw new Error(`Invalid bits: ${bits}`)
 
@@ -484,7 +471,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchRawBytes(len, field = '') {
+  fetchRawBytes(len, field: string = '') {
     if (len === false) {
       len = this.readInt(`${ field }_length`)
       if (len > this.typeBuffer.byteView.byteLength)
@@ -641,7 +628,7 @@ export class Deserialization {
 
 }
 
-const selectSchema = (mtproto: boolean, api, mtApi) => mtproto
+const selectSchema = (mtproto: boolean, api: TLSchema, mtApi: TLSchema) => mtproto
   ? mtApi
   : api
 
@@ -668,7 +655,7 @@ export type TLFabric = {
   Deserialization: DeserializationFabric
 }
 
-export const TL = (api, mtApi) => ({
+export const TL = (api: TLSchema, mtApi: TLSchema) => ({
   Serialization: ({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) =>
     new Serialization({ mtproto, startMaxLength }, api, mtApi),
   Deserialization: (buffer: Buffer, { mtproto = false, override = {} }: DConfig = {}) =>
