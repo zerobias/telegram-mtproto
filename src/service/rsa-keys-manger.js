@@ -1,13 +1,16 @@
 //@flow
 
+import Promise from 'bluebird'
+
 import type { PublicKey } from './main/index.h'
 import type { Cached } from './api-manager/index.h'
+import type { SerializationFabric } from '../tl'
 
-import Promise from 'bluebird'
+import { WriteMediator } from '../tl'
+
 import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../bin'
 
-import type { SerializationFabric } from '../tl'
 
 export const KeyManager = (Serialization: SerializationFabric,
   publisKeysHex: PublicKey[],
@@ -16,10 +19,11 @@ export const KeyManager = (Serialization: SerializationFabric,
 
   const mapPrepare = ({ modulus, exponent }: PublicKey) => {
     const RSAPublicKey = Serialization()
-    RSAPublicKey.storeBytes(bytesFromHex(modulus), 'n')
-    RSAPublicKey.storeBytes(bytesFromHex(exponent), 'e')
+    const rsaBox = RSAPublicKey.writer
+    WriteMediator.bytes(rsaBox, bytesFromHex(modulus), 'n')
+    WriteMediator.bytes(rsaBox, bytesFromHex(exponent), 'e')
 
-    const buffer = RSAPublicKey.getBuffer()
+    const buffer = rsaBox.getBuffer()
 
     const fingerprintBytes = sha1BytesSync(buffer).slice(-8)
     fingerprintBytes.reverse()

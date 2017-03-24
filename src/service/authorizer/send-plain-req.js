@@ -9,6 +9,7 @@ import allPass from 'ramda/src/allPass'
 import httpClient from '../../http'
 import { ErrorBadResponse, ErrorNotFound } from '../../error'
 import { generateID } from '../time-manager'
+import { WriteMediator } from '../../tl'
 
 import type { TLFabric } from '../../tl'
 
@@ -21,11 +22,13 @@ const SendPlain = ({ Serialization, Deserialization }: TLFabric) => {
           requestArray = new Int32Array(requestBuffer)
 
     const header = Serialization()
-    header.storeLongP(0, 0, 'auth_key_id') // Auth key
-    header.storeLong(generateID(), 'msg_id') // Msg_id
-    header.storeInt(requestLength, 'request_length')
+    const headBox = header.writer
 
-    const headerBuffer: ArrayBuffer = header.getBuffer(),
+    WriteMediator.longP(headBox, 0, 0, 'auth_key_id') // Auth key
+    WriteMediator.long(headBox, generateID(), 'msg_id') // Msg_id
+    WriteMediator.int(headBox, requestLength, 'request_length')
+
+    const headerBuffer: ArrayBuffer = headBox.getBuffer(),
           headerArray = new Int32Array(headerBuffer)
     const headerLength = headerBuffer.byteLength
 

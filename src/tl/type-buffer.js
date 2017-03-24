@@ -128,6 +128,9 @@ export class TypeWriter {
 
     return resultArray
   }
+  getBuffer() {
+    return this.getArray().buffer
+  }
   getBytesTyped() {
     const resultBuffer = new ArrayBuffer(this.offset)
     const resultArray = new Uint8Array(resultBuffer)
@@ -150,57 +153,14 @@ export class TypeWriter {
     this.intView[this.offset / 4] = i
     this.offset += 4
   }
+  writePair(n1: number, n2: number, field1: string, field2: string) {
+    this.writeInt(n1, field1)
+    this.writeInt(n2, field2)
+  }
   addPadding() {
     while (this.offset % 4)
       this.next(0)
   }
-  /*writeArray(list?: ArrayBuffer | string | number[]) {
-    let iter, length
-
-    if (list === undefined)
-      iter = []
-    else if (typeof list === 'string')
-      iter = stringToNums(list)
-    // else if (list instanceof ArrayBuffer)
-    //   iter = new Uint8Array(list)
-    else iter = list
-
-    if (list instanceof ArrayBuffer)
-      length = list.byteLength
-    else
-      length = iter.length
-
-    this.checkLength(length + 8)
-
-    if (length <= 253)
-      this.next(length)
-    else {
-      this.next(254)
-      this.next(length & 0xFF)
-      this.next((length & 0xFF00) >> 8)
-      this.next((length & 0xFF0000) >> 16)
-    }
-
-    this.set(iter, length)
-
-    this.addPadding()
-  }
-  set(list: number[] | Uint8Array, length: number) {
-    this.byteView.set(list, this.offset)
-    this.offset += length
-  }
-  writeBytes(bytes: number[] | ArrayBuffer, cond: (ln: number) => void) {
-    let iter
-    if (bytes instanceof ArrayBuffer)
-      iter = new Uint8Array(bytes)
-    else
-      iter = bytes
-    const length = iter.length
-    cond(length)
-    this.checkLength(length)
-
-    this.set(iter, length)
-  }*/
 }
 
 export class TypeBuffer {

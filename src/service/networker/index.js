@@ -26,6 +26,7 @@ import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../../bin'
 
 import type { TLFabric, SerializationFabric, DeserializationFabric } from '../../tl'
+import { WriteMediator, TypeWriter } from '../../tl'
 import type { Emit } from '../main/index.h'
 
 let updatesProcessor
@@ -48,6 +49,14 @@ type ContextConfig = {
   Serialization: SerializationFabric,
   Deserialization: DeserializationFabric,
   emit: Emit
+}
+
+const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
+  switch (typeof value) {
+    case 'string': return WriteMediator.bytes(writer, value, `${field}:string`)
+    case 'number': return WriteMediator.int(writer, value, field)
+    default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
+  }
 }
 
 export class NetworkerThread {
@@ -187,7 +196,7 @@ export class NetworkerThread {
 
   wrapApiCall(method: string, params: Object, options: NetOptions) {
     const serializer = this.Serialization(options)
-
+    const serialBox = serializer.writer
     if (!this.connectionInited) {
       // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
       // serializer.storeInt(Config.Schema.API.layer, 'layer')
@@ -197,12 +206,13 @@ export class NetworkerThread {
       // serializer.storeString(navigator.platform || 'Unknown Platform', 'system_version')
       // serializer.storeString(Config.App.version, 'app_version')
       // serializer.storeString(navigator.language || 'en', 'lang_code')
-      mapObjIndexed(serializer.storeIntString, this.appConfig)
+      const mapper = storeIntString(serialBox)
+      mapObjIndexed(mapper, this.appConfig)
     }
 
     if (options.afterMessageID) {
-      serializer.storeInt(0xcb9f372d, 'invokeAfterMsg')
-      serializer.storeLong(options.afterMessageID, 'msg_id')
+      WriteMediator.int(serialBox, 0xcb9f372d, 'invokeAfterMsg')
+      WriteMediator.long(serialBox, options.afterMessageID, 'msg_id')
     }
 
     options.resultType = serializer.storeMethod(method, params)
@@ -499,16 +509,17 @@ export class NetworkerThread {
 
     if (messages.length > 1) {
       const container = this.Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
-      container.storeInt(0x73f1f8dc, 'CONTAINER[id]')
-      container.storeInt(messages.length, 'CONTAINER[count]')
+      const contBox = container.writer
+      WriteMediator.int(contBox, 0x73f1f8dc, 'CONTAINER[id]')
+      WriteMediator.int(contBox, messages.length, 'CONTAINER[count]')
       const innerMessages = []
       let i = 0
       for (const msg of messages) {
-        container.storeLong(msg.msg_id, `CONTAINER[${i}][msg_id]`)
+        WriteMediator.long(contBox, msg.msg_id, `CONTAINER[${i}][msg_id]`)
         innerMessages.push(msg.msg_id)
-        container.storeInt(msg.seq_no, `CONTAINER[${i}][seq_no]`)
-        container.storeInt(msg.body.length, `CONTAINER[${i}][bytes]`)
-        container.storeRawBytes(msg.body, `CONTAINER[${i}][body]`)
+        WriteMediator.int(contBox, msg.seq_no, `CONTAINER[${i}][seq_no]`)
+        WriteMediator.int(contBox, msg.body.length, `CONTAINER[${i}][bytes]`)
+        WriteMediator.intBytes(contBox, msg.body, false, `CONTAINER[${i}][body]`)
         if (msg.noResponse)
           noResponseMsgs.push(msg.msg_id)
         i++
@@ -580,19 +591,18 @@ export class NetworkerThread {
     // console.log(dTime(), 'Send encrypted'/*, message*/)
     // console.trace()
     const data = this.Serialization({ startMaxLength: message.body.length + 64 })
+    const dataBox = data.writer
+    WriteMediator.intBytes(dataBox, this.serverSalt, 64, 'salt')
+    WriteMediator.intBytes(dataBox, this.sessionID, 64, 'session_id')
+    WriteMediator.long(dataBox, message.msg_id, 'message_id')
+    WriteMediator.int(dataBox, message.seq_no, 'seq_no')
 
-    data.storeIntBytes(this.serverSalt, 64, 'salt')
-    data.storeIntBytes(this.sessionID, 64, 'session_id')
-
-    data.storeLong(message.msg_id, 'message_id')
-    data.storeInt(message.seq_no, 'seq_no')
-
-    data.storeInt(message.body.length, 'message_data_length')
-    data.storeRawBytes(message.body, 'message_data')
+    WriteMediator.int(dataBox, message.body.length, 'message_data_length')
+    WriteMediator.intBytes(dataBox, message.body, false, 'message_data')
 
     const url = this.chooseServer(this.dcID, this.upload)
 
-    const bytes = data.getBuffer()
+    const bytes = dataBox.getBuffer()
 
     const bytesHash = await CryptoWorker.sha1Hash(bytes)
     const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
@@ -600,13 +610,14 @@ export class NetworkerThread {
     const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
 
     const request = this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 })
-    request.storeIntBytes(this.authKeyID, 64, 'auth_key_id')
-    request.storeIntBytes(msgKey, 128, 'msg_key')
-    request.storeRawBytes(encryptedBytes, 'encrypted_data')
+    const requestBox = request.writer
+    WriteMediator.intBytes(requestBox, this.authKeyID, 64, 'auth_key_id')
+    WriteMediator.intBytes(requestBox, msgKey, 128, 'msg_key')
+    WriteMediator.intBytes(requestBox, encryptedBytes, false, 'encrypted_data')
 
     const requestData = xhrSendBuffer
-      ? request.getBuffer()
-      : request.getArray()
+      ? requestBox.getArray().buffer
+      : requestBox.getArray()
 
     options = { responseType: 'arraybuffer', ...options }
 

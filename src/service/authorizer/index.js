@@ -117,7 +117,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     log('Send req_pq')(bytesToHex(auth.nonce))
 
     const request = Serialization({ mtproto: true })
-
+    const reqBox = request.writer
     request.storeMethod('req_pq', { nonce: auth.nonce })
 
     const keyFoundCheck = key => key
@@ -161,7 +161,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
         .then(factDone, factFail)
     }
 
-    const sendPlainThunk = () => sendPlainReq(auth.dcUrl, request.getBuffer())
+    const sendPlainThunk = () => sendPlainReq(auth.dcUrl, reqBox.getBuffer())
 
     return prepare()
       .then(sendPlainThunk)
@@ -178,6 +178,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     random(auth.newNonce)
 
     const data = Serialization({ mtproto: true })
+    const dataBox = data.writer
     data.storeObject({
       _           : 'p_q_inner_data',
       pq          : auth.pq,
@@ -188,9 +189,10 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       new_nonce   : auth.newNonce
     }, 'P_Q_inner_data', 'DECRYPTED_DATA')
 
-    const dataWithHash = sha1BytesSync(data.getBuffer()).concat(data.getBytes())
+    const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(data.getBytes())
 
     const request = Serialization({ mtproto: true })
+    const reqBox = request.writer
     request.storeMethod('req_DH_params', {
       nonce                 : auth.nonce,
       server_nonce          : auth.serverNonce,
@@ -240,7 +242,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     }
 
     log('afterReqDH')('Send req_DH_params')
-    return sendPlainReq(auth.dcUrl, request.getBuffer())
+    return sendPlainReq(auth.dcUrl, reqBox.getBuffer())
       .then(afterReqDH, deferred.reject)
   }
 
@@ -426,7 +428,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
         g_b         : gB
       }, 'Client_DH_Inner_Data')
 
-      const dataWithHash = sha1BytesSync(data.getBuffer()).concat(data.getBytes())
+      const dataWithHash = sha1BytesSync(data.writer.getBuffer()).concat(data.getBytes())
 
       const encryptedData = aesEncryptSync(dataWithHash, auth.tmpAesKey, auth.tmpAesIv)
 
@@ -438,7 +440,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       })
 
       log('onGb')('Send set_client_DH_params')
-      return sendPlainReq(auth.dcUrl, request.getBuffer())
+      return sendPlainReq(auth.dcUrl, request.writer.getBuffer())
         .then(afterPlainRequest)
     }
 

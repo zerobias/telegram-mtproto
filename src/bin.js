@@ -173,7 +173,7 @@ const dividerLem = str2bigInt('100000000', 16, 4)
 //   () => console.log(`Timer L ${timeL} B ${timeB}`, ...a, ...b, n || ''),
 //   100)
 
-export function longToInts(sLong) {
+export function longToInts(sLong: string) {
   const lemNum = str2bigInt(sLong, 10, 6)
   const div = new Array(lemNum.length)
   const rem = new Array(lemNum.length)

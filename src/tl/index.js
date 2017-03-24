@@ -5,13 +5,14 @@ import is from 'ramda/src/is'
 import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
 
-import Logger from '../util/log'
-
-const debug = Logger`tl`
+import { WriteMediator } from './mediator'
 
 import { readInt, TypeBuffer, TypeWriter, getNakedType,
   getPredicate, getString, getTypeConstruct } from './type-buffer'
 import type { BinaryData, TLSchema } from './index.h'
+
+import Logger from '../util/log'
+const debug = Logger`tl`
 
 const PACKED = 0x3072cfa1
 
@@ -20,7 +21,7 @@ type SerialConstruct = {
   startMaxLength: number
 }
 
-const normalizeBytes = (bytes?: number[] | ArrayBuffer | string) => {
+const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) => {
   let list, length
   if (bytes instanceof ArrayBuffer) {
     list = new Uint8Array(bytes)
@@ -45,15 +46,6 @@ const normalizeBytes = (bytes?: number[] | ArrayBuffer | string) => {
   }
 }
 
-const binaryDataGuard = (bytes: BinaryData | ArrayBuffer) => {
-  let list
-  if (bytes instanceof ArrayBuffer)
-    list = new Uint8Array(bytes)
-  else
-    list = bytes
-  return list
-}
-
 export class Serialization {
   writer: TypeWriter = new TypeWriter()
   mtproto: boolean
@@ -63,151 +55,17 @@ export class Serialization {
     this.api = api
     this.mtApi = mtApi
 
-    this.maxLength = startMaxLength
+    this.writer.maxLength = startMaxLength
 
     this.writer.reset()
     this.mtproto = mtproto
   }
 
-  get maxLength(): number {
-    return this.writer.maxLength
-  }
-  set maxLength(maxLength: number) {
-    this.writer.maxLength = maxLength
-  }
-
-  get offset(): number {
-    return this.writer.offset
-  }
-  set offset(offset: number) {
-    this.writer.offset = offset
-  }
-
-  get buffer(): ArrayBuffer {
-    return this.writer.buffer
-  }
-
-  get intView(): Int32Array {
-    return this.writer.intView
-  }
-
-  get byteView(): Uint8Array {
-    return this.writer.byteView
-  }
-
-  getArray() {
-    return this.writer.getArray()
-  }
-
-  getBuffer() {
-    return this.writer.getArray().buffer
-  }
-
-  getBytes(typed: boolean) {
+  getBytes(typed?: boolean) {
     if (typed)
       return this.writer.getBytesTyped()
     else
       return this.writer.getBytesPlain()
-  }
-
-  checkLength(needBytes: number) {
-    this.writer.checkLength(needBytes)
-  }
-
-  writeInt(i: number, field: string) {
-    this.writer.writeInt(i, field)
-  }
-
-  storeIntString = (value: number | string, field: string) => {
-    switch (typeof value) {
-      case 'string': return this.storeBytes(value, `${field}:string`)
-      case 'number': return this.storeInt(value, field)
-      default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
-    }
-  }
-
-  storeInt = (i: number, field: string = '') => {
-    this.writeInt(i, `${ field }:int`)
-  }
-
-  storeBool(i: boolean, field: string = '') {
-    if (i) {
-      this.writeInt(0x997275b5, `${ field }:bool`)
-    } else {
-      this.writeInt(0xbc799737, `${ field }:bool`)
-    }
-  }
-
-  storeLongP(iHigh, iLow, field: string) {
-    this.writeInt(iLow, `${ field }:long[low]`)
-    this.writeInt(iHigh, `${ field }:long[high]`)
-  }
-
-  storeLong(sLong, field: string = '') {
-    if (Array.isArray(sLong))
-      return sLong.length === 2
-        ? this.storeLongP(sLong[0], sLong[1], field)
-        : this.storeIntBytes(sLong, 64, field)
-
-    if (typeof sLong !== 'string')
-      sLong = sLong
-        ? sLong.toString()
-        : '0'
-    const [int1, int2] = longToInts(sLong)
-    this.writeInt(int2, `${ field }:long[low]`)
-    this.writeInt(int1, `${ field }:long[high]`)
-  }
-
-  storeDouble(f, field: string = '') {
-    const buffer = new ArrayBuffer(8)
-    const intView = new Int32Array(buffer)
-    const doubleView = new Float64Array(buffer)
-
-    doubleView[0] = f
-
-    this.writeInt(intView[0], `${ field }:double[low]`)
-    this.writeInt(intView[1], `${ field }:double[high]`)
-  }
-
-  storeBytes(bytes?: number[] | ArrayBuffer | string, field: string = '') {
-    const { list, length } = normalizeBytes(bytes)
-    // this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
-
-    this.checkLength(length + 8)
-    if (length <= 253) {
-      this.writer.next(length)
-    } else {
-      this.writer.next(254)
-      this.writer.next(length & 0xFF)
-      this.writer.next((length & 0xFF00) >> 8)
-      this.writer.next((length & 0xFF0000) >> 16)
-    }
-
-    this.writer.set(list, length)
-    this.writer.addPadding()
-  }
-
-  storeIntBytes(bytes: BinaryData  | ArrayBuffer, bits: number, field: string = '') {
-    const data = binaryDataGuard(bytes)
-    const len = data.length
-    if (bits % 32 || len * 8 != bits) {
-      throw new Error(`Invalid bits: ${  bits  }, ${len}`)
-    }
-
-    // this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:int${  bits}`)
-    this.checkLength(len)
-
-    this.writer.set(data, len)
-  }
-
-  storeRawBytes(bytes: BinaryData | ArrayBuffer, field: string = '') {
-    const data = binaryDataGuard(bytes)
-    const len = data.length
-
-    // this.debug && console.log('>>>', bytesToHex(bytes), field)
-    this.checkLength(len)
-
-    this.writer.set(data, len)
   }
 
   storeMethod(methodName: string, params) {
@@ -223,8 +81,9 @@ export class Serialization {
     if (!methodData) {
       throw new Error(`No method ${  methodName  } found`)
     }
-
-    this.storeInt(intToUint(methodData.id), `${methodName  }[id]`)
+    WriteMediator.int(this.writer,
+                      intToUint(methodData.id),
+                      `${methodName  }[id]`)
 
     let condType
     let fieldBit
@@ -263,35 +122,35 @@ export class Serialization {
     switch (type) {
       case '#':
       case 'int':
-        return this.storeInt(obj, field)
+        return WriteMediator.int(this.writer, obj, field)
       case 'long':
-        return this.storeLong(obj, field)
+        return WriteMediator.long(this.writer, obj, field)
       case 'int128':
-        return this.storeIntBytes(obj, 128, field)
+        return WriteMediator.intBytes(this.writer, obj, 128, field)
       case 'int256':
-        return this.storeIntBytes(obj, 256, field)
+        return WriteMediator.intBytes(this.writer, obj, 256, field)
       case 'int512':
-        return this.storeIntBytes(obj, 512, field)
+        return WriteMediator.intBytes(this.writer, obj, 512, field)
       case 'string':
-        return this.storeBytes(obj, `${field}:string`)
+        return WriteMediator.bytes(this.writer, obj, `${field}:string`)
       case 'bytes':
-        return this.storeBytes(obj, field)
+        return WriteMediator.bytes(this.writer, obj, field)
       case 'double':
-        return this.storeDouble(obj, field)
+        return WriteMediator.double(this.writer, obj, field)
       case 'Bool':
-        return this.storeBool(obj, field)
+        return WriteMediator.bool(this.writer, obj, field)
       case 'true':
         return
     }
 
     if (is(Array, obj)) {
       if (type.substr(0, 6) == 'Vector')
-        this.writeInt(0x1cb5c415, `${field}[id]`)
+        WriteMediator.int(this.writer, 0x1cb5c415, `${field}[id]`)
       else if (type.substr(0, 6) != 'vector') {
         throw new Error(`Invalid vector type ${  type}`)
       }
       const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
-      this.writeInt(obj.length, `${field  }[count]`)
+      WriteMediator.int(this.writer, obj.length, `${field}[count]`)
       for (let i = 0; i < obj.length; i++) {
         this.storeObject(obj[i], itemType, `${field  }[${  i  }]`)
       }
@@ -319,13 +178,15 @@ export class Serialization {
       }
     }
     if (!constructorData)
-      throw new Error(`No predicate ${  predicate  } found`)
+      throw new Error(`No predicate ${predicate} found`)
 
     if (predicate == type)
       isBare = true
 
     if (!isBare)
-      this.writeInt(intToUint(constructorData.id), `${field  }.${  predicate  }[id]`)
+      WriteMediator.int(this.writer,
+                        intToUint(constructorData.id),
+                        `${field}.${predicate}[id]`)
 
     let condType
     let fieldBit
@@ -649,4 +510,6 @@ export const TL = (api: TLSchema, mtApi: TLSchema) => ({
     new Deserialization(buffer, { mtproto, override }, api, mtApi)
 })
 
+export * from './mediator'
+export { TypeWriter } from './type-buffer'
 export default TL
