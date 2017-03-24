@@ -9,7 +9,7 @@ import { WriteMediator } from './mediator'
 
 import { readInt, TypeBuffer, TypeWriter, getNakedType,
   getPredicate, getString, getTypeConstruct } from './type-buffer'
-import type { BinaryData, TLSchema } from './index.h'
+import type { TLSchema } from './index.h'
 
 import Logger from '../util/log'
 const debug = Logger`tl`
@@ -19,31 +19,6 @@ const PACKED = 0x3072cfa1
 type SerialConstruct = {
   mtproto: boolean,
   startMaxLength: number
-}
-
-const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) => {
-  let list, length
-  if (bytes instanceof ArrayBuffer) {
-    list = new Uint8Array(bytes)
-    length = bytes.byteLength
-  } else if (bytes === undefined) {
-    list = []
-    length = 0
-  } else if (typeof bytes === 'string') {
-    list =
-      stringToChars(
-        unescape(
-          encodeURIComponent(
-            bytes)))
-    length = list.length
-  } else {
-    list = bytes
-    length = bytes.length
-  }
-  return {
-    list,
-    length
-  }
 }
 
 export class Serialization {
@@ -143,7 +118,7 @@ export class Serialization {
         return
     }
 
-    if (is(Array, obj)) {
+    if (Array.isArray(obj)) {
       if (type.substr(0, 6) == 'Vector')
         WriteMediator.int(this.writer, 0x1cb5c415, `${field}[id]`)
       else if (type.substr(0, 6) != 'vector') {

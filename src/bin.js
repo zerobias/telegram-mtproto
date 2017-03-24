@@ -205,22 +205,15 @@ export const rshift32 = str => {
   return bigInt2str(num, 10)
 }
 
-// export function longFromLem(high, low) {
-//   const highNum = int2bigInt(high, 96, 0)
-//   leftShift_(highNum, 32)
-
-//   addInt_(highNum, low)
-//   const res = bigInt2str(highNum, 10)
-//   return res
-// }
-
-export function intToUint(val) {
-  val = parseInt(val) //TODO PERF parseInt is a perfomance issue
-  if (val < 0)
-    val = val + 0x100000000
-  return val
+export function intToUint(val: string) {
+  let result = ~~val
+  if (result < 0)
+    result = result + 0x100000000
+  return result
 }
+
 const middle = 0x100000000 / 2 - 1
+
 export function uintToInt(val) {
   if (val > middle)
     val = val - 0x100000000

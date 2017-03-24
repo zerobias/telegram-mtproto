@@ -4,9 +4,7 @@
   ],
   "plugins": [
     "transform-flow-strip-types",
-    // ["fast-async", {
-    //   "useRuntimeModule":true
-    // }],
+    "transform-exponentiation-operator",
     ["transform-es2015-for-of", {
       "loose": true
     }],
@@ -16,6 +14,9 @@
     //   "module": "bluebird",
     //   "method": "coroutine"
     // }],
+    ["transform-es2015-block-scoping", {
+      "throwIfClosureRequired": true
+    }],
     ["transform-object-rest-spread", { "useBuiltIns": true }],
     "closure-elimination"
   ],

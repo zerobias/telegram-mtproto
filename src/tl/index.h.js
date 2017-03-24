@@ -2,7 +2,7 @@
 
 export type BinaryData = number[] | Uint8Array
 
-type TLParam = {
+export type TLParam = {
   name: string,
   type: string
 }
@@ -14,7 +14,7 @@ export type TLConstruct = {
   params: TLParam[]
 }
 
-type TLMethod = {
+export type TLMethod = {
   id: string,
   type: string,
   method: string,
