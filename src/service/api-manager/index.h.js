@@ -25,7 +25,7 @@ export type AsyncStorage = { //TODO remove this
   noPrefix(): void
 }
 
-type Cached<Model> = {
+export type Cached<Model> = {
   [id: number]: Model
 }
 

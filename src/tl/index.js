@@ -3,99 +3,124 @@
 import is from 'ramda/src/is'
 
 import { uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
+  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
 
 import Logger from '../util/log'
 
 const debug = Logger`tl`
 
-import { readInt, TypeBuffer, getNakedType,
+import { readInt, TypeBuffer, TypeWriter, getNakedType,
   getPredicate, getString, getTypeConstruct } from './type-buffer'
-import type { TLSchema } from './type-buffer'
+import type { BinaryData, TLSchema } from './index.h'
 
 const PACKED = 0x3072cfa1
 
+type SerialConstruct = {
+  mtproto: boolean,
+  startMaxLength: number
+}
+
+const normalizeBytes = (bytes?: number[] | ArrayBuffer | string) => {
+  let list, length
+  if (bytes instanceof ArrayBuffer) {
+    list = new Uint8Array(bytes)
+    length = bytes.byteLength
+  } else if (bytes === undefined) {
+    list = []
+    length = 0
+  } else if (typeof bytes === 'string') {
+    list =
+      stringToChars(
+        unescape(
+          encodeURIComponent(
+            bytes)))
+    length = list.length
+  } else {
+    list = bytes
+    length = bytes.length
+  }
+  return {
+    list,
+    length
+  }
+}
+
+const binaryDataGuard = (bytes: BinaryData | ArrayBuffer) => {
+  let list
+  if (bytes instanceof ArrayBuffer)
+    list = new Uint8Array(bytes)
+  else
+    list = bytes
+  return list
+}
+
 export class Serialization {
-  maxLength: number
-  offset: number = 0 // in bytes
-  buffer: ArrayBuffer
-  intView: Int32Array
-  byteView: Uint8Array
+  writer: TypeWriter = new TypeWriter()
   mtproto: boolean
   api: TLSchema
   mtApi: TLSchema
-  constructor({ mtproto, startMaxLength }, api: TLSchema, mtApi: TLSchema) {
+  constructor({ mtproto, startMaxLength }: SerialConstruct, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
 
     this.maxLength = startMaxLength
 
-    this.createBuffer()
+    this.writer.reset()
     this.mtproto = mtproto
   }
 
-  createBuffer() {
-    this.buffer = new ArrayBuffer(this.maxLength)
-    this.intView = new Int32Array(this.buffer)
-    this.byteView = new Uint8Array(this.buffer)
+  get maxLength(): number {
+    return this.writer.maxLength
+  }
+  set maxLength(maxLength: number) {
+    this.writer.maxLength = maxLength
+  }
+
+  get offset(): number {
+    return this.writer.offset
+  }
+  set offset(offset: number) {
+    this.writer.offset = offset
+  }
+
+  get buffer(): ArrayBuffer {
+    return this.writer.buffer
+  }
+
+  get intView(): Int32Array {
+    return this.writer.intView
+  }
+
+  get byteView(): Uint8Array {
+    return this.writer.byteView
   }
 
   getArray() {
-    const resultBuffer = new ArrayBuffer(this.offset)
-    const resultArray = new Int32Array(resultBuffer)
-
-    resultArray.set(this.intView.subarray(0, this.offset / 4))
-
-    return resultArray
+    return this.writer.getArray()
   }
 
   getBuffer() {
-    return this.getArray().buffer
+    return this.writer.getArray().buffer
   }
 
-  getBytes(typed) {
-    if (typed) {
-      const resultBuffer = new ArrayBuffer(this.offset)
-      const resultArray = new Uint8Array(resultBuffer)
-
-      resultArray.set(this.byteView.subarray(0, this.offset))
-
-      return resultArray
-    }
-
-    const bytes = []
-    for (let i = 0; i < this.offset; i++) {
-      bytes.push(this.byteView[i])
-    }
-    return bytes
+  getBytes(typed: boolean) {
+    if (typed)
+      return this.writer.getBytesTyped()
+    else
+      return this.writer.getBytesPlain()
   }
 
-  checkLength(needBytes) {
-    if (this.offset + needBytes < this.maxLength) {
-      return
-    }
-
-    console.trace('Increase buffer', this.offset, needBytes, this.maxLength)
-    this.maxLength = Math.ceil(Math.max(this.maxLength * 2, this.offset + needBytes + 16) / 4) * 4
-    const previousBuffer = this.buffer
-    const previousArray = new Int32Array(previousBuffer)
-
-    this.createBuffer()
-
-    new Int32Array(this.buffer).set(previousArray)
+  checkLength(needBytes: number) {
+    this.writer.checkLength(needBytes)
   }
 
-  writeInt(i, field) {
-    // this.debug && console.log('>>>', i.toString(16), i, field)
-
-    this.checkLength(4)
-    this.intView[this.offset / 4] = i
-    this.offset += 4
+  writeInt(i: number, field: string) {
+    this.writer.writeInt(i, field)
   }
 
   storeIntString = (value: number | string, field: string) => {
     switch (typeof value) {
-      case 'string': return this.storeString(value, field)
+      case 'string': return this.storeBytes(value, `${field}:string`)
       case 'number': return this.storeInt(value, field)
       default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
     }
@@ -119,7 +144,7 @@ export class Serialization {
   }
 
   storeLong(sLong, field: string = '') {
-    if (is(Array, sLong))
+    if (Array.isArray(sLong))
       return sLong.length === 2
         ? this.storeLongP(sLong[0], sLong[1], field)
         : this.storeIntBytes(sLong, 64, field)
@@ -144,87 +169,45 @@ export class Serialization {
     this.writeInt(intView[1], `${ field }:double[high]`)
   }
 
-  storeString(s, field = '') {
-    // this.debug && console.log('>>>', s, `${ field }:string`)
-
-    if (s === undefined)
-      s = ''
-    const sUTF8 = unescape(encodeURIComponent(s))
-
-    this.checkLength(sUTF8.length + 8)
-
-    const len = sUTF8.length
-    if (len <= 253) {
-      this.byteView[this.offset++] = len
-    } else {
-      this.byteView[this.offset++] = 254
-      this.byteView[this.offset++] = len & 0xFF
-      this.byteView[this.offset++] = (len & 0xFF00) >> 8
-      this.byteView[this.offset++] = (len & 0xFF0000) >> 16
-    }
-    for (let i = 0; i < len; i++)
-      this.byteView[this.offset++] = sUTF8.charCodeAt(i)
-
-    // Padding
-    while (this.offset % 4)
-      this.byteView[this.offset++] = 0
-  }
-
-  storeBytes(bytes, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes)
-    }
-    else if (bytes === undefined)
-      bytes = []
+  storeBytes(bytes?: number[] | ArrayBuffer | string, field: string = '') {
+    const { list, length } = normalizeBytes(bytes)
     // this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
 
-    const len = bytes.byteLength || bytes.length
-    this.checkLength(len + 8)
-    if (len <= 253) {
-      this.byteView[this.offset++] = len
+    this.checkLength(length + 8)
+    if (length <= 253) {
+      this.writer.next(length)
     } else {
-      this.byteView[this.offset++] = 254
-      this.byteView[this.offset++] = len & 0xFF
-      this.byteView[this.offset++] = (len & 0xFF00) >> 8
-      this.byteView[this.offset++] = (len & 0xFF0000) >> 16
+      this.writer.next(254)
+      this.writer.next(length & 0xFF)
+      this.writer.next((length & 0xFF00) >> 8)
+      this.writer.next((length & 0xFF0000) >> 16)
     }
 
-    this.byteView.set(bytes, this.offset)
-    this.offset += len
-
-    // Padding
-    while (this.offset % 4) {
-      this.byteView[this.offset++] = 0
-    }
+    this.writer.set(list, length)
+    this.writer.addPadding()
   }
 
-  storeIntBytes(bytes, bits, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes)
-    }
-    const len = bytes.length
+  storeIntBytes(bytes: BinaryData  | ArrayBuffer, bits: number, field: string = '') {
+    const data = binaryDataGuard(bytes)
+    const len = data.length
     if (bits % 32 || len * 8 != bits) {
-      throw new Error(`Invalid bits: ${  bits  }, ${  bytes.length}`)
+      throw new Error(`Invalid bits: ${  bits  }, ${len}`)
     }
 
     // this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:int${  bits}`)
     this.checkLength(len)
 
-    this.byteView.set(bytes, this.offset)
-    this.offset += len
+    this.writer.set(data, len)
   }
 
-  storeRawBytes(bytes, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes)
-    }
-    const len = bytes.length
+  storeRawBytes(bytes: BinaryData | ArrayBuffer, field: string = '') {
+    const data = binaryDataGuard(bytes)
+    const len = data.length
 
     // this.debug && console.log('>>>', bytesToHex(bytes), field)
     this.checkLength(len)
 
-    this.byteView.set(bytes, this.offset)
-    this.offset += len
+    this.writer.set(data, len)
   }
 
   storeMethod(methodName: string, params) {
@@ -262,7 +245,7 @@ export class Serialization {
       if (!stored)
         throw new Error(`Method ${methodName}.`+
           ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)*/
-      this.storeObject(stored, type, `f{${methodName}}(${paramName})`)
+      this.storeObject(stored, type, `f ${methodName}(${paramName})`)
     }
 
     return methodData.type
@@ -290,7 +273,7 @@ export class Serialization {
       case 'int512':
         return this.storeIntBytes(obj, 512, field)
       case 'string':
-        return this.storeString(obj, field)
+        return this.storeBytes(obj, `${field}:string`)
       case 'bytes':
         return this.storeBytes(obj, field)
       case 'double':
@@ -302,9 +285,8 @@ export class Serialization {
     }
 
     if (is(Array, obj)) {
-      if (type.substr(0, 6) == 'Vector') {
-        this.writeInt(0x1cb5c415, `${field  }[id]`)
-      }
+      if (type.substr(0, 6) == 'Vector')
+        this.writeInt(0x1cb5c415, `${field}[id]`)
       else if (type.substr(0, 6) != 'vector') {
         throw new Error(`Invalid vector type ${  type}`)
       }
@@ -431,7 +413,7 @@ export class Deserialization {
 
     let s
     try {
-      s = decodeURIComponent(escape(sUTF8))
+      s = decodeURIComponent(encodeURIComponent(sUTF8))
     } catch (e) {
       s = sUTF8
     }
@@ -487,7 +469,12 @@ export class Deserialization {
     const compressed = this.fetchBytes(`${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
-    const newDeserializer = new Deserialization(buffer, { mtproto: this.mtproto, override: this.override }, this.api, this.mtApi)
+    const newDeserializer = new Deserialization(
+      buffer, {
+        mtproto : this.mtproto,
+        override: this.override
+      },
+      this.api, this.mtApi)
 
     return newDeserializer.fetchObject(type, field)
   }

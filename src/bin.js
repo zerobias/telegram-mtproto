@@ -14,6 +14,16 @@ import { eGCD_, greater, divide_, str2bigInt, equalsInt,
 
 const rushaInstance = new Rusha(1024 * 1024)
 
+
+
+export function stringToChars(str: string) {
+  const ln = str.length
+  const result: number[] = Array(ln)
+  for (let i = 0; i < ln; ++i)
+    result[i] = str.charCodeAt(i)
+  return result
+}
+
 export const strDecToHex = str => toLower(
   bigInt2str(
     str2bigInt(str, 10, 0), 16
@@ -27,7 +37,7 @@ export function bytesToHex(bytes = []) {
   return arr.join('')
 }
 
-export function bytesFromHex(hexString) {
+export function bytesFromHex(hexString: string) {
   const len = hexString.length
   let start = 0
   const bytes = []

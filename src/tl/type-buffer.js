@@ -11,30 +11,8 @@ import { TypeBufferIntError } from '../error'
 // import { bigint, uintToInt, intToUint, bytesToHex,
 //   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
 
-type TLParam = {
-  name: string,
-  type: string
-}
+import type { BinaryData, TLConstruct, TLSchema } from './index.h'
 
-export type TLConstruct = {
-  id: string,
-  type: string,
-  predicate: string,
-  params: TLParam[]
-}
-
-type TLMethod = {
-  id: string,
-  type: string,
-  method: string,
-  params: TLParam[]
-}
-
-export type TLSchema = {
-  constructors: TLConstruct[],
-  methods: TLMethod[],
-  constructorsIndex?: number[]
-}
 
 type HasTypeBuffer = {
   typeBuffer: TypeBuffer
@@ -103,19 +81,23 @@ const writeIntLog = (i: number, field: string) => {
 }
 
 export class TypeWriter {
-  offset: number = 0
+  offset: number = 0 // in bytes
   buffer: ArrayBuffer
   intView: Int32Array
   byteView: Uint8Array
   maxLength: number
-  constructor(startMaxLength: number) {
-    this.maxLength = startMaxLength
-    this.reset()
+  constructor(/*startMaxLength: number*/) {
+    // this.maxLength = startMaxLength
+    // this.reset()
   }
   reset() {
     this.buffer = new ArrayBuffer(this.maxLength)
     this.intView = new Int32Array(this.buffer)
     this.byteView = new Uint8Array(this.buffer)
+  }
+  set(list: BinaryData, length: number) {
+    this.byteView.set(list, this.offset)
+    this.offset += length
   }
   next(data: number) {
     this.byteView[this.offset] = data
@@ -138,8 +120,31 @@ export class TypeWriter {
 
     new Int32Array(this.buffer).set(previousArray)
   }
-  writeInt(i: number) {
-    // immediate(writeIntLog, i, field)
+  getArray() {
+    const resultBuffer = new ArrayBuffer(this.offset)
+    const resultArray = new Int32Array(resultBuffer)
+
+    resultArray.set(this.intView.subarray(0, this.offset / 4))
+
+    return resultArray
+  }
+  getBytesTyped() {
+    const resultBuffer = new ArrayBuffer(this.offset)
+    const resultArray = new Uint8Array(resultBuffer)
+
+    resultArray.set(this.byteView.subarray(0, this.offset))
+
+    return resultArray
+  }
+  getBytesPlain() {
+    const bytes = []
+    for (let i = 0; i < this.offset; i++) {
+      bytes.push(this.byteView[i])
+    }
+    return bytes
+  }
+  writeInt(i: number, field: string) {
+    immediate(writeIntLog, i, field)
 
     this.checkLength(4)
     this.intView[this.offset / 4] = i
@@ -149,7 +154,7 @@ export class TypeWriter {
     while (this.offset % 4)
       this.next(0)
   }
-  writeArray(list?: ArrayBuffer | string | number[]) {
+  /*writeArray(list?: ArrayBuffer | string | number[]) {
     let iter, length
 
     if (list === undefined)
@@ -195,10 +200,8 @@ export class TypeWriter {
     this.checkLength(length)
 
     this.set(iter, length)
-  }
+  }*/
 }
-
-const stringToNums = (str: string) => [...str].map(e => e.charCodeAt(0))
 
 export class TypeBuffer {
   offset: number = 0

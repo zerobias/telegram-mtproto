@@ -1,13 +1,20 @@
+//@flow
+
+import type { PublicKey } from './main/index.h'
+import type { Cached } from './api-manager/index.h'
+
 import Promise from 'bluebird'
 import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../bin'
 
 import type { SerializationFabric } from '../tl'
 
-export const KeyManager = (Serialization: SerializationFabric, publisKeysHex, publicKeysParsed) => {
+export const KeyManager = (Serialization: SerializationFabric,
+  publisKeysHex: PublicKey[],
+  publicKeysParsed: Cached<PublicKey>) => {
   let prepared = false
 
-  const mapPrepare = ({ modulus, exponent }) => {
+  const mapPrepare = ({ modulus, exponent }: PublicKey) => {
     const RSAPublicKey = Serialization()
     RSAPublicKey.storeBytes(bytesFromHex(modulus), 'n')
     RSAPublicKey.storeBytes(bytesFromHex(exponent), 'e')
@@ -31,15 +38,15 @@ export const KeyManager = (Serialization: SerializationFabric, publisKeysHex, pu
     prepared = true
   }
 
-  async function selectRsaKeyByFingerPrint(fingerprints) {
+  async function selectRsaKeyByFingerPrint(fingerprints: string[]) {
     await prepareRsaKeys()
 
     let fingerprintHex, foundKey
-    for (let i = 0; i < fingerprints.length; i++) {
-      fingerprintHex = strDecToHex(fingerprints[i])
+    for (const fingerprint of fingerprints) {
+      fingerprintHex = strDecToHex(fingerprint)
       foundKey = publicKeysParsed[fingerprintHex]
       if (foundKey)
-        return { fingerprint: fingerprints[i], ...foundKey }
+        return { fingerprint, ...foundKey }
     }
     return false
   }
