@@ -5,8 +5,8 @@ const updateProfile = require('./update-profile')
 const run = async () => {
   const first_name = await login()
   await updateProfile(first_name)
-  // const chat = await getChat()
-  // await chatHistory(chat)
+  const chat = await getChat()
+  await chatHistory(chat)
 }
 
 run()
