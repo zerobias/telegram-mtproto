@@ -1,15 +1,16 @@
 //@flow
 
 import is from 'ramda/src/is'
+import has from 'ramda/src/has'
 
 import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
 
-import { WriteMediator } from './mediator'
-
+import { WriteMediator, ReadMediator } from './mediator'
+import Layout, { getFlags, isSimpleType } from '../layout'
 import { readInt, TypeBuffer, TypeWriter, getNakedType,
   getPredicate, getString, getTypeConstruct } from './type-buffer'
-import type { TLSchema } from './index.h'
+import type { TLSchema, TLConstruct } from './index.h'
 
 import Logger from '../util/log'
 const debug = Logger`tl`
@@ -20,6 +21,9 @@ type SerialConstruct = {
   mtproto: boolean,
   startMaxLength: number
 }
+
+let apiLayer: Layout
+let mtLayer: Layout
 
 export class Serialization {
   writer: TypeWriter = new TypeWriter()
@@ -34,6 +38,10 @@ export class Serialization {
 
     this.writer.reset()
     this.mtproto = mtproto
+    if (!apiLayer)
+      apiLayer = new Layout(api)
+    if (!mtLayer)
+      mtLayer = new Layout(mtApi)
   }
 
   getBytes(typed?: boolean) {
@@ -44,23 +52,54 @@ export class Serialization {
   }
 
   storeMethod(methodName: string, params) {
-    const schema = selectSchema(this.mtproto, this.api, this.mtApi)
-    let methodData = false
+    const layer = this.mtproto
+      ? mtLayer
+      : apiLayer
+    const pred = layer.funcs.get(methodName)
+    if (!pred) throw new Error(`No method name ${methodName} found`)
 
-    for (const method of schema.methods) {
-      if (method.method == methodName) {
-        methodData = method
-        break
-      }
-    }
-    if (!methodData) {
-      throw new Error(`No method ${  methodName  } found`)
-    }
     WriteMediator.int(this.writer,
-                      intToUint(methodData.id),
-                      `${methodName  }[id]`)
-
-    let condType
+                      intToUint(`${pred.id}`),
+                      `${methodName}[id]`)
+    if (pred.hasFlags) {
+      const flags = getFlags(pred)(params)
+      this.storeObject(flags, '#', `f ${methodName} #flags ${flags}`)
+    }
+    for (const param of pred.params) {
+      const paramName = param.name
+      const typeClass = param.typeClass
+      let fieldObj
+      if (!has(paramName, params)) {
+        if (param.isFlag) continue
+        else if (layer.typeDefaults.has(typeClass))
+          fieldObj = layer.typeDefaults.get(typeClass)
+        else if (isSimpleType(typeClass)) {
+          switch (typeClass) {
+            case 'int': fieldObj = 0; break
+            // case 'long': fieldObj = 0; break
+            case 'string': fieldObj = ' '; break
+            // case 'double': fieldObj = 0; break
+            case 'true': fieldObj = true; break
+            // case 'bytes': fieldObj = [0]; break
+          }
+        }
+        else throw new Error(`Method ${methodName} doesnt recieve required argument ${paramName}`)
+      } else {
+        fieldObj = params[paramName]
+      }
+      if (param.isVector) {
+        if (!Array.isArray(fieldObj))
+          throw new TypeError(`Vector argument ${paramName} in ${methodName} required Array,`  +
+          //$FlowIssue
+          ` got ${fieldObj} ${typeof fieldObj}`)
+        WriteMediator.int(this.writer, 0x1cb5c415, `${paramName}[id]`)
+        WriteMediator.int(this.writer, fieldObj.length, `${paramName}[count]`)
+        for (const [ i, elem ] of fieldObj.entries())
+          this.storeObject(elem, param.typeClass, `${paramName}[${i}]`)
+      } else
+        this.storeObject(fieldObj, param.typeClass, `f ${methodName}(${paramName})`)
+    }
+    /*let condType
     let fieldBit
     for (const param of methodData.params) {
       let type = param.type
@@ -74,15 +113,15 @@ export class Serialization {
       }
       const paramName = param.name
       const stored = params[paramName]
-      /*if (!stored)
+      if (!stored)
         stored = this.emptyOfType(type, schema)
       if (!stored)
         throw new Error(`Method ${methodName}.`+
-          ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)*/
+          ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)
       this.storeObject(stored, type, `f ${methodName}(${paramName})`)
-    }
+    }*/
 
-    return methodData.type
+    return pred.returns
   }
   /*emptyOfType(ofType, schema: TLSchema) {
     const resultConstruct = schema.constructors.find(
@@ -139,6 +178,7 @@ export class Serialization {
       throw new Error(`Invalid object for type ${  type}`)
 
     const schema = selectSchema(this.mtproto, this.api, this.mtApi)
+
     const predicate = obj['_']
     let isBare = false
     let constructorData = false
@@ -146,12 +186,14 @@ export class Serialization {
     if (isBare)
       type = type.substr(1)
 
+
     for (const tlConst of schema.constructors) {
       if (tlConst.predicate == predicate) {
         constructorData = tlConst
         break
       }
     }
+
     if (!constructorData)
       throw new Error(`No predicate ${predicate} found`)
 
@@ -165,6 +207,7 @@ export class Serialization {
 
     let condType
     let fieldBit
+
     for (const param of constructorData.params) {
       type = param.type
       if (type.indexOf('?') !== -1) {
@@ -199,21 +242,13 @@ export class Deserialization {
     this.mtproto = mtproto
   }
 
-  readInt = readInt(this)
+  readInt = (field: string) => {
+    // log('int')(field, i.toString(16), i)
+    return ReadMediator.int(this.typeBuffer, field)
+  }
 
   fetchInt(field: string = '') {
     return this.readInt(`${ field }:int`)
-  }
-
-  fetchDouble(field: string = '') {
-    const buffer = new ArrayBuffer(8)
-    const intView = new Int32Array(buffer)
-    const doubleView = new Float64Array(buffer)
-
-    intView[0] = this.readInt(`${ field }:double[low]`)
-    intView[1] = this.readInt(`${ field }:double[high]`)
-
-    return doubleView[0]
   }
 
   fetchLong(field: string = '') {
@@ -301,7 +336,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchPacked(type, field) {
+  fetchPacked(type, field: string = '') {
     const compressed = this.fetchBytes(`${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
@@ -315,7 +350,7 @@ export class Deserialization {
     return newDeserializer.fetchObject(type, field)
   }
 
-  fetchVector(type, field) {
+  fetchVector(type, field: string = '') {
     if (type.charAt(0) === 'V') {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)
@@ -336,7 +371,7 @@ export class Deserialization {
     return result
   }
 
-  fetchObject(type, field) {
+  fetchObject(type, field: string = '') {
     switch (type) {
       case '#':
       case 'int':
@@ -354,7 +389,7 @@ export class Deserialization {
       case 'bytes':
         return this.fetchBytes(field)
       case 'double':
-        return this.fetchDouble(field)
+        return ReadMediator.double(this.typeBuffer, field)
       case 'Bool':
         return this.fetchBool(field)
       case 'true':

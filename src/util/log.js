@@ -1,7 +1,6 @@
 //@flow
 
 // import memoize from 'memoizee'
-// import pretty from 'pretty-format'
 
 import Debug from 'debug'
 

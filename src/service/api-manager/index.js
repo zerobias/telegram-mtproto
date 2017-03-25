@@ -194,14 +194,14 @@ export class ApiManager {
 
       if (!options.noErrorBox) {
         //TODO weird code. `error` changed after `.reject`?
-        //$FlowIssue
-        err.input = method
-        //$FlowIssue
+
+        /*err.input = method
+
         err.stack =
           stack ||
           hasPath(['originalError', 'stack'], error) ||
           error.stack ||
-          (new Error()).stack
+          (new Error()).stack*/
         this.emit('error.invoke', error)
       }
     }

@@ -4,7 +4,7 @@ import has from 'ramda/src/has'
 import flip from 'ramda/src/flip'
 import contains from 'ramda/src/contains'
 
-import type { TLParam, TLCreator, SchemaElement, TLMethod, TLConstruct, TLSchema } from './index.h'
+import type { TLParam, SchemaElement, TLMethod, TLConstruct, TLSchema, SchemaParam } from './index.h'
 
 class TypeClass {
   name: string
@@ -23,6 +23,7 @@ class Argument {
   name: string
   typeClass: string
   isVector: boolean
+  isBare: boolean
   isFlag: boolean
   flagIndex: number
   fullType: string
@@ -30,11 +31,13 @@ class Argument {
               name: string,
               typeClass: string,
               isVector: boolean = false,
+              isBare: boolean = false,
               isFlag: boolean = false,
               flagIndex: number = NaN) {
     this.name = name
     this.typeClass = typeClass
     this.isVector = isVector
+    this.isBare = isBare
     this.isFlag = isFlag
     this.flagIndex = flagIndex
     this.id = id
@@ -92,6 +95,10 @@ class Type extends Creator {
   }
 }
 
+const isFlagItself =
+  (param: SchemaParam) =>
+    param.name === 'flags' &&
+    param.type === '#'
 
 export class Layout {
   typeClasses: Map<string, TypeClass> = new Map
@@ -99,6 +106,7 @@ export class Layout {
   args: Map<string, Argument> = new Map
   funcs: Map<string, Method> = new Map
   types: Map<string, Type> = new Map
+  typeDefaults: Map<string, { _: string }> = new Map
   schema: TLSchema
   makeCreator(elem: SchemaElement,
               name: string,
@@ -107,11 +115,15 @@ export class Layout {
     const args: Argument[] = []
     let hasFlags = false
     for (const [ i, param ] of elem.params.entries()) {
+      if (isFlagItself(param)) {
+        hasFlags = true
+        continue
+      }
       const id = `${name}.${param.name}/${i}`
-      const { typeClass, isVector, isFlag, flagIndex } = getTypeProps(param.type)
+      const { typeClass, isVector, isFlag, flagIndex, isBare } = getTypeProps(param.type)
       if (isFlag) hasFlags = true
       this.pushTypeClass(typeClass)
-      const arg = new Argument(id, param.name, typeClass, isVector, isFlag, flagIndex)
+      const arg = new Argument(id, param.name, typeClass, isVector, isBare, isFlag, flagIndex)
       args.push(arg)
       this.args.set(id, arg)
     }
@@ -150,6 +162,9 @@ export class Layout {
     const { methods, constructors } = schema
     constructors.map(this.makeType)
     methods.map(this.makeMethod)
+    for (const [ key, type ] of this.types.entries())
+      if (hasEmpty(key))
+        this.typeDefaults.set(type.typeClass, { _: key })
   }
   constructor(schema: TLSchema) {
     //$FlowIssue
@@ -160,15 +175,18 @@ export class Layout {
     this.makeLayout(schema)
   }
 }
+const hasEmpty = contains('Empty')
 const hasQuestion = contains('?')
 const hasVector = contains('<')
+const hasBare = contains('%')
 
 const getTypeProps = (rawType: string) => {
   const result = {
     typeClass: rawType,
     isVector : false,
     isFlag   : false,
-    flagIndex: NaN
+    flagIndex: NaN,
+    isBare   : false
   }
   if (hasQuestion(rawType)) {
     const [ prefix, rest ] = rawType.split('?')
@@ -181,25 +199,28 @@ const getTypeProps = (rawType: string) => {
     result.isVector = true
     result.typeClass = result.typeClass.slice(7, -1)
   }
+  if (hasBare(result.typeClass)) {
+    result.isBare = true
+    result.typeClass = result.typeClass.slice(1)
+  }
   return result
 }
 
-const isSimpleType: (type: string) => boolean =
+export const isSimpleType: (type: string) => boolean =
   flip(contains)(
-    ['int', 'long', 'string', 'double', 'true', 'bytes'])
-
+    ['int', /*'long',*/ 'string', /*'double', */'true', /*'bytes'*/])
 
 const getFlagsRed =
   (data: Object) =>
-    (acc: number, { name, flagIndex }: TLParam) =>
+    (acc: number, { name, flagIndex }: Argument) =>
         has(name, data)
           ? acc + 2 ** flagIndex
           : acc
 
-export const getFlags = ({ params }: TLCreator) => {
+export const getFlags = ({ params }: Creator) => {
   const flagsParams =
     params.filter(
-      (e: TLParam) => e.isFlag)
+      (e: Argument) => e.isFlag)
 
   return (data: Object) =>
     flagsParams

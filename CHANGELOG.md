@@ -1,6 +1,10 @@
 # 2.2.1
-
-* *invokeWithLayer* api field now may detects internally and don't required (but still valid)
+* Flag (optional type) fields now acts like common fields.
+* Zeroes, empty strings and empty types now can be omited. write only useful fields.
+* *invokeWithLayer* api field now may detects internally and don't required (but still valid).
+* Type check argument fields
+* Fix auth race condition
+* Add batch async logger
 
 # 2.2.0
 

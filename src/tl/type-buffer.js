@@ -13,17 +13,6 @@ import { TypeBufferIntError } from '../error'
 
 import type { BinaryData, TLConstruct, TLSchema } from './index.h'
 
-
-type HasTypeBuffer = {
-  typeBuffer: TypeBuffer
-}
-
-export const readInt = (ctx: HasTypeBuffer) => (field: string) => {
-  const i = ctx.typeBuffer.nextInt()
-  // log('int')(field, i.toString(16), i)
-  return i
-}
-
 function findType(val: TLConstruct) {
   return val.type == this
 }

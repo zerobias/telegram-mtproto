@@ -1,6 +1,5 @@
 {
   "presets": [
-    // ["es2015", { "modules": false }]
   ],
   "plugins": [
     "transform-flow-strip-types",
@@ -10,10 +9,6 @@
     }],
     "transform-class-properties",
     "transform-async-to-generator",
-    // ["transform-async-to-module-method", {
-    //   "module": "bluebird",
-    //   "method": "coroutine"
-    // }],
     ["transform-es2015-block-scoping", {
       "throwIfClosureRequired": true
     }],

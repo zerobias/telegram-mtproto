@@ -20,10 +20,3 @@ export type TLParam = {
   isFlag: boolean,
   flagIndex: number
 }
-
-export type TLCreator = {
-  id: number,
-  name: string,
-  hasFlags: boolean,
-  params: TLParam[]
-}

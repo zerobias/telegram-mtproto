@@ -633,7 +633,7 @@ export class NetworkerThread {
 
   getMsgById = ({ req_msg_id }) => this.state.getSent(req_msg_id)
 
-  async parseResponse(responseBuffer) {
+  async parseResponse(responseBuffer: Uint8Array) {
     // console.log(dTime(), 'Start parsing response')
     // const self = this
 

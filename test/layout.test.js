@@ -178,6 +178,6 @@ test('flags counter', t => {
     t.equal(getter(obj), result, `flags test`)
   let layout
   t.notThrow(() => layout = new Layout(apiSchema), 'make new layout')
-  console.log(layout)
+  // console.log(layout)
   t.end()
 })

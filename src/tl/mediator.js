@@ -1,6 +1,6 @@
 //@flow
 
-import { TypeWriter } from './type-buffer'
+import { TypeWriter, TypeBuffer } from './type-buffer'
 import { longToInts, stringToChars } from '../bin'
 
 import Logger from '../util/log'
@@ -93,6 +93,22 @@ export const WriteMediator = {
   }
 }
 
+export const ReadMediator = {
+  int(ctx: TypeBuffer, field: string) {
+    // log('int')(field, i.toString(16), i)
+    return ctx.nextInt()
+  },
+  double(ctx: TypeBuffer, field: string) {
+    const buffer = new ArrayBuffer(8)
+    const intView = new Int32Array(buffer)
+    const doubleView = new Float64Array(buffer)
+
+    intView[0] = this.int(ctx, `${ field }:double[low]`)
+    intView[1] = this.int(ctx, `${ field }:double[high]`)
+
+    return doubleView[0]
+  }
+}
 
 const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) => {
   let list, length

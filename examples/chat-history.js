@@ -1,13 +1,11 @@
-const { pluck, last } = require('ramda')
+const { pluck } = require('ramda')
 const { inputField } = require('./fixtures')
 
 const telegram = require('./init')
 
 const getChat = async () => {
   const dialogs = await telegram('messages.getDialogs', {
-    offset     : 0,
-    limit      : 50,
-    offset_peer: { _: 'inputPeerEmpty' }
+    limit: 50,
   })
   const { chats } = dialogs
   const selectedChat = await selectChat(chats)
