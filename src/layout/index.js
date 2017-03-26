@@ -106,6 +106,7 @@ export class Layout {
   args: Map<string, Argument> = new Map
   funcs: Map<string, Method> = new Map
   types: Map<string, Type> = new Map
+  typesById: Map<number, Type> = new Map
   typeDefaults: Map<string, { _: string }> = new Map
   schema: TLSchema
   makeCreator(elem: SchemaElement,
@@ -132,8 +133,10 @@ export class Layout {
     this.creators.add(name)
     if (creator instanceof Method)
       this.funcs.set(name, creator)
-    else if (creator instanceof Type)
+    else if (creator instanceof Type) {
       this.types.set(name, creator)
+      this.typesById.set(id, creator)
+    }
   }
   makeMethod(elem: TLMethod) {
     const name = elem.method
@@ -180,7 +183,7 @@ const hasQuestion = contains('?')
 const hasVector = contains('<')
 const hasBare = contains('%')
 
-const getTypeProps = (rawType: string) => {
+export const getTypeProps = (rawType: string) => {
   const result = {
     typeClass: rawType,
     isVector : false,

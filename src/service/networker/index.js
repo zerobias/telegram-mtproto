@@ -26,7 +26,7 @@ import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../../bin'
 
 import type { TLFabric, SerializationFabric, DeserializationFabric } from '../../tl'
-import { WriteMediator, TypeWriter } from '../../tl'
+import { WriteMediator, ReadMediator, TypeWriter } from '../../tl'
 import type { Emit } from '../main/index.h'
 
 let updatesProcessor
@@ -656,7 +656,7 @@ export class NetworkerThread {
 
     deserializer.fetchIntBytes(64, 'salt')
     const sessionID = deserializer.fetchIntBytes(64, 'session_id')
-    const messageID = deserializer.fetchLong('message_id')
+    const messageID = ReadMediator.long( deserializer.typeBuffer, 'message_id')
 
     const isInvalidSession =
       !bytesCmp(sessionID, this.sessionID) && (
@@ -979,10 +979,10 @@ const getDeserializeOpts = msgGetter => ({
   mtproto : true,
   override: {
     mt_message(result, field) {
-      result.msg_id = this.fetchLong(`${ field }[msg_id]`)
-      result.seqno = this.fetchInt(`${ field }[seqno]`)
+      result.msg_id = ReadMediator.long( this.typeBuffer, `${ field }[msg_id]`)
+      result.seqno = ReadMediator.int( this.typeBuffer, `${ field }[seqno]`)
       //TODO WARN! Why everywhere seqno is seq_no and only there its seqno?!?
-      result.bytes = this.fetchInt(`${ field }[bytes]`)
+      result.bytes = ReadMediator.int( this.typeBuffer, `${ field }[bytes]`)
 
       const offset = this.getOffset()
 
@@ -992,15 +992,15 @@ const getDeserializeOpts = msgGetter => ({
         console.error(dTime(), 'parse error', e.message, e.stack)
         result.body = { _: 'parse_error', error: e }
       }
-      if (this.offset != offset + result.bytes) {
+      if (this.typeBuffer.offset != offset + result.bytes) {
         // console.warn(dTime(), 'set offset', this.offset, offset, result.bytes)
         // console.log(dTime(), result)
-        this.offset = offset + result.bytes
+        this.typeBuffer.offset = offset + result.bytes
       }
       // console.log(dTime(), 'override message', result)
     },
-    mt_rpc_result(result, field) {
-      result.req_msg_id = this.fetchLong(`${ field }[req_msg_id]`)
+    mt_rpc_result(result, field: string) {
+      result.req_msg_id = ReadMediator.long( this.typeBuffer, `${ field }[req_msg_id]`)
 
       const sentMessage = msgGetter(result)
       const type = sentMessage && sentMessage.resultType || 'Object'

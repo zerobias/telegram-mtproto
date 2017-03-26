@@ -112,4 +112,8 @@ const Logger = (moduleName: VariString, ...rest: string[]) => {
   return logger
 }
 
+export const setLogger = (customLogger: Function) => {
+  Debug.log = customLogger
+}
+
 export default Logger

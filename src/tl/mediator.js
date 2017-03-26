@@ -1,7 +1,7 @@
 //@flow
 
 import { TypeWriter, TypeBuffer } from './type-buffer'
-import { longToInts, stringToChars } from '../bin'
+import { longToInts, stringToChars, lshift32 } from '../bin'
 
 import Logger from '../util/log'
 const log = Logger`tl, mediator`
@@ -95,8 +95,16 @@ export const WriteMediator = {
 
 export const ReadMediator = {
   int(ctx: TypeBuffer, field: string) {
-    // log('int')(field, i.toString(16), i)
-    return ctx.nextInt()
+    const result = ctx.nextInt()
+    log('read, int')(field, result)
+    return result
+  },
+  long(ctx: TypeBuffer, field: string ){
+    const iLow = this.int(ctx, `${ field }:long[low]`)
+    const iHigh = this.int(ctx, `${ field }:long[high]`)
+
+    const res = lshift32(iHigh, iLow)
+    return res
   },
   double(ctx: TypeBuffer, field: string) {
     const buffer = new ArrayBuffer(8)
@@ -115,9 +123,6 @@ const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) =
   if (bytes instanceof ArrayBuffer) {
     list = new Uint8Array(bytes)
     length = bytes.byteLength
-  } else if (bytes === undefined) {
-    list = []
-    length = 0
   } else if (typeof bytes === 'string') {
     list =
       stringToChars(
@@ -125,6 +130,9 @@ const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) =
           encodeURIComponent(
             bytes)))
     length = list.length
+  } else if (bytes === undefined) {
+    list = []
+    length = 0
   } else {
     list = bytes
     length = bytes.length

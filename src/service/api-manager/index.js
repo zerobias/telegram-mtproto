@@ -180,9 +180,6 @@ export class ApiManager {
     }
   }
   mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
-    // const self = this
-    const defError = new Error()
-    const stack = defError.stack || 'empty stack'
     const deferred = blueDefer()
     const rejectPromise = (error: any) => {
       let err

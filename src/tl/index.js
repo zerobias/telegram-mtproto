@@ -7,9 +7,9 @@ import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
 
 import { WriteMediator, ReadMediator } from './mediator'
-import Layout, { getFlags, isSimpleType } from '../layout'
-import { readInt, TypeBuffer, TypeWriter, getNakedType,
-  getPredicate, getString, getTypeConstruct } from './type-buffer'
+import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
+import { TypeBuffer, TypeWriter, getNakedType,
+  getString, getTypeConstruct } from './type-buffer'
 import type { TLSchema, TLConstruct } from './index.h'
 
 import Logger from '../util/log'
@@ -227,6 +227,8 @@ export class Serialization {
 
 }
 
+const getChar = (e: number) => String.fromCharCode(e)
+
 export class Deserialization {
   typeBuffer: TypeBuffer
   override: Object
@@ -251,14 +253,6 @@ export class Deserialization {
     return this.readInt(`${ field }:int`)
   }
 
-  fetchLong(field: string = '') {
-    const iLow = this.readInt(`${ field }:long[low]`)
-    const iHigh = this.readInt(`${ field }:long[high]`)
-
-    const res = lshift32(iHigh, iLow)
-    return res
-  }
-
   fetchBool(field: string = '') {
     const i = this.readInt(`${ field }:bool`)
     switch (i) {
@@ -269,29 +263,6 @@ export class Deserialization {
         return this.fetchObject('Object', field)
       }
     }
-  }
-
-  fetchString(field: string = '') {
-    let len = this.typeBuffer.nextByte()
-
-    if (len == 254) {
-      len = this.typeBuffer.nextByte() |
-          this.typeBuffer.nextByte() << 8 |
-          this.typeBuffer.nextByte() << 16
-    }
-
-    const sUTF8 = getString(len, this.typeBuffer)
-
-    let s
-    try {
-      s = decodeURIComponent(encodeURIComponent(sUTF8))
-    } catch (e) {
-      s = sUTF8
-    }
-
-    debug(`string`)(s, `${field}:string`)
-
-    return s
   }
 
   fetchBytes(field: string = '') {
@@ -306,9 +277,27 @@ export class Deserialization {
     const bytes = this.typeBuffer.next(len)
     this.typeBuffer.addPadding()
 
-    debug(`bytes`)(bytesToHex(bytes), `${ field }:bytes`)
+    debug(`read, bytes`)(bytesToHex(bytes), `${ field }:bytes`)
 
     return bytes
+  }
+
+  fetchString(field: string) {
+    const bytes = this.fetchBytes(`${field}:string`)
+    const sUTF8 = [...bytes]
+      .map(getChar)
+      .join('')
+
+    let s
+    try {
+      s = decodeURIComponent(escape(sUTF8))
+    } catch (e) {
+      s = sUTF8
+    }
+
+    debug(`read, string`)(s, `${field}:string`)
+
+    return s
   }
 
   fetchIntBytes(bits, field: string = '') {
@@ -350,7 +339,8 @@ export class Deserialization {
     return newDeserializer.fetchObject(type, field)
   }
 
-  fetchVector(type, field: string = '') {
+  fetchVector(type: string, field: string = '') {
+    const typeProps = getTypeProps(type)
     if (type.charAt(0) === 'V') {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)
@@ -377,7 +367,7 @@ export class Deserialization {
       case 'int':
         return this.fetchInt(field)
       case 'long':
-        return this.fetchLong(field)
+        return ReadMediator.long(this.typeBuffer, field)
       case 'int128':
         return this.fetchIntBytes(128, field)
       case 'int256':
@@ -397,17 +387,22 @@ export class Deserialization {
     }
     let fallback
     field = field || type || 'Object'
-    if (type.substr(0, 6).toLowerCase() === 'vector')
+
+    const layer = this.mtproto
+      ? mtLayer
+      : apiLayer
+    const typeProps = getTypeProps(type)
+    // layer.typesById
+
+    if (typeProps.isVector)
       return this.fetchVector(type, field)
 
     const schema = selectSchema(this.mtproto, this.api, this.mtApi)
     let predicate = false
     let constructorData = false
 
-    if (type.charAt(0) === '%')
+    if (typeProps.isBare)
       constructorData = getNakedType(type, schema)
-    else if (type.charAt(0) >= 97 && type.charAt(0) <= 122)
-      constructorData = getPredicate(type, schema)
     else {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)

@@ -214,7 +214,7 @@ export function intToUint(val: string) {
 
 const middle = 0x100000000 / 2 - 1
 
-export function uintToInt(val) {
+export function uintToInt(val: number): number {
   if (val > middle)
     val = val - 0x100000000
   return val
