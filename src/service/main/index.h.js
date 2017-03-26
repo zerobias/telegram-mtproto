@@ -1,6 +1,6 @@
 //@flow
 
-import type { TLSchema } from '../../tl/types'
+import type { TLSchema } from '../../tl/index.h'
 
 export type ApiConfig = {
   invokeWithLayer?: number,

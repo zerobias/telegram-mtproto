@@ -14,6 +14,16 @@ import { eGCD_, greater, divide_, str2bigInt, equalsInt,
 
 const rushaInstance = new Rusha(1024 * 1024)
 
+
+
+export function stringToChars(str: string) {
+  const ln = str.length
+  const result: number[] = Array(ln)
+  for (let i = 0; i < ln; ++i)
+    result[i] = str.charCodeAt(i)
+  return result
+}
+
 export const strDecToHex = str => toLower(
   bigInt2str(
     str2bigInt(str, 10, 0), 16
@@ -27,7 +37,7 @@ export function bytesToHex(bytes = []) {
   return arr.join('')
 }
 
-export function bytesFromHex(hexString) {
+export function bytesFromHex(hexString: string) {
   const len = hexString.length
   let start = 0
   const bytes = []
@@ -163,7 +173,7 @@ const dividerLem = str2bigInt('100000000', 16, 4)
 //   () => console.log(`Timer L ${timeL} B ${timeB}`, ...a, ...b, n || ''),
 //   100)
 
-export function longToInts(sLong) {
+export function longToInts(sLong: string) {
   const lemNum = str2bigInt(sLong, 10, 6)
   const div = new Array(lemNum.length)
   const rem = new Array(lemNum.length)
@@ -195,23 +205,16 @@ export const rshift32 = str => {
   return bigInt2str(num, 10)
 }
 
-// export function longFromLem(high, low) {
-//   const highNum = int2bigInt(high, 96, 0)
-//   leftShift_(highNum, 32)
-
-//   addInt_(highNum, low)
-//   const res = bigInt2str(highNum, 10)
-//   return res
-// }
-
-export function intToUint(val) {
-  val = parseInt(val) //TODO PERF parseInt is a perfomance issue
-  if (val < 0)
-    val = val + 0x100000000
-  return val
+export function intToUint(val: string) {
+  let result = ~~val
+  if (result < 0)
+    result = result + 0x100000000
+  return result
 }
+
 const middle = 0x100000000 / 2 - 1
-export function uintToInt(val) {
+
+export function uintToInt(val: number): number {
   if (val > middle)
     val = val - 0x100000000
   return val

@@ -3,6 +3,10 @@ import isNode from 'detect-node'
 import { TimeOffset } from '../store'
 import { nextRandomInt, lshift32 } from '../bin'
 
+import Logger from '../util/log'
+
+const log = Logger`time-manager`
+
 export const tsNow = seconds => {
   let t = +new Date()
   //eslint-disable-next-line
@@ -12,9 +16,7 @@ export const tsNow = seconds => {
     : t
 }
 
-const logTimer = (new Date()).getTime()
-
-export const dTime = () => `[${(((new Date()).getTime() -logTimer) / 1000).toFixed(3)}]`
+export { dTime } from '../util/dtime'
 
 let lastMessageID = [0, 0]
 let timerOffset = 0
@@ -48,7 +50,7 @@ export const applyServerTime = (serverTime, localTime) => {
 
   lastMessageID = [0, 0]
   timerOffset = newTimeOffset
-  console.log(dTime(), 'Apply server time', serverTime, localTime, newTimeOffset, changed)
+  log('Apply server time')(serverTime, localTime, newTimeOffset, changed)
 
   return changed
 }

@@ -63,7 +63,6 @@ const phone = {
 }
 
 const api = {
-  invokeWithLayer: 0xda9b0d0d,
   layer          : 57,
   initConnection : 0x69796de9,
   api_id         : 49631

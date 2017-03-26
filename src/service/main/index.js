@@ -8,6 +8,7 @@ import { PureStorage } from '../../store'
 import TL from '../../tl'
 
 import configValidator from './config-validation'
+import generateInvokeLayer from './invoke-layer-generator'
 
 import type { TLFabric } from '../../tl'
 import type { ApiConfig, ConfigType, StrictConfig, Emit, On, PublicKey } from './index.h'
@@ -58,6 +59,8 @@ const configNormalization = (config: ConfigType): StrictConfig => {
     mtSchema = mtproto57,
   } = config
   const apiNormalized = { ...apiConfig, ...api }
+  const invokeLayer = generateInvokeLayer(apiNormalized.layer)
+  apiNormalized.invokeWithLayer = invokeLayer
   const fullCfg = {
     server,
     api: apiNormalized,

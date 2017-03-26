@@ -1,6 +1,6 @@
 //@flow
 
-import type { TypeBuffer } from './tl/types'
+import type { TypeBuffer } from './tl/type-buffer'
 
 export class MTError extends Error {
   static getMessage(code: number, type: string, message: string) {

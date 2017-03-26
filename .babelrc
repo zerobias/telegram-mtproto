@@ -1,20 +1,19 @@
 {
   "presets": [
-    // ["es2015", { "modules": false }]
   ],
   "plugins": [
     "transform-flow-strip-types",
-    // ["fast-async", {
-    //   "useRuntimeModule":true
-    // }],
+    "transform-exponentiation-operator",
+    ["transform-es2015-for-of", {
+      "loose": true
+    }],
     "transform-class-properties",
     "transform-async-to-generator",
-    // ["transform-async-to-module-method", {
-    //   "module": "bluebird",
-    //   "method": "coroutine"
-    // }],
-    ["transform-object-rest-spread", { "useBuiltIns": true }],
-    "closure-elimination"
+    ["transform-es2015-block-scoping", {
+      "throwIfClosureRequired": true
+    }],
+    ["transform-object-rest-spread", { "useBuiltIns": true }]
+    ,"closure-elimination"
   ],
   "env": {
     "commonjs": {

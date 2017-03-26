@@ -1,4 +1,4 @@
-const test = require('tap').test
+const { test } = require('tap')
 const { MTProto } = require('../lib')
 
 const phone = {
@@ -7,12 +7,12 @@ const phone = {
 }
 
 const api = {
-  invokeWithLayer: 0xda9b0d0d,
-  layer          : 57,
-  initConnection : 0x69796de9,
-  api_id         : 49631,
-  app_version    : '1.0.1',
-  lang_code      : 'en'
+  // invokeWithLayer: 0xda9b0d0d,
+  layer         : 57,
+  initConnection: 0x69796de9,
+  api_id        : 49631,
+  app_version   : '1.0.1',
+  lang_code     : 'en'
 }
 const server = {
   dev     : true,

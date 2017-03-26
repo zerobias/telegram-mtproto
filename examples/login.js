@@ -34,7 +34,7 @@ const login = async () => {
       username = ''
     } = user
     console.log('signIn', first_name, username, user.phone)
-    return telegram
+    return first_name
   } catch (error) {
     console.error(error)
   }

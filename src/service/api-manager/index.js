@@ -1,6 +1,7 @@
 //@flow
 
 import Promise from 'bluebird'
+// import UpdatesManager from '../updates'
 
 import isNil from 'ramda/src/isNil'
 import is from 'ramda/src/is'
@@ -25,7 +26,7 @@ import { AuthKeyError } from '../../error'
 import { bytesFromHex, bytesToHex } from '../../bin'
 
 import type { TLFabric } from '../../tl'
-import type { TLSchema } from '../../tl/types'
+import type { TLSchema } from '../../tl/index.h'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
 
@@ -64,6 +65,7 @@ export class ApiManager {
   mtSchema: TLSchema
   keyManager: Args
   networkFabric: any
+  updatesManager: any
   auth: any
   on: On
   emit: Emit
@@ -97,7 +99,11 @@ export class ApiManager {
     const apiManager = this.mtpInvokeApi
     apiManager.setUserAuth = this.setUserAuth
     apiManager.on = this.on
+    apiManager.emit = this.emit
     apiManager.storage = storage
+
+    // this.updatesManager = UpdatesManager(apiManager)
+    // apiManager.updates = this.updatesManager
 
     return apiManager
   }
@@ -167,15 +173,13 @@ export class ApiManager {
       const networker = await this.mtpGetNetworker(baseDc, opts)
       const nearestDc = await networker.wrapApiCall(
         'help.getNearestDc', {}, opts)
-      const { nearest_dc } = nearestDc
+      const { nearest_dc, this_dc } = nearestDc
       await this.storage.set('dc', nearest_dc)
       debug(`nearest Dc`)('%O', nearestDc)
+      if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, { createNetworker: true })
     }
   }
   mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
-    // const self = this
-    const defError = new Error()
-    const stack = defError.stack || 'empty stack'
     const deferred = blueDefer()
     const rejectPromise = (error: any) => {
       let err
@@ -188,14 +192,14 @@ export class ApiManager {
 
       if (!options.noErrorBox) {
         //TODO weird code. `error` changed after `.reject`?
-        //$FlowIssue
-        err.input = method
-        //$FlowIssue
+
+        /*err.input = method
+
         err.stack =
           stack ||
           hasPath(['originalError', 'stack'], error) ||
           error.stack ||
-          (new Error()).stack
+          (new Error()).stack*/
         this.emit('error.invoke', error)
       }
     }

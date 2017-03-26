@@ -1,252 +1,108 @@
 //@flow
 
 import is from 'ramda/src/is'
+import has from 'ramda/src/has'
 
 import { uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
+  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
+
+import { WriteMediator, ReadMediator } from './mediator'
+import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
+import { TypeBuffer, TypeWriter, getNakedType,
+  getString, getTypeConstruct } from './type-buffer'
+import type { TLSchema, TLConstruct } from './index.h'
 
 import Logger from '../util/log'
-
 const debug = Logger`tl`
-
-import { readInt, TypeBuffer, getNakedType,
-  getPredicate, getString, getTypeConstruct } from './types'
 
 const PACKED = 0x3072cfa1
 
+type SerialConstruct = {
+  mtproto: boolean,
+  startMaxLength: number
+}
+
+let apiLayer: Layout
+let mtLayer: Layout
+
 export class Serialization {
-  maxLength: number
-  offset: number = 0 // in bytes
-  buffer: ArrayBuffer
-  intView: Int32Array
-  byteView: Uint8Array
+  writer: TypeWriter = new TypeWriter()
   mtproto: boolean
-  constructor({ mtproto, startMaxLength }, api, mtApi) {
+  api: TLSchema
+  mtApi: TLSchema
+  constructor({ mtproto, startMaxLength }: SerialConstruct, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
 
-    this.maxLength = startMaxLength
+    this.writer.maxLength = startMaxLength
 
-    this.createBuffer()
+    this.writer.reset()
     this.mtproto = mtproto
+    if (!apiLayer)
+      apiLayer = new Layout(api)
+    if (!mtLayer)
+      mtLayer = new Layout(mtApi)
   }
 
-  createBuffer() {
-    this.buffer = new ArrayBuffer(this.maxLength)
-    this.intView = new Int32Array(this.buffer)
-    this.byteView = new Uint8Array(this.buffer)
+  getBytes(typed?: boolean) {
+    if (typed)
+      return this.writer.getBytesTyped()
+    else
+      return this.writer.getBytesPlain()
   }
 
-  getArray() {
-    const resultBuffer = new ArrayBuffer(this.offset)
-    const resultArray = new Int32Array(resultBuffer)
+  storeMethod(methodName: string, params) {
+    const layer = this.mtproto
+      ? mtLayer
+      : apiLayer
+    const pred = layer.funcs.get(methodName)
+    if (!pred) throw new Error(`No method name ${methodName} found`)
 
-    resultArray.set(this.intView.subarray(0, this.offset / 4))
-
-    return resultArray
-  }
-
-  getBuffer() {
-    return this.getArray().buffer
-  }
-
-  getBytes(typed) {
-    if (typed) {
-      const resultBuffer = new ArrayBuffer(this.offset)
-      const resultArray = new Uint8Array(resultBuffer)
-
-      resultArray.set(this.byteView.subarray(0, this.offset))
-
-      return resultArray
+    WriteMediator.int(this.writer,
+                      intToUint(`${pred.id}`),
+                      `${methodName}[id]`)
+    if (pred.hasFlags) {
+      const flags = getFlags(pred)(params)
+      this.storeObject(flags, '#', `f ${methodName} #flags ${flags}`)
     }
-
-    const bytes = []
-    for (let i = 0; i < this.offset; i++) {
-      bytes.push(this.byteView[i])
-    }
-    return bytes
-  }
-
-  checkLength(needBytes) {
-    if (this.offset + needBytes < this.maxLength) {
-      return
-    }
-
-    console.trace('Increase buffer', this.offset, needBytes, this.maxLength)
-    this.maxLength = Math.ceil(Math.max(this.maxLength * 2, this.offset + needBytes + 16) / 4) * 4
-    const previousBuffer = this.buffer
-    const previousArray = new Int32Array(previousBuffer)
-
-    this.createBuffer()
-
-    new Int32Array(this.buffer).set(previousArray)
-  }
-
-  writeInt(i, field) {
-    // this.debug && console.log('>>>', i.toString(16), i, field)
-
-    this.checkLength(4)
-    this.intView[this.offset / 4] = i
-    this.offset += 4
-  }
-
-  storeIntString = (value, field) => {
-    switch (true) {
-      case is(String, value): return this.storeString(value, field)
-      case is(Number, value): return this.storeInt(value, field)
-      default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
-    }
-  }
-
-  storeInt = (i, field = '') => {
-    this.writeInt(i, `${ field }:int`)
-  }
-
-  storeBool(i, field = '') {
-    if (i) {
-      this.writeInt(0x997275b5, `${ field }:bool`)
-    } else {
-      this.writeInt(0xbc799737, `${ field }:bool`)
-    }
-  }
-
-  storeLongP(iHigh, iLow, field) {
-    this.writeInt(iLow, `${ field }:long[low]`)
-    this.writeInt(iHigh, `${ field }:long[high]`)
-  }
-
-  storeLong(sLong, field = '') {
-    if (is(Array, sLong))
-      return sLong.length === 2
-        ? this.storeLongP(sLong[0], sLong[1], field)
-        : this.storeIntBytes(sLong, 64, field)
-
-    if (typeof sLong !== 'string')
-      sLong = sLong
-        ? sLong.toString()
-        : '0'
-    const [int1, int2] = longToInts(sLong)
-    this.writeInt(int2, `${ field }:long[low]`)
-    this.writeInt(int1, `${ field }:long[high]`)
-  }
-
-  storeDouble(f, field = '') {
-    const buffer = new ArrayBuffer(8)
-    const intView = new Int32Array(buffer)
-    const doubleView = new Float64Array(buffer)
-
-    doubleView[0] = f
-
-    this.writeInt(intView[0], `${ field }:double[low]`)
-    this.writeInt(intView[1], `${ field }:double[high]`)
-  }
-
-  storeString(s, field = '') {
-    // this.debug && console.log('>>>', s, `${ field }:string`)
-
-    if (s === undefined)
-      s = ''
-    const sUTF8 = unescape(encodeURIComponent(s))
-
-    this.checkLength(sUTF8.length + 8)
-
-    const len = sUTF8.length
-    if (len <= 253) {
-      this.byteView[this.offset++] = len
-    } else {
-      this.byteView[this.offset++] = 254
-      this.byteView[this.offset++] = len & 0xFF
-      this.byteView[this.offset++] = (len & 0xFF00) >> 8
-      this.byteView[this.offset++] = (len & 0xFF0000) >> 16
-    }
-    for (let i = 0; i < len; i++)
-      this.byteView[this.offset++] = sUTF8.charCodeAt(i)
-
-    // Padding
-    while (this.offset % 4)
-      this.byteView[this.offset++] = 0
-  }
-
-  storeBytes(bytes, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes)
-    }
-    else if (bytes === undefined)
-      bytes = []
-    // this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
-
-    const len = bytes.byteLength || bytes.length
-    this.checkLength(len + 8)
-    if (len <= 253) {
-      this.byteView[this.offset++] = len
-    } else {
-      this.byteView[this.offset++] = 254
-      this.byteView[this.offset++] = len & 0xFF
-      this.byteView[this.offset++] = (len & 0xFF00) >> 8
-      this.byteView[this.offset++] = (len & 0xFF0000) >> 16
-    }
-
-    this.byteView.set(bytes, this.offset)
-    this.offset += len
-
-    // Padding
-    while (this.offset % 4) {
-      this.byteView[this.offset++] = 0
-    }
-  }
-
-  storeIntBytes(bytes, bits, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes)
-    }
-    const len = bytes.length
-    if (bits % 32 || len * 8 != bits) {
-      throw new Error(`Invalid bits: ${  bits  }, ${  bytes.length}`)
-    }
-
-    // this.debug && console.log('>>>', bytesToHex(bytes), `${ field }:int${  bits}`)
-    this.checkLength(len)
-
-    this.byteView.set(bytes, this.offset)
-    this.offset += len
-  }
-
-  storeRawBytes(bytes, field = '') {
-    if (bytes instanceof ArrayBuffer) {
-      bytes = new Uint8Array(bytes)
-    }
-    const len = bytes.length
-
-    // this.debug && console.log('>>>', bytesToHex(bytes), field)
-    this.checkLength(len)
-
-    this.byteView.set(bytes, this.offset)
-    this.offset += len
-  }
-
-  storeMethod(methodName, params) {
-    const schema = selectSchema(this.mtproto, this.api, this.mtApi)
-    let methodData = false
-
-    for (let i = 0; i < schema.methods.length; i++) {
-      if (schema.methods[i].method == methodName) {
-        methodData = schema.methods[i]
-        break
+    for (const param of pred.params) {
+      const paramName = param.name
+      const typeClass = param.typeClass
+      let fieldObj
+      if (!has(paramName, params)) {
+        if (param.isFlag) continue
+        else if (layer.typeDefaults.has(typeClass))
+          fieldObj = layer.typeDefaults.get(typeClass)
+        else if (isSimpleType(typeClass)) {
+          switch (typeClass) {
+            case 'int': fieldObj = 0; break
+            // case 'long': fieldObj = 0; break
+            case 'string': fieldObj = ' '; break
+            // case 'double': fieldObj = 0; break
+            case 'true': fieldObj = true; break
+            // case 'bytes': fieldObj = [0]; break
+          }
+        }
+        else throw new Error(`Method ${methodName} did not receive required argument ${paramName}`)
+      } else {
+        fieldObj = params[paramName]
       }
+      if (param.isVector) {
+        if (!Array.isArray(fieldObj))
+          throw new TypeError(`Vector argument ${paramName} in ${methodName} required Array,`  +
+          //$FlowIssue
+          ` got ${fieldObj} ${typeof fieldObj}`)
+        WriteMediator.int(this.writer, 0x1cb5c415, `${paramName}[id]`)
+        WriteMediator.int(this.writer, fieldObj.length, `${paramName}[count]`)
+        for (const [ i, elem ] of fieldObj.entries())
+          this.storeObject(elem, param.typeClass, `${paramName}[${i}]`)
+      } else
+        this.storeObject(fieldObj, param.typeClass, `f ${methodName}(${paramName})`)
     }
-    if (!methodData) {
-      throw new Error(`No method ${  methodName  } found`)
-    }
-
-    this.storeInt(intToUint(methodData.id), `${methodName  }[id]`)
-
-    let param, type
-    let condType
+    /*let condType
     let fieldBit
-    const len = methodData.params.length
-    for (let i = 0; i < len; i++) {
-      param = methodData.params[i]
-      type = param.type
+    for (const param of methodData.params) {
+      let type = param.type
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
         fieldBit = condType[0].split('.')
@@ -257,59 +113,58 @@ export class Serialization {
       }
       const paramName = param.name
       const stored = params[paramName]
-      /*if (!stored)
+      if (!stored)
         stored = this.emptyOfType(type, schema)
       if (!stored)
         throw new Error(`Method ${methodName}.`+
-          ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)*/
-      this.storeObject(stored, type, `${methodName  }[${  paramName  }]`)
-    }
+          ` No value of field ${ param.name } recieved and no Empty of type ${ param.type }`)
+      this.storeObject(stored, type, `f ${methodName}(${paramName})`)
+    }*/
 
-    return methodData.type
+    return pred.returns
   }
-  emptyOfType(ofType, schema) {
+  /*emptyOfType(ofType, schema: TLSchema) {
     const resultConstruct = schema.constructors.find(
-      ({ type, predicate }) =>
+      ({ type, predicate }: TLConstruct) =>
         type === ofType &&
         predicate.indexOf('Empty') !== -1)
     return resultConstruct
       ? { _: resultConstruct.predicate }
       : null
-  }
-  storeObject(obj, type, field) {
+  }*/
+  storeObject(obj, type: string, field: string) {
     switch (type) {
       case '#':
       case 'int':
-        return this.storeInt(obj, field)
+        return WriteMediator.int(this.writer, obj, field)
       case 'long':
-        return this.storeLong(obj, field)
+        return WriteMediator.long(this.writer, obj, field)
       case 'int128':
-        return this.storeIntBytes(obj, 128, field)
+        return WriteMediator.intBytes(this.writer, obj, 128, field)
       case 'int256':
-        return this.storeIntBytes(obj, 256, field)
+        return WriteMediator.intBytes(this.writer, obj, 256, field)
       case 'int512':
-        return this.storeIntBytes(obj, 512, field)
+        return WriteMediator.intBytes(this.writer, obj, 512, field)
       case 'string':
-        return this.storeString(obj, field)
+        return WriteMediator.bytes(this.writer, obj, `${field}:string`)
       case 'bytes':
-        return this.storeBytes(obj, field)
+        return WriteMediator.bytes(this.writer, obj, field)
       case 'double':
-        return this.storeDouble(obj, field)
+        return WriteMediator.double(this.writer, obj, field)
       case 'Bool':
-        return this.storeBool(obj, field)
+        return WriteMediator.bool(this.writer, obj, field)
       case 'true':
         return
     }
 
-    if (is(Array, obj)) {
-      if (type.substr(0, 6) == 'Vector') {
-        this.writeInt(0x1cb5c415, `${field  }[id]`)
-      }
+    if (Array.isArray(obj)) {
+      if (type.substr(0, 6) == 'Vector')
+        WriteMediator.int(this.writer, 0x1cb5c415, `${field}[id]`)
       else if (type.substr(0, 6) != 'vector') {
         throw new Error(`Invalid vector type ${  type}`)
       }
       const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
-      this.writeInt(obj.length, `${field  }[count]`)
+      WriteMediator.int(this.writer, obj.length, `${field}[count]`)
       for (let i = 0; i < obj.length; i++) {
         this.storeObject(obj[i], itemType, `${field  }[${  i  }]`)
       }
@@ -323,34 +178,37 @@ export class Serialization {
       throw new Error(`Invalid object for type ${  type}`)
 
     const schema = selectSchema(this.mtproto, this.api, this.mtApi)
+
     const predicate = obj['_']
     let isBare = false
     let constructorData = false
-
-    if (isBare = type.charAt(0) == '%')
+    isBare = type.charAt(0) == '%'
+    if (isBare)
       type = type.substr(1)
 
-    for (let i = 0; i < schema.constructors.length; i++) {
-      if (schema.constructors[i].predicate == predicate) {
-        constructorData = schema.constructors[i]
+
+    for (const tlConst of schema.constructors) {
+      if (tlConst.predicate == predicate) {
+        constructorData = tlConst
         break
       }
     }
+
     if (!constructorData)
-      throw new Error(`No predicate ${  predicate  } found`)
+      throw new Error(`No predicate ${predicate} found`)
 
     if (predicate == type)
       isBare = true
 
     if (!isBare)
-      this.writeInt(intToUint(constructorData.id), `${field  }[${  predicate  }][id]`)
+      WriteMediator.int(this.writer,
+                        intToUint(constructorData.id),
+                        `${field}.${predicate}[id]`)
 
-    let param
     let condType
     let fieldBit
-    const len = constructorData.params.length
-    for (let i = 0; i < len; i++) {
-      param = constructorData.params[i]
+
+    for (const param of constructorData.params) {
       type = param.type
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
@@ -361,7 +219,7 @@ export class Serialization {
         type = condType[1]
       }
 
-      this.storeObject(obj[param.name], type, `${field  }[${  predicate  }][${  param.name  }]`)
+      this.storeObject(obj[param.name], type, `${field}.${  predicate  }.${  param.name  }`)
     }
 
     return constructorData.type
@@ -373,7 +231,9 @@ export class Deserialization {
   typeBuffer: TypeBuffer
   override: Object
   mtproto: boolean
-  constructor(buffer: Buffer, { mtproto, override }: DConfig, api, mtApi) {
+  api: TLSchema
+  mtApi: TLSchema
+  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
     this.override = override
@@ -382,44 +242,16 @@ export class Deserialization {
     this.mtproto = mtproto
   }
 
-  readInt = readInt(this)
+  readInt = (field: string) => {
+    // log('int')(field, i.toString(16), i)
+    return ReadMediator.int(this.typeBuffer, field)
+  }
 
-  fetchInt(field = '') {
+  fetchInt(field: string = '') {
     return this.readInt(`${ field }:int`)
   }
 
-  fetchDouble(field = '') {
-    const buffer = new ArrayBuffer(8)
-    const intView = new Int32Array(buffer)
-    const doubleView = new Float64Array(buffer)
-
-    intView[0] = this.readInt(`${ field }:double[low]`)
-    intView[1] = this.readInt(`${ field }:double[high]`)
-
-    return doubleView[0]
-  }
-
-  fetchLong(field = '') {
-    const iLow = this.readInt(`${ field }:long[low]`)
-    const iHigh = this.readInt(`${ field }:long[high]`)
-
-    const res = lshift32(iHigh, iLow)
-    // const longDec = bigint(iHigh)
-    //   .shiftLeft(32)
-    //   .add(bigint(iLow))
-    //   .toString()
-
-
-    // debug`long, iLow, iHigh`(strDecToHex(iLow.toString()),
-    //                          strDecToHex(iHigh.toString()))
-    // debug`long, leemon`(res, strDecToHex(res.toString()))
-    // debug`long, bigint`(longDec, strDecToHex(longDec.toString()))
-
-
-    return res
-  }
-
-  fetchBool(field = '') {
+  fetchBool(field: string = '') {
     const i = this.readInt(`${ field }:bool`)
     switch (i) {
       case 0x997275b5: return true
@@ -430,48 +262,7 @@ export class Deserialization {
       }
     }
   }
-
-  fetchString(field = '') {
-    let len = this.typeBuffer.nextByte()
-
-    if (len == 254) {
-      len = this.typeBuffer.nextByte() |
-          this.typeBuffer.nextByte() << 8 |
-          this.typeBuffer.nextByte() << 16
-    }
-
-    const sUTF8 = getString(len, this.typeBuffer)
-
-    let s
-    try {
-      s = decodeURIComponent(escape(sUTF8))
-    } catch (e) {
-      s = sUTF8
-    }
-
-    debug(`string`)(s, `${field}:string`)
-
-    return s
-  }
-
-  fetchBytes(field = '') {
-    let len = this.typeBuffer.nextByte()
-
-    if (len == 254) {
-      len = this.typeBuffer.nextByte() |
-          this.typeBuffer.nextByte() << 8 |
-          this.typeBuffer.nextByte() << 16
-    }
-
-    const bytes = this.typeBuffer.next(len)
-    this.typeBuffer.addPadding()
-
-    debug(`bytes`)(bytesToHex(bytes), `${ field }:bytes`)
-
-    return bytes
-  }
-
-  fetchIntBytes(bits, field = '') {
+  fetchIntBytes(bits: number, field: string = '') {
     if (bits % 32)
       throw new Error(`Invalid bits: ${bits}`)
 
@@ -484,7 +275,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchRawBytes(len, field = '') {
+  fetchRawBytes(len: number | false, field: string = '') {
     if (len === false) {
       len = this.readInt(`${ field }_length`)
       if (len > this.typeBuffer.byteView.byteLength)
@@ -496,16 +287,22 @@ export class Deserialization {
     return bytes
   }
 
-  fetchPacked(type, field) {
-    const compressed = this.fetchBytes(`${field}[packed_string]`)
+  fetchPacked(type, field: string = '') {
+    const compressed = ReadMediator.bytes( this.typeBuffer, `${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
-    const newDeserializer = new Deserialization(buffer, { mtproto: this.mtproto, override: this.override }, this.api, this.mtApi)
+    const newDeserializer = new Deserialization(
+      buffer, {
+        mtproto : this.mtproto,
+        override: this.override
+      },
+      this.api, this.mtApi)
 
     return newDeserializer.fetchObject(type, field)
   }
 
-  fetchVector(type, field) {
+  fetchVector(type: string, field: string = '') {
+    const typeProps = getTypeProps(type)
     if (type.charAt(0) === 'V') {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)
@@ -526,13 +323,13 @@ export class Deserialization {
     return result
   }
 
-  fetchObject(type, field) {
+  fetchObject(type, field: string = '') {
     switch (type) {
       case '#':
       case 'int':
         return this.fetchInt(field)
       case 'long':
-        return this.fetchLong(field)
+        return ReadMediator.long(this.typeBuffer, field)
       case 'int128':
         return this.fetchIntBytes(128, field)
       case 'int256':
@@ -540,11 +337,11 @@ export class Deserialization {
       case 'int512':
         return this.fetchIntBytes(512, field)
       case 'string':
-        return this.fetchString(field)
+        return ReadMediator.string(this.typeBuffer, field)
       case 'bytes':
-        return this.fetchBytes(field)
+        return ReadMediator.bytes(this.typeBuffer, field)
       case 'double':
-        return this.fetchDouble(field)
+        return ReadMediator.double(this.typeBuffer, field)
       case 'Bool':
         return this.fetchBool(field)
       case 'true':
@@ -552,17 +349,22 @@ export class Deserialization {
     }
     let fallback
     field = field || type || 'Object'
-    if (type.substr(0, 6).toLowerCase() === 'vector')
+
+    // const layer = this.mtproto
+    //   ? mtLayer
+    //   : apiLayer
+    const typeProps = getTypeProps(type)
+    // layer.typesById
+
+    if (typeProps.isVector)
       return this.fetchVector(type, field)
 
     const schema = selectSchema(this.mtproto, this.api, this.mtApi)
     let predicate = false
     let constructorData = false
 
-    if (type.charAt(0) === '%')
+    if (typeProps.isBare)
       constructorData = getNakedType(type, schema)
-    else if (type.charAt(0) >= 97 && type.charAt(0) <= 122)
-      constructorData = getPredicate(type, schema)
     else {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)
@@ -603,9 +405,7 @@ export class Deserialization {
     if (this.override[overrideKey]) {
       this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`])
     } else {
-      const len = constructorData.params.length
-      for (let i = 0; i < len; i++) {
-        const param = constructorData.params[i]
+      for (const param of constructorData.params) {
         type = param.type
         // if (type === '#' && isNil(result.pFlags))
         //   result.pFlags = {}
@@ -641,7 +441,7 @@ export class Deserialization {
 
 }
 
-const selectSchema = (mtproto: boolean, api, mtApi) => mtproto
+const selectSchema = (mtproto: boolean, api: TLSchema, mtApi: TLSchema) => mtproto
   ? mtApi
   : api
 
@@ -668,11 +468,13 @@ export type TLFabric = {
   Deserialization: DeserializationFabric
 }
 
-export const TL = (api, mtApi) => ({
+export const TL = (api: TLSchema, mtApi: TLSchema) => ({
   Serialization: ({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) =>
     new Serialization({ mtproto, startMaxLength }, api, mtApi),
   Deserialization: (buffer: Buffer, { mtproto = false, override = {} }: DConfig = {}) =>
     new Deserialization(buffer, { mtproto, override }, api, mtApi)
 })
 
+export * from './mediator'
+export { TypeWriter } from './type-buffer'
 export default TL
