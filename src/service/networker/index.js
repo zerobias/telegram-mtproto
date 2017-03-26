@@ -981,7 +981,6 @@ const getDeserializeOpts = msgGetter => ({
     mt_message(result, field) {
       result.msg_id = ReadMediator.long( this.typeBuffer, `${ field }[msg_id]`)
       result.seqno = ReadMediator.int( this.typeBuffer, `${ field }[seqno]`)
-      //TODO WARN! Why everywhere seqno is seq_no and only there its seqno?!?
       result.bytes = ReadMediator.int( this.typeBuffer, `${ field }[bytes]`)
 
       const offset = this.getOffset()

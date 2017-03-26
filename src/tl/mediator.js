@@ -1,10 +1,10 @@
 //@flow
 
 import { TypeWriter, TypeBuffer } from './type-buffer'
-import { longToInts, stringToChars, lshift32 } from '../bin'
+import { longToInts, stringToChars, lshift32, bytesToHex } from '../bin'
 
 import Logger from '../util/log'
-const log = Logger`tl, mediator`
+const log = Logger`tl:mediator`
 
 import type { BinaryData } from './index.h'
 
@@ -115,6 +115,39 @@ export const ReadMediator = {
     intView[1] = this.int(ctx, `${ field }:double[high]`)
 
     return doubleView[0]
+  },
+  string(ctx: TypeBuffer, field: string) {
+    const bytes = this.bytes(ctx, `${field}:string`)
+    const sUTF8 = [...bytes]
+      .map(getChar)
+      .join('')
+
+    let s
+    try {
+      s = decodeURIComponent(escape(sUTF8))
+    } catch (e) {
+      s = sUTF8
+    }
+
+    log(`read, string`)(s, `${field}:string`)
+
+    return s
+  },
+  bytes(ctx: TypeBuffer, field: string) {
+    let len = ctx.nextByte()
+
+    if (len == 254) {
+      len = ctx.nextByte() |
+          ctx.nextByte() << 8 |
+          ctx.nextByte() << 16
+    }
+
+    const bytes = ctx.next(len)
+    ctx.addPadding()
+
+    log(`read, bytes`)(bytesToHex(bytes), `${ field }:bytes`)
+
+    return bytes
   }
 }
 
@@ -142,3 +175,5 @@ const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) =
     length
   }
 }
+
+const getChar = (e: number) => String.fromCharCode(e)

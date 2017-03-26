@@ -12,8 +12,8 @@
     ["transform-es2015-block-scoping", {
       "throwIfClosureRequired": true
     }],
-    ["transform-object-rest-spread", { "useBuiltIns": true }],
-    "closure-elimination"
+    ["transform-object-rest-spread", { "useBuiltIns": true }]
+    ,"closure-elimination"
   ],
   "env": {
     "commonjs": {

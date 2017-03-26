@@ -68,7 +68,24 @@ const printMessages = messages => {
   return formatted
 }
 
+
+const searchUsers = async  () => {
+  const results = await telegram('contacts.search', {
+    q    : '@goodmind',
+    limit: 100,
+  })
+  const results2 = await telegram('contacts.search', {
+    q    : 'goodmind',
+    limit: 100,
+  })
+  return {
+    results,
+    results2
+  }
+}
+
 module.exports = {
   getChat,
-  chatHistory
+  chatHistory,
+  searchUsers
 }

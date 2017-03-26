@@ -227,8 +227,6 @@ export class Serialization {
 
 }
 
-const getChar = (e: number) => String.fromCharCode(e)
-
 export class Deserialization {
   typeBuffer: TypeBuffer
   override: Object
@@ -264,43 +262,7 @@ export class Deserialization {
       }
     }
   }
-
-  fetchBytes(field: string = '') {
-    let len = this.typeBuffer.nextByte()
-
-    if (len == 254) {
-      len = this.typeBuffer.nextByte() |
-          this.typeBuffer.nextByte() << 8 |
-          this.typeBuffer.nextByte() << 16
-    }
-
-    const bytes = this.typeBuffer.next(len)
-    this.typeBuffer.addPadding()
-
-    debug(`read, bytes`)(bytesToHex(bytes), `${ field }:bytes`)
-
-    return bytes
-  }
-
-  fetchString(field: string) {
-    const bytes = this.fetchBytes(`${field}:string`)
-    const sUTF8 = [...bytes]
-      .map(getChar)
-      .join('')
-
-    let s
-    try {
-      s = decodeURIComponent(escape(sUTF8))
-    } catch (e) {
-      s = sUTF8
-    }
-
-    debug(`read, string`)(s, `${field}:string`)
-
-    return s
-  }
-
-  fetchIntBytes(bits, field: string = '') {
+  fetchIntBytes(bits: number, field: string = '') {
     if (bits % 32)
       throw new Error(`Invalid bits: ${bits}`)
 
@@ -313,7 +275,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchRawBytes(len, field: string = '') {
+  fetchRawBytes(len: number | false, field: string = '') {
     if (len === false) {
       len = this.readInt(`${ field }_length`)
       if (len > this.typeBuffer.byteView.byteLength)
@@ -326,7 +288,7 @@ export class Deserialization {
   }
 
   fetchPacked(type, field: string = '') {
-    const compressed = this.fetchBytes(`${field}[packed_string]`)
+    const compressed = ReadMediator.bytes( this.typeBuffer, `${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
     const newDeserializer = new Deserialization(
@@ -375,9 +337,9 @@ export class Deserialization {
       case 'int512':
         return this.fetchIntBytes(512, field)
       case 'string':
-        return this.fetchString(field)
+        return ReadMediator.string(this.typeBuffer, field)
       case 'bytes':
-        return this.fetchBytes(field)
+        return ReadMediator.bytes(this.typeBuffer, field)
       case 'double':
         return ReadMediator.double(this.typeBuffer, field)
       case 'Bool':
@@ -388,9 +350,9 @@ export class Deserialization {
     let fallback
     field = field || type || 'Object'
 
-    const layer = this.mtproto
-      ? mtLayer
-      : apiLayer
+    // const layer = this.mtproto
+    //   ? mtLayer
+    //   : apiLayer
     const typeProps = getTypeProps(type)
     // layer.typesById
 
@@ -443,9 +405,7 @@ export class Deserialization {
     if (this.override[overrideKey]) {
       this.override[overrideKey].apply(this, [result, `${field}[${predicate}]`])
     } else {
-      const len = constructorData.params.length
-      for (let i = 0; i < len; i++) {
-        const param = constructorData.params[i]
+      for (const param of constructorData.params) {
         type = param.type
         // if (type === '#' && isNil(result.pFlags))
         //   result.pFlags = {}
