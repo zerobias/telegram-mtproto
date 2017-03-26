@@ -173,9 +173,10 @@ export class ApiManager {
       const networker = await this.mtpGetNetworker(baseDc, opts)
       const nearestDc = await networker.wrapApiCall(
         'help.getNearestDc', {}, opts)
-      const { nearest_dc } = nearestDc
+      const { nearest_dc, this_dc } = nearestDc
       await this.storage.set('dc', nearest_dc)
       debug(`nearest Dc`)('%O', nearestDc)
+      if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, { createNetworker: true })
     }
   }
   mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
