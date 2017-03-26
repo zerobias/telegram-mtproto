@@ -6,9 +6,9 @@ const phone = {
 }
 
 const api = {
-  layer          : 57,
-  initConnection : 0x69796de9,
-  api_id         : 49631
+  layer         : 57,
+  initConnection: 0x69796de9,
+  api_id        : 49631
 }
 
 const server = {
@@ -25,9 +25,9 @@ async function connect(){
     api_hash      : 'fb050b8f6771e15bfda5df2409931569'
   })
   const { user } = await client('auth.signIn', {
-    phone_number   : phone.num,
-    phone_code_hash: phone_code_hash,
-    phone_code     : phone.code
+    phone_number: phone.num,
+    phone_code_hash,
+    phone_code  : phone.code
   })
 
   console.log('signed as ', user)

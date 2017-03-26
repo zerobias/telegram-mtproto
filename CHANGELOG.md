@@ -1,3 +1,9 @@
+# 2.2.2
+* Fixed bug with cyrillic text encoding
+* Fixed bug with several broken methods invocations
+* Optimized authorization performance
+* Added fix for automatic base data center selection by [@goodmind][]
+
 # 2.2.1
 * Flag (optional type) fields now acts like common fields.
 * Zeroes, empty strings and empty types now can be omited. write only useful fields.
@@ -36,3 +42,5 @@ const connection = network.wc({ host: 'ip', port: '80' })
 ```
 * Precision timing
 * Major performance boost
+
+[@goodmind]: https://github.com/goodmind/

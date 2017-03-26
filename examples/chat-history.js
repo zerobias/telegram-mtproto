@@ -69,19 +69,12 @@ const printMessages = messages => {
 }
 
 
-const searchUsers = async  () => {
+const searchUsers = async (username) => {
   const results = await telegram('contacts.search', {
-    q    : '@goodmind',
+    q    : username,
     limit: 100,
   })
-  const results2 = await telegram('contacts.search', {
-    q    : 'goodmind',
-    limit: 100,
-  })
-  return {
-    results,
-    results2
-  }
+  return results
 }
 
 module.exports = {

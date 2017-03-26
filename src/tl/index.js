@@ -83,7 +83,7 @@ export class Serialization {
             // case 'bytes': fieldObj = [0]; break
           }
         }
-        else throw new Error(`Method ${methodName} doesnt recieve required argument ${paramName}`)
+        else throw new Error(`Method ${methodName} did not receive required argument ${paramName}`)
       } else {
         fieldObj = params[paramName]
       }
