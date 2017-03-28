@@ -1,25 +1,53 @@
-//@flow
+// @flow
 
+// eslint-disable-next-line
 import Promise from 'bluebird'
 import Logger from '../util/log'
 const debug = Logger`updates`
 
 import { setUpdatesProcessor } from './networker'
 import type { ApiManagerInstance } from './api-manager/index.h'
-import type { UpdatesState, CurState } from './updates.h'
+
+type PtsUpdate = {|
+  pts: number;
+  pts_count: number;
+|}
+
+type SeqUpdate = {|
+  updates: Array<{||}>;
+  date: number;
+  seq: number;
+|}
+
+type UpdatesState = {
+  pendingPtsUpdates: Array<PtsUpdate>;
+  pendingSeqUpdates: { [k: number]: SeqUpdate };
+  syncLoading: boolean;
+  syncPending: ?{
+    timeout: number;
+    ptsAwaiting?: boolean;
+    seqAwaiting?: number;
+  };
+  pts: number;
+  seq: number;
+  date: number;
+}
 
 // const AppPeersManager = null
 // const AppUsersManager = null
 const AppChatsManager = null
 
 const UpdatesManager = (api: ApiManagerInstance) => {
-  const updatesState: any = {
+  const updatesState: UpdatesState = {
     pendingPtsUpdates: [],
     pendingSeqUpdates: {},
-    syncPending      : false,
-    syncLoading      : true
+    syncPending      : null,
+    syncLoading      : true,
+    pts              : 0,
+    seq              : 0,
+    date             : 0
   }
-  const channelStates = {}
+  const channelStates: { [k: number]: UpdatesState } = {}
 
   let myID = 0
   getUserID().then(id => myID = id)
@@ -49,7 +77,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       updatesState.seq >= updatesState.syncPending.seqAwaiting) {
       if (!updatesState.syncPending.ptsAwaiting) {
         clearTimeout(updatesState.syncPending.timeout)
-        updatesState.syncPending = false
+        updatesState.syncPending = null
       } else {
         delete updatesState.syncPending.seqAwaiting
       }
@@ -59,7 +87,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   }
 
   function popPendingPtsUpdate(channelID) {
-    const curState = channelID ? getChannelState(channelID) : updatesState
+    const curState: UpdatesState = channelID ? getChannelState(channelID) : updatesState
     if (!curState.pendingPtsUpdates.length) {
       return false
     }
@@ -95,7 +123,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     if (!curState.pendingPtsUpdates.length && curState.syncPending) {
       if (!curState.syncPending.seqAwaiting) {
         clearTimeout(curState.syncPending.timeout)
-        curState.syncPending = false
+        curState.syncPending = null
       } else {
         delete curState.syncPending.ptsAwaiting
       }
@@ -132,9 +160,11 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       case 'updateShortChatMessage': {
         const isOut = updateMessage.flags & 2
         const fromID = updateMessage.from_id || (isOut ? myID : updateMessage.user_id)
+        /* eslint-disable */
         const toID = updateMessage.chat_id
           ? -updateMessage.chat_id
           : isOut ? updateMessage.user_id : myID
+        /* eslint-enable */
         
         api.emit('updateShortMessage', { 
           processUpdate,
@@ -169,7 +199,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
 
     if (updatesState.syncPending) {
       clearTimeout(updatesState.syncPending.timeout)
-      updatesState.syncPending = false
+      updatesState.syncPending = null
     }
 
     const differenceResult = await api('updates.getDifference', {
@@ -191,6 +221,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     // Should be first because of updateMessageID
     // console.log(dT(), 'applying', differenceResult.other_updates.length, 'other updates')
 
+    // eslint-disable-next-line
     const channelsUpdates = []
     differenceResult.other_updates.forEach(update => {
       switch (update._) {
@@ -230,14 +261,14 @@ const UpdatesManager = (api: ApiManagerInstance) => {
   }
 
   async function getChannelDifference(channelID: number) {
-    const channelState = getChannelState(channelID)
+    const channelState: UpdatesState = getChannelState(channelID)
     if (!channelState.syncLoading) {
       channelState.syncLoading = true
       channelState.pendingPtsUpdates = []
     }
     if (channelState.syncPending) {
       clearTimeout(channelState.syncPending.timeout)
-      channelState.syncPending = false
+      channelState.syncPending = null
     }
     // console.log(dT(), 'Get channel diff', AppChatsManager.getChat(channelID), channelState.pts)
     const differenceResult = await api('updates.getChannelDifference', {
@@ -299,8 +330,11 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     if (channelStates[channelID] === undefined) {
       channelStates[channelID] = {
         pts,
+        seq              : 0,
+        date             : 0,
+        pendingSeqUpdates: {},
         pendingPtsUpdates: [],
-        syncPending      : false,
+        syncPending      : null,
         syncLoading      : false
       }
       return true
@@ -308,7 +342,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     return false
   }
 
-  function getChannelState(channelID: number, pts?: ?number) {
+  function getChannelState(channelID: number, pts?: ?number): ChannelState {
     if (channelStates[channelID] === undefined) {
       addChannelState(channelID, pts)
     }
@@ -333,7 +367,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
         break
     }
 
-    const curState: CurState = channelID ? getChannelState(channelID, update.pts) : updatesState
+    const curState: UpdatesState = channelID ? getChannelState(channelID, update.pts) : updatesState
 
     // console.log(dT(), 'process', channelID, curState.pts, update)
 
