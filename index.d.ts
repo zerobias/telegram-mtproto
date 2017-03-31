@@ -32,16 +32,17 @@ declare module 'telegram-mtproto' {
     server?: ServerConfig
     api?: ApiConfig
     app?: AppConfig
-    schema?: Object
-    mtSchema?: Object
+    schema?: object
+    mtSchema?: object
   }
+  type UpdatesManager = any
 
   interface ApiManagerInstance {
     readonly storage: AsyncStorage
-    readonly updates: any
+    readonly updates: UpdatesManager
     <T>(method: string): Promise<T>
-    <T>(method: string, params: Object): Promise<T>
-    <T>(method: string, params: Object, options: Object): Promise<T>
+    <T>(method: string, params: object): Promise<T>
+    <T>(method: string, params: object, options: object): Promise<T>
     setUserAuth<T>(dc: number, userAuth: T): void
     on(event: string|string[], handler: Function)
   }
