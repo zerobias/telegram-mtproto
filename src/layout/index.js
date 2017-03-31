@@ -174,7 +174,6 @@ export class Layout {
         this.typeDefaults.set(type.typeClass, { _: key })
   }
   constructor(schema: TLSchema) {
-    console.debug('Layout')
     //$FlowIssue
     this.makeType = this.makeType.bind(this)
     //$FlowIssue
