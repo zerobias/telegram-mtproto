@@ -102,7 +102,7 @@ export class ApiManager {
     apiManager.emit = this.emit
     apiManager.storage = storage
 
-    this.updatesManager = UpdatesManager(apiManager)
+    this.updatesManager = UpdatesManager(apiManager, this.TL)
     apiManager.updates = this.updatesManager
 
     return apiManager
@@ -223,7 +223,7 @@ export class ApiManager {
     }
     const req = new Request(cfg, method, params)
 
-
+    
     req.performRequest()
       .then(
         deferred.resolve,
