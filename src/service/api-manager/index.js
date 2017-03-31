@@ -176,7 +176,10 @@ export class ApiManager {
       const { nearest_dc, this_dc } = nearestDc
       await this.storage.set('dc', nearest_dc)
       debug(`nearest Dc`)('%O', nearestDc)
-      if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, { createNetworker: true })
+      if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, { 
+        dcID           : nearest_dc,
+        createNetworker: true 
+      })
     }
   }
   mtpInvokeApi = async (method: string, params: Object, options: LeftOptions = {}) => {
@@ -248,12 +251,11 @@ export class ApiManager {
 
   setUserAuth = (dcID: number, userAuth: any) => {
     const fullUserAuth = { dcID, ...userAuth }
-    this.storage.set({
-      dc       : dcID,
-      user_auth: fullUserAuth
-    })
+    this.storage.set('dc', dcID)
+    this.storage.set('user_auth', fullUserAuth)
     this.emit('auth.dc', { dc: dcID, auth: userAuth })
   }
+
   async mtpClearStorage() {
     const saveKeys = []
     for (let dcID = 1; dcID <= 5; dcID++) {
