@@ -3,12 +3,12 @@
 import Promise from 'bluebird'
 import UpdatesManager from '../updates'
 
-import isNil from 'ramda/src/isNil'
+// import isNil from 'ramda/src/isNil'
 import is from 'ramda/src/is'
 import propEq from 'ramda/src/propEq'
 import has from 'ramda/src/has'
-import pathSatisfies from 'ramda/src/pathSatisfies'
-import complement from 'ramda/src/complement'
+// import pathSatisfies from 'ramda/src/pathSatisfies'
+// import complement from 'ramda/src/complement'
 
 import Logger from '../../util/log'
 const debug = Logger`api-manager`

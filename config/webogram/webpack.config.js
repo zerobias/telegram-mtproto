@@ -57,13 +57,13 @@ const config = {
       manifest: vendorDll
     }),
     new webpack.LoaderOptionsPlugin({
-			options: {
-				worker: {
-					output: {
-						filename: 'hash.worker.js',
-						chunkFilename: '[id].hash.worker.js'
+      options: {
+        worker: {
+          output: {
+            filename     : 'hash.worker.js',
+            chunkFilename: '[id].hash.worker.js'
           }
-				}
+        }
       }
     })
   ],
