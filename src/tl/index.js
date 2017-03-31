@@ -225,6 +225,8 @@ export class Serialization {
 
 }
 
+const emitter = new EventEmitter({ wildcard: true })
+
 export class Deserialization {
   typeBuffer: TypeBuffer
   override: Object
@@ -232,7 +234,7 @@ export class Deserialization {
   api: TLSchema
   mtApi: TLSchema
   emitter: EventEmitter
-  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema, emitter: EventEmitter) {
+  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
     this.override = override
@@ -473,8 +475,6 @@ export type TLFabric = {
   Deserialization: DeserializationFabric
 }
 
-const emitter = new EventEmitter({ wildcard: true })
-
 export const TL = (api: TLSchema, mtApi: TLSchema) => ({
   on           : emitter.on.bind(emitter),
   apiLayer     : !apiLayer ? apiLayer = new Layout(api) : apiLayer,
@@ -482,7 +482,7 @@ export const TL = (api: TLSchema, mtApi: TLSchema) => ({
   Serialization: ({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) =>
     new Serialization({ mtproto, startMaxLength }, api, mtApi),
   Deserialization: (buffer: Buffer, { mtproto = false, override = {} }: DConfig = {}) =>
-    new Deserialization(buffer, { mtproto, override }, api, mtApi, emitter)
+    new Deserialization(buffer, { mtproto, override }, api, mtApi)
 })
 
 export * from './mediator'
