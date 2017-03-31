@@ -4,7 +4,7 @@ import has from 'ramda/src/has'
 import flip from 'ramda/src/flip'
 import contains from 'ramda/src/contains'
 
-import type { TLParam, SchemaElement, TLMethod, TLConstruct, TLSchema, SchemaParam } from './index.h'
+import type { SchemaElement, TLMethod, TLConstruct, TLSchema, SchemaParam } from './index.h'
 
 class TypeClass {
   name: string
@@ -103,6 +103,7 @@ const isFlagItself =
 export class Layout {
   typeClasses: Map<string, TypeClass> = new Map
   creators: Set<string> = new Set
+  seqSet: Set<string> = new Set
   args: Map<string, Argument> = new Map
   funcs: Map<string, Method> = new Map
   types: Map<string, Type> = new Map
@@ -125,6 +126,9 @@ export class Layout {
       if (isFlag) hasFlags = true
       this.pushTypeClass(typeClass)
       const arg = new Argument(id, param.name, typeClass, isVector, isBare, isFlag, flagIndex)
+      if (param.name === 'seq') {
+        this.seqSet.add(name)
+      }
       args.push(arg)
       this.args.set(id, arg)
     }

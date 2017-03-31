@@ -1,16 +1,16 @@
 //@flow
 
+import EventEmitter from 'eventemitter2'
 import is from 'ramda/src/is'
 import has from 'ramda/src/has'
 
 import { uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
+  gzipUncompress, bytesToArrayBuffer } from '../bin'
 
 import { WriteMediator, ReadMediator } from './mediator'
 import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
-import { TypeBuffer, TypeWriter, getNakedType,
-  getString, getTypeConstruct } from './type-buffer'
-import type { TLSchema, TLConstruct } from './index.h'
+import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
+import type { TLSchema } from './index.h'
 
 import Logger from '../util/log'
 const debug = Logger`tl`
@@ -30,6 +30,8 @@ export class Serialization {
   mtproto: boolean
   api: TLSchema
   mtApi: TLSchema
+  apiLayer: Layout
+  mtLayer: Layout
   constructor({ mtproto, startMaxLength }: SerialConstruct, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
@@ -38,10 +40,6 @@ export class Serialization {
 
     this.writer.reset()
     this.mtproto = mtproto
-    if (!apiLayer)
-      apiLayer = new Layout(api)
-    if (!mtLayer)
-      mtLayer = new Layout(mtApi)
   }
 
   getBytes(typed?: boolean) {
@@ -233,19 +231,20 @@ export class Deserialization {
   mtproto: boolean
   api: TLSchema
   mtApi: TLSchema
-  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema) {
+  emitter: EventEmitter
+  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema, emitter: EventEmitter) {
     this.api = api
     this.mtApi = mtApi
     this.override = override
 
     this.typeBuffer = new TypeBuffer(buffer)
     this.mtproto = mtproto
+    this.emitter = emitter
   }
 
-  readInt = (field: string) => {
-    // log('int')(field, i.toString(16), i)
-    return ReadMediator.int(this.typeBuffer, field)
-  }
+  // log('int')(field, i.toString(16), i)
+  readInt = (field: string) =>
+    ReadMediator.int(this.typeBuffer, field)
 
   fetchInt(field: string = '') {
     return this.readInt(`${ field }:int`)
@@ -302,7 +301,7 @@ export class Deserialization {
   }
 
   fetchVector(type: string, field: string = '') {
-    const typeProps = getTypeProps(type)
+    // const typeProps = getTypeProps(type)
     if (type.charAt(0) === 'V') {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)
@@ -426,6 +425,10 @@ export class Deserialization {
     if (fallback)
       this.mtproto = true
 
+    if (apiLayer.seqSet.has(predicate)) {
+      this.emitter.emit('seq', result)
+    }
+
     return result
   }
 
@@ -464,15 +467,22 @@ export type SerializationFabric = (
   }) => Serialization
 
 export type TLFabric = {
+  apiLayer: Layout,
+  mtLayer: Layout,
   Serialization: SerializationFabric,
   Deserialization: DeserializationFabric
 }
 
+const emitter = new EventEmitter({ wildcard: true })
+
 export const TL = (api: TLSchema, mtApi: TLSchema) => ({
+  on           : emitter.on.bind(emitter),
+  apiLayer     : !apiLayer ? apiLayer = new Layout(api) : apiLayer,
+  mtLayer      : !mtLayer ? mtLayer = new Layout(mtApi) : mtLayer,
   Serialization: ({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) =>
     new Serialization({ mtproto, startMaxLength }, api, mtApi),
   Deserialization: (buffer: Buffer, { mtproto = false, override = {} }: DConfig = {}) =>
-    new Deserialization(buffer, { mtproto, override }, api, mtApi)
+    new Deserialization(buffer, { mtproto, override }, api, mtApi, emitter)
 })
 
 export * from './mediator'

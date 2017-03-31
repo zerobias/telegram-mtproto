@@ -7,6 +7,7 @@ const debug = Logger`updates`
 
 import { setUpdatesProcessor } from './networker'
 import type { ApiManagerInstance } from './api-manager/index.h'
+import type { TLFabric } from '../tl'
 
 type PtsUpdate = {|
   pts: number;
@@ -37,7 +38,7 @@ type UpdatesState = {
 // const AppUsersManager = null
 const AppChatsManager = null
 
-const UpdatesManager = (api: ApiManagerInstance) => {
+const UpdatesManager = (api: ApiManagerInstance, { apiLayer, on }: TLFabric) => {
   const updatesState: UpdatesState = {
     pendingPtsUpdates: [],
     pendingSeqUpdates: {},
@@ -51,6 +52,10 @@ const UpdatesManager = (api: ApiManagerInstance) => {
 
   let myID = 0
   getUserID().then(id => myID = id)
+
+  function setState(state: $Shape<UpdatesState>) {
+    Object.assign(updatesState, state)
+  }
 
   async function getUserID() {
     const auth = await api.storage.get('user_auth')
@@ -138,7 +143,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
   }
 
-  function processUpdateMessage(updateMessage: any) {
+  function processUpdateMessage(updateMessage: *) {
     // return forceGetDifference()
     const processOpts = {
       date    : updateMessage.date,
@@ -179,10 +184,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       case 'updatesCombined':
       case 'updates': 
         api.emit('apiUpdate', updateMessage)
-
-        updateMessage.updates.forEach(update => {
-          processUpdate(update, processOpts)
-        })
+        updateMessage.updates.forEach(update => processUpdate(update, processOpts))
         break
 
       default:
@@ -235,19 +237,16 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     })
 
     // console.log(dT(), 'applying', differenceResult.new_messages.length, 'new messages')
-    differenceResult.new_messages.forEach(apiMessage => {
-      saveUpdate({
-        _        : 'updateNewMessage',
-        message  : apiMessage,
-        pts      : updatesState.pts,
-        pts_count: 0
-      })
+    const updateNewMessage = apiMessage => saveUpdate({
+      _        : 'updateNewMessage',
+      message  : apiMessage,
+      pts      : updatesState.pts,
+      pts_count: 0
     })
+    differenceResult.new_messages.forEach(updateNewMessage)
 
-    const nextState = differenceResult.intermediate_state || differenceResult.state
-    updatesState.seq = nextState.seq
-    updatesState.pts = nextState.pts
-    updatesState.date = nextState.date
+    const { seq, pts, date } = differenceResult.intermediate_state || differenceResult.state
+    setState({ seq, pts, date })
 
     // console.log(dT(), 'apply diff', updatesState.seq, updatesState.pts)
 
@@ -273,7 +272,6 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     // console.log(dT(), 'Get channel diff', AppChatsManager.getChat(channelID), channelState.pts)
     const differenceResult = await api('updates.getChannelDifference', {
       channel: AppChatsManager.getChannelInput(channelID),
-      filter : { _: 'channelMessagesFilterEmpty' },
       pts    : channelState.pts,
       limit  : 30
     })
@@ -302,19 +300,18 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     differenceResult.other_updates.map(saveUpdate)
 
     debug('applying')(differenceResult.new_messages.length, 'channel new messages')
-    differenceResult.new_messages.forEach(apiMessage => {
-      saveUpdate({
-        _        : 'updateNewChannelMessage',
-        message  : apiMessage,
-        pts      : channelState.pts,
-        pts_count: 0
-      })
+    const updateNewChannelMessage = apiMessage => saveUpdate({
+      _        : 'updateNewChannelMessage',
+      message  : apiMessage,
+      pts      : channelState.pts,
+      pts_count: 0
     })
+    differenceResult.new_messages.forEach(updateNewChannelMessage)
 
     debug('apply channel diff')(channelState.pts)
 
     if (differenceResult._ == 'updates.channelDifference' &&
-      !differenceResult.pFlags['final']) {
+      !differenceResult.final) {
       getChannelDifference(channelID)
     } else {
       debug('finished channel get diff')()
@@ -342,7 +339,7 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     return false
   }
 
-  function getChannelState(channelID: number, pts?: ?number): ChannelState {
+  function getChannelState(channelID: number, pts?: ?number): UpdatesState {
     if (channelStates[channelID] === undefined) {
       addChannelState(channelID, pts)
     }
@@ -387,18 +384,14 @@ const UpdatesManager = (api: ApiManagerInstance) => {
       const newPts = curState.pts + (update.pts_count || 0)
       if (newPts < update.pts) {
         // debug('Pts hole')(curState, update, channelID && AppChatsManager.getChat(channelID))
-        curState.pendingPtsUpdates.push(update)
-        if (!curState.syncPending) {
-          curState.syncPending = {
-            timeout: setTimeout(() => {
-              if (channelID) {
-                getChannelDifference(channelID)
-              } else {
-                getDifference()
-              }
-            }, 5000),
-          }
+        const newPending = {
+          timeout: setTimeout(() => 
+            channelID
+              ? getChannelDifference(channelID)
+              : getDifference(), 5000),
         }
+        curState.pendingPtsUpdates.push(update)
+        if (!curState.syncPending) curState.syncPending = newPending
         curState.syncPending.ptsAwaiting = true
         return false
       }
@@ -420,20 +413,17 @@ const UpdatesManager = (api: ApiManagerInstance) => {
 
       if (seqStart != curState.seq + 1) {
         if (seqStart > curState.seq) {
-          debug('Seq hole')(curState, curState.syncPending && curState.syncPending.seqAwaiting)
-
-          if (curState.pendingSeqUpdates[seqStart] === undefined) {
-            curState.pendingSeqUpdates[seqStart] = { seq, date: options.date, updates: [] }
+          // debug('Seq hole')(curState, curState.syncPending && curState.syncPending.seqAwaiting)
+          const updates = curState.pendingSeqUpdates
+          const newPending = {
+            timeout: setTimeout(() => getDifference(), 5000)
           }
-          curState.pendingSeqUpdates[seqStart].updates.push(update)
+          const newSeqUpdate = { seq, date: options.date, updates: [] }
 
-          if (!curState.syncPending) {
-            curState.syncPending = {
-              timeout: setTimeout(() => {
-                getDifference()
-              }, 5000)
-            }
-          }
+          if (updates[seqStart] === undefined) updates[seqStart] = newSeqUpdate
+          updates[seqStart].updates.push(update)
+
+          if (!curState.syncPending) curState.syncPending = newPending
           if (!curState.syncPending.seqAwaiting ||
             curState.syncPending.seqAwaiting < seqStart) {
             curState.syncPending.seqAwaiting = seqStart
@@ -461,19 +451,17 @@ const UpdatesManager = (api: ApiManagerInstance) => {
     }
   }
 
-  function saveUpdate(update: any) {
+  function saveUpdate(update: *) {
     api.emit('apiUpdate', update)
   }
 
   async function attach() {
+    on('seq', result =>
+      console.log('seq', result._, result, [...apiLayer.seqSet]))
+    const { seq, pts, date }: UpdatesState = await api('updates.getState', {})
     setUpdatesProcessor(processUpdateMessage)
-    const stateResult: UpdatesState = await api('updates.getState', {}, { noErrorBox: true })
-    updatesState.seq = stateResult.seq
-    updatesState.pts = stateResult.pts
-    updatesState.date = stateResult.date
-    setTimeout(() => {
-      updatesState.syncLoading = false
-    }, 1000)
+    setState({ seq, pts, date })
+    setTimeout(() => setState({ syncLoading: false }), 1000)
   }
 
   return {

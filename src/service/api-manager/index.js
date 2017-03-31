@@ -40,7 +40,7 @@ import type { Networker } from '../networker'
 
 import type { Emit, On } from '../main/index.h'
 
-const hasPath = pathSatisfies( complement( isNil ) )
+// const hasPath = pathSatisfies( complement( isNil ) )
 
 const baseDcID = 2
 
@@ -102,7 +102,7 @@ export class ApiManager {
     apiManager.emit = this.emit
     apiManager.storage = storage
 
-    this.updatesManager = UpdatesManager(apiManager)
+    this.updatesManager = UpdatesManager(apiManager, this.TL)
     apiManager.updates = this.updatesManager
 
     return apiManager
