@@ -40,7 +40,7 @@ import type { Networker } from '../networker'
 
 import type { Emit, On } from '../main/index.h'
 
-const hasPath = pathSatisfies( complement( isNil ) )
+// const hasPath = pathSatisfies( complement( isNil ) )
 
 const baseDcID = 2
 
@@ -223,7 +223,7 @@ export class ApiManager {
     }
     const req = new Request(cfg, method, params)
 
-    
+
     req.performRequest()
       .then(
         deferred.resolve,

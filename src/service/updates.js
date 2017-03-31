@@ -5,7 +5,6 @@ import Promise from 'bluebird'
 import Logger from '../util/log'
 const debug = Logger`updates`
 
-import { propEq, any } from 'ramda'
 import { setUpdatesProcessor } from './networker'
 import type { ApiManagerInstance } from './api-manager/index.h'
 import type { TLFabric } from '../tl'

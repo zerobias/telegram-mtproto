@@ -5,13 +5,12 @@ import is from 'ramda/src/is'
 import has from 'ramda/src/has'
 
 import { uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer, longToInts, lshift32, stringToChars } from '../bin'
+  gzipUncompress, bytesToArrayBuffer } from '../bin'
 
 import { WriteMediator, ReadMediator } from './mediator'
 import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
-import { TypeBuffer, TypeWriter, getNakedType,
-  getString, getTypeConstruct } from './type-buffer'
-import type { TLSchema, TLConstruct } from './index.h'
+import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
+import type { TLSchema } from './index.h'
 
 import Logger from '../util/log'
 const debug = Logger`tl`
@@ -243,10 +242,9 @@ export class Deserialization {
     this.emitter = emitter
   }
 
-  readInt = (field: string) => {
-    // log('int')(field, i.toString(16), i)
-    return ReadMediator.int(this.typeBuffer, field)
-  }
+  // log('int')(field, i.toString(16), i)
+  readInt = (field: string) =>
+    ReadMediator.int(this.typeBuffer, field)
 
   fetchInt(field: string = '') {
     return this.readInt(`${ field }:int`)
@@ -303,7 +301,7 @@ export class Deserialization {
   }
 
   fetchVector(type: string, field: string = '') {
-    const typeProps = getTypeProps(type)
+    // const typeProps = getTypeProps(type)
     if (type.charAt(0) === 'V') {
       const constructor = this.readInt(`${field}[id]`)
       const constructorCmp = uintToInt(constructor)
