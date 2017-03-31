@@ -1,5 +1,6 @@
 //@flow
 
+import EventEmitter from 'eventemitter2'
 import is from 'ramda/src/is'
 import has from 'ramda/src/has'
 
@@ -30,6 +31,8 @@ export class Serialization {
   mtproto: boolean
   api: TLSchema
   mtApi: TLSchema
+  apiLayer: Layout
+  mtLayer: Layout
   constructor({ mtproto, startMaxLength }: SerialConstruct, api: TLSchema, mtApi: TLSchema) {
     this.api = api
     this.mtApi = mtApi
@@ -38,10 +41,6 @@ export class Serialization {
 
     this.writer.reset()
     this.mtproto = mtproto
-    if (!apiLayer)
-      apiLayer = new Layout(api)
-    if (!mtLayer)
-      mtLayer = new Layout(mtApi)
   }
 
   getBytes(typed?: boolean) {
@@ -233,13 +232,15 @@ export class Deserialization {
   mtproto: boolean
   api: TLSchema
   mtApi: TLSchema
-  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema) {
+  emitter: EventEmitter
+  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema, emitter: EventEmitter) {
     this.api = api
     this.mtApi = mtApi
     this.override = override
 
     this.typeBuffer = new TypeBuffer(buffer)
     this.mtproto = mtproto
+    this.emitter = emitter
   }
 
   readInt = (field: string) => {
@@ -426,6 +427,10 @@ export class Deserialization {
     if (fallback)
       this.mtproto = true
 
+    if (apiLayer.seqSet.has(predicate)) {
+      this.emitter.emit('seq', result)
+    }
+
     return result
   }
 
@@ -464,15 +469,22 @@ export type SerializationFabric = (
   }) => Serialization
 
 export type TLFabric = {
+  apiLayer: Layout,
+  mtLayer: Layout,
   Serialization: SerializationFabric,
   Deserialization: DeserializationFabric
 }
 
+const emitter = new EventEmitter({ wildcard: true })
+
 export const TL = (api: TLSchema, mtApi: TLSchema) => ({
+  on           : emitter.on.bind(emitter),
+  apiLayer     : !apiLayer ? apiLayer = new Layout(api) : apiLayer,
+  mtLayer      : !mtLayer ? mtLayer = new Layout(mtApi) : mtLayer,
   Serialization: ({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) =>
     new Serialization({ mtproto, startMaxLength }, api, mtApi),
   Deserialization: (buffer: Buffer, { mtproto = false, override = {} }: DConfig = {}) =>
-    new Deserialization(buffer, { mtproto, override }, api, mtApi)
+    new Deserialization(buffer, { mtproto, override }, api, mtApi, emitter)
 })
 
 export * from './mediator'
