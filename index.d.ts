@@ -40,26 +40,23 @@ declare module 'telegram-mtproto' {
   interface ApiManagerInstance {
     readonly storage: AsyncStorage
     readonly updates: UpdatesManager
-    <T>(method: string): Promise<T>
-    <T>(method: string, params: object): Promise<T>
-    <T>(method: string, params: object, options: object): Promise<T>
+    <T>(method: string, params?: object, options?: object): Promise<T>
     setUserAuth<T>(dc: number, userAuth: T): void
-    on(event: string|string[], handler: Function)
+    on(event: string|Array<string>, handler: Function)
   }
-  interface IApiManager {
-    new (): ApiManagerInstance
-    new ({ server, api, app, schema, mtSchema }: Config): ApiManagerInstance
+  interface ApiManager {
+    new ({ server, api, app, schema, mtSchema }?: Config): ApiManagerInstance
   }
-  export const ApiManager: IApiManager
+  export const ApiManager: ApiManager
   class ApiManagerClass {
-    readonly storage: AsyncStorage
-    setUserAuth<T>(dc: number, userAuth: T): void
-    on(event: string|string[], handler: Function)
+    public readonly storage: AsyncStorage
+    public setUserAuth<T>(dc: number, userAuth: T): void
+    public on(event: string|Array<string>, handler: Function)
   }
   export interface AsyncStorage {
     get(key: string): Promise<any>
     set(key: string, val: any): Promise<any>
-    remove(...keys: string[]): Promise<any>
+    remove(...keys: Array<string>): Promise<any>
     clear(): Promise<{}>
   }
 
