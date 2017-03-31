@@ -103,6 +103,7 @@ const isFlagItself =
 export class Layout {
   typeClasses: Map<string, TypeClass> = new Map
   creators: Set<string> = new Set
+  seqSet: Set<string> = new Set
   args: Map<string, Argument> = new Map
   funcs: Map<string, Method> = new Map
   types: Map<string, Type> = new Map
@@ -125,6 +126,9 @@ export class Layout {
       if (isFlag) hasFlags = true
       this.pushTypeClass(typeClass)
       const arg = new Argument(id, param.name, typeClass, isVector, isBare, isFlag, flagIndex)
+      if (param.name === 'seq') {
+        this.seqSet.add(name)
+      }
       args.push(arg)
       this.args.set(id, arg)
     }
@@ -170,6 +174,7 @@ export class Layout {
         this.typeDefaults.set(type.typeClass, { _: key })
   }
   constructor(schema: TLSchema) {
+    console.debug('Layout')
     //$FlowIssue
     this.makeType = this.makeType.bind(this)
     //$FlowIssue
