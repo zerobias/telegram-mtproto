@@ -488,6 +488,6 @@ export const TL = (api: TLSchema, mtApi: TLSchema) => ({
     new Deserialization(buffer, { mtproto, override }, api, mtApi, emitter)
 })
 
-export * from './mediator'
+
 export { TypeWriter } from './type-buffer'
 export default TL
