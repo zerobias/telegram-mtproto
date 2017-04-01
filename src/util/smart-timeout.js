@@ -6,7 +6,7 @@ const cancelToken = Symbol('cancel token')
 
 const timeoutRefs = new WeakSet
 
-const pause = (delay: number): Promise<void> => new Promise(r => setTimeout(r, delay))
+export const pause = (delay: number): Promise<void> => new Promise(r => setTimeout(r, delay))
 
 export const smartTimeout = <T>(fn: (...args: Array<*>) => T, delay?: number = 0, ...args: Array<*>) => {
   const newToken = Symbol('cancel id')
@@ -21,7 +21,7 @@ export const smartTimeout = <T>(fn: (...args: Array<*>) => T, delay?: number = 0
   return promise
 }
 
-smartTimeout.cancel = promise => {
+const cancel = promise => {
   if (!promise || !promise[cancelToken]) return false
   const token = promise[cancelToken]
   return timeoutRefs.has(token)
@@ -29,7 +29,7 @@ smartTimeout.cancel = promise => {
     : false
 }
 
-export const immediate = <T>(fn: (...args: Array<*>) => T, ...args: Array<*>) =>
+export const immediate = <T>(fn: (...args: Array<*>) => T, ...args: Array<*>): Promise<T> =>
   Promise
     .resolve()
     .then(() => fn(...args))
@@ -42,5 +42,6 @@ export const delayedCall =
 
 smartTimeout.immediate = immediate
 smartTimeout.promise = delayedCall
+smartTimeout.cancel = cancel
 
 export default smartTimeout

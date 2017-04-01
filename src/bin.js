@@ -15,6 +15,22 @@ import { eGCD_, greater, divide_, str2bigInt, equalsInt,
 const rushaInstance = new Rusha(1024 * 1024)
 
 
+export function generateNonce() {
+  const nonce = new Array(16)
+  for (let i = 0; i < 16; i++)
+    nonce[i] = nextRandomInt(0xFF)
+  return nonce
+}
+
+
+export function bytesToString(bytes: Uint8Array) {
+  const ln = bytes.length
+  const temp = new Array(ln)
+  for (let i = 0; i < ln; ++i)
+    temp[i] = String.fromCharCode(bytes[i])
+  const result = temp.join('')
+  return result
+}
 
 export function stringToChars(str: string) {
   const ln = str.length
@@ -54,7 +70,8 @@ export function bytesFromHex(hexString: string) {
   return bytes
 }
 
-export function bytesCmp(bytes1, bytes2) {
+export function bytesCmp(bytes1: number[] | Uint8Array,
+                         bytes2: number[] | Uint8Array) {
   const len = bytes1.length
   if (len !== bytes2.length) {
     return false
@@ -189,7 +206,7 @@ export function longToBytes(sLong) {
   return bytesFromWords({ words: longToInts(sLong), sigBytes: 8 }).reverse()
 }
 
-export function lshift32(high, low) {
+export function lshift32(high: number, low: number) {
   const highNum = str2bigInt(high.toString(), 10, 6)
   const nLow = str2bigInt(low.toString(), 10, 6)
   leftShift_(highNum, 32)
@@ -199,7 +216,7 @@ export function lshift32(high, low) {
   return res
 }
 
-export const rshift32 = str => {
+export const rshift32 = (str: string) => {
   const num = str2bigInt(str, 10, 6)
   rightShift_(num, 32)
   return bigInt2str(num, 10)
@@ -254,8 +271,10 @@ export function rsaEncrypt(publicKey, bytes) {
   return encryptedBytes
 }
 
-export function addPadding(bytes, blockSize, zeroes) {
-  blockSize = blockSize || 16
+export function addPadding(bytes: ArrayBuffer | Uint8Array | number[],
+                           blockSize: number = 16,
+                           zeroes: boolean) {
+
   const len = bytes.byteLength || bytes.length
   const needPadding = blockSize - len % blockSize
   if (needPadding > 0 && needPadding < blockSize) {
@@ -312,7 +331,7 @@ export function gzipUncompress(bytes) {
   return result
 }
 
-export function nextRandomInt(maxValue) {
+export function nextRandomInt(maxValue: number) {
   return Math.floor(Math.random() * maxValue)
 }
 

@@ -1,6 +1,7 @@
 //@flow
 
 import type { TLSchema } from '../../tl/index.h'
+import type { AsyncStorage } from '../../plugins'
 
 export type ApiConfig = {
   invokeWithLayer?: number,
@@ -11,15 +12,6 @@ export type ApiConfig = {
   system_version ?: string,
   app_version    ?: string,
   lang_code      ?: string
-}
-
-export type AsyncStorage = {
-  get: (...keys: string[]) => Promise<any[]>,
-  set: (obj: Object) => Promise<Object>,
-  remove: (...keys: string[]) => Promise<any>,
-  clear: () => Promise<{}>,
-  setPrefix: () => void,
-  noPrefix: () => void
 }
 
 export type PublicKey = {

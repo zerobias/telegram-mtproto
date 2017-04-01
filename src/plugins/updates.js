@@ -5,8 +5,8 @@ import Promise from 'bluebird'
 import Logger from '../util/log'
 const debug = Logger`updates`
 
-import { setUpdatesProcessor } from './networker'
-import type { ApiManagerInstance } from './api-manager/index.h'
+import { setUpdatesProcessor } from '../service/networker'
+import type { ApiManagerInstance } from '../service/api-manager/index.h'
 import type { TLFabric } from '../tl'
 
 type PtsUpdate = {|
@@ -170,8 +170,8 @@ const UpdatesManager = (api: ApiManagerInstance, { apiLayer, on }: TLFabric) => 
           ? -updateMessage.chat_id
           : isOut ? updateMessage.user_id : myID
         /* eslint-enable */
-        
-        api.emit('updateShortMessage', { 
+
+        api.emit('updateShortMessage', {
           processUpdate,
           processOpts,
           updateMessage,
@@ -182,7 +182,7 @@ const UpdatesManager = (api: ApiManagerInstance, { apiLayer, on }: TLFabric) => 
         break
 
       case 'updatesCombined':
-      case 'updates': 
+      case 'updates':
         api.emit('apiUpdate', updateMessage)
         updateMessage.updates.forEach(update => processUpdate(update, processOpts))
         break
@@ -385,7 +385,7 @@ const UpdatesManager = (api: ApiManagerInstance, { apiLayer, on }: TLFabric) => 
       if (newPts < update.pts) {
         // debug('Pts hole')(curState, update, channelID && AppChatsManager.getChat(channelID))
         const newPending = {
-          timeout: setTimeout(() => 
+          timeout: setTimeout(() =>
             channelID
               ? getChannelDifference(channelID)
               : getDifference(), 5000),

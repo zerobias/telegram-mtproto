@@ -25,8 +25,11 @@ import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
   nextRandomInt, bytesCmp, bytesToHex, bytesFromArrayBuffer,
   bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../../bin'
 
+import type { AsyncStorage } from '../../plugins/index.h'
 import type { TLFabric, SerializationFabric, DeserializationFabric } from '../../tl'
-import { WriteMediator, ReadMediator, TypeWriter } from '../../tl'
+import { TypeWriter } from '../../tl'
+import { readLong, readInt } from '../../tl/reader'
+import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
 import type { Emit } from '../main/index.h'
 
 let updatesProcessor
@@ -34,7 +37,7 @@ let iii = 0
 let akStopped = false
 
 //eslint-disable-next-line
-const xhrSendBuffer = !isNode && !('ArrayBufferView' in window)
+// const xhrSendBuffer = !isNode && !('ArrayBufferView' in window)
 
 type NetOptions = {
   fileUpload?: boolean,
@@ -48,13 +51,14 @@ type Bytes = number[]
 type ContextConfig = {
   Serialization: SerializationFabric,
   Deserialization: DeserializationFabric,
-  emit: Emit
+  emit: Emit,
+  storage: AsyncStorage
 }
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
   switch (typeof value) {
-    case 'string': return WriteMediator.bytes(writer, value, `${field}:string`)
-    case 'number': return WriteMediator.int(writer, value, field)
+    case 'string': return writeBytes(writer, value, `${field}:string`)
+    case 'number': return writeInt(writer, value, field)
     default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
   }
 }
@@ -80,6 +84,8 @@ export class NetworkerThread {
   Deserialization: DeserializationFabric
   emit: Emit
   lastServerMessages: string[] = []
+  offline: boolean
+  storage: AsyncStorage
   constructor(
     {
       appConfig,
@@ -211,8 +217,8 @@ export class NetworkerThread {
     }
 
     if (options.afterMessageID) {
-      WriteMediator.int(serialBox, 0xcb9f372d, 'invokeAfterMsg')
-      WriteMediator.long(serialBox, options.afterMessageID, 'msg_id')
+      writeInt(serialBox, 0xcb9f372d, 'invokeAfterMsg')
+      writeLong(serialBox, options.afterMessageID, 'msg_id')
     }
 
     options.resultType = serializer.storeMethod(method, params)
@@ -298,53 +304,7 @@ export class NetworkerThread {
     this.sheduleRequest(delay)
   }
 
-  async getMsgKeyIv(msgKey: number[], isOut: boolean) {
-    const authKey = this.authKeyUint8
-    const x = isOut
-      ? 0
-      : 8
-    const sha1aText = new Uint8Array(48)
-    const sha1bText = new Uint8Array(48)
-    const sha1cText = new Uint8Array(48)
-    const sha1dText = new Uint8Array(48)
-    const promises = []
 
-    sha1aText.set(msgKey, 0)
-    sha1aText.set(authKey.subarray(x, x + 32), 16)
-    promises.push(CryptoWorker.sha1Hash(sha1aText))
-
-    sha1bText.set(authKey.subarray(x + 32, x + 48), 0)
-    sha1bText.set(msgKey, 16)
-    sha1bText.set(authKey.subarray(x + 48, x + 64), 32)
-    promises.push(CryptoWorker.sha1Hash(sha1bText))
-
-    sha1cText.set(authKey.subarray(x + 64, x + 96), 0)
-    sha1cText.set(msgKey, 32)
-    promises.push(CryptoWorker.sha1Hash(sha1cText))
-
-    sha1dText.set(msgKey, 0)
-    sha1dText.set(authKey.subarray(x + 96, x + 128), 16)
-    promises.push(CryptoWorker.sha1Hash(sha1dText))
-
-    const result = await Promise.all(promises)
-    const aesKey = new Uint8Array(32),
-          aesIv = new Uint8Array(32),
-          sha1a = new Uint8Array(result[0]),
-          sha1b = new Uint8Array(result[1]),
-          sha1c = new Uint8Array(result[2]),
-          sha1d = new Uint8Array(result[3])
-
-    aesKey.set(sha1a.subarray(0, 8))
-    aesKey.set(sha1b.subarray(8, 20), 8)
-    aesKey.set(sha1c.subarray(4, 16), 20)
-
-    aesIv.set(sha1a.subarray(8, 20))
-    aesIv.set(sha1b.subarray(0, 8), 12)
-    aesIv.set(sha1c.subarray(16, 20), 20)
-    aesIv.set(sha1d.subarray(0, 8), 24)
-
-    return [aesKey, aesIv]
-  }
 
   checkConnection = async event => {
     log([`Check connection`])('%O', event)
@@ -378,7 +338,7 @@ export class NetworkerThread {
     this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
   }
 
-  toggleOffline(enabled) {
+  toggleOffline(enabled: boolean) {
     // console.log('toggle ', enabled, this.dcID, this.iii)
     if (!this.offline !== undefined && this.offline == enabled)
       return false
@@ -452,14 +412,14 @@ export class NetworkerThread {
     const messages = []
     let message: NetMessage
     let messagesByteLen = 0
-    const currentTime = tsNow()
+    // const currentTime = tsNow()
     let hasApiCall = false
     let hasHttpWait = false
     let lengthOverflow = false
     let singlesCount = 0
 
     for (const [messageID, value] of this.state.pendingIterator()) {
-      if (value && value < currentTime) continue
+      if (value && value < tsNow()) continue
       this.state.deletePending(messageID)
       if (!this.state.hasSent(messageID)) continue
       message = this.state.getSent(messageID)
@@ -510,16 +470,16 @@ export class NetworkerThread {
     if (messages.length > 1) {
       const container = this.Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
       const contBox = container.writer
-      WriteMediator.int(contBox, 0x73f1f8dc, 'CONTAINER[id]')
-      WriteMediator.int(contBox, messages.length, 'CONTAINER[count]')
+      writeInt(contBox, 0x73f1f8dc, 'CONTAINER[id]')
+      writeInt(contBox, messages.length, 'CONTAINER[count]')
       const innerMessages = []
       let i = 0
       for (const msg of messages) {
-        WriteMediator.long(contBox, msg.msg_id, `CONTAINER[${i}][msg_id]`)
+        writeLong(contBox, msg.msg_id, `CONTAINER[${i}][msg_id]`)
         innerMessages.push(msg.msg_id)
-        WriteMediator.int(contBox, msg.seq_no, `CONTAINER[${i}][seq_no]`)
-        WriteMediator.int(contBox, msg.body.length, `CONTAINER[${i}][bytes]`)
-        WriteMediator.intBytes(contBox, msg.body, false, `CONTAINER[${i}][body]`)
+        writeInt(contBox, msg.seq_no, `CONTAINER[${i}][seq_no]`)
+        writeInt(contBox, msg.body.length, `CONTAINER[${i}][bytes]`)
+        writeIntBytes(contBox, msg.body, false, `CONTAINER[${i}][body]`)
         if (msg.noResponse)
           noResponseMsgs.push(msg.msg_id)
         i++
@@ -592,13 +552,13 @@ export class NetworkerThread {
     // console.trace()
     const data = this.Serialization({ startMaxLength: message.body.length + 64 })
     const dataBox = data.writer
-    WriteMediator.intBytes(dataBox, this.serverSalt, 64, 'salt')
-    WriteMediator.intBytes(dataBox, this.sessionID, 64, 'session_id')
-    WriteMediator.long(dataBox, message.msg_id, 'message_id')
-    WriteMediator.int(dataBox, message.seq_no, 'seq_no')
+    writeIntBytes(dataBox, this.serverSalt, 64, 'salt')
+    writeIntBytes(dataBox, this.sessionID, 64, 'session_id')
+    writeLong(dataBox, message.msg_id, 'message_id')
+    writeInt(dataBox, message.seq_no, 'seq_no')
 
-    WriteMediator.int(dataBox, message.body.length, 'message_data_length')
-    WriteMediator.intBytes(dataBox, message.body, false, 'message_data')
+    writeInt(dataBox, message.body.length, 'message_data_length')
+    writeIntBytes(dataBox, message.body, false, 'message_data')
 
     const url = this.chooseServer(this.dcID, this.upload)
 
@@ -606,18 +566,18 @@ export class NetworkerThread {
 
     const bytesHash = await CryptoWorker.sha1Hash(bytes)
     const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
-    const keyIv = await this.getMsgKeyIv(msgKey, true)
-    const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, keyIv[0], keyIv[1])
+    const [aesKey, aesIv] = await getMsgKeyIv(this.authKeyUint8, msgKey, true)
+    const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, aesKey, aesIv)
 
     const request = this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 })
     const requestBox = request.writer
-    WriteMediator.intBytes(requestBox, this.authKeyID, 64, 'auth_key_id')
-    WriteMediator.intBytes(requestBox, msgKey, 128, 'msg_key')
-    WriteMediator.intBytes(requestBox, encryptedBytes, false, 'encrypted_data')
+    writeIntBytes(requestBox, this.authKeyID, 64, 'auth_key_id')
+    writeIntBytes(requestBox, msgKey, 128, 'msg_key')
+    writeIntBytes(requestBox, encryptedBytes, false, 'encrypted_data')
 
-    const requestData = xhrSendBuffer
+    const requestData = /*xhrSendBuffer
       ? requestBox.getArray().buffer
-      : requestBox.getArray()
+      :*/ requestBox.getArray()
 
     options = { responseType: 'arraybuffer', ...options }
 
@@ -649,14 +609,14 @@ export class NetworkerThread {
       'encrypted_data')
 
 
-    const keyIv = await this.getMsgKeyIv(msgKey, false)
-    const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, keyIv[0], keyIv[1])
+    const [aesKey, aesIv] = await getMsgKeyIv(this.authKeyUint8, msgKey, false)
+    const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, aesKey, aesIv)
     // console.log(dTime(), 'after decrypt')
     const deserializer = this.Deserialization(dataWithPadding, { mtproto: true })
 
     deserializer.fetchIntBytes(64, 'salt')
     const sessionID = deserializer.fetchIntBytes(64, 'session_id')
-    const messageID = ReadMediator.long( deserializer.typeBuffer, 'message_id')
+    const messageID = readLong( deserializer.typeBuffer, 'message_id')
 
     const isInvalidSession =
       !bytesCmp(sessionID, this.sessionID) && (
@@ -706,7 +666,7 @@ export class NetworkerThread {
     }
   }
 
-  applyServerSalt(newServerSalt) {
+  applyServerSalt(newServerSalt: string) {
     const serverSalt = longToBytes(newServerSalt)
     this.storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
 
@@ -959,7 +919,7 @@ export type Networker = NetworkerThread
 export const NetworkerFabric = (
   appConfig,
   { Serialization, Deserialization }: TLFabric,
-  storage,
+  storage: AsyncStorage,
   emit: Emit) => chooseServer =>
     (dc: number,
     authKey: string,
@@ -979,9 +939,9 @@ const getDeserializeOpts = msgGetter => ({
   mtproto : true,
   override: {
     mt_message(result, field) {
-      result.msg_id = ReadMediator.long( this.typeBuffer, `${ field }[msg_id]`)
-      result.seqno = ReadMediator.int( this.typeBuffer, `${ field }[seqno]`)
-      result.bytes = ReadMediator.int( this.typeBuffer, `${ field }[bytes]`)
+      result.msg_id = readLong( this.typeBuffer, `${ field }[msg_id]`)
+      result.seqno = readInt( this.typeBuffer, `${ field }[seqno]`)
+      result.bytes = readInt( this.typeBuffer, `${ field }[bytes]`)
 
       const offset = this.getOffset()
 
@@ -999,7 +959,7 @@ const getDeserializeOpts = msgGetter => ({
       // console.log(dTime(), 'override message', result)
     },
     mt_rpc_result(result, field: string) {
-      result.req_msg_id = ReadMediator.long( this.typeBuffer, `${ field }[req_msg_id]`)
+      result.req_msg_id = readLong( this.typeBuffer, `${ field }[req_msg_id]`)
 
       const sentMessage = msgGetter(result)
       const type = sentMessage && sentMessage.resultType || 'Object'
@@ -1034,4 +994,53 @@ const verifyInnerMessages = (messages) => {
     console.log(`!!!!!!WARN!!!!!!`, 'container check failed', messages)
     // throw new Error('Container bug')
   }
+}
+
+
+async function getMsgKeyIv(authKey: Uint8Array, msgKey: Uint8Array, isOut: boolean): * {
+  const x = isOut
+    ? 0
+    : 8
+  const sha1aText = new Uint8Array(48)
+  const sha1bText = new Uint8Array(48)
+  const sha1cText = new Uint8Array(48)
+  const sha1dText = new Uint8Array(48)
+  const promises = []
+
+  sha1aText.set(msgKey, 0)
+  sha1aText.set(authKey.subarray(x, x + 32), 16)
+  promises.push(CryptoWorker.sha1Hash(sha1aText))
+
+  sha1bText.set(authKey.subarray(x + 32, x + 48), 0)
+  sha1bText.set(msgKey, 16)
+  sha1bText.set(authKey.subarray(x + 48, x + 64), 32)
+  promises.push(CryptoWorker.sha1Hash(sha1bText))
+
+  sha1cText.set(authKey.subarray(x + 64, x + 96), 0)
+  sha1cText.set(msgKey, 32)
+  promises.push(CryptoWorker.sha1Hash(sha1cText))
+
+  sha1dText.set(msgKey, 0)
+  sha1dText.set(authKey.subarray(x + 96, x + 128), 16)
+  promises.push(CryptoWorker.sha1Hash(sha1dText))
+
+  const results = await Promise.all(promises)
+  const aesKey = new Uint8Array(32),
+        aesIv = new Uint8Array(32),
+        sha1a = new Uint8Array(results[0]),
+        sha1b = new Uint8Array(results[1]),
+        sha1c = new Uint8Array(results[2]),
+        sha1d = new Uint8Array(results[3])
+
+  aesKey.set(sha1a.subarray(0, 8))
+  aesKey.set(sha1b.subarray(8, 20), 8)
+  aesKey.set(sha1c.subarray(4, 16), 20)
+
+  aesIv.set(sha1a.subarray(8, 20))
+  aesIv.set(sha1b.subarray(0, 8), 12)
+  aesIv.set(sha1c.subarray(16, 20), 20)
+  aesIv.set(sha1d.subarray(0, 8), 24)
+
+  const result: [ Uint8Array, Uint8Array ] = [aesKey, aesIv]
+  return result
 }

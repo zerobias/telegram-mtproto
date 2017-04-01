@@ -11,7 +11,7 @@ import { applyServerTime, dTime, tsNow } from '../time-manager'
 
 import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
-  bytesFromHex, bytesXor } from '../../bin'
+  bytesFromHex, bytesXor, generateNonce } from '../../bin'
 import { bpe, str2bigInt, one,
     dup, sub_, sub, greater } from '../../vendor/leemon'
 
@@ -303,8 +303,9 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     applyServerTime(auth.serverTime, auth.localTime)
   }
 
+  const innerLog = log('VerifyDhParams')
+
   function mtpVerifyDhParams(g, dhPrime, gA) {
-    const innerLog = log('VerifyDhParams')
     innerLog('begin')
     const dhPrimeHex = bytesToHex(dhPrime)
     if (g !== 3 || dhPrimeHex !== primeHex)
@@ -465,9 +466,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
     if (cached[dcID])
       return cached[dcID].promise
     log('mtpAuth', 'dcID', 'dcUrl')(dcID, dcUrl)
-    const nonce = []
-    for (let i = 0; i < 16; i++)
-      nonce.push(nextRandomInt(0xFF))
+    const nonce = generateNonce()
 
     if (!dcUrl)
       return Promise.reject(
@@ -480,13 +479,22 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, pre
       deferred: blueDefer()
     }
 
-    immediate(authChain, auth)
+    const onFail = (err: Error) => {
+      log('authChain', 'error')(err)
+      cached[dcID].reject(err)
+      delete cached[dcID]
+      return Promise.reject(err)
+    }
+
+    try {
+      immediate(authChain, auth)
+    } catch (err) {
+      return onFail(err)
+    }
 
     cached[dcID] = auth.deferred
 
-    cached[dcID].promise.catch(() => {
-      delete cached[dcID]
-    })
+    cached[dcID].promise.catch(onFail)
 
     return cached[dcID].promise
   }

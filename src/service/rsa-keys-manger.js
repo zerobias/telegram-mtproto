@@ -6,7 +6,7 @@ import type { PublicKey } from './main/index.h'
 import type { Cached } from './api-manager/index.h'
 import type { SerializationFabric } from '../tl'
 
-import { WriteMediator } from '../tl'
+import { writeBytes } from '../tl/writer'
 
 import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../bin'
@@ -20,8 +20,8 @@ export const KeyManager = (Serialization: SerializationFabric,
   const mapPrepare = ({ modulus, exponent }: PublicKey) => {
     const RSAPublicKey = Serialization()
     const rsaBox = RSAPublicKey.writer
-    WriteMediator.bytes(rsaBox, bytesFromHex(modulus), 'n')
-    WriteMediator.bytes(rsaBox, bytesFromHex(exponent), 'e')
+    writeBytes(rsaBox, bytesFromHex(modulus), 'n')
+    writeBytes(rsaBox, bytesFromHex(exponent), 'e')
 
     const buffer = rsaBox.getBuffer()
 

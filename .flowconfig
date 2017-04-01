@@ -6,6 +6,7 @@
 <PROJECT_ROOT>/examples/.*
 <PROJECT_ROOT>/.vscode/.*
 <PROJECT_ROOT>/typings/**/.*
+<PROJECT_ROOT>/**/*.draft.js
 
 [include]
 

@@ -21,6 +21,7 @@
     "build:es": "babel src/ -d es -s",
     "clean:es": "rimraf es/",
     "test": "node --harmony test/node.test.js",
+    "test:esnext": "node test/node.test.js",
     "prepublish": "npm run rebuild:es && npm run rebuild:cjs"
   },
   "author": "Zero Bias",

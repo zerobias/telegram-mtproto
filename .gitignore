@@ -19,3 +19,4 @@ dist/**
 logs/**
 typings.json
 typings/**
+src/**/*.draft.js
