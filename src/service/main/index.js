@@ -12,7 +12,7 @@ import generateInvokeLayer from './invoke-layer-generator'
 
 import type { TLFabric } from '../../tl'
 import type { ApiConfig, ConfigType, StrictConfig, Emit, On, PublicKey } from './index.h'
-import type { ApiManagerInstance } from '../api-manager/index.h'
+// import type { ApiManagerInstance } from '../api-manager/index.h'
 
 const api57 = require('../../../schema/api-57.json')
 const mtproto57 = require('../../../schema/mtproto-57.json')
@@ -34,7 +34,7 @@ class MTProto {
   emitter = new EventEmitter({
     wildcard: true
   })
-  api: ApiManagerInstance
+  api: ApiManager
   on: On = this.emitter.on.bind(this.emitter)
   emit: Emit = this.emitter.emit.bind(this.emitter)
   constructor(config: ConfigType) {
