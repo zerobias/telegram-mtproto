@@ -32,6 +32,8 @@ import { readLong, readInt } from '../../tl/reader'
 import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
 import type { Emit } from '../main/index.h'
 
+import LongPool from '../../plugins/long-pool'
+
 let updatesProcessor
 let iii = 0
 let akStopped = false
@@ -86,6 +88,7 @@ export class NetworkerThread {
   lastServerMessages: string[] = []
   offline: boolean
   storage: AsyncStorage
+  longPool: LongPool
   constructor(
     {
       appConfig,
@@ -108,6 +111,8 @@ export class NetworkerThread {
     this.dcID = dc
     this.iii = iii++
 
+    this.longPool = new LongPool(this)
+
     this.authKey = authKey
     this.authKeyUint8 = convertToUint8Array(authKey)
     this.authKeyBuffer = convertToArrayBuffer(authKey)
@@ -116,6 +121,7 @@ export class NetworkerThread {
     //$FlowIssue
     this.wrapApiCall = this.wrapApiCall.bind(this)
 
+    // this.checkLongPollCond = this.checkLongPollCond.bind(this)
     this.serverSalt = serverSalt
 
     this.upload = options.fileUpload || options.fileDownload || false
@@ -237,8 +243,7 @@ export class NetworkerThread {
   }
 
   checkLongPollCond = () =>
-    this.longPollPending &&
-      this.longPollPending > tsNow() ||
+    this.longPool.pendingTime > tsNow() ||
     !!this.offline ||
     akStopped
 
@@ -251,7 +256,6 @@ export class NetworkerThread {
 
   checkLongPoll = async () => {
     const isClean = this.cleanupSent()
-    // console.log('Check lp', this.longPollPending, tsNow(), this.dcID, isClean)
     if (this.checkLongPollCond())
       return false
 
@@ -259,23 +263,11 @@ export class NetworkerThread {
     if (this.checkLongPollAfterDcCond(isClean, baseDc))
       // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
       return
-    return this.sendLongPoll()
+    return //this.sendLongPoll()
   }
 
   sendLongPoll: () => Promise<boolean | void> = async () => {
-    const maxWait = 25000
-    this.longPollPending = tsNow() + maxWait
-    // console.log('Set lp', this.longPollPending, tsNow())
-
-    await this.wrapMtpCall('http_wait', {
-      max_delay : 500,
-      wait_after: 150,
-      max_wait  : maxWait
-    }, {
-      noResponse: true,
-      longPoll  : true
-    })
-    delete this.longPollPending
+    await this.longPool.sendLongPool()
     return this.checkLongPoll()
   }
 
@@ -360,7 +352,7 @@ export class NetworkerThread {
       this.onOnlineCb = this.checkConnection
       this.emit('net.offline', this.onOnlineCb)
     } else {
-      delete this.longPollPending
+      this.longPool.pendingTime = -Infinity
       //NOTE check long state was here
       this.checkLongPoll().then(() => {})
       this.sheduleRequest()
@@ -752,14 +744,14 @@ export class NetworkerThread {
     const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || []
     rawError.error_code = uintToInt(rawError.error_code)
 
-    return {
+    return new RawError({
       code: !rawError.error_code || rawError.error_code <= 0
         ? 500
         : rawError.error_code,
       type         : matches[1] || 'UNKNOWN',
       description  : matches[3] || `CODE#${  rawError.error_code  } ${  rawError.error_message}`,
       originalError: rawError
-    }
+    })
   }
 
   processMessage(message, messageID, sessionID) {
@@ -911,6 +903,16 @@ export class NetworkerThread {
         break
       }
     }
+  }
+}
+
+class RawError extends Error {
+  constructor(obj: Object) {
+    super(`${obj.code} ${obj.type} ${obj.description}`)
+    this.code = obj.code
+    this.type = obj.type
+    this.description = obj.description
+    this.originalError = obj.originalError
   }
 }
 

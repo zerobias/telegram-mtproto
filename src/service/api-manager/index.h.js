@@ -29,12 +29,20 @@ export type Cache = {
   keysParsed: Cached<PublicKey>,
 }
 
-export type ApiManagerInstance = {
+export interface ApiManagerInstance {
   (method: string): Promise<any>,
   (method: string, params: Object): Promise<any>,
-  (method: string, params: Object, options: Object): Promise<any>,
+  (method: string, params: Object, options: LeftOptions): Promise<any>,
   storage: AsyncStorage,
-  setUserAuth(dc: number, userAuth: any): void,
+  setUserAuth(dc: number, userAuth: any): Promise<void>,
   on: On,
   emit: Emit
 }
+
+export type RequestOptions = {|
+  networker?: NetworkerType,
+  dc: number,
+  storage: AsyncStorage,
+  getNetworker: (dcID: number, options: LeftOptions) => Promise<NetworkerType>,
+  netOpts: { [arg: string]: * }
+|}

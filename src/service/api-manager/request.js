@@ -7,22 +7,15 @@ const debug = Logger`request`
 
 import { MTError } from '../../error'
 import { delayedCall } from '../../util/smart-timeout'
-import type { NetworkerType, LeftOptions } from './index.h'
-import type { AsyncStorage } from '../../plugins/index.h'
+import type { NetworkerType, RequestOptions } from './index.h'
 
-type Options = {|
-  networker?: NetworkerType,
-  dc: number,
-  storage: AsyncStorage,
-  getNetworker: (dcID: number, options: LeftOptions) => Promise<NetworkerType>,
-  netOpts: { [arg: string]: * }
-|}
+
 
 class Request {
   method: string
   params: { [arg: string]: * }
-  config: Options
-  constructor(config: Options, method: string, params?: Object = {}) {
+  config: RequestOptions
+  constructor(config: RequestOptions, method: string, params?: Object = {}) {
     this.config = config
     this.method = method
     this.params = params

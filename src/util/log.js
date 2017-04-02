@@ -4,6 +4,7 @@
 
 import Debug from 'debug'
 
+import flatten from 'ramda/src/flatten'
 import trim from 'ramda/src/trim'
 import map from 'ramda/src/map'
 import chain from 'ramda/src/chain'
@@ -26,14 +27,14 @@ import { immediate } from './smart-timeout'
 type VariString = string | string[]
 
 type Normalize = (tag: string) => string
-type FullNormalize = (tags: VariString) => string
+type FullNormalize = (tags: VariString[]) => string
 
 const tagNormalize: Normalize = e => `[${e}]`
 
 const arrify = unapply(unnest)
 
 const fullNormalize: FullNormalize = pipe(
-  arrify,
+  flatten,
   chain(split(',')),
   map(trim),
   reject(isEmpty),
@@ -102,7 +103,7 @@ const Logger = (moduleName: VariString, ...rest: string[]) => {
   fullModule.unshift('telegram-mtproto')
   const fullname = fullModule.join(':')
   const debug = Debug(fullname)
-  const logger = (tags: string | string[]) => {
+  const logger = (...tags: (string | string[])[]) => {
     const tagStr = fullNormalize(tags)
     return (...objects: any[]) => {
       const time = dTime()
