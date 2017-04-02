@@ -4,7 +4,7 @@ import EventEmitter from 'eventemitter2'
 
 import { ApiManager } from '../api-manager'
 import NetworkerFabric from '../networker'
-import { PureStorage } from '../../store'
+import MemoryStorage from '../../plugins/memory-storage'
 import TL from '../../tl'
 
 import configValidator from './config-validation'
@@ -52,7 +52,7 @@ const configNormalization = (config: ConfigType): StrictConfig => {
     server = {},
     api = {},
     app: {
-      storage = PureStorage,
+      storage = new MemoryStorage,
       publicKeys = publisKeysHex
     } = {},
     schema = api57,

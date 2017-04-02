@@ -3,23 +3,24 @@
 import Promise from 'bluebird'
 
 import Logger from '../../util/log'
-const debug = Logger([`request`])
+const debug = Logger`request`
 
 import { MTError } from '../../error'
 import { delayedCall } from '../../util/smart-timeout'
-import type { NetworkerType, AsyncStorage, LeftOptions } from './index.h.js'
+import type { NetworkerType, LeftOptions } from './index.h'
+import type { AsyncStorage } from '../../plugins/index.h'
 
 type Options = {|
   networker?: NetworkerType,
   dc: number,
   storage: AsyncStorage,
   getNetworker: (dcID: number, options: LeftOptions) => Promise<NetworkerType>,
-  netOpts: mixed
+  netOpts: { [arg: string]: * }
 |}
 
 class Request {
   method: string
-  params: { [arg: string]: mixed }
+  params: { [arg: string]: * }
   config: Options
   constructor(config: Options, method: string, params?: Object = {}) {
     this.config = config

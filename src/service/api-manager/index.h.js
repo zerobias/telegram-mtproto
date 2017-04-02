@@ -1,28 +1,16 @@
 //@flow
 
 import type { Emit, On } from '../main/index.h'
+import type { AsyncStorage } from '../../plugins'
+import type { PublicKey } from '../main/index.h'
 
 export type Bytes = number[]
-
-export type PublicKey = { //TODO remove this
-  modulus: string,
-  exponent: string
-}
 
 export type LeftOptions = {
   dcID?: number,
   createNetworker?: boolean,
   fileDownload?: boolean,
   fileUpload?: boolean
-}
-
-export type AsyncStorage = { //TODO remove this
-  get(...keys: string[]): Promise<any[]>,
-  set(obj: Object): Promise<Object>,
-  remove(...keys: string[]): Promise<any>,
-  clear(): Promise<{}>,
-  setPrefix(): void,
-  noPrefix(): void
 }
 
 export type Cached<Model> = {

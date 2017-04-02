@@ -1,14 +1,11 @@
 //@flow
 
 import Promise from 'bluebird'
-import UpdatesManager from '../updates'
+// import UpdatesManager from '../updates'
 
-// import isNil from 'ramda/src/isNil'
 import is from 'ramda/src/is'
 import propEq from 'ramda/src/propEq'
 import has from 'ramda/src/has'
-// import pathSatisfies from 'ramda/src/pathSatisfies'
-// import complement from 'ramda/src/complement'
 
 import Logger from '../../util/log'
 const debug = Logger`api-manager`
@@ -32,7 +29,10 @@ import { delayedCall } from '../../util/smart-timeout'
 
 import Request from './request'
 
-import type { Bytes, PublicKey, LeftOptions, AsyncStorage, Cache } from './index.h'
+import type { Bytes, LeftOptions, Cache } from './index.h'
+import type { PublicKey } from '../main/index.h'
+
+import type { AsyncStorage } from '../../plugins'
 
 import type { ApiConfig, StrictConfig } from '../main/index.h'
 
@@ -102,8 +102,8 @@ export class ApiManager {
     apiManager.emit = this.emit
     apiManager.storage = storage
 
-    this.updatesManager = UpdatesManager(apiManager, this.TL)
-    apiManager.updates = this.updatesManager
+    // this.updatesManager = UpdatesManager(apiManager, this.TL)
+    // apiManager.updates = this.updatesManager
 
     return apiManager
   }
@@ -131,10 +131,11 @@ export class ApiManager {
 
     const networkSetter = this.networkSetter(dcID, options)
 
-    const authKeyHex = await this.storage.get(akk)
-    let serverSaltHex = await this.storage.get(ssk)
 
     if (cache[dcID]) return cache[dcID]
+
+    const authKeyHex = await this.storage.get(akk)
+    let serverSaltHex = await this.storage.get(ssk)
 
     if (Ln(512, authKeyHex)) {
       if (!serverSaltHex || serverSaltHex.length !== 16)
@@ -254,29 +255,6 @@ export class ApiManager {
     this.storage.set('dc', dcID)
     this.storage.set('user_auth', fullUserAuth)
     this.emit('auth.dc', { dc: dcID, auth: userAuth })
-  }
-
-  async mtpClearStorage() {
-    const saveKeys = []
-    for (let dcID = 1; dcID <= 5; dcID++) {
-      saveKeys.push(`dc${  dcID  }_auth_key`)
-      saveKeys.push(`t_dc${  dcID  }_auth_key`)
-    }
-    this.storage.noPrefix() //TODO Remove noPrefix
-
-    const values = await this.storage.get(...saveKeys)
-
-    await this.storage.clear()
-
-    const restoreObj = {}
-    saveKeys.forEach((key, i) => {
-      const value = values[i]
-      if (value !== false && value !== undefined)
-        restoreObj[key] = value
-    })
-    this.storage.noPrefix()
-
-    return this.storage.set(restoreObj) //TODO definitely broken
   }
 }
 

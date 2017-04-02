@@ -7,7 +7,10 @@ import has from 'ramda/src/has'
 import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer } from '../bin'
 
-import { WriteMediator, ReadMediator } from './mediator'
+import { readLong, readInt, readBytes, readString, readDouble } from './reader'
+import { writeInt, writeIntBytes, writeBytes, writeDouble,
+  writeBool, writeLong } from './writer'
+
 import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
 import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
 import type { TLSchema } from './index.h'
@@ -56,9 +59,9 @@ export class Serialization {
     const pred = layer.funcs.get(methodName)
     if (!pred) throw new Error(`No method name ${methodName} found`)
 
-    WriteMediator.int(this.writer,
-                      intToUint(`${pred.id}`),
-                      `${methodName}[id]`)
+    writeInt(this.writer,
+             intToUint(`${pred.id}`),
+             `${methodName}[id]`)
     if (pred.hasFlags) {
       const flags = getFlags(pred)(params)
       this.storeObject(flags, '#', `f ${methodName} #flags ${flags}`)
@@ -90,8 +93,8 @@ export class Serialization {
           throw new TypeError(`Vector argument ${paramName} in ${methodName} required Array,`  +
           //$FlowIssue
           ` got ${fieldObj} ${typeof fieldObj}`)
-        WriteMediator.int(this.writer, 0x1cb5c415, `${paramName}[id]`)
-        WriteMediator.int(this.writer, fieldObj.length, `${paramName}[count]`)
+        writeInt(this.writer, 0x1cb5c415, `${paramName}[id]`)
+        writeInt(this.writer, fieldObj.length, `${paramName}[count]`)
         for (const [ i, elem ] of fieldObj.entries())
           this.storeObject(elem, param.typeClass, `${paramName}[${i}]`)
       } else
@@ -130,39 +133,39 @@ export class Serialization {
       ? { _: resultConstruct.predicate }
       : null
   }*/
-  storeObject(obj, type: string, field: string) {
+  storeObject(obj: *, type: string, field: string) {
     switch (type) {
       case '#':
       case 'int':
-        return WriteMediator.int(this.writer, obj, field)
+        return writeInt(this.writer, obj, field)
       case 'long':
-        return WriteMediator.long(this.writer, obj, field)
+        return writeLong(this.writer, obj, field)
       case 'int128':
-        return WriteMediator.intBytes(this.writer, obj, 128, field)
+        return writeIntBytes(this.writer, obj, 128, field)
       case 'int256':
-        return WriteMediator.intBytes(this.writer, obj, 256, field)
+        return writeIntBytes(this.writer, obj, 256, field)
       case 'int512':
-        return WriteMediator.intBytes(this.writer, obj, 512, field)
+        return writeIntBytes(this.writer, obj, 512, field)
       case 'string':
-        return WriteMediator.bytes(this.writer, obj, `${field}:string`)
+        return writeBytes(this.writer, obj, `${field}:string`)
       case 'bytes':
-        return WriteMediator.bytes(this.writer, obj, field)
+        return writeBytes(this.writer, obj, field)
       case 'double':
-        return WriteMediator.double(this.writer, obj, field)
+        return writeDouble(this.writer, obj, field)
       case 'Bool':
-        return WriteMediator.bool(this.writer, obj, field)
+        return writeBool(this.writer, obj, field)
       case 'true':
         return
     }
 
     if (Array.isArray(obj)) {
       if (type.substr(0, 6) == 'Vector')
-        WriteMediator.int(this.writer, 0x1cb5c415, `${field}[id]`)
+        writeInt(this.writer, 0x1cb5c415, `${field}[id]`)
       else if (type.substr(0, 6) != 'vector') {
         throw new Error(`Invalid vector type ${  type}`)
       }
       const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
-      WriteMediator.int(this.writer, obj.length, `${field}[count]`)
+      writeInt(this.writer, obj.length, `${field}[count]`)
       for (let i = 0; i < obj.length; i++) {
         this.storeObject(obj[i], itemType, `${field  }[${  i  }]`)
       }
@@ -199,9 +202,9 @@ export class Serialization {
       isBare = true
 
     if (!isBare)
-      WriteMediator.int(this.writer,
-                        intToUint(constructorData.id),
-                        `${field}.${predicate}[id]`)
+      writeInt(this.writer,
+               intToUint(constructorData.id),
+               `${field}.${predicate}[id]`)
 
     let condType
     let fieldBit
@@ -246,7 +249,7 @@ export class Deserialization {
 
   // log('int')(field, i.toString(16), i)
   readInt = (field: string) =>
-    ReadMediator.int(this.typeBuffer, field)
+    readInt(this.typeBuffer, field)
 
   fetchInt(field: string = '') {
     return this.readInt(`${ field }:int`)
@@ -289,7 +292,7 @@ export class Deserialization {
   }
 
   fetchPacked(type, field: string = '') {
-    const compressed = ReadMediator.bytes( this.typeBuffer, `${field}[packed_string]`)
+    const compressed = readBytes( this.typeBuffer, `${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
     const newDeserializer = new Deserialization(
@@ -330,7 +333,7 @@ export class Deserialization {
       case 'int':
         return this.fetchInt(field)
       case 'long':
-        return ReadMediator.long(this.typeBuffer, field)
+        return readLong(this.typeBuffer, field)
       case 'int128':
         return this.fetchIntBytes(128, field)
       case 'int256':
@@ -338,11 +341,11 @@ export class Deserialization {
       case 'int512':
         return this.fetchIntBytes(512, field)
       case 'string':
-        return ReadMediator.string(this.typeBuffer, field)
+        return readString(this.typeBuffer, field)
       case 'bytes':
-        return ReadMediator.bytes(this.typeBuffer, field)
+        return readBytes(this.typeBuffer, field)
       case 'double':
-        return ReadMediator.double(this.typeBuffer, field)
+        return readDouble(this.typeBuffer, field)
       case 'Bool':
         return this.fetchBool(field)
       case 'true':
@@ -485,6 +488,6 @@ export const TL = (api: TLSchema, mtApi: TLSchema) => ({
     new Deserialization(buffer, { mtproto, override }, api, mtApi)
 })
 
-export * from './mediator'
+
 export { TypeWriter } from './type-buffer'
 export default TL
