@@ -37,9 +37,29 @@ const telegram = MTProto({ server, api, app })
 
 
 const tests = async () => {
-  await test(`Connection test`, { timeout: 30e3 }, connectionTest)
-  await test(`Reuse stored auth`, { timeout: 30e3 }, reuseStoredAuth)
-  delayExit()
+  try {
+    await test(`Connection test`, { timeout: 30e3 }, connectionTest)
+    await test(`Reuse stored auth`, { timeout: 30e3 }, reuseStoredAuth)
+  } catch (err) {
+    console.log(err)
+  } finally {
+    delayExit()
+  }
+}
+
+const getHistory = async (chat) => {
+  const peer = {
+    _               : `inputPeerC${chat._.slice(1)}`,
+    [`${chat._}_id`]: chat.id,
+    access_hash     : chat.access_hash
+  }
+  const history = await telegram('messages.getHistory', {
+    peer,
+    limit : 500,
+    max_id: 0
+  })
+
+  return history
 }
 
 
@@ -69,23 +89,32 @@ const connectionTest = async t => {
       break
     } catch (err) {
       console.log('err', err)
+      delayExit()
     }
     i++
   }
 }
 
 const reuseStoredAuth = async (t) => {
-  t.plan(1)
+  t.plan(2)
 
   const anotherTelegram = MTProto({ server, api, app })
 
   //NOTE No auth here
 
   const dialogs = await anotherTelegram('messages.getDialogs', {
-    limit: 1,
+    limit: 100,
   })
 
   t.ok(dialogs, 'dialogs is ok')
+
+  const chat1 = dialogs.chats[2]
+
+  const history = await getHistory(chat1)
+
+  const list = history.messages
+
+  t.ok(list, 'chat1')
 }
 
 const delayExit = () => setTimeout(() => process.exit(0), 2e3)

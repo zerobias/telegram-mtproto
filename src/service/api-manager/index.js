@@ -168,7 +168,7 @@ export class ApiManager {
         'help.getNearestDc', {}, opts)
       const { nearest_dc, this_dc } = nearestDc
       await this.storage.set('dc', nearest_dc)
-      debug(`nearest Dc`)('%O', nearestDc)
+      debug(`nearest Dc`)(nearestDc)
       if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
         dcID           : nearest_dc,
         createNetworker: true

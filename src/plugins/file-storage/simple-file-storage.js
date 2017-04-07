@@ -55,11 +55,11 @@ export class SimpleFileStorage implements AsyncStorage {
       const pureData = await readData(this.filepath)
       const parsed = JSON.parse(pureData)
       this.data = parsed
-      log('get', 'parsed')('%O', parsed)
+      log('get', 'parsed')(parsed)
       this.init = Date.now()
     }
     const data = this.data[key]
-    log('get')(`key %O data %O`, key, data)
+    log('get', `key ${key}`)(data)
     return Promise.resolve(data)
   }
 

@@ -3,9 +3,11 @@
 import Promise from 'bluebird'
 
 import { tsNow } from '../service/time-manager'
-import typeof { NetworkerThread } from '../service/networker/index'
+import { NetworkerThread } from '../service/networker/index'
 
-class LongPool {
+let inited = false
+
+class LongPoll {
   thread: NetworkerThread
 
   maxWait = 25e3
@@ -14,28 +16,34 @@ class LongPool {
 
   constructor(thread: NetworkerThread) {
     this.thread = thread
+    if (inited) {
+      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!! re init', thread)
+      this.request = () => Promise.resolve()
+    }
+    inited = true
   }
 
   setPendingTime() {
     this.pendingTime = tsNow() + this.maxWait
   }
-  request(): Promise<any> {
+  request() {
     return this.thread.wrapMtpCall('http_wait', {
       max_delay : 500,
       wait_after: 150,
       max_wait  : this.maxWait
     }, {
       noResponse: true,
-      longPoll  : true
+      longPoll  : true,
+      // notContentRelated: true
     })
   }
 
-  async sendLongPool() {
+  sendLongPool(): Promise<any> {
     //TODO add base dc check
-    if (!this.isActive) return false
+    if (!this.isActive) return Promise.resolve(false)
     this.setPendingTime()
     return this.request()
   }
 }
 
-export default LongPool
+export default LongPoll

@@ -2,6 +2,8 @@
 
 import type { TypeBuffer } from './tl/type-buffer'
 
+Error.stackTraceLimit = 25
+
 export class MTError extends Error {
   static getMessage(code: number, type: string, message: string) {
     return `MT[${code}] ${type}: ${message}`
@@ -37,7 +39,7 @@ export class ErrorBadRequest extends MTError {
 export class ErrorNotFound extends MTError {
   constructor(err: Object) {
     super(404, 'REQUEST_FAILED', err.config.url)
-    // this.originalError = err
+      // this.originalError = err
   }
 }
 

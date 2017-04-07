@@ -43,13 +43,13 @@ const fullNormalize: FullNormalize = pipe(
 )
 
 const stringNormalize = when(
-  both(is(String), e => e.length > 50),
-  take(150)
-)
-// const isSimple = either(
-//   is(String),
-//   is(Number)
-// )
+    both(is(String), e => e.length > 50),
+    take(150)
+  )
+  // const isSimple = either(
+  //   is(String),
+  //   is(Number)
+  // )
 
 // const prettify = unless(
 //   isSimple,
@@ -70,11 +70,20 @@ class LogEvent {
   }
 }
 
+const isSingleObject = (results: any[]) =>
+  results.length === 1 &&
+  is(Object, results[0])
+
 class Sheduler {
   queue: LogEvent[][] = []
   buffer: LogEvent[] = []
-  add = (log: typeof genericLogger, time: string, tagStr: string, values: mixed[]) => {
+  add = (log: typeof genericLogger,
+    time: string,
+    tagStr: string,
+    values: mixed[]) => {
     const results = values.map(stringNormalize)
+    if (isSingleObject(results))
+      results.unshift('%O')
     const first = results[0] || ''
     const other = tail(results)
     const firstLine = [tagStr, time, first].join('  ')
@@ -103,7 +112,7 @@ const Logger = (moduleName: VariString, ...rest: string[]) => {
   fullModule.unshift('telegram-mtproto')
   const fullname = fullModule.join(':')
   const debug = Debug(fullname)
-  const logger = (...tags: (string | string[])[]) => {
+  const logger = (...tags: VariString[]) => {
     const tagStr = fullNormalize(tags)
     return (...objects: any[]) => {
       const time = dTime()

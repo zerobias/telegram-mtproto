@@ -21,9 +21,19 @@ import Logger from '../../util/log'
 
 const log = Logger`networker`
 
-import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync,
-  nextRandomInt, bytesCmp, bytesToHex, bytesFromArrayBuffer,
-  bytesToArrayBuffer, longToBytes, uintToInt, rshift32 } from '../../bin'
+import {
+  convertToUint8Array,
+  convertToArrayBuffer,
+  sha1BytesSync,
+  nextRandomInt,
+  bytesCmp,
+  bytesToHex,
+  bytesFromArrayBuffer,
+  bytesToArrayBuffer,
+  longToBytes,
+  uintToInt,
+  rshift32
+} from '../../bin'
 
 import type { AsyncStorage } from '../../plugins/index.h'
 import type { TLFabric, SerializationFabric, DeserializationFabric } from '../../tl'
@@ -32,7 +42,7 @@ import { readLong, readInt } from '../../tl/reader'
 import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
 import type { Emit } from '../main/index.h'
 
-import LongPool from '../../plugins/long-pool'
+import LongPoll from '../../plugins/long-poll'
 
 let updatesProcessor
 let iii = 0
@@ -88,9 +98,8 @@ export class NetworkerThread {
   lastServerMessages: string[] = []
   offline: boolean
   storage: AsyncStorage
-  longPool: LongPool
-  constructor(
-    {
+  longPoll: LongPoll
+  constructor({
       appConfig,
       chooseServer,
       Serialization,
@@ -98,10 +107,10 @@ export class NetworkerThread {
       storage,
       emit
     }: ContextConfig,
-    dc: number,
-    authKey: string,
-    serverSalt: string,
-    options: NetOptions) {
+              dc: number,
+              authKey: string,
+              serverSalt: string,
+              options: NetOptions) {
     this.appConfig = appConfig
     this.chooseServer = chooseServer
     this.Serialization = Serialization
@@ -111,7 +120,7 @@ export class NetworkerThread {
     this.dcID = dc
     this.iii = iii++
 
-    this.longPool = new LongPool(this)
+    this.longPoll = new LongPoll(this)
 
     this.authKey = authKey
     this.authKeyUint8 = convertToUint8Array(authKey)
@@ -184,7 +193,7 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
-    log([`MT call`])(method, params, message.msg_id, seqNo)
+    log(`MT call`)(method, params, message.msg_id, seqNo)
 
     this.pushMessage(message, options)
     return message.deferred.promise
@@ -236,14 +245,14 @@ export class NetworkerThread {
     )
     message.isAPI = true
 
-    log([`Api call`])(method, params, message.msg_id, seqNo, options)
+    log(`Api call`)(method, params, message.msg_id, seqNo, options)
 
     this.pushMessage(message, options)
     return message.deferred.promise
   }
 
   checkLongPollCond = () =>
-    this.longPool.pendingTime > tsNow() ||
+    this.longPoll.pendingTime > tsNow() ||
     !!this.offline ||
     akStopped
 
@@ -251,7 +260,7 @@ export class NetworkerThread {
     this.dcID !== baseDc ||
     this.upload ||
     this.sleepAfter &&
-      this.sleepAfter < tsNow()
+    this.sleepAfter < tsNow()
   )
 
   checkLongPoll = async () => {
@@ -261,14 +270,9 @@ export class NetworkerThread {
 
     const baseDc: number = await this.storage.get('dc')
     if (this.checkLongPollAfterDcCond(isClean, baseDc))
-      // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
+    // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
       return
-    return //this.sendLongPoll()
-  }
-
-  sendLongPoll: () => Promise<boolean | void> = async () => {
-    await this.longPool.sendLongPool()
-    return this.checkLongPoll()
+    return this.longPoll.sendLongPool()
   }
 
   pushMessage(message: NetMessage, options: NetOptions = {}) {
@@ -276,7 +280,7 @@ export class NetworkerThread {
     this.state.addSent(message)
     this.state.setPending(message.msg_id)
 
-    if (!options || !options.noShedule)
+    if (!options.noShedule)
       this.sheduleRequest()
     if (is(Object, options))
       options.messageID = message.msg_id
@@ -298,8 +302,8 @@ export class NetworkerThread {
 
 
 
-  checkConnection = async event => {
-    log([`Check connection`])('%O', event)
+  checkConnection = async (event: * ) => {
+    log(`Check connection`)(event)
     smartTimeout.cancel(this.checkConnectionPromise)
 
     const serializer = this.Serialization({ mtproto: true })
@@ -318,15 +322,15 @@ export class NetworkerThread {
       const result = await this.sendEncryptedRequest(pingMessage, { timeout: 15000 })
       succ = true
       this.toggleOffline(false)
-      log(`checkConnection, result`)('%O', result)
+      log(`checkConnection, result`)(result)
     } catch (err) {
-      log(`encrypted request fail`)('%O', err)
+      log(`encrypted request fail`)(err)
     }
     if (succ) return
     const delay = this.checkConnectionPeriod * 1e3
     log(`checkConnection, Delay`)(delay)
     this.checkConnectionPromise = smartTimeout(
-          this.checkConnection, delay)
+      this.checkConnection, delay)
     this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
   }
 
@@ -352,8 +356,8 @@ export class NetworkerThread {
       this.onOnlineCb = this.checkConnection
       this.emit('net.offline', this.onOnlineCb)
     } else {
-      this.longPool.pendingTime = -Infinity
-      //NOTE check long state was here
+      this.longPoll.pendingTime = -Infinity
+        //NOTE check long state was here
       this.checkLongPoll().then(() => {})
       this.sheduleRequest()
 
@@ -368,7 +372,7 @@ export class NetworkerThread {
     if (this.state.hasResends()) {
       const resendMsgIDs = [...this.state.getResends()]
       const resendOpts = { noShedule: true, notContentRelated: true }
-      // console.log('resendReq messages', resendMsgIDs)
+        // console.log('resendReq messages', resendMsgIDs)
       const msg = this.wrapMtpMessage({
         _      : 'msg_resend_req',
         msg_ids: resendMsgIDs
@@ -376,27 +380,27 @@ export class NetworkerThread {
       this.lastResendReq = { req_msg_id: msg.msg_id, resend_msg_ids: resendMsgIDs }
     }
   }
-  performSheduledRequest = async () => { //TODO extract huge method
+  performSheduledRequest = () => { //TODO extract huge method
     // console.log(dTime(), 'sheduled', this.dcID, this.iii)
     if (this.offline || akStopped) {
       log(`Cancel sheduled`)(``)
-      return false
+      return Promise.resolve(false)
     }
     delete this.nextReq
     if (this.pendingAcks.length) {
       const ackMsgIDs = []
       for (const ack of this.pendingAcks)
         ackMsgIDs.push(ack)
-      // console.log('acking messages', ackMsgIDs)
+      log('acking messages')(ackMsgIDs)
       this.wrapMtpMessage({
-        _      : 'msgs_ack',
-        msg_ids: ackMsgIDs
+          _      : 'msgs_ack',
+          msg_ids: ackMsgIDs
       }, {
-        notContentRelated: true,
-        noShedule        : true
+          notContentRelated: true,
+          noShedule        : true
       })
-      // const res = await msg.deferred.promise
-      // log(`AWAITED`, `ack`)(res)
+        // const res = await msg.deferred.promise
+        // log(`AWAITED`, `ack`)(res)
     }
 
     this.performResend()
@@ -404,9 +408,7 @@ export class NetworkerThread {
     const messages = []
     let message: NetMessage
     let messagesByteLen = 0
-    // const currentTime = tsNow()
-    let hasApiCall = false
-    let hasHttpWait = false
+      // const currentTime = tsNow()
     let lengthOverflow = false
     let singlesCount = 0
 
@@ -417,11 +419,8 @@ export class NetworkerThread {
       message = this.state.getSent(messageID)
       const messageByteLength = message.size() + 32
       const cond1 = !message.notContentRelated && lengthOverflow
-      const cond2 =
-        !message.notContentRelated &&
-        messagesByteLen &&
-        //eslint-disable-next-line
-        messagesByteLen + messageByteLength > 655360; // 640 Kb
+      const cond2 = !message.notContentRelated &&
+        messagesByteLen + messageByteLength > 655360 // 640 Kb
       if (cond1) continue
       if (cond2) {
         lengthOverflow = true
@@ -433,13 +432,11 @@ export class NetworkerThread {
       }
       messages.push(message)
       messagesByteLen += messageByteLength
-      if (message.isAPI)
-        hasApiCall = true
-      else if (message.longPoll)
-        hasHttpWait = true
     }
 
-    if (hasApiCall && !hasHttpWait) {
+    if (!message) return Promise.resolve(false)
+
+    if (message.isAPI && !message.longPoll) {
       const serializer = this.Serialization({ mtproto: true })
       serializer.storeMethod('http_wait', {
         max_delay : 500,
@@ -454,7 +451,7 @@ export class NetworkerThread {
 
     if (!messages.length) {
       // console.log('no sheduled messages')
-      return
+      return Promise.resolve()
     }
 
     const noResponseMsgs = []
@@ -482,7 +479,10 @@ export class NetworkerThread {
         container.getBytes(true),
         innerMessages)
 
-      log(`Container`)(innerMessages, message.msg_id, message.seq_no)
+      log(`Container`)(innerMessages,
+                       noResponseMsgs,
+                       message.msg_id,
+                       message.seq_no)
     } else {
       if (message.noResponse)
         noResponseMsgs.push(message.msg_id)
@@ -493,6 +493,9 @@ export class NetworkerThread {
     this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
     if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
 
+    return this.requestPerformer(message, noResponseMsgs)
+  }
+  async requestPerformer(message: NetMessage, noResponseMsgs: string[]) {
     try {
       const result = await this.sendEncryptedRequest(message)
       this.toggleOffline(false)
@@ -513,7 +516,8 @@ export class NetworkerThread {
 
       this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod))
 
-      return this.checkLongPoll() //TODO Bluebird warning here
+      //return
+      this.checkLongPoll() //TODO Bluebird warning here
     } catch (error) {
       console.log('Encrypted request failed', error)
 
@@ -537,7 +541,6 @@ export class NetworkerThread {
       return Promise.reject(error)
     }
   }
-
 
   sendEncryptedRequest = async (message: NetMessage, options = {}) => {
     // console.log(dTime(), 'Send encrypted'/*, message*/)
@@ -567,9 +570,7 @@ export class NetworkerThread {
     writeIntBytes(requestBox, msgKey, 128, 'msg_key')
     writeIntBytes(requestBox, encryptedBytes, false, 'encrypted_data')
 
-    const requestData = /*xhrSendBuffer
-      ? requestBox.getArray().buffer
-      :*/ requestBox.getArray()
+    const requestData = requestBox.getArray()
 
     options = { responseType: 'arraybuffer', ...options }
 
@@ -603,18 +604,16 @@ export class NetworkerThread {
 
     const [aesKey, aesIv] = await getMsgKeyIv(this.authKeyUint8, msgKey, false)
     const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, aesKey, aesIv)
-    // console.log(dTime(), 'after decrypt')
+      // console.log(dTime(), 'after decrypt')
     const deserializer = this.Deserialization(dataWithPadding, { mtproto: true })
 
     deserializer.fetchIntBytes(64, 'salt')
     const sessionID = deserializer.fetchIntBytes(64, 'session_id')
-    const messageID = readLong( deserializer.typeBuffer, 'message_id')
+    const messageID = readLong(deserializer.typeBuffer, 'message_id')
 
-    const isInvalidSession =
-      !bytesCmp(sessionID, this.sessionID) && (
-        !this.prevSessionID ||
-        //eslint-disable-next-line
-        !bytesCmp(sessionID, this.prevSessionID));
+    const isInvalidSession = !bytesCmp(sessionID, this.sessionID) && (!this.prevSessionID ||
+      //eslint-disable-next-line
+      !bytesCmp(sessionID, this.prevSessionID));
     if (isInvalidSession) {
       console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID)
       throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) }`)
@@ -627,7 +626,7 @@ export class NetworkerThread {
 
     const messageBodyLength = deserializer.fetchInt('message_data[length]')
     if (messageBodyLength % 4 ||
-        messageBodyLength > totalLength - offset) {
+      messageBodyLength > totalLength - offset) {
       throw new Error(`[MT] Invalid body length: ${  messageBodyLength}`)
     }
     const messageBody = deserializer.fetchRawBytes(messageBodyLength, 'message_data')
@@ -704,12 +703,12 @@ export class NetworkerThread {
 
   cleanupSent() {
     let notEmpty = false
-    // console.log('clean start', this.dcID/*, this.state.sent*/)
+      // console.log('clean start', this.dcID/*, this.state.sent*/)
 
     for (const [msgID, message] of this.state.sentIterator()) {
       let complete = true
       if (message.notContentRelated && !this.state.hasPending(msgID))
-        // console.log('clean notContentRelated', msgID)
+      // console.log('clean notContentRelated', msgID)
         this.state.deleteSent(message)
       else if (message instanceof NetContainer) {
         for (const inner of message.inner) {
@@ -843,7 +842,7 @@ export class NetworkerThread {
         break
       }
       case 'msg_new_detailed_info': {
-        // this.ackMessage(message.answer_msg_id)
+        this.ackMessage(message.answer_msg_id)
         this.reqResendMessage(message.answer_msg_id)
         break
       }
@@ -870,23 +869,28 @@ export class NetworkerThread {
         const deferred = sentMessage.deferred
         if (message.result._ == 'rpc_error') {
           const error = this.processError(message.result)
-          log(`ERROR, Rpc error`)('%O', error)
+          log(`ERROR, Rpc error`)(error)
+          if (error.code === 303 && contains('PHONE_MIGRATE', error.description)) {
+            const newDc = +error.description[error.description.length - 1]
+            this.dcID = newDc
+          } else
+            log('non phone error')(error.code, error.description)
           if (deferred) {
             deferred.reject(error)
           }
         } else {
           if (deferred) {
-            log(`Rpc response`)('%O', message.result)
-            /*if (debug) {
-              console.log(dTime(), 'Rpc response', message.result)
-            } else {
-              let dRes = message.result._
-              if (!dRes)
-                dRes = message.result.length > 5
-                  ? `[..${  message.result.length  }..]`
-                  : message.result
-              console.log(dTime(), 'Rpc response', dRes)
-            }*/
+            log(`Rpc response`)(message.result)
+              /*if (debug) {
+                console.log(dTime(), 'Rpc response', message.result)
+              } else {
+                let dRes = message.result._
+                if (!dRes)
+                  dRes = message.result.length > 5
+                    ? `[..${  message.result.length  }..]`
+                    : message.result
+                console.log(dTime(), 'Rpc response', dRes)
+              }*/
             sentMessage.deferred.resolve(message.result)
           }
           if (sentMessage.isAPI)
@@ -919,31 +923,31 @@ class RawError extends Error {
 export type Networker = NetworkerThread
 
 export const NetworkerFabric = (
-  appConfig,
-  { Serialization, Deserialization }: TLFabric,
-  storage: AsyncStorage,
-  emit: Emit) => chooseServer =>
-    (dc: number,
+    appConfig,
+    { Serialization, Deserialization }: TLFabric,
+    storage: AsyncStorage,
+    emit: Emit) => chooseServer =>
+  (dc: number,
     authKey: string,
     serverSalt: string,
     options: NetOptions = {}) =>
-      new NetworkerThread({
-        appConfig,
-        chooseServer,
-        Serialization,
-        Deserialization,
-        storage,
-        emit
-      }, dc, authKey, serverSalt, options)
+  new NetworkerThread({
+    appConfig,
+    chooseServer,
+    Serialization,
+    Deserialization,
+    storage,
+    emit
+  }, dc, authKey, serverSalt, options)
 
 
 const getDeserializeOpts = msgGetter => ({
   mtproto : true,
   override: {
     mt_message(result, field) {
-      result.msg_id = readLong( this.typeBuffer, `${ field }[msg_id]`)
-      result.seqno = readInt( this.typeBuffer, `${ field }[seqno]`)
-      result.bytes = readInt( this.typeBuffer, `${ field }[bytes]`)
+      result.msg_id = readLong(this.typeBuffer, `${ field }[msg_id]`)
+      result.seqno = readInt(this.typeBuffer, `${ field }[seqno]`)
+      result.bytes = readInt(this.typeBuffer, `${ field }[bytes]`)
 
       const offset = this.getOffset()
 
@@ -961,7 +965,7 @@ const getDeserializeOpts = msgGetter => ({
       // console.log(dTime(), 'override message', result)
     },
     mt_rpc_result(result, field: string) {
-      result.req_msg_id = readLong( this.typeBuffer, `${ field }[req_msg_id]`)
+      result.req_msg_id = readLong(this.typeBuffer, `${ field }[req_msg_id]`)
 
       const sentMessage = msgGetter(result)
       const type = sentMessage && sentMessage.resultType || 'Object'
@@ -971,7 +975,7 @@ const getDeserializeOpts = msgGetter => ({
         return
       }
       result.result = this.fetchObject(type, `${ field }[result]`)
-      // console.log(dTime(), 'override rpc_result', sentMessage, type, result)
+        // console.log(dTime(), 'override rpc_result', sentMessage, type, result)
     }
   }
 })
@@ -994,7 +998,7 @@ export default NetworkerFabric
 const verifyInnerMessages = (messages) => {
   if (messages.length !== new Set(messages).size) {
     console.log(`!!!!!!WARN!!!!!!`, 'container check failed', messages)
-    // throw new Error('Container bug')
+      // throw new Error('Container bug')
   }
 }
 
@@ -1043,6 +1047,6 @@ async function getMsgKeyIv(authKey: Uint8Array, msgKey: Uint8Array, isOut: boole
   aesIv.set(sha1c.subarray(16, 20), 20)
   aesIv.set(sha1d.subarray(0, 8), 24)
 
-  const result: [ Uint8Array, Uint8Array ] = [aesKey, aesIv]
+  const result: [Uint8Array, Uint8Array] = [aesKey, aesIv]
   return result
 }
