@@ -83,7 +83,7 @@
     "test",
     "examples",
     "schema",
-    "source",
+    "src",
     "es",
     "index.d.ts"
   ],
