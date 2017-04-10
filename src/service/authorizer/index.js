@@ -9,7 +9,7 @@ import CryptoWorker from '../../crypto'
 import random from '../secure-random'
 import { applyServerTime, dTime, tsNow } from '../time-manager'
 
-import { bytesCmp, bytesToHex, sha1BytesSync, nextRandomInt,
+import { bytesCmp, bytesToHex, sha1BytesSync,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor, generateNonce } from '../../bin'
 import { bpe, str2bigInt, one,
