@@ -21,7 +21,7 @@
     "build:es": "babel src/ -d es -s",
     "clean:es": "rimraf es/",
     "test": "node --harmony test/node.test.js",
-    "test:esnext": "node test/node.test.js",
+    "test:esnext": "node_modules/.bin/tap test/*.test.js",
     "prepublish": "npm run rebuild:es && npm run rebuild:cjs"
   },
   "author": "Zero Bias",
@@ -63,6 +63,7 @@
     "eslint-plugin-flowtype": "^2.30.4",
     "eslint-plugin-promise": "^3.5.0",
     "flow-bin": "^0.43.1",
+    "flow-typed": "^2.0.0",
     "hirestime": "^3.1.0",
     "nightmare": "^2.10.0",
     "prompt": "^1.0.0",
@@ -99,7 +100,8 @@
     {
       "name": "Zero Bias",
       "email": "ribkatt@gmail.com"
-    }, {
+    },
+    {
       "name": "goodmind",
       "email": "andwebar@gmail.com"
     }
@@ -109,5 +111,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "2.2.3"
+  "version": "2.2.4"
 }

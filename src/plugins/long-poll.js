@@ -18,6 +18,7 @@ class LongPoll {
     this.thread = thread
     if (inited) {
       console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!! re init', thread)
+      //$FlowIssue
       this.request = () => Promise.resolve()
     }
     inited = true

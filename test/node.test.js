@@ -2,6 +2,8 @@ const { test } = require('tap')
 const { MTProto } = require('../lib')
 const FileStorage = require('../lib/plugins/file-storage').SimpleFileStorage
 
+const { delayExit } = require('./fixtures')
+
 const phone = {
   num : '+9996620000',
   code: '22222'
@@ -116,7 +118,5 @@ const reuseStoredAuth = async (t) => {
 
   t.ok(list, 'chat1')
 }
-
-const delayExit = () => setTimeout(() => process.exit(0), 2e3)
 
 tests()

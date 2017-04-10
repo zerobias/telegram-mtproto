@@ -6,7 +6,7 @@ const cancelToken = Symbol('cancel token')
 
 const timeoutRefs = new WeakSet
 
-export const pause = (delay: number): Promise<void> => new Promise(r => setTimeout(r, delay))
+export const pause = (delay: number): Bluebird$Promise<void> => new Promise(r => setTimeout(r, delay))
 
 export const smartTimeout = <T>(fn: (...args: Array<*>) => T, delay?: number = 0, ...args: Array<*>) => {
   const newToken = Symbol('cancel id')
@@ -17,6 +17,7 @@ export const smartTimeout = <T>(fn: (...args: Array<*>) => T, delay?: number = 0
     } else return false
   }
   const promise = pause(delay).then(checkRun)
+  //$FlowIssue
   promise[cancelToken] = newToken
   return promise
 }

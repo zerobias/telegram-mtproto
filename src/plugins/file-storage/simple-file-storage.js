@@ -50,7 +50,7 @@ export class SimpleFileStorage implements AsyncStorage {
     return writeData(this.filepath, str)
   }
 
-  async get(key: string): Promise<*> {
+  async get(key: string) {
     if (!this.init) {
       const pureData = await readData(this.filepath)
       const parsed = JSON.parse(pureData)
@@ -73,7 +73,7 @@ export class SimpleFileStorage implements AsyncStorage {
     return Promise.resolve()
   }
 
-  async clear(): Promise<void> {
+  async clear() {
     this.data = {}
     await this.save()
   }

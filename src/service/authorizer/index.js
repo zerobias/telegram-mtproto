@@ -61,7 +61,11 @@ type Defer = {
 type Cached = {[id: number]: Defer}
 
 export type Args = {
-  select: () => Promise<string>,
+  select: (fingerprints: string[]) => Promise<{
+    fingerprint: string,
+    exponent: string,
+    modulus: string
+  } | false>,
   prepare: () => Promise<void>
 }
 
@@ -109,7 +113,8 @@ const getTwoPow = () => { //Dirty hack to count 2^(2048 - 64)
 
 const leemonTwoPow = getTwoPow()
 
-export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, prepare }: Args) => {
+export const Auth = ({ Serialization, Deserialization }: TLFabric,
+                     { select, prepare }: Args) => {
   const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
 
   async function mtpSendReqPQ(auth: AuthBasic) {

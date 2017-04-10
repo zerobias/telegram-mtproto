@@ -65,6 +65,8 @@ export class ApiManager {
   authPromise = blueDefer()
   authBegin = false
   chooseServer: (dcID: number, upload?: boolean) => {}
+  currentDc: number = 2
+  online: boolean = false
   constructor(config: StrictConfig, tls: TLFabric, netFabric: Function, { on, emit }: { on: On, emit: Emit }) {
     const {
       server,

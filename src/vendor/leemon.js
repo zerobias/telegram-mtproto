@@ -982,8 +982,8 @@ export function int2bigInt(t, bits, minSize) {
 //Pad the array with leading zeros so that it has at least minSize elements.
 //If base=-1, then it reads in a space-separated list of array elements in decimal.
 //The array will always have at least one leading zero, unless base=-1.
-export function str2bigInt(s, base, minSize) {
-  var d, i, j, x, y, kk;
+export function str2bigInt(s, base, minSize): number[] {
+  var d, i, x, y, kk;
   var k=s.length;
   if (base==-1) { //comma-separated list of array elements in decimal
     x=new Array(0);

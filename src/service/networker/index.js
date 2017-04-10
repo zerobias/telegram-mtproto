@@ -1,7 +1,6 @@
 //@flow
 
 import Promise from 'bluebird'
-import isNode from 'detect-node'
 
 import is from 'ramda/src/is'
 import contains from 'ramda/src/contains'
@@ -99,6 +98,7 @@ export class NetworkerThread {
   offline: boolean
   storage: AsyncStorage
   longPoll: LongPoll
+  onOnlineCb: *
   constructor({
       appConfig,
       chooseServer,
@@ -941,7 +941,7 @@ export const NetworkerFabric = (
   }, dc, authKey, serverSalt, options)
 
 
-const getDeserializeOpts = msgGetter => ({
+export const getDeserializeOpts = msgGetter => ({
   mtproto : true,
   override: {
     mt_message(result, field) {

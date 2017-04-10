@@ -1,9 +1,9 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
-import Logger from '../../util/log'
-const debug = Logger`request`
+// import Logger from '../../util/log'
+// const log = Logger`request`
 
 import { MTError } from '../../error'
 import { delayedCall } from '../../util/smart-timeout'
@@ -15,7 +15,9 @@ class Request {
   method: string
   params: { [arg: string]: * }
   config: RequestOptions
-  constructor(config: RequestOptions, method: string, params?: Object = {}) {
+  constructor(config: RequestOptions,
+              method: string,
+              params?: Object = {}) {
     this.config = config
     this.method = method
     this.params = params
@@ -27,15 +29,15 @@ class Request {
     this.error420 = this.error420.bind(this)
     this.initNetworker = this.initNetworker.bind(this)
   }
-  initNetworker = (): Promise<NetworkerType> => {
+  initNetworker = async (): Promise<NetworkerType> => {
     if (!this.config.networker) {
       const { getNetworker, netOpts, dc } = this.config
-      return getNetworker(dc, netOpts)
-        .then(this.saveNetworker)
+      const networker = await getNetworker(dc, netOpts)
+      this.config.networker = networker
     }
-    return Promise.resolve(this.config.networker)
+    return this.config.networker
   }
-  saveNetworker = (networker: NetworkerType) => this.config.networker = networker
+
   performRequest = () => this.initNetworker().then(this.requestWith)
   requestWith = (networker: NetworkerType) => networker
     .wrapApiCall(this.method, this.params, this.config.netOpts)
@@ -43,9 +45,9 @@ class Request {
     .catch({ code: 420 }, this.error420)
   error303(err: MTError) {
     const matched = err.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)
-    if (!matched || matched.length < 2) return Promise.reject(err)
+    if (!matched || matched.length < 2) return Bluebird.reject(err)
     const [ , , newDcID] = matched
-    if (+newDcID === this.config.dc) return Promise.reject(err)
+    if (+newDcID === this.config.dc) return Bluebird.reject(err)
     this.config.dc = +newDcID
     delete this.config.networker
     /*if (this.config.dc)
@@ -58,11 +60,11 @@ class Request {
   }
   error420(err: MTError) {
     const matched = err.type.match(/^FLOOD_WAIT_(\d+)/)
-    if (!matched || matched.length < 2) return Promise.reject(err)
+    if (!matched || matched.length < 2) return Bluebird.reject(err)
     const [ , waitTime ] = matched
     console.error(`Flood error! It means that mtproto server bans you on ${waitTime} seconds`)
     return +waitTime > 60
-      ? Promise.reject(err)
+      ? Bluebird.reject(err)
       : delayedCall(this.performRequest, +waitTime * 1e3)
   }
 }
