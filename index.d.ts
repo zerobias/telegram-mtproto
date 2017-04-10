@@ -60,13 +60,13 @@ declare module 'telegram-mtproto' {
     clear(): Promise<{}>
   }
 
+  type Bytes = Array<number>
 
   export const plugins: {
     MemoryStorage: AsyncStorage,
-    FileStorage  : AsyncStorage,
-    makePasswordHash(salt: Uint8Array | number[], password: string): number[]
+    makePasswordHash(salt: Uint8Array | Bytes, password: string): Bytes
   }
 
-  function MTProto({ server, api, app, schema, mtSchema }: Config): ApiManagerInstance
+  export function MTProto({ server, api, app, schema, mtSchema }: Config): ApiManagerInstance
   export default MTProto
 }

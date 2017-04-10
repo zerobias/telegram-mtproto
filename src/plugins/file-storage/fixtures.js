@@ -1,12 +1,20 @@
 //@flow
 
 import Promise from 'bluebird'
+import isNode from 'detect-node'
 
-const { access,
-        writeFile,
-        readFile,
-        constants: { W_OK }
-      } = require('fs')
+let access,
+    writeFile,
+    readFile,
+    W_OK
+
+if (isNode) {
+  const fs = require('fs')
+  access = fs.access
+  writeFile = fs.writeFile
+  readFile = fs.readFile
+  W_OK = fs.constants.W_OK
+}
 
 export const checkAccess =
   (filepath: string) =>
