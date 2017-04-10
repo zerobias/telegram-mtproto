@@ -1,4 +1,4 @@
-import Promise from 'bluebird'
+// import Promise from 'bluebird'
 
 import clone from 'ramda/src/clone'
 

@@ -16,7 +16,7 @@ const {
   req_pqBinary,
   req_DH_params,
   req_DH_paramsBinary,
-  getNearestDcBinary,
+  // getNearestDcBinary,
   getHistory,
   getHistoryBinary
 } = require('./tl-data')

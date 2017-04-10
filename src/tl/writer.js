@@ -3,8 +3,8 @@
 import { TypeWriter } from './type-buffer'
 import { longToInts, stringToChars } from '../bin'
 
-import Logger from '../util/log'
-const log = Logger`tl:writer`
+// import Logger from '../util/log'
+// const log = Logger`tl:writer`
 
 import type { BinaryData } from './index.h'
 
@@ -66,7 +66,7 @@ export function writeDouble(ctx: TypeWriter,
 
 export function writeBytes(ctx: TypeWriter,
                            bytes?: number[] | ArrayBuffer | string,
-                           field: string = '') {
+                           /*field: string = ''*/) {
   const { list, length } = binaryDataGuard(bytes)
     // debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
 
@@ -87,7 +87,7 @@ export function writeBytes(ctx: TypeWriter,
 export function writeIntBytes(ctx: TypeWriter,
                               bytes: BinaryData  | ArrayBuffer | string,
                               bits: number | false,
-                              field: string = '') {
+                              /*field: string = ''*/) {
   const { list, length } = binaryDataGuard(bytes)
 
   if (bits) {

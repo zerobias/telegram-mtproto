@@ -15,6 +15,11 @@ import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
 import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
 import type { TLSchema } from './index.h'
 
+// import writer from '../util/file-log'
+
+// const storeMethodLog = writer('storeMethod')
+// const fetchObjectLog = writer('fetchObject')
+
 import Logger from '../util/log'
 const debug = Logger`tl`
 
@@ -53,6 +58,10 @@ export class Serialization {
   }
 
   storeMethod(methodName: string, params) {
+    // const logId = storeMethodLog.input({
+    //   methodName,
+    //   params
+    // })
     const layer = this.mtproto
       ? mtLayer
       : apiLayer
@@ -122,6 +131,11 @@ export class Serialization {
       this.storeObject(stored, type, `f ${methodName}(${paramName})`)
     }*/
 
+
+    // storeMethodLog.output(logId, {
+    //   pred,
+    //   writer: this.writer
+    // })
     return pred.returns
   }
   /*emptyOfType(ofType, schema: TLSchema) {
@@ -245,6 +259,23 @@ export class Deserialization {
     this.typeBuffer = new TypeBuffer(buffer)
     this.mtproto = mtproto
     this.emitter = emitter
+
+    // const fetchObject = this.fetchObject.bind(this)
+
+    // const mock = (type, field) => {
+    //   const logId = fetchObjectLog.input({
+    //     type,
+    //     typeBuffer: this.typeBuffer,
+    //     field
+    //   })
+    //   const result = fetchObject(type, field)
+    //   fetchObjectLog.output(logId, {
+    //     typeBuffer: this.typeBuffer,
+    //     result
+    //   })
+    //   return result
+    // }
+    // this.fetchObject = mock
   }
 
   // log('int')(field, i.toString(16), i)
@@ -328,6 +359,7 @@ export class Deserialization {
   }
 
   fetchObject(type, field: string = '') {
+
     switch (type) {
       case '#':
       case 'int':

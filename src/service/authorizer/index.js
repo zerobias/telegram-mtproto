@@ -101,7 +101,7 @@ type AuthBasic = {
 
 const minSize = Math.ceil(64 / bpe) + 1
 
-const getTwoPow = () => { //Dirty hack to count 2^(2048 - 64)
+const getTwoPow = () => { //Dirty cheat to count 2^(2048 - 64)
                           //This number contains 496 zeroes in hex
   const arr = Array(496)
     .fill('0')

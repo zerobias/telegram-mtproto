@@ -6,7 +6,7 @@ import { toPairs, forEach, any, is, __, type } from 'ramda'
 const DEL = Symbol('delete')
 
 export function traverse(func: (obj: any, key: string | number) => any) {
-  return function visitor(obj: any, key: string | number = '') {
+  return function visitor(obj: any) {
     if (Array.isArray(obj)) {
       const result = []
       for (const [index, value] of obj.entries()) {

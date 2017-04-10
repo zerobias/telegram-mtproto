@@ -1,6 +1,6 @@
 const telegram = require('./init')
 
-const { inputField } = require('./fixtures')
+// const { inputField } = require('./fixtures')
 
 const config = {
   // NOTE: if you FORK the project you MUST use your APP ID.

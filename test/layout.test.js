@@ -2,32 +2,32 @@ const { test } = require('tap')
 const { getFlags, Layout } = require('../lib/layout')
 const apiSchema = require('../schema/api-57.json')
 
-const { has } = require('ramda')
+// const { has } = require('ramda')
 
-const methodRaw = {
-  'id'    : '-1137057461',
-  'method': 'messages.saveDraft',
-  'params': [{
-    'name': 'flags',
-    'type': '#'
-  }, {
-    'name': 'no_webpage',
-    'type': 'flags.1?true'
-  }, {
-    'name': 'reply_to_msg_id',
-    'type': 'flags.0?int'
-  }, {
-    'name': 'peer',
-    'type': 'InputPeer'
-  }, {
-    'name': 'message',
-    'type': 'string'
-  }, {
-    'name': 'entities',
-    'type': 'flags.3?Vector<MessageEntity>'
-  }],
-  'type': 'Bool'
-}
+// const methodRaw = {
+//   'id'    : '-1137057461',
+//   'method': 'messages.saveDraft',
+//   'params': [{
+//     'name': 'flags',
+//     'type': '#'
+//   }, {
+//     'name': 'no_webpage',
+//     'type': 'flags.1?true'
+//   }, {
+//     'name': 'reply_to_msg_id',
+//     'type': 'flags.0?int'
+//   }, {
+//     'name': 'peer',
+//     'type': 'InputPeer'
+//   }, {
+//     'name': 'message',
+//     'type': 'string'
+//   }, {
+//     'name': 'entities',
+//     'type': 'flags.3?Vector<MessageEntity>'
+//   }],
+//   'type': 'Bool'
+// }
 
 
 const methodModel = {
@@ -76,7 +76,7 @@ const methodModel = {
   ]
 }
 
-const MessageEntity = {
+/*const MessageEntity = {
   name    : 'MessageEntity',
   creators: [
     'messageEntityUnknown',
@@ -149,7 +149,7 @@ const entityCreatorModel = {
       flagIndex: NaN
     },
   ]
-}
+}*/
 
 /*const method = Layout.method('auth.sendCode')
 for (const param of method.params) {
@@ -176,8 +176,8 @@ test('flags counter', t => {
   t.notThrow(() => getter = getFlags(methodModel), 'getFlags')
   for (const [ obj, result ] of flagTests)
     t.equal(getter(obj), result, `flags test`)
-  let layout
-  t.notThrow(() => layout = new Layout(apiSchema), 'make new layout')
+  // let layout
+  t.notThrow(() => /*layout =*/ new Layout(apiSchema), 'make new layout')
   // console.log(layout)
   t.end()
 })

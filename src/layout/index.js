@@ -13,9 +13,9 @@ class TypeClass {
   constructor(name: string) {
     this.name = name
   }
-  isTypeOf(value: any): boolean {
+  /*isTypeOf(value: any): boolean {
     return false
-  }
+  }*/
 }
 
 class Argument {
