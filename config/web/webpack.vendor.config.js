@@ -2,7 +2,7 @@
 const { resolve, join } = require('path')
 const webpack = require('webpack')
 
-const source = resolve(process.cwd(), 'source')
+const source = resolve(process.cwd(), 'src')
 const build = resolve(process.cwd(), 'dist')
 
 const config = {
@@ -11,15 +11,18 @@ const config = {
 
   entry: {
     vendor: [
-      // '@goodmind/node-cryptojs-aes',
-      // 'big-integer',
-      // 'rusha',
+      '@goodmind/node-cryptojs-aes',
+      'ajv',
+      'ajv-keywords',
+      'rusha',
       'pako/lib/inflate',
-      'jsbn',
       'axios',
       'ramda',
-      'bluebird'
-      // 'setimmediate'
+      'bluebird',
+      'debug',
+      'detect-node',
+      'eventemitter2',
+      'randombytes'
     ]
   },
   context: source,

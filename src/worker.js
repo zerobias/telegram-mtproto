@@ -1,5 +1,5 @@
-import { pqPrimeFactorization, bytesModPow, sha1HashSync,
-  aesEncryptSync, aesDecryptSync } from './bin'
+const { pqPrimeFactorization, bytesModPow, sha1HashSync,
+  aesEncryptSync, aesDecryptSync } = require('./bin')
 
 console.info('Crypto worker registered')
 

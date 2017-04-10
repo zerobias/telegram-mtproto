@@ -9,10 +9,10 @@
   "scripts": {
     "build": "npm run build:cjs && npm run build:es",
     "watch:node": "npm run build:cjs -- --watch",
-    "watch:web": "webpack --watch --config config/webogram/webpack.config.js",
-    "build:webogram:vendor": "webpack --config config/webogram/webpack.vendor.config.js",
-    "build:webogram": "webpack --config config/webogram/webpack.config.js",
-    "rebuild:webogram": "npm run build:webogram:vendor && npm run build:webogram",
+    "watch:web": "node_modules/.bin/webpack-dev-server --config=config/web/webpack.config.js",
+    "build:web:vendor": "webpack --config config/web/webpack.vendor.config.js",
+    "build:web": "webpack --config config/web/webpack.config.js",
+    "rebuild:web": "npm run build:web:vendor && npm run build:web",
     "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
     "build:async": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --no-babelrc --plugins=transform-flow-strip-types,transform-es2015-modules-commonjs,transform-class-properties,transform-object-rest-spread,closure-elimination",
@@ -65,13 +65,15 @@
     "flow-bin": "^0.43.1",
     "flow-typed": "^2.0.0",
     "hirestime": "^3.1.0",
+    "html-webpack-plugin": "^2.28.0",
     "nightmare": "^2.10.0",
     "prompt": "^1.0.0",
     "rimraf": "^2.6.1",
     "tap": "^10.3.1",
     "tslint": "^5.0.0",
     "typescript": "^2.2.2",
-    "webpack": "^2.3.3"
+    "webpack": "^2.3.3",
+    "webpack-dev-server": "^2.4.2"
   },
   "engines": {
     "node": ">=6.0"

@@ -24,7 +24,6 @@ import {
   convertToUint8Array,
   convertToArrayBuffer,
   sha1BytesSync,
-  nextRandomInt,
   bytesCmp,
   bytesToHex,
   bytesFromArrayBuffer,
@@ -42,6 +41,7 @@ import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
 import type { Emit } from '../main/index.h'
 
 import LongPoll from '../../plugins/long-poll'
+import { getRandomId } from '../../plugins/math-aid'
 
 let updatesProcessor
 let iii = 0
@@ -307,7 +307,7 @@ export class NetworkerThread {
     smartTimeout.cancel(this.checkConnectionPromise)
 
     const serializer = this.Serialization({ mtproto: true })
-    const pingID = [nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF)]
+    const pingID = getRandomId()
 
     serializer.storeMethod('ping', { ping_id: pingID })
 

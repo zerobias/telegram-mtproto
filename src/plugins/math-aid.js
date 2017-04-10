@@ -19,7 +19,6 @@ import { bufferConcat, sha256HashSync, nextRandomInt } from '../bin'
  * @param {string} password
  * @returns {number[]} bytes
  */
-
 export function makePasswordHash(salt: Uint8Array | number[], password: string) {
   const passwordUTF8 = decodeURIComponent(escape(password))
   let buffer = new ArrayBuffer(passwordUTF8.length)
@@ -49,6 +48,6 @@ export function makePasswordHash(salt: Uint8Array | number[], password: string) 
  * @export
  * @returns {number[]}
  */
-export function getRandomId() {
+export function getRandomId(): [number, number] {
   return [ nextRandomInt(0xFFFFFFFF), nextRandomInt(0xFFFFFFFF) ]
 }

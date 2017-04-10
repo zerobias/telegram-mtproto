@@ -1,6 +1,6 @@
 module.exports = {
-  webogram: {
-    main  : require('./webogram/webpack.config'),
-    vendor: require('./webogram/webpack.vendor.config')
+  web: {
+    main  : require('./web/webpack.config'),
+    vendor: require('./web/webpack.vendor.config')
   }
 }

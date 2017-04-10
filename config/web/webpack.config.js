@@ -1,17 +1,28 @@
 'use strict'
 const { resolve, join } = require('path')
 const webpack = require('webpack')
+const htmlWebpack = require('html-webpack-plugin')
 
-const source = resolve(process.cwd(), 'source')
+const source = resolve(process.cwd(), 'src')
 const build = resolve(process.cwd(), 'dist')
 
 const vendorDll = require(join(build, 'vendor.json'))
 
 const config = {
-  devtool: 'source-map',
-  cache  : true,
-
-  entry  : './index.js',
+  devtool  : 'source-map',
+  cache    : true,
+  devServer: {
+    hot               : true,
+    historyApiFallback: true,
+    contentBase       : build,
+    publicPath        : '/',
+    port              : 8899
+  },
+  entry: [
+    'webpack-dev-server/client?http://localhost:8899',
+    'webpack/hot/only-dev-server',
+    './index.js'
+  ],
   context: source,
   resolve: {
     extensions: ['.js']
@@ -21,11 +32,11 @@ const config = {
     // ]
   },
   output: {
-    filename     : 'mtproto2-browser.js',
-    // publicPath: '/',
-    path         : build,
-    library      : 'mtproto',
-    libraryTarget: 'umd'
+    // filename     : 'mtproto-browser.js',
+    publicPath: '/',
+    path      : build,
+    // library      : 'mtproto',
+    // libraryTarget: 'umd'
     // pathinfo  : true
   },
   externals: {
@@ -60,11 +71,15 @@ const config = {
       options: {
         worker: {
           output: {
-            filename     : 'hash.worker.js',
-            chunkFilename: '[id].hash.worker.js'
+            // filename     : 'crypto-worker.js',
+            chunkFilename: '[id].crypto-worker.js'
           }
         }
       }
+    }),
+    new htmlWebpack({
+      title   : 'MTProto test page',
+      template: '../config/web/index.ejs'
     })
   ],
   module: {
