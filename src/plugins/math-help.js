@@ -9,6 +9,8 @@ import { bufferConcat, sha256HashSync, nextRandomInt } from '../bin'
  *
  * **Usage**:
  *
+ *     const makePasswordHash =
+ *       require('telegram-mtproto').plugins.makePasswordHash
  *     const { current_salt } = await telegram('account.getPassword')
  *     const hash = makePasswordHash(current_salt, userPassword)
  *     const result = await telegram('auth.checkPassword', {

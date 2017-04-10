@@ -34,7 +34,6 @@
     "debug": "^2.6.3",
     "detect-node": "^2.0.3",
     "eventemitter2": "^4.1.0",
-    "memoizee": "^0.4.4",
     "pako": "^1.0.5",
     "ramda": "^0.23.0",
     "randombytes": "^2.0.3",
@@ -113,5 +112,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "2.2.4"
+  "version": "2.2.5"
 }

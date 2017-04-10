@@ -1,6 +1,6 @@
 const { test } = require('tap')
-const { MTProto } = require('../lib')
-const FileStorage = require('../lib/plugins/file-storage').SimpleFileStorage
+const { MTProto, plugins } = require('../lib')
+const { FileStorage } = plugins
 
 const { delayExit } = require('./fixtures')
 

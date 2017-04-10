@@ -41,7 +41,7 @@ import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
 import type { Emit } from '../main/index.h'
 
 import LongPoll from '../../plugins/long-poll'
-import { getRandomId } from '../../plugins/math-aid'
+import { getRandomId } from '../../plugins/math-help'
 
 let updatesProcessor
 let iii = 0
@@ -447,6 +447,7 @@ export class NetworkerThread {
         this.generateSeqNo(),
         serializer.getBytes()
       ))
+      this.longPoll.writePollTime()
     }
 
     if (!messages.length) {
