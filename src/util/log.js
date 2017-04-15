@@ -112,14 +112,23 @@ const Logger = (moduleName: VariString, ...rest: string[]) => {
   fullModule.unshift('telegram-mtproto')
   const fullname = fullModule.join(':')
   const debug = Debug(fullname)
+  const logFunction = (tag: string, objects: any[]) => {
+    const time = dTime()
+    immediate(sheduler.add, debug, time, tag, objects)
+  }
   const logger = (...tags: VariString[]) => {
     const tagStr = fullNormalize(tags)
-    return (...objects: any[]) => {
-      const time = dTime()
-      immediate(sheduler.add, debug, time, tagStr, objects)
-    }
+    return (...objects: any[]) => logFunction(tagStr, objects)
   }
-  return logger
+
+  //eslint-disable-next-line
+  const disabledSubfn = (...objects: any[]) => {}
+  //eslint-disable-next-line
+  const disabledLogger = (...tags: VariString[]) => disabledSubfn
+
+  return debug.enabled
+    ? logger
+    : disabledLogger
 }
 
 export const setLogger = (customLogger: Function) => {
