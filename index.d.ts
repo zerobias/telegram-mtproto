@@ -55,9 +55,9 @@ declare module 'telegram-mtproto' {
   }
   export interface AsyncStorage {
     get(key: string): Promise<any>
-    set(key: string, val: any): Promise<any>
-    remove(...keys: Array<string>): Promise<any>
-    clear(): Promise<{}>
+    set(key: string, val: any): Promise<void>
+    remove(...keys: Array<string>): Promise<void>
+    clear(): Promise<void>
   }
 
   type Bytes = Array<number>

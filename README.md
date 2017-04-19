@@ -114,13 +114,17 @@ Additional examples can be obtained from [examples][examples] folder.
 
 ## Storage
 
+`AsyncStorage` is an interface of the asynchronous plug-in for storing connection information, for example, user authorization is placed here.
+
+The module is made as pluggable for compatibility with any user data stores
+
 You can use your own storages like [localForage][localForage] for saving data.
 Module accepts the following interface
 
 ```typescript
 interface AsyncStorage {
   get(key: string): Promise<any>;
-  set(obj: any): Promise<void>;
+  set(key: string, value: any): Promise<void>;
   remove(...keys: string[]): Promise<void>;
   clear(): Promise<void>;
 }
@@ -137,14 +141,44 @@ const client = MTProto({
     storage: CustomStorage
   }
 })
-
 ```
+
+I draw your attention to the fact that typescript here is only for illustration purposes, and plain javascript is quite enough to make your own storage.
+
+By default, [MemoryStorage][memory-storage] is used, and all data is stored only in RAM.
+Also, library is shipped with [FileStorage][file-storage] for using with nodejs
+
+
+
+At the moment, the library uses the interface to store the following objects:
+
+```typescript
+type StoredData = {
+  dc: number, //ID of user's primary datacenter
+  dcN_auth_key: string,
+  dcN_server_salt: string //Datacenters auth keys, where N - dc id
+}
+```
+
+> When manually specifying a base datacenter, the library immediately starts using the updated value
+
+
+`AsyncStorage` interface references
+
+* [TypeScript][storage-ts]
+* [Flow][storage-flow]
+
+
 
 ## License
 
 The project is released under the [Mit License](./LICENSE)
 
 [examples]: https://github.com/zerobias/telegram-mtproto/tree/develop/examples
+[memory-storage]: https://github.com/zerobias/telegram-mtproto/blob/develop/src/plugins/memory-storage.js
+[file-storage]: https://github.com/zerobias/telegram-mtproto/blob/develop/src/plugins/file-storage/simple-file-storage.js
+[storage-ts]: https://github.com/zerobias/telegram-mtproto/blob/develop/index.d.ts#L56
+[storage-flow]: https://github.com/zerobias/telegram-mtproto/blob/develop/src/plugins/index.h.js
 [localForage]: https://github.com/localForage/localForage
 [docs]: https://core.telegram.org/
 [send-code]: https://core.telegram.org/method/auth.sendCode

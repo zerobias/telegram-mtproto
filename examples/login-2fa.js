@@ -1,6 +1,6 @@
 const telegram = require('./init')
 
-const { inputField } = require('./fixtures')
+// const { inputField } = require('./fixtures')
 
 const crypto = require('crypto')
 
@@ -25,7 +25,7 @@ const login = async () => {
     })
     // const code = await inputField('code')
     const code = '22222'
-    var res
+    let res
     try {
       res = await telegram('auth.signIn', {
         phone_number: phone,
@@ -33,15 +33,15 @@ const login = async () => {
         phone_code  : code
       })
     } catch (error) {
-      if (error.type !== "SESSION_PASSWORD_NEEDED") throw error
+      if (error.type !== 'SESSION_PASSWORD_NEEDED') throw error
 
       const password = 'sekrit'
-      const { hint, current_salt } = await telegram('account.getPassword', {})
+      const { current_salt } = await telegram('account.getPassword', {})
       const password_hash = crypto.createHash('sha256')
         .update(current_salt + password + current_salt)
         .digest()
       res = await telegram('auth.checkPassword', {
-        password_hash: password_hash
+        password_hash
       })
     }
     const { user } = res

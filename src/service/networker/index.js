@@ -503,7 +503,7 @@ export class NetworkerThread {
       const response = await this.parseResponse(result.data)
       log(`Server response`)(this.dcID, response)
 
-      this.processMessage(
+      await this.processMessage(
         response.response,
         response.messageID,
         response.sessionID)
@@ -754,7 +754,7 @@ export class NetworkerThread {
     })
   }
 
-  processMessage(message, messageID, sessionID) {
+  async processMessage(message, messageID, sessionID) {
     const msgidInt = parseInt(messageID.toString(10).substr(0, -10), 10)
     if (msgidInt % 2) {
       console.warn('[MT] Server even message id: ', messageID, message)
@@ -764,7 +764,7 @@ export class NetworkerThread {
     switch (message._) {
       case 'msg_container': {
         for (const inner of message.messages)
-          this.processMessage(inner, inner.msg_id, sessionID)
+          await this.processMessage(inner, inner.msg_id, sessionID)
         break
       }
       case 'bad_server_salt': {
@@ -811,7 +811,7 @@ export class NetworkerThread {
         if (this.lastServerMessages.length > 100) {
           this.lastServerMessages.shift()
         }
-        this.processMessage(message.body, message.msg_id, sessionID)
+        await this.processMessage(message.body, message.msg_id, sessionID)
         break
       }
       case 'new_session_created': {
@@ -820,15 +820,15 @@ export class NetworkerThread {
         this.processMessageAck(message.first_msg_id)
         this.applyServerSalt(message.server_salt)
 
-        const onBaseDc = baseDcID => {
-          const updateCond =
-            baseDcID === this.dcID &&
-            !this.upload &&
-            updatesProcessor
-          if (updateCond)
-            updatesProcessor(message, true)
-        }
-        this.storage.get('dc').then(onBaseDc)
+
+        const baseDcID = await this.storage.get('dc')
+        const updateCond =
+          baseDcID === this.dcID &&
+          !this.upload &&
+          updatesProcessor
+        if (updateCond)
+          updatesProcessor(message, true)
+
         break
       }
       case 'msgs_ack': {
@@ -871,9 +871,15 @@ export class NetworkerThread {
         if (message.result._ == 'rpc_error') {
           const error = this.processError(message.result)
           log(`ERROR, Rpc error`)(error)
-          if (error.code === 303 && contains('PHONE_MIGRATE', error.description)) {
-            const newDc = +error.description[error.description.length - 1]
-            this.dcID = newDc
+          const matched = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)
+          if (matched && matched.length >= 2) {
+            const [ , , newDcID] = matched
+            if (+newDcID !== this.dcID) {
+              this.dcID = +newDcID
+              await this.storage.set('dc', +newDcID)
+
+            }
+
           } else
             log('non phone error')(error.code, error.description)
           if (deferred) {

@@ -5,10 +5,10 @@ import Bluebird from 'bluebird'
 import { tsNow } from '../service/time-manager'
 import { NetworkerThread } from '../service/networker/index'
 
-import Logger from '../util/log'
-const log = Logger`long-poll`
+// import Logger from '../util/log'
+// const log = Logger`long-poll`
 
-let inited = false
+// let inited = false
 
 class LongPoll {
   thread: NetworkerThread
@@ -20,12 +20,12 @@ class LongPoll {
 
   constructor(thread: NetworkerThread) {
     this.thread = thread
-    if (inited) {
-      log('Networker')(thread)
-      //$FlowIssue
-      this.request = () => Bluebird.resolve()
-    }
-    inited = true
+    // if (inited) {
+    //   log('Networker')(thread)
+    //   //$ FlowIssue
+    //   this.request = () => Bluebird.resolve()
+    // }
+    // inited = true
   }
 
   setPendingTime() {
