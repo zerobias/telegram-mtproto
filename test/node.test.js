@@ -5,8 +5,8 @@ const { FileStorage } = require('../lib/plugins/file-storage')
 const { delayExit } = require('./fixtures')
 
 const phone = {
-  num : '+9996620000',
-  code: '22222'
+  num : '+9996610000',
+  code: '11111'
 }
 
 const api = {
@@ -40,8 +40,8 @@ const telegram = MTProto({ server, api, app })
 
 const tests = async () => {
   try {
-    await test(`Connection test`, { timeout: 30e3 }, connectionTest)
-    await test(`Reuse stored auth`, { timeout: 30e3 }, reuseStoredAuth)
+    await test(`Connection test`, connectionTest)
+    await test(`Reuse stored auth`, reuseStoredAuth)
   } catch (err) {
     console.log(err)
   } finally {
@@ -66,12 +66,12 @@ const getHistory = async (chat) => {
 
 
 const connectionTest = async t => {
-  t.plan(1)
   let res, i = 0
+  t.plan(1)
+  await telegram.storage.clear() //Just for clean test
   while (i<5) {
     try {
-      await telegram.storage.clear() //Just for clean test
-
+      await telegram.storage.get('dc')
       const { phone_code_hash } = await telegram('auth.sendCode', {
             phone_number  : phone.num,
             current_number: false,
@@ -82,7 +82,7 @@ const connectionTest = async t => {
       res = await telegram('auth.signIn', {
         phone_number: phone.num,
         phone_code_hash,
-        phone_code  : phone.code
+        phone_code  : phone.code,
       })
       console.log('signIn', res)
       console.log('\n Logined as user')
@@ -98,7 +98,8 @@ const connectionTest = async t => {
 }
 
 const reuseStoredAuth = async (t) => {
-  t.plan(2)
+  t.plan(1)
+
 
   const anotherTelegram = MTProto({ server, api, app })
 
@@ -110,13 +111,13 @@ const reuseStoredAuth = async (t) => {
 
   t.ok(dialogs, 'dialogs is ok')
 
-  const chat1 = dialogs.chats[2]
+  // const chat1 = dialogs.chats[2]
 
-  const history = await getHistory(chat1)
+  // const history = await getHistory(chat1)
 
-  const list = history.messages
+  // const list = history.messages
 
-  t.ok(list, 'chat1')
+  // t.ok(list, 'chat1')
 }
 
 tests()

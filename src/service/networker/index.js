@@ -879,7 +879,7 @@ export class NetworkerThread {
               await this.storage.set('dc', +newDcID)
 
             }
-
+            this.emit('error.303', this.dcID)
           } else
             log('non phone error')(error.code, error.description)
           if (deferred) {

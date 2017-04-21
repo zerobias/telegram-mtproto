@@ -99,6 +99,11 @@ export class ApiManager {
 
     // this.updatesManager = UpdatesManager(apiManager, this.TL)
     // apiManager.updates = this.updatesManager
+
+    on('error.303', (newDc) => {
+      this.authBegin = false
+      this.currentDc = newDc
+    })
   }
   networkSetter = (dc: number, options: LeftOptions) =>
     (authKey: Bytes, serverSalt: Bytes): Networker => {
@@ -169,12 +174,15 @@ export class ApiManager {
       const nearestDc = await networker.wrapApiCall(
         'help.getNearestDc', {}, opts)
       const { nearest_dc, this_dc } = nearestDc
-      await this.storage.set('dc', nearest_dc)
-      debug(`nearest Dc`)(nearestDc)
-      if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
-        dcID           : nearest_dc,
-        createNetworker: true
-      })
+      if (storedBaseDc == null) {
+        await this.storage.set('dc', this_dc)
+        // if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
+        //   dcID           : this_dc,
+        //   createNetworker: true
+        // })
+
+      }
+      debug(`nearest Dc, this dc`)(nearestDc, this_dc)
       this.authPromise.resolve()
     } catch (err) {
       this.authPromise.reject(err)

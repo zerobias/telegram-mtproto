@@ -1,7 +1,7 @@
 //@flow
 
 import omit from 'ramda/src/omit'
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 import type { AsyncStorage } from '../index.h'
 
@@ -42,7 +42,7 @@ export class SimpleFileStorage implements AsyncStorage {
     this.filepath = filepath
     if (data != null)
       this.data = data
-    setInterval(() => this.save(), 500)
+    // setInterval(() => this.save(), 500)
   }
 
   save() {
@@ -60,22 +60,25 @@ export class SimpleFileStorage implements AsyncStorage {
     }
     const data = this.data[key]
     log('get', `key ${key}`)(data)
-    return Promise.resolve(data)
+    return Bluebird.resolve(data)
   }
 
-  set(key: string, val: any): Promise<void> {
+  async set(key: string, val: any): Promise<void> {
     this.data[key] = val
-    return Promise.resolve()
+    log('set', `key ${key}`)(val)
+    await this.save()
   }
 
-  remove(...keys: string[]): Promise<void> {
+  async remove(...keys: string[]): Promise<void> {
     this.data = omit(keys, this.data)
-    return Promise.resolve()
+    log('remove')(keys)
+    await this.save()
   }
 
   async clear() {
     this.data = {}
-    await this.save()
+    log('clear')('ok')
+    // await this.save()
   }
 }
 
