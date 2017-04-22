@@ -1,3 +1,7 @@
+//@flow
+
+type Bytes = number[]
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // Big Integer Library v. 5.5
 // Created 2000, last modified 2013
@@ -221,7 +225,7 @@ var mr_x1=t, mr_r=t, mr_a=t,                                      //used in mill
 var k, buff;
 
 //return array of all primes less than integer n
-function findPrimes(n) {
+function findPrimes(n: number) {
   var i, s, p, ans;
   s=new Array(n);
   for (i=0; i<n; i++)
@@ -244,7 +248,7 @@ function findPrimes(n) {
 
 //does a single round of Miller-Rabin base b consider x to be a possible prime?
 //x is a bigInt, and b is an integer, with b<x
-function millerRabinInt(x, b) {
+function millerRabinInt(x: Bytes, b: number) {
   if (mr_x1.length!=x.length) {
     mr_x1=dup(x);
     mr_r=dup(x);
@@ -257,7 +261,7 @@ function millerRabinInt(x, b) {
 
 //does a single round of Miller-Rabin base b consider x to be a possible prime?
 //x and b are bigInts with b<x
-function millerRabin(x, b) {
+function millerRabin(x: Bytes, b: Bytes) {
   var i, j, k, s;
 
   if (mr_x1.length!=x.length) {
@@ -306,7 +310,7 @@ function millerRabin(x, b) {
 }
 
 //returns how many bits long the bigInt is, not counting leading zeros.
-function bitSize(x) {
+function bitSize(x: Bytes) {
   var j, z, w;
   for (j=x.length-1; (x[j]==0) && (j>0); j--);
   for (z=0, w=x[j]; w; (w>>=1), z++);
@@ -315,21 +319,21 @@ function bitSize(x) {
 }
 
 //return a copy of x with at least n elements, adding leading zeros if needed
-function expand(x, n) {
+function expand(x: Bytes, n: number) {
   var ans=int2bigInt(0, (x.length>n ? x.length : n)*bpe, 0);
   copy_(ans, x);
   return ans;
 }
 
 //return a k-bit true random prime using Maurer's algorithm.
-function randTruePrime(k) {
+function randTruePrime(k: number) {
   var ans=int2bigInt(0, k, 0);
   randTruePrime_(ans, k);
   return trim(ans, 1);
 }
 
 //return a k-bit random probable prime with probability of error < 2^-80
-function randProbPrime(k) {
+function randProbPrime(k: number) {
   if (k>=600) return randProbPrimeRounds(k, 2); //numbers from HAC table 4.3
   if (k>=550) return randProbPrimeRounds(k, 4);
   if (k>=500) return randProbPrimeRounds(k, 5);
@@ -344,7 +348,7 @@ function randProbPrime(k) {
 }
 
 //return a k-bit probable random prime using n rounds of Miller Rabin (after trial division with small primes)
-function randProbPrimeRounds(k, n) {
+function randProbPrimeRounds(k: number, n: number) {
   var ans, i, divisible, B;
   B=30000;  //B is largest prime to use in trial division
   ans=int2bigInt(0, k, 0);
@@ -390,49 +394,49 @@ function randProbPrimeRounds(k, n) {
 }
 
 //return a new bigInt equal to (x mod n) for bigInts x and n.
-function mod(x, n) {
+function mod(x: Bytes, n: Bytes) {
   var ans=dup(x);
   mod_(ans, n);
   return trim(ans, 1);
 }
 
 //return (x+n) where x is a bigInt and n is an integer.
-function addInt(x, n) {
+function addInt(x: Bytes, n: number) {
   var ans=expand(x, x.length+1);
   addInt_(ans, n);
   return trim(ans, 1);
 }
 
 //return x*y for bigInts x and y. This is faster when y<x.
-function mult(x, y) {
+function mult(x: Bytes, y: Bytes) {
   var ans=expand(x, x.length+y.length);
   mult_(ans, y);
   return trim(ans, 1);
 }
 
 //return (x**y mod n) where x,y,n are bigInts and ** is exponentiation.  0**0=1. Faster for odd n.
-export function powMod(x, y, n) {
+export function powMod(x: Bytes, y: Bytes, n: Bytes) {
   var ans=expand(x, n.length);
   powMod_(ans, trim(y, 2), trim(n, 2), 0);  //this should work without the trim, but doesn't
   return trim(ans, 1);
 }
 
 //return (x-y) for bigInts x and y.  Negative answers will be 2s complement
-export function sub(x, y) {
+export function sub(x: Bytes, y: Bytes) {
   var ans=expand(x, (x.length>y.length ? x.length+1 : y.length+1));
   sub_(ans, y);
   return trim(ans, 1);
 }
 
 //return (x+y) for bigInts x and y.
-function add(x, y) {
+function add(x: Bytes, y: Bytes) {
   var ans=expand(x, (x.length>y.length ? x.length+1 : y.length+1));
   add_(ans, y);
   return trim(ans, 1);
 }
 
 //return (x**(-1) mod n) for bigInts x and n.  If no inverse exists, it returns null
-function inverseMod(x, n) {
+function inverseMod(x: Bytes, n: Bytes) {
   var ans=expand(x, n.length);
   var s;
   s=inverseMod_(ans, n);
@@ -440,7 +444,7 @@ function inverseMod(x, n) {
 }
 
 //return (x*y mod n) for bigInts x,y,n.  For greater speed, let y<x.
-function multMod(x, y, n) {
+function multMod(x: Bytes, y: Bytes, n: Bytes) {
   var ans=expand(x, n.length);
   multMod_(ans, y, n);
   return trim(ans, 1);
@@ -448,7 +452,7 @@ function multMod(x, y, n) {
 
 //generate a k-bit true random prime using Maurer's algorithm,
 //and put it into ans.  The bigInt ans must be large enough to hold it.
-function randTruePrime_(ans, k) {
+function randTruePrime_(ans: Bytes, k: number) {
   var c, m, pm, dd, j, r, B, divisible, z, zz, recSize;
   var w;
   if (primes.length==0)
@@ -580,7 +584,7 @@ function randTruePrime_(ans, k) {
 }
 
 //Return an n-bit random BigInt (n>=1).  If s=1, then the most significant of those n bits is set to 1.
-function randBigInt(n, s) {
+function randBigInt(n: number, s: number) {
   var a, b;
   a=Math.floor((n-1)/bpe)+2; //# array elements to hold the BigInt with a leading 0 element
   b=int2bigInt(0, 0, a);
@@ -590,7 +594,7 @@ function randBigInt(n, s) {
 
 //Set b to an n-bit random BigInt.  If s=1, then the most significant of those n bits is set to 1.
 //Array b must be big enough to hold the result. Must have n>=1
-function randBigInt_(b, n, s) {
+function randBigInt_(b: Bytes, n: number, s: number) {
   var i, a;
   for (i=0; i<b.length; i++)
     b[i]=0;
@@ -604,7 +608,7 @@ function randBigInt_(b, n, s) {
 }
 
 //Return the greatest common divisor of bigInts x and y (each with same number of elements).
-function GCD(x, y) {
+function GCD(x: Bytes, y: Bytes) {
   var xc, yc;
   xc=dup(x);
   yc=dup(y);
@@ -614,7 +618,7 @@ function GCD(x, y) {
 
 //set x to the greatest common divisor of bigInts x and y (each with same number of elements).
 //y is destroyed.
-function GCD_(x, y) {
+function GCD_(x: Bytes, y: Bytes) {
   var i, xp, yp, A, B, C, D, q, sing;
   var qp;
   if (T.length!=x.length)
@@ -668,7 +672,7 @@ function GCD_(x, y) {
 //do x=x**(-1) mod n, for bigInts x and n.
 //If no inverse exists, it sets x to zero and returns 0, else it returns 1.
 //The x array must be at least as large as the n array.
-function inverseMod_(x, n) {
+function inverseMod_(x: Bytes, n: Bytes) {
   var k=1+2*Math.max(x.length, n.length);
 
   if (!(x[0]&1)  && !(n[0]&1)) {  //if both inputs are even, then inverse doesn't exist
@@ -739,7 +743,7 @@ function inverseMod_(x, n) {
 }
 
 //return x**(-1) mod n, for integers x and n.  Return 0 if there is no inverse
-function inverseModInt(x, n) {
+function inverseModInt(x: number, n: number): number {
   var a=1, b=0, t;
   for (;;) {
     if (x==1) return a;
@@ -752,10 +756,12 @@ function inverseModInt(x, n) {
     a-=b*Math.floor(x/n);
     x%=n;
   }
+  //eslint-disable-next-line
+  return 0
 }
 
 //this deprecated function is for backward compatibility only.
-function inverseModInt_(x, n) {
+function inverseModInt_(x: number, n: number) {
    return inverseModInt(x, n);
 }
 
@@ -763,7 +769,7 @@ function inverseModInt_(x, n) {
 //Given positive bigInts x and y, change the bigints v, a, and b to positive bigInts such that:
 //     v = GCD_(x,y) = a*x-b*y
 //The bigInts v, a, b, must have exactly as many elements as the larger of x and y.
-export function eGCD_(x, y, v, a, b) {
+export function eGCD_(x: Bytes, y: Bytes, v: Bytes, a: Bytes, b: Bytes) {
   var g=0;
   var k=Math.max(x.length, y.length);
   if (eg_u.length!=k) {
@@ -832,7 +838,7 @@ export function eGCD_(x, y, v, a, b) {
 
 
 //is bigInt x negative?
-function negative(x) {
+function negative(x: Bytes) {
   return ((x[x.length-1]>>(bpe-1))&1);
 }
 
@@ -840,7 +846,7 @@ function negative(x) {
 //is (x << (shift*bpe)) > y?
 //x and y are nonnegative bigInts
 //shift is a nonnegative integer
-function greaterShift(x, y, shift) {
+function greaterShift(x: Bytes, y: Bytes, shift: number) {
   var i, kx=x.length, ky=y.length;
   k=((kx+shift)<ky) ? (kx+shift) : ky;
   for (i=ky-1-shift; i<kx && i>=0; i++)
@@ -856,7 +862,7 @@ function greaterShift(x, y, shift) {
 }
 
 //is x > y? (x and y both nonnegative)
-export function greater(x, y) {
+export function greater(x: Bytes, y: Bytes) {
   var i;
   var k=(x.length<y.length) ? x.length : y.length;
 
@@ -881,7 +887,7 @@ export function greater(x, y) {
 //y must be nonzero.
 //q and r must be arrays that are exactly the same length as x. (Or q can have more).
 //Must have x.length >= y.length >= 2.
-export function divide_(x, y, q, r) {
+export function divide_(x: Bytes, y: Bytes, q: Bytes, r: Bytes) {
   var kx, ky;
   var i, j, y1, y2, c, a, b;
   copy_(r, x);
@@ -941,7 +947,7 @@ export function divide_(x, y, q, r) {
 }
 
 //do carries and borrows so each element of the bigInt x fits in bpe bits.
-function carry_(x) {
+function carry_(x: Bytes) {
   var i, k, c, b;
   k=x.length;
   c=0;
@@ -958,7 +964,7 @@ function carry_(x) {
 }
 
 //return x mod n for bigInt x and integer n.
-function modInt(x, n) {
+function modInt(x: Bytes, n: number) {
   var i, c=0;
   for (i=x.length-1; i>=0; i--)
     c=(c*radix+x[i])%n;
@@ -969,7 +975,7 @@ function modInt(x, n) {
 //the returned array stores the bigInt in bpe-bit chunks, little endian (buff[0] is least significant word)
 //Pad the array with leading zeros so that it has at least minSize elements.
 //There will always be at least one leading 0 element.
-export function int2bigInt(t, bits, minSize) {
+export function int2bigInt(t: number, bits: number, minSize: number) {
   var i, k;
   k=Math.ceil(bits/bpe)+1;
   k=minSize>k ? minSize : k;
@@ -982,7 +988,7 @@ export function int2bigInt(t, bits, minSize) {
 //Pad the array with leading zeros so that it has at least minSize elements.
 //If base=-1, then it reads in a space-separated list of array elements in decimal.
 //The array will always have at least one leading zero, unless base=-1.
-export function str2bigInt(s, base, minSize): number[] {
+export function str2bigInt(s: string, base: number, minSize?: number): Bytes {
   var d, i, x, y, kk;
   var k=s.length;
   if (base==-1) { //comma-separated list of array elements in decimal
@@ -1033,7 +1039,7 @@ export function str2bigInt(s, base, minSize): number[] {
 
 //is bigint x equal to integer y?
 //y must have less than bpe bits
-export function equalsInt(x, y) {
+export function equalsInt(x: Bytes, y: number) {
   var i;
   if (x[0]!=y)
     return 0;
@@ -1045,7 +1051,7 @@ export function equalsInt(x, y) {
 
 //are bigints x and y equal?
 //this works even if x and y are different lengths and have arbitrarily many leading zeros
-function equals(x, y) {
+function equals(x: Bytes, y: Bytes) {
   var i;
   var k=x.length<y.length ? x.length : y.length;
   for (i=0; i<k; i++)
@@ -1064,7 +1070,7 @@ function equals(x, y) {
 }
 
 //is the bigInt x equal to zero?
-export function isZero(x) {
+export function isZero(x: Bytes) {
   var i;
   for (i=0; i<x.length; i++)
     if (x[i])
@@ -1074,7 +1080,7 @@ export function isZero(x) {
 
 //convert a bigInt into a string in a given base, from base 2 up to base 95.
 //Base -1 prints the contents of the array representing the number.
-export function bigInt2str(x, base) {
+export function bigInt2str(x: Bytes, base: number) {
   var i, t, s='';
 
   if (s6.length!=x.length)
@@ -1099,7 +1105,7 @@ export function bigInt2str(x, base) {
 }
 
 //returns a duplicate of bigInt x
-export function dup(x) {
+export function dup(x: Bytes) {
   var i;
   buff=new Array(x.length);
   copy_(buff, x);
@@ -1107,7 +1113,7 @@ export function dup(x) {
 }
 
 //do x=y on bigInts x and y.  x must be an array at least as big as y (not counting the leading zeros in y).
-export function copy_(x, y) {
+export function copy_(x: Bytes, y: Bytes) {
   var i;
   var k=x.length<y.length ? x.length : y.length;
   for (i=0; i<k; i++)
@@ -1117,7 +1123,7 @@ export function copy_(x, y) {
 }
 
 //do x=y on bigInt x and integer y.
-export function copyInt_(x, n) {
+export function copyInt_(x: Bytes, n: number) {
   var i, c;
   var len = x.length; //TODO .length in for loop have perfomance costs. Bench this
   for (c=n, i=0; i<len; i++) {
@@ -1128,7 +1134,7 @@ export function copyInt_(x, n) {
 
 //do x=x+n where x is a bigInt and n is an integer.
 //x must be large enough to hold the result.
-export function addInt_(x, n) {
+export function addInt_(x: Bytes, n: number) {
   var i, k, c, b;
   x[0]+=n;
   k=x.length;
@@ -1147,7 +1153,7 @@ export function addInt_(x, n) {
 }
 
 //right shift bigInt x by n bits.  0 <= n < bpe.
-export function rightShift_(x, n) {
+export function rightShift_(x: Bytes, n: number) {
   var i;
   var k=Math.floor(n/bpe);
   if (k) {
@@ -1164,7 +1170,7 @@ export function rightShift_(x, n) {
 }
 
 //do x=floor(|x|/2)*sgn(x) for bigInt x in 2's complement
-function halve_(x) {
+function halve_(x: Bytes) {
   var i;
   for (i=0; i<x.length-1; i++) {
     x[i]=mask & ((x[i+1]<<(bpe-1)) | (x[i]>>1));
@@ -1173,7 +1179,7 @@ function halve_(x) {
 }
 
 //left shift bigInt x by n bits.
-export function leftShift_(x, n) {
+export function leftShift_(x: Bytes, n: number) {
   var i;
   var k=Math.floor(n/bpe);
   if (k) {
@@ -1193,7 +1199,7 @@ export function leftShift_(x, n) {
 
 //do x=x*n where x is a bigInt and n is an integer.
 //x must be large enough to hold the result.
-function multInt_(x, n) {
+function multInt_(x: Bytes, n: number) {
   var i, k, c, b;
   if (!n)
     return;
@@ -1212,7 +1218,7 @@ function multInt_(x, n) {
 }
 
 //do x=floor(x/n) for bigInt x and integer n, and return the remainder
-function divInt_(x, n) {
+function divInt_(x: Bytes, n: number) {
   var i, r=0, s;
   for (i=x.length-1; i>=0; i--) {
     s=r*radix+x[i];
@@ -1224,7 +1230,7 @@ function divInt_(x, n) {
 
 //do the linear combination x=a*x+b*y for bigInts x and y, and integers a and b.
 //x must be large enough to hold the answer.
-function linComb_(x, y, a, b) {
+function linComb_(x: Bytes, y: Bytes, a: number, b: number) {
   var i, c, k, kk;
   k=x.length<y.length ? x.length : y.length;
   kk=x.length;
@@ -1242,7 +1248,7 @@ function linComb_(x, y, a, b) {
 
 //do the linear combination x=a*x+b*(y<<(ys*bpe)) for bigInts x and y, and integers a, b and ys.
 //x must be large enough to hold the answer.
-function linCombShift_(x, y, b, ys) {
+function linCombShift_(x: Bytes, y: Bytes, b: number, ys: number) {
   var i, c, k, kk;
   k=x.length<ys+y.length ? x.length : ys+y.length;
   kk=x.length;
@@ -1260,7 +1266,7 @@ function linCombShift_(x, y, b, ys) {
 
 //do x=x+(y<<(ys*bpe)) for bigInts x and y, and integers a,b and ys.
 //x must be large enough to hold the answer.
-function addShift_(x, y, ys) {
+function addShift_(x: Bytes, y: Bytes, ys: number) {
   var i, c, k, kk;
   k=x.length<ys+y.length ? x.length : ys+y.length;
   kk=x.length;
@@ -1278,7 +1284,7 @@ function addShift_(x, y, ys) {
 
 //do x=x-(y<<(ys*bpe)) for bigInts x and y, and integers a,b and ys.
 //x must be large enough to hold the answer.
-function subShift_(x, y, ys) {
+function subShift_(x: Bytes, y: Bytes, ys: number) {
   var i, c, k, kk;
   k=x.length<ys+y.length ? x.length : ys+y.length;
   kk=x.length;
@@ -1297,7 +1303,7 @@ function subShift_(x, y, ys) {
 //do x=x-y for bigInts x and y.
 //x must be large enough to hold the answer.
 //negative answers will be 2s complement
-export function sub_(x, y) {
+export function sub_(x: Bytes, y: Bytes) {
   var i, c, k, kk;
   k=x.length<y.length ? x.length : y.length;
   for (c=0, i=0; i<k; i++) {
@@ -1314,7 +1320,7 @@ export function sub_(x, y) {
 
 //do x=x+y for bigInts x and y.
 //x must be large enough to hold the answer.
-export function add_(x, y) {
+export function add_(x: Bytes, y: Bytes) {
   var i, c, k, kk;
   k=x.length<y.length ? x.length : y.length;
   for (c=0, i=0; i<k; i++) {
@@ -1330,7 +1336,7 @@ export function add_(x, y) {
 }
 
 //do x=x*y for bigInts x and y.  This is faster when y<x.
-function mult_(x, y) {
+function mult_(x: Bytes, y: Bytes) {
   var i;
   if (ss.length!=2*x.length)
     ss=new Array(2*x.length);
@@ -1342,7 +1348,7 @@ function mult_(x, y) {
 }
 
 //do x=x mod n for bigInts x and n.
-function mod_(x, n) {
+function mod_(x: Bytes, n: Bytes) {
   if (s4.length!=x.length)
     s4=dup(x);
   else
@@ -1354,7 +1360,7 @@ function mod_(x, n) {
 
 //do x=x*y mod n for bigInts x,y,n.
 //for greater speed, let y<x.
-function multMod_(x, y, n) {
+function multMod_(x: Bytes, y: Bytes, n: Bytes) {
   var i;
   if (s0.length!=2*x.length)
     s0=new Array(2*x.length);
@@ -1367,7 +1373,7 @@ function multMod_(x, y, n) {
 }
 
 //do x=x*x mod n for bigInts x,n.
-function squareMod_(x, n) {
+function squareMod_(x: Bytes, n: Bytes) {
   var i, j, d, c, kx, kn, k;
   for (kx=x.length; kx>0 && !x[kx-1]; kx--);  //ignore leading zeros in x
   k=kx>n.length ? 2*kx : 2*n.length; //k=# elements in the product, which is twice the elements in the larger of x and n
@@ -1390,7 +1396,7 @@ function squareMod_(x, n) {
 }
 
 //return x with exactly k leading zero elements
-function trim(x, k) {
+function trim(x: Bytes, k: number) {
   var i, y;
   for (i=x.length; i>0 && !x[i-1]; i--);
   y=new Array(i+k);
@@ -1400,7 +1406,7 @@ function trim(x, k) {
 
 //do x=x**y mod n, where x,y,n are bigInts and ** is exponentiation.  0**0=1.
 //this is faster when n is odd.  x usually needs to have as many elements as n.
-function powMod_(x, y, n) {
+function powMod_(x: Bytes, y: Bytes, n: Bytes) {
   var k1, k2, kn, np;
   if (s7.length!=n.length)
     s7=dup(n);
@@ -1464,7 +1470,7 @@ function powMod_(x, y, n) {
 //  x,y < n
 //  n is odd
 //  np = -(n^(-1)) mod radix
-function mont_(x, y, n, np) {
+function mont_(x: Bytes, y: Bytes, n: Bytes, np: number) {
   var i, j, c, ui, t, ks;
   var kn=n.length;
   var ky=y.length;

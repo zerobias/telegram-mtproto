@@ -1,3 +1,5 @@
+//@flow
+
 import toLower from 'ramda/src/toLower'
 import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
@@ -14,6 +16,7 @@ import { eGCD_, greater, divide_, str2bigInt, equalsInt,
 
 const rushaInstance = new Rusha(1024 * 1024)
 
+export type Bytes = number[]
 
 export function generateNonce() {
   const nonce = new Array(16)
@@ -34,18 +37,18 @@ export function bytesToString(bytes: Uint8Array) {
 
 export function stringToChars(str: string) {
   const ln = str.length
-  const result: number[] = Array(ln)
+  const result: Bytes = Array(ln)
   for (let i = 0; i < ln; ++i)
     result[i] = str.charCodeAt(i)
   return result
 }
 
-export const strDecToHex = str => toLower(
+export const strDecToHex = (str: string) => toLower(
   bigInt2str(
     str2bigInt(str, 10, 0), 16
   ))
 
-export function bytesToHex(bytes = []) {
+export function bytesToHex(bytes: Bytes | Uint8Array = []) {
   const arr = []
   for (let i = 0; i < bytes.length; i++) {
     arr.push((bytes[i] < 16 ? '0' : '') + (bytes[i] || 0).toString(16))
@@ -53,7 +56,7 @@ export function bytesToHex(bytes = []) {
   return arr.join('')
 }
 
-export function bytesFromHex(hexString: string) {
+export function bytesFromHex(hexString: string): Bytes {
   const len = hexString.length
   let start = 0
   const bytes = []
@@ -70,8 +73,8 @@ export function bytesFromHex(hexString: string) {
   return bytes
 }
 
-export function bytesCmp(bytes1: number[] | Uint8Array,
-                         bytes2: number[] | Uint8Array) {
+export function bytesCmp(bytes1: Bytes | Uint8Array,
+                         bytes2: Bytes | Uint8Array) {
   const len = bytes1.length
   if (len !== bytes2.length) {
     return false
@@ -84,7 +87,7 @@ export function bytesCmp(bytes1: number[] | Uint8Array,
   return true
 }
 
-export function bytesXor(bytes1, bytes2) {
+export function bytesXor(bytes1: Bytes, bytes2: Bytes) {
   const len = bytes1.length
   const bytes = []
 
@@ -95,7 +98,7 @@ export function bytesXor(bytes1, bytes2) {
   return bytes
 }
 
-export function bytesToWords(bytes) {
+export function bytesToWords(bytes: Bytes | ArrayBuffer | Uint8Array) {
   if (bytes instanceof ArrayBuffer) {
     bytes = new Uint8Array(bytes)
   }
@@ -109,7 +112,7 @@ export function bytesToWords(bytes) {
   return new CryptoJS.lib.WordArray.init(words, len)
 }
 
-export function bytesFromWords(wordArray) {
+export function bytesFromWords(wordArray: *): Bytes {
   const words = wordArray.words
   const sigBytes = wordArray.sigBytes
   const bytes = []
@@ -122,16 +125,16 @@ export function bytesFromWords(wordArray) {
 }
 
 
-export function bytesFromLeemonBigInt(bigInt) {
+export function bytesFromLeemonBigInt(bigInt: Bytes) {
   const str = bigInt2str(bigInt, 16)
   return bytesFromHex(str)
 }
 
-export function bytesToArrayBuffer(b) {
+export function bytesToArrayBuffer(b: *) {
   return (new Uint8Array(b)).buffer
 }
 
-export function convertToArrayBuffer(bytes) {
+export function convertToArrayBuffer(bytes: Bytes | ArrayBuffer | Uint8Array) {
   // Be careful with converting subarrays!!
   if (bytes instanceof ArrayBuffer) {
     return bytes
@@ -143,13 +146,14 @@ export function convertToArrayBuffer(bytes) {
   return bytesToArrayBuffer(bytes)
 }
 
-export function convertToUint8Array(bytes) {
+export function convertToUint8Array(bytes: Bytes | Uint8Array): Uint8Array {
   if (bytes.buffer !== undefined)
+  //$FlowIssue
     return bytes
   return new Uint8Array(bytes)
 }
 
-export function convertToByteArray(bytes) {
+export function convertToByteArray(bytes: Bytes | Uint8Array) {
   if (Array.isArray(bytes))
     return bytes
   bytes = convertToUint8Array(bytes)
@@ -159,26 +163,33 @@ export function convertToByteArray(bytes) {
   return newBytes
 }
 
-export function bytesFromArrayBuffer(buffer) {
+export function bytesFromArrayBuffer(buffer: ArrayBuffer) {
   const byteView = new Uint8Array(buffer)
   const bytes = Array.from( byteView )
   return bytes
 }
 
-export function bufferConcat(buffer1, buffer2) {
-  const l1 = buffer1.byteLength || buffer1.length
-  const l2 = buffer2.byteLength || buffer2.length
+export function bufferConcat(buffer1: ArrayBuffer | Uint8Array | Bytes, buffer2: ArrayBuffer | Uint8Array | Bytes) {
+  let set1, set2, l1, l2
+  if (buffer1 instanceof ArrayBuffer) {
+    l1 = buffer1.byteLength
+    set1 = new Uint8Array(buffer1)
+  } else {
+    l1 = buffer1.length
+    set1 = buffer1
+  }
+
+  if (buffer2 instanceof ArrayBuffer) {
+    l2 = buffer2.byteLength
+    set2 = new Uint8Array(buffer2)
+  } else {
+    l2 = buffer2.length
+    set2 = buffer2
+  }
+
   const tmp = new Uint8Array(l1 + l2)
-  tmp.set(
-    buffer1 instanceof ArrayBuffer
-      ? new Uint8Array(buffer1)
-      : buffer1,
-    0)
-  tmp.set(
-    buffer2 instanceof ArrayBuffer
-      ? new Uint8Array(buffer2)
-      : buffer2,
-    l1)
+  tmp.set(set1, 0)
+  tmp.set(set2, l1)
 
   return tmp.buffer
 }
@@ -196,13 +207,15 @@ export function longToInts(sLong: string) {
   const rem = new Array(lemNum.length)
   divide_(lemNum, dividerLem, div, rem)
   const resL = [
+    //$FlowIssue
     ~~bigInt2str(div, 10),
+    //$FlowIssue
     ~~bigInt2str(rem, 10)
   ]
   return resL
 }
 
-export function longToBytes(sLong) {
+export function longToBytes(sLong: string) {
   return bytesFromWords({ words: longToInts(sLong), sigBytes: 8 }).reverse()
 }
 
@@ -223,6 +236,7 @@ export const rshift32 = (str: string) => {
 }
 
 export function intToUint(val: string) {
+  //$FlowIssue
   let result = ~~val
   if (result < 0)
     result = result + 0x100000000
@@ -237,7 +251,7 @@ export function uintToInt(val: number): number {
   return val
 }
 
-export function sha1HashSync(bytes) {
+export function sha1HashSync(bytes: Bytes | ArrayBuffer): ArrayBuffer {
   // console.log(dT(), 'SHA-1 hash start', bytes.byteLength || bytes.length)
   const hashBytes = rushaInstance.rawDigest(bytes).buffer
   // console.log(dT(), 'SHA-1 hash finish')
@@ -245,11 +259,11 @@ export function sha1HashSync(bytes) {
   return hashBytes
 }
 
-export function sha1BytesSync(bytes) {
+export function sha1BytesSync(bytes: Bytes | ArrayBuffer) {
   return bytesFromArrayBuffer(sha1HashSync(bytes))
 }
 
-export function sha256HashSync(bytes) {
+export function sha256HashSync(bytes: Bytes | ArrayBuffer) {
   // console.log(dT(), 'SHA-2 hash start', bytes.byteLength || bytes.length)
   const hashWords = CryptoJS.SHA256(bytesToWords(bytes))
   // console.log(dT(), 'SHA-2 hash finish')
@@ -259,7 +273,7 @@ export function sha256HashSync(bytes) {
   return hashBytes
 }
 
-export function rsaEncrypt(publicKey, bytes) {
+export function rsaEncrypt(publicKey: *, bytes: Bytes) {
   bytes = addPadding(bytes, 255)
 
   const N = str2bigInt(publicKey.modulus, 16, 256)
@@ -271,11 +285,18 @@ export function rsaEncrypt(publicKey, bytes) {
   return encryptedBytes
 }
 
-export function addPadding(bytes: ArrayBuffer | Uint8Array | number[],
-                           blockSize: number = 16,
-                           zeroes: boolean) {
+export function addPadding<ArrayBytes: ArrayBuffer | Bytes>(
+  bytes: ArrayBytes,
+  blockSize: number = 16,
+  zeroes: boolean = false): ArrayBytes {
+  let len
 
-  const len = bytes.byteLength || bytes.length
+  if (bytes instanceof ArrayBuffer) {
+    len = bytes.byteLength
+  } else {
+    len = bytes.length
+  }
+
   const needPadding = blockSize - len % blockSize
   if (needPadding > 0 && needPadding < blockSize) {
     const padding = new Array(needPadding)
@@ -293,8 +314,8 @@ export function addPadding(bytes: ArrayBuffer | Uint8Array | number[],
   return bytes
 }
 
-export function aesEncryptSync(bytes, keyBytes, ivBytes) {
-  // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/)
+export function aesEncryptSync(bytes: Bytes, keyBytes: Bytes, ivBytes: Bytes) {
+  // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/)aesEncryptSync
   bytes = addPadding(bytes)
 
   const encryptedWords = CryptoJS.AES.encrypt(bytesToWords(bytes), bytesToWords(keyBytes), {
@@ -309,7 +330,7 @@ export function aesEncryptSync(bytes, keyBytes, ivBytes) {
   return encryptedBytes
 }
 
-export function aesDecryptSync(encryptedBytes, keyBytes, ivBytes) {
+export function aesDecryptSync(encryptedBytes: Bytes, keyBytes: Bytes, ivBytes: Bytes) {
 
   // console.log(dT(), 'AES decrypt start', encryptedBytes.length)
   const decryptedWords = CryptoJS.AES.decrypt({ ciphertext: bytesToWords(encryptedBytes) }, bytesToWords(keyBytes), {
@@ -324,7 +345,7 @@ export function aesDecryptSync(encryptedBytes, keyBytes, ivBytes) {
   return bytes
 }
 
-export function gzipUncompress(bytes) {
+export function gzipUncompress(bytes: Uint8Array): Uint8Array {
   // console.log('Gzip uncompress start')
   const result = inflate(bytes)
   // console.log('Gzip uncompress finish')
@@ -336,7 +357,7 @@ export function nextRandomInt(maxValue: number) {
 }
 
 
-export function pqPrimeFactorization(pqBytes) {
+export function pqPrimeFactorization(pqBytes: Bytes) {
   const minSize = Math.ceil(64 / bpe) + 1
 
   // const what = new BigInteger(pqBytes)
@@ -347,7 +368,7 @@ export function pqPrimeFactorization(pqBytes) {
 }
 
 
-export function pqPrimeLeemon(what) {
+export function pqPrimeLeemon(what: Bytes) {
   const minBits = 64
   const minLen = Math.ceil(minBits / bpe) + 1
   let it = 0
@@ -419,7 +440,7 @@ export function pqPrimeLeemon(what) {
   return [bytesFromLeemonBigInt(P), bytesFromLeemonBigInt(Q), it]
 }
 
-export function bytesModPow(x, y, m) {
+export function bytesModPow(x: Bytes, y: Bytes, m: Bytes) {
   const xBigInt = str2bigInt(bytesToHex(x), 16)
   const yBigInt = str2bigInt(bytesToHex(y), 16)
   const mBigInt = str2bigInt(bytesToHex(m), 16)
