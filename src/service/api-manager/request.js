@@ -17,7 +17,7 @@ class Request {
   config: RequestOptions
   constructor(config: RequestOptions,
               method: string,
-              params?: Object = {}) {
+              params: { [key: string]: * } = {}) {
     this.config = config
     this.method = method
     this.params = params
@@ -39,10 +39,10 @@ class Request {
   }
 
   performRequest = () => this.initNetworker().then(this.requestWith)
-  requestWith = (networker: NetworkerType) => networker
+  requestWith = (networker: NetworkerType): Bluebird$Promise<*> => networker
     .wrapApiCall(this.method, this.params, this.config.netOpts)
-    .catch({ code: 303 }, this.error303)
-    .catch({ code: 420 }, this.error420)
+    // .catch({ code: 303 }, this.error303)
+    // .catch({ code: 420 }, this.error420)
   error303(err: MTError) {
     const matched = err.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)
     if (!matched || matched.length < 2) return Bluebird.reject(err)
@@ -58,7 +58,7 @@ class Request {
     //NOTE Shouldn't we must reassign current networker/cachedNetworker?
     return this.performRequest()
   }
-  error420(err: MTError) {
+  error420(err: MTError): Bluebird$Promise<*> {
     const matched = err.type.match(/^FLOOD_WAIT_(\d+)/)
     if (!matched || matched.length < 2) return Bluebird.reject(err)
     const [ , waitTime ] = matched

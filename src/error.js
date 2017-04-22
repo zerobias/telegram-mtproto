@@ -1,5 +1,7 @@
 //@flow
 
+import type { $AxiosXHR } from 'axios'
+
 import type { TypeBuffer } from './tl/type-buffer'
 
 Error.stackTraceLimit = 25
@@ -19,8 +21,8 @@ export class MTError extends Error {
 }
 
 export class ErrorBadResponse extends MTError {
-  originalError: Error
-  constructor(url: string, originalError?: Error | null = null) {
+  originalError: Error | $AxiosXHR<any>
+  constructor(url: string, originalError?: Error | null | $AxiosXHR<any> = null) {
     super(406, 'NETWORK_BAD_RESPONSE', url)
     if (originalError)
       this.originalError = originalError
@@ -37,7 +39,7 @@ export class ErrorBadRequest extends MTError {
 }
 
 export class ErrorNotFound extends MTError {
-  constructor(err: Object) {
+  constructor(err: { config: { url: string } }) {
     super(404, 'REQUEST_FAILED', err.config.url)
       // this.originalError = err
   }

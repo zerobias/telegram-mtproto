@@ -19,8 +19,19 @@ export type PublicKey = {
   exponent: string
 }
 
+export type DC = {
+  id: number,
+  host: string,
+  port: number
+}
+export type ServerConfig = {
+  dev?: boolean,
+  webogram?: boolean,
+  dcList?: Array<DC>
+}
+
 export type ConfigType = {
-  server?: {},
+  server?: ServerConfig,
   api?: ApiConfig,
   app?: {
     storage?: AsyncStorage,
@@ -31,7 +42,7 @@ export type ConfigType = {
 }
 
 export type StrictConfig = {
-  server: {},
+  server: ServerConfig,
   api: ApiConfig,
   app: {
     storage: AsyncStorage,

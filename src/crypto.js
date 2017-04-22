@@ -1,3 +1,5 @@
+//@flow
+
 import when from 'ramda/src/when'
 import is from 'ramda/src/is'
 import identity from 'ramda/src/identity'
@@ -38,6 +40,7 @@ const isCryptoTask = both(has('taskID'), has('result'))
 //eslint-disable-next-line
 const workerEnable = !isNode && window.Worker
 if (workerEnable) {
+  //$FlowIssue
   const TmpWorker = require('worker-loader?inline!./worker.js')
   const tmpWorker = new TmpWorker()
   // tmpWorker.onmessage = function(event) {
@@ -78,7 +81,7 @@ const performTaskWorker = (task, params, embed) => {
   return deferred.promise
 }
 
-const sha1Hash = bytes => {
+const sha1Hash = (bytes: *) => {
   if (useSha1Crypto) {
     // We don't use buffer since typedArray.subarray(...).buffer gives the whole buffer and not sliced one.
     // webCrypto.digest supports typed array
@@ -95,7 +98,7 @@ const sha1Hash = bytes => {
   return smartTimeout.immediate(sha1HashSync, bytes)
 }
 
-const sha256Hash = bytes => {
+const sha256Hash = (bytes: *) => {
   if (useSha256Crypto) {
     const bytesTyped = convertIfArray(bytes)
     // console.log(rework_d_T(), 'Native sha1 start')
@@ -111,21 +114,21 @@ const sha256Hash = bytes => {
   return smartTimeout.immediate(sha256HashSync, bytes)
 }
 
-const aesEncrypt = (bytes, keyBytes, ivBytes) =>
+const aesEncrypt = (bytes, keyBytes, ivBytes): Promise<ArrayBuffer> =>
   smartTimeout.immediate(() => convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes)))
 
-const aesDecrypt = (encryptedBytes, keyBytes, ivBytes) =>
+const aesDecrypt = (encryptedBytes, keyBytes, ivBytes): Promise<ArrayBuffer> =>
   smartTimeout.immediate(() => convertToArrayBuffer(
     aesDecryptSync(encryptedBytes, keyBytes, ivBytes)))
 
-const factorize = bytes => {
+const factorize = (bytes: *) => {
   bytes = convertToByteArray(bytes)
   return webWorker
     ? performTaskWorker('factorize', { bytes })
     : smartTimeout.immediate(pqPrimeFactorization, bytes)
 }
 
-const modPow = (x, y, m) => webWorker
+const modPow = (x, y, m): Promise<number[]> => webWorker
   ? performTaskWorker('mod-pow', {
     x,
     y,

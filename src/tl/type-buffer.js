@@ -154,10 +154,10 @@ export class TypeWriter {
 
 export class TypeBuffer {
   offset: number = 0
-  buffer: Buffer
+  buffer: Buffer | ArrayBuffer | Uint8Array
   intView: Uint32Array
   byteView: Uint8Array
-  constructor(buffer: Buffer) {
+  constructor(buffer: Buffer | ArrayBuffer | Uint8Array) {
     this.buffer = buffer
     this.intView = toUint32(buffer)
     this.byteView = new Uint8Array(buffer)
@@ -193,7 +193,7 @@ export class TypeBuffer {
   }
 }
 
-const toUint32 = (buf: Buffer) => {
+const toUint32 = (buf: Buffer | ArrayBuffer | Uint8Array) => {
   let ln, res
   if (!isNode) //TODO browser behavior not equals, why?
     return new Uint32Array( buf )

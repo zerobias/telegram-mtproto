@@ -1,12 +1,17 @@
-import Promise from 'bluebird'
+//@flow
+
+import Bluebird from 'bluebird'
+
+const createResolver = () => {
+
+}
+
 /**
  * Defered promise like in Q and $q
- *
- * @returns {{ resolve: (res: any) => void, reject: (res: any) => void, promise: Promise<{}> }}
  */
-export const blueDefer = () => {
+export const blueDefer: () => $Shape<Bluebird.Defer> = () => {
   let resolve, reject
-  const promise = new Promise((rs, rj) => {
+  const promise = new Bluebird((rs, rj) => {
     resolve = rs
     reject = rj
   })

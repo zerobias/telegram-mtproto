@@ -134,7 +134,7 @@ export function bytesToArrayBuffer(b: *) {
   return (new Uint8Array(b)).buffer
 }
 
-export function convertToArrayBuffer(bytes: Bytes | ArrayBuffer | Uint8Array) {
+export function convertToArrayBuffer(bytes: Buffer | ArrayBuffer | Uint8Array | Bytes): ArrayBuffer {
   // Be careful with converting subarrays!!
   if (bytes instanceof ArrayBuffer) {
     return bytes
@@ -146,7 +146,7 @@ export function convertToArrayBuffer(bytes: Bytes | ArrayBuffer | Uint8Array) {
   return bytesToArrayBuffer(bytes)
 }
 
-export function convertToUint8Array(bytes: Bytes | Uint8Array): Uint8Array {
+export function convertToUint8Array(bytes: Bytes | Uint8Array | ArrayBuffer): Uint8Array {
   if (bytes.buffer !== undefined)
   //$FlowIssue
     return bytes

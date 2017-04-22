@@ -2,7 +2,7 @@
 
 import RandomBytes from 'randombytes'
 
-const getRandom = (arr: Array<any>) => {
+const getRandom = (arr: number[]) => {
   const ln = arr.length
   const buf = RandomBytes(ln)
   for (let i = 0; i < ln; i++)

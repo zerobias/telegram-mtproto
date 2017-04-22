@@ -57,7 +57,7 @@ export class Serialization {
       return this.writer.getBytesPlain()
   }
 
-  storeMethod(methodName: string, params) {
+  storeMethod(methodName: string, params: { [key: string]: * }) {
     // const logId = storeMethodLog.input({
     //   methodName,
     //   params
@@ -228,7 +228,8 @@ export class Serialization {
       if (type.indexOf('?') !== -1) {
         condType = type.split('?')
         fieldBit = condType[0].split('.')
-        if (!(obj[fieldBit[0]] & 1 << fieldBit[1])) {
+        const flagIndex = parseInt(fieldBit[1], 10)
+        if (!(obj[fieldBit[0]] & 1 << flagIndex)) {
           continue
         }
         type = condType[1]
@@ -236,7 +237,8 @@ export class Serialization {
 
       this.storeObject(obj[param.name], type, `${field}.${  predicate  }.${  param.name  }`)
     }
-
+    if (typeof constructorData === 'boolean')
+      return constructorData
     return constructorData.type
   }
 
@@ -251,7 +253,15 @@ export class Deserialization {
   api: TLSchema
   mtApi: TLSchema
   emitter: EventEmitter
-  constructor(buffer: Buffer, { mtproto, override }: DConfig, api: TLSchema, mtApi: TLSchema) {
+
+  constructor(
+    buffer: Buffer | ArrayBuffer | Uint8Array, {
+    mtproto,
+    override
+  }: DConfig,
+    api: TLSchema,
+    mtApi: TLSchema) {
+
     this.api = api
     this.mtApi = mtApi
     this.override = override
@@ -322,7 +332,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchPacked(type, field: string = '') {
+  fetchPacked(type: string, field: string = '') {
     const compressed = readBytes( this.typeBuffer, `${field}[packed_string]`)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
@@ -358,7 +368,7 @@ export class Deserialization {
     return result
   }
 
-  fetchObject(type, field: string = '') {
+  fetchObject(type: string, field: string = '') {
 
     switch (type) {
       case '#':
@@ -448,7 +458,8 @@ export class Deserialization {
         if (type.indexOf('?') !== -1) {
           const condType = type.split('?')
           const fieldBit = condType[0].split('.')
-          if (!(result[fieldBit[0]] & 1 << fieldBit[1]))
+          const fieldName = fieldBit[0]
+          if (!(result[fieldName] & 1 << fieldBit[1]))
             continue
           type = condType[1]
         }
@@ -492,22 +503,27 @@ type DConfig = {
 
 export type DeserializationFabric = (
   buffer: Buffer,
-  config?: {
-    mtproto?: boolean,
-    override?: Object
+  config: {
+    mtproto: boolean,
+    override: Object
   }) => Deserialization
 
 export type SerializationFabric = (
-  config?: {
-    mtproto?: boolean,
-    startMaxLength?: number
-  }) => Serialization
+  config: {
+    mtproto: boolean,
+    startMaxLength: number
+  }) => typeof Serialization
 
 export type TLFabric = {
   apiLayer: Layout,
   mtLayer: Layout,
   Serialization: SerializationFabric,
   Deserialization: DeserializationFabric
+}
+
+type SerializeOpts = {
+  mtproto: boolean,
+  startMaxLength: number
 }
 
 export const TL = (api: TLSchema, mtApi: TLSchema) => ({

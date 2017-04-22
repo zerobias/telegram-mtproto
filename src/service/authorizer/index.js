@@ -1,6 +1,6 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 import blueDefer from '../../util/defer'
 import { immediate } from '../../util/smart-timeout'
@@ -55,7 +55,7 @@ const tmpAesIv = (serverNonce, newNonce) => {
 type Defer = {
   resolve: (res: any) => void,
   reject: (res: any) => void,
-  promise: Promise<any>
+  promise: Bluebird$Promise<any>
 }
 
 type Cached = {[id: number]: Defer}
@@ -78,7 +78,7 @@ type AuthBasic = {
   deferred: Defer,
   serverNonce: Bytes,
   pq: Bytes,
-  fingerprints: Bytes,
+  fingerprints: string[],
   p: number,
   q: number,
   publicKey: {
@@ -142,12 +142,12 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
       if (response._ !== 'resPQ') {
         const error = new Error(`[MT] resPQ response invalid: ${  response._}`)
         deferred.reject(error)
-        return Promise.reject(error)
+        return Bluebird.reject(error)
       }
       if (!bytesCmp(auth.nonce, response.nonce)) {
         const error = new Error('[MT] resPQ nonce mismatch')
         deferred.reject(error)
-        return Promise.reject(error)
+        return Bluebird.reject(error)
       }
       auth.serverNonce = response.server_nonce
       auth.pq = response.pq
@@ -162,7 +162,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
       else {
         const error = new Error('[MT] No public key found')
         deferred.reject(error)
-        return Promise.reject(error)
+        return Bluebird.reject(error)
       }
       log('PQ factorization start')(auth.pq)
       const [ p, q, it ] = await CryptoWorker.factorize(auth.pq)
@@ -474,7 +474,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
     const nonce = generateNonce()
 
     if (!dcUrl)
-      return Promise.reject(
+      return Bluebird.reject(
         new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`))
 
     const auth: any = {
@@ -488,7 +488,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
       log('authChain', 'error')(err)
       cached[dcID].reject(err)
       delete cached[dcID]
-      return Promise.reject(err)
+      return Bluebird.reject(err)
     }
 
     try {

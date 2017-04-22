@@ -199,7 +199,7 @@ export const getTypeProps = (rawType: string) => {
     const [ prefix, rest ] = rawType.split('?')
     const [ , index ] = prefix.split('.')
     result.isFlag = true
-    result.flagIndex = +index
+    result.flagIndex = parseInt(index, 10)
     result.typeClass = rest
   }
   if (hasVector(result.typeClass)) {

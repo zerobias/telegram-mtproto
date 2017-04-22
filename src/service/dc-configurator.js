@@ -1,8 +1,12 @@
+//@flow
+
 import has from 'ramda/src/has'
 import propEq from 'ramda/src/propEq'
 import find from 'ramda/src/find'
 import pipe from 'ramda/src/pipe'
 import prop from 'ramda/src/prop'
+
+import type { ServerConfig, DC } from './main/index.h'
 
 const sslSubdomains = ['pluto', 'venus', 'aurora', 'vesta', 'flora']
 
@@ -24,16 +28,17 @@ const portString = ({ port = 80 }) => port === 80
   ? ''
   : `:${port}`
 
-const findById = pipe( propEq('id'), find )
+type FindById = (dc: number) => (list: DC[]) => ?DC
+const findById: FindById = pipe( propEq('id'), find )
 
-export const chooseServer = (chosenServers, {
+export const chooseServer = (chosenServers: { [id: number]: string | false }, {
   dev = false,
   webogram = false,
   dcList = dev
     ? devDC
     : prodDC
-  } = {}) =>
-  (dcID, upload = false) => {
+  }: ServerConfig = {}) =>
+  (dcID: number, upload: boolean = false) => {
     const choosen = prop(dcID)
     if (has(dcID, chosenServers)) return choosen(chosenServers)
     let chosenServer = false

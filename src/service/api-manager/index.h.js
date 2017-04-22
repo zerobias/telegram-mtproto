@@ -18,14 +18,14 @@ export type Cached<Model> = {
 }
 
 export type NetworkerType = {
-  wrapApiCall: (method: string, params?: Object, options?: LeftOptions) => Promise<any>
+  wrapApiCall: (method: string, params: { [key: string]: * }, options?: LeftOptions) => Bluebird$Promise<*>
 }
 
 export type Cache = {
   uploader: Cached<NetworkerType>,
   downloader: Cached<NetworkerType>,
   auth: Cached<*>,
-  servers: Cached<*>,
+  servers: Cached<string | false>,
   keysParsed: Cached<PublicKey>,
 }
 

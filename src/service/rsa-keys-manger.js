@@ -1,10 +1,11 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 import type { PublicKey } from './main/index.h'
 import type { Cached } from './api-manager/index.h'
-import type { SerializationFabric } from '../tl'
+import type { SerializationFabric } from '../tl/index'
+import { Serialization } from '../tl'
 
 import { writeBytes } from '../tl/writer'
 
@@ -12,13 +13,13 @@ import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../bin'
 
 
-export const KeyManager = (Serialization: SerializationFabric,
+export const KeyManager = (serialization: SerializationFabric,
   publisKeysHex: PublicKey[],
   publicKeysParsed: Cached<PublicKey>) => {
   let prepared = false
 
   const mapPrepare = ({ modulus, exponent }: PublicKey) => {
-    const RSAPublicKey = Serialization()
+    const RSAPublicKey: Serialization = serialization()
     const rsaBox = RSAPublicKey.writer
     writeBytes(rsaBox, bytesFromHex(modulus), 'n')
     writeBytes(rsaBox, bytesFromHex(exponent), 'e')
@@ -27,8 +28,9 @@ export const KeyManager = (Serialization: SerializationFabric,
 
     const fingerprintBytes = sha1BytesSync(buffer).slice(-8)
     fingerprintBytes.reverse()
-
-    publicKeysParsed[bytesToHex(fingerprintBytes)] = {
+    const key = bytesToHex(fingerprintBytes)
+    //$FlowIssue obj[number] === obj[stringNumber]
+    publicKeysParsed[key] = {
       modulus,
       exponent
     }
@@ -37,7 +39,7 @@ export const KeyManager = (Serialization: SerializationFabric,
   async function prepareRsaKeys() {
     if (prepared) return
 
-    await Promise.map(publisKeysHex, mapPrepare)
+    await Bluebird.map(publisKeysHex, mapPrepare)
 
     prepared = true
   }
@@ -48,6 +50,7 @@ export const KeyManager = (Serialization: SerializationFabric,
     let fingerprintHex, foundKey
     for (const fingerprint of fingerprints) {
       fingerprintHex = strDecToHex(fingerprint)
+      //$FlowIssue obj[number] === obj[stringNumber]
       foundKey = publicKeysParsed[fingerprintHex]
       if (foundKey)
         return { fingerprint, ...foundKey }

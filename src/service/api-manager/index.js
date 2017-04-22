@@ -29,7 +29,7 @@ import { delayedCall } from '../../util/smart-timeout'
 import Request from './request'
 
 import type { Bytes, LeftOptions, Cache, RequestOptions } from './index.h'
-import type { PublicKey, ApiConfig, StrictConfig, Emit, On } from '../main/index.h'
+import type { PublicKey, ApiConfig, StrictConfig, Emit, On, ServerConfig } from '../main/index.h'
 
 import type { AsyncStorage } from '../../plugins'
 
@@ -37,7 +37,12 @@ import type { Networker } from '../networker'
 
 const baseDcID = 2
 
-const Ln = (length, obj) => obj && propEq('length', length, obj)
+const Ln = (length: number, obj?: *): boolean => {
+  if (obj == null) return false
+  //$FlowIssue
+  const res = propEq('length', length, obj)
+  return res
+}
 
 
 
@@ -53,16 +58,16 @@ export class ApiManager {
   publicKeys: PublicKey[]
   storage: AsyncStorage
   TL: TLFabric
-  serverConfig: {}
+  serverConfig: ServerConfig
   schema: TLSchema
   mtSchema: TLSchema
   keyManager: Args
-  networkFabric: any
+  networkFabric: *
   updatesManager: any
-  auth: any
+  auth: *
   on: On
   emit: Emit
-  authPromise = blueDefer()
+  authPromise: * = blueDefer()
   authBegin = false
   chooseServer: (dcID: number, upload?: boolean) => {}
   currentDc: number = 2
@@ -100,7 +105,7 @@ export class ApiManager {
     // this.updatesManager = UpdatesManager(apiManager, this.TL)
     // apiManager.updates = this.updatesManager
 
-    on('error.303', (newDc) => {
+    on('error.303', (newDc: number) => {
       this.authBegin = false
       this.currentDc = newDc
     })
@@ -132,8 +137,8 @@ export class ApiManager {
 
     if (cache[dcID]) return cache[dcID]
 
-    const authKeyHex = await this.storage.get(akk)
-    let serverSaltHex = await this.storage.get(ssk)
+    const authKeyHex: ?string = await this.storage.get(akk)
+    let serverSaltHex: ?string = await this.storage.get(ssk)
 
     if (Ln(512, authKeyHex)) {
       if (!serverSaltHex || serverSaltHex.length !== 16)
@@ -203,6 +208,7 @@ export class ApiManager {
         err = error
       else {
         err = new Error()
+        //$FlowIssue
         err.data = error
       }
       // if (!error)

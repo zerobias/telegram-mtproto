@@ -14,6 +14,8 @@ import State from './state'
 import smartTimeout, { immediate } from '../../util/smart-timeout'
 import { httpClient } from '../../http'
 
+import { Serialization as Serial, Deserialization as Deserial } from '../../tl'
+import { readResponse, getDataWithPad, readHash, parsedResponse } from '../chain/parse-response'
 import { ErrorBadRequest, ErrorBadResponse } from '../../error'
 
 import Logger from '../../util/log'
@@ -34,16 +36,17 @@ import {
 } from '../../bin'
 
 import type { AsyncStorage } from '../../plugins/index.h'
-import type { TLFabric, SerializationFabric, DeserializationFabric } from '../../tl'
+import type { TLFabric } from '../../tl'
 import { TypeWriter } from '../../tl'
 import { readLong, readInt } from '../../tl/reader'
 import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
+import { apiMessage, encryptApiBytes, mtMessage } from '../chain/encrypted-message'
 import type { Emit } from '../main/index.h'
 
 import LongPoll from '../../plugins/long-poll'
 import { getRandomId } from '../../plugins/math-help'
 
-let updatesProcessor
+let updatesProcessor: *
 let iii = 0
 let akStopped = false
 
@@ -55,15 +58,18 @@ type NetOptions = {
   fileDownload?: boolean,
   notContentRelated?: boolean,
   afterMessageID?: string,
-  resultType?: any
+  resultType?: string,
+  messageID?: string
 }
 type Bytes = number[]
 
 type ContextConfig = {
-  Serialization: SerializationFabric,
-  Deserialization: DeserializationFabric,
+  Serialization(config: *): Serial,
+  Deserialization(buffer: *, config: *): Deserial,
   emit: Emit,
-  storage: AsyncStorage
+  storage: AsyncStorage,
+  appConfig: { [key: string]: * },
+  chooseServer: *
 }
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
@@ -76,14 +82,14 @@ const storeIntString = (writer: TypeWriter) => (value: number | string, field: s
 
 export class NetworkerThread {
   dcID: number
-  authKey: string
+  authKey: Bytes
   authKeyUint8: Uint8Array
   authKeyBuffer: ArrayBuffer
   serverSalt: string
   iii: number
   authKeyID: Bytes
   upload: boolean
-  pendingAcks: number[] = []
+  pendingAcks: string[] = []
   seqNo: number
   sessionID: Bytes
   prevSessionID: Bytes
@@ -91,14 +97,19 @@ export class NetworkerThread {
   connectionInited = false
   checkConnectionPeriod = 0
   checkConnectionPromise: Promise<*>
-  Serialization: SerializationFabric
-  Deserialization: DeserializationFabric
+  Serialization: (config: *) => Serial
+  Deserialization: (buffer: *, config: *) => Deserial
   emit: Emit
   lastServerMessages: string[] = []
   offline: boolean
   storage: AsyncStorage
   longPoll: LongPoll
   onOnlineCb: *
+  nextReq: *
+  appConfig: { [key: string]: * }
+  chooseServer: (dc: number) => string
+  nextReqPromise: *
+  lastResendReq: *
   constructor({
       appConfig,
       chooseServer,
@@ -108,7 +119,7 @@ export class NetworkerThread {
       emit
     }: ContextConfig,
               dc: number,
-              authKey: string,
+              authKey: Bytes,
               serverSalt: string,
               options: NetOptions) {
     this.appConfig = appConfig
@@ -215,7 +226,7 @@ export class NetworkerThread {
     return message
   }
 
-  wrapApiCall(method: string, params: Object, options: NetOptions) {
+  wrapApiCall(method: string, params: { [key: string]: * } = {}, options: *) {
     const serializer = this.Serialization(options)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
@@ -286,10 +297,8 @@ export class NetworkerThread {
       options.messageID = message.msg_id
   }
 
-  pushResend(messageID: string, delay?: number) {
-    const value = delay
-      ? tsNow() + delay
-      : 0
+  pushResend(messageID: string, delay: number = 0) {
+    const value = tsNow() + delay
     const sentMessage = this.state.getSent(messageID)
     if (sentMessage instanceof NetContainer)
       for (const msg of sentMessage.inner)
@@ -398,7 +407,7 @@ export class NetworkerThread {
       }, {
           notContentRelated: true,
           noShedule        : true
-      })
+      }) //TODO WTF Why we make wrapped message and doesnt use it?
         // const res = await msg.deferred.promise
         // log(`AWAITED`, `ack`)(res)
     }
@@ -496,6 +505,8 @@ export class NetworkerThread {
 
     return this.requestPerformer(message, noResponseMsgs)
   }
+
+
   async requestPerformer(message: NetMessage, noResponseMsgs: string[]) {
     try {
       const result = await this.sendEncryptedRequest(message)
@@ -543,41 +554,39 @@ export class NetworkerThread {
     }
   }
 
-  sendEncryptedRequest = async (message: NetMessage, options = {}) => {
+  sendEncryptedRequest = async (message: NetMessage, options: NetOptions = {}) => {
     // console.log(dTime(), 'Send encrypted'/*, message*/)
     // console.trace()
-    const data = this.Serialization({ startMaxLength: message.body.length + 64 })
-    const dataBox = data.writer
-    writeIntBytes(dataBox, this.serverSalt, 64, 'salt')
-    writeIntBytes(dataBox, this.sessionID, 64, 'session_id')
-    writeLong(dataBox, message.msg_id, 'message_id')
-    writeInt(dataBox, message.seq_no, 'seq_no')
+    const data = this.Serialization({ startMaxLength: message.body.length + 64 }).writer
 
-    writeInt(dataBox, message.body.length, 'message_data_length')
-    writeIntBytes(dataBox, message.body, false, 'message_data')
+    const apiBytes = apiMessage({
+      ctx       : data,
+      serverSalt: this.serverSalt,
+      sessionID : this.sessionID,
+      message
+    })
+
+    const { encryptedBytes, msgKey } = await encryptApiBytes({
+      bytes  : apiBytes,
+      authKey: this.authKeyUint8
+    })
+
+    const request = this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 }).writer
+
+    const mtBytes = mtMessage({
+      ctx      : request,
+      authKeyID: this.authKeyID,
+      msgKey,
+      encryptedBytes
+    })
+
 
     const url = this.chooseServer(this.dcID, this.upload)
-
-    const bytes = dataBox.getBuffer()
-
-    const bytesHash = await CryptoWorker.sha1Hash(bytes)
-    const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
-    const [aesKey, aesIv] = await getMsgKeyIv(this.authKeyUint8, msgKey, true)
-    const encryptedBytes = await CryptoWorker.aesEncrypt(bytes, aesKey, aesIv)
-
-    const request = this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 })
-    const requestBox = request.writer
-    writeIntBytes(requestBox, this.authKeyID, 64, 'auth_key_id')
-    writeIntBytes(requestBox, msgKey, 128, 'msg_key')
-    writeIntBytes(requestBox, encryptedBytes, false, 'encrypted_data')
-
-    const requestData = requestBox.getArray()
-
-    options = { responseType: 'arraybuffer', ...options }
+    const requestOpts = { responseType: 'arraybuffer', ...options }
 
     try {
-      const result = await httpClient.post(url, requestData, options)
-      return !result.data || !result.data.byteLength
+      const result = await httpClient.post(url, mtBytes, requestOpts)
+      return !result.data.byteLength
         ? Promise.reject(new ErrorBadResponse(url, result))
         : result
     } catch (error) {
@@ -585,70 +594,42 @@ export class NetworkerThread {
     }
   }
 
-  getMsgById = ({ req_msg_id }) => this.state.getSent(req_msg_id)
+  getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
 
   async parseResponse(responseBuffer: Uint8Array) {
-    // console.log(dTime(), 'Start parsing response')
-    // const self = this
 
-    const deserializerRaw = this.Deserialization(responseBuffer)
+    const { msgKey, encryptedData } = readResponse({
+      reader       : this.Deserialization(responseBuffer),
+      response     : responseBuffer,
+      authKeyStored: this.authKeyID
+    })
 
-    const authKeyID = deserializerRaw.fetchIntBytes(64, 'auth_key_id')
-    if (!bytesCmp(authKeyID, this.authKeyID)) {
-      throw new Error(`[MT] Invalid server auth_key_id: ${  bytesToHex(authKeyID)}`)
-    }
-    const msgKey = deserializerRaw.fetchIntBytes(128, 'msg_key')
-    const encryptedData = deserializerRaw.fetchRawBytes(
-      responseBuffer.byteLength - deserializerRaw.getOffset(),
-      'encrypted_data')
+    const dataWithPadding = await getDataWithPad({
+      authKey: this.authKeyUint8,
+      msgKey,
+      encryptedData
+    })
 
+    const {
+      hashData,
+      seqNo,
+      messageID,
+      buffer,
+      sessionID
+    } = readHash({
+      reader        : this.Deserialization(dataWithPadding, { mtproto: true }),
+      currentSession: this.sessionID,
+      prevSession   : this.prevSessionID,
+      dataWithPadding
+    })
 
-    const [aesKey, aesIv] = await getMsgKeyIv(this.authKeyUint8, msgKey, false)
-    const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, aesKey, aesIv)
-      // console.log(dTime(), 'after decrypt')
-    const deserializer = this.Deserialization(dataWithPadding, { mtproto: true })
-
-    deserializer.fetchIntBytes(64, 'salt')
-    const sessionID = deserializer.fetchIntBytes(64, 'session_id')
-    const messageID = readLong(deserializer.typeBuffer, 'message_id')
-
-    const isInvalidSession = !bytesCmp(sessionID, this.sessionID) && (!this.prevSessionID ||
-      //eslint-disable-next-line
-      !bytesCmp(sessionID, this.prevSessionID));
-    if (isInvalidSession) {
-      console.warn('Sessions', sessionID, this.sessionID, this.prevSessionID)
-      throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) }`)
-    }
-
-    const seqNo = deserializer.fetchInt('seq_no')
-
-    let offset = deserializer.getOffset()
-    const totalLength = dataWithPadding.byteLength
-
-    const messageBodyLength = deserializer.fetchInt('message_data[length]')
-    if (messageBodyLength % 4 ||
-      messageBodyLength > totalLength - offset) {
-      throw new Error(`[MT] Invalid body length: ${  messageBodyLength}`)
-    }
-    const messageBody = deserializer.fetchRawBytes(messageBodyLength, 'message_data')
-
-    offset = deserializer.getOffset()
-    const paddingLength = totalLength - offset
-    if (paddingLength < 0 || paddingLength > 15)
-      throw new Error(`[MT] Invalid padding length: ${  paddingLength}`)
-    const hashData = convertToUint8Array(dataWithPadding).subarray(0, offset)
-
-    const dataHash = await CryptoWorker.sha1Hash(hashData)
-
-    if (!bytesCmp(msgKey, bytesFromArrayBuffer(dataHash).slice(-16))) {
-      console.warn(msgKey, bytesFromArrayBuffer(dataHash))
-      throw new Error('[MT] server msgKey mismatch')
-    }
-
-    const buffer = bytesToArrayBuffer(messageBody)
     const deserializerOptions = getDeserializeOpts(this.getMsgById)
-    const deserializerData = this.Deserialization(buffer, deserializerOptions)
-    const response = deserializerData.fetchObject('', 'INPUT')
+
+    const response = await parsedResponse({
+      hashData,
+      msgKey,
+      reader: this.Deserialization(buffer, deserializerOptions)
+    })
 
     return {
       response,
@@ -658,9 +639,9 @@ export class NetworkerThread {
     }
   }
 
-  applyServerSalt(newServerSalt: string) {
+  async applyServerSalt(newServerSalt: string) {
     const serverSalt = longToBytes(newServerSalt)
-    this.storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
+    await this.storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
 
     this.serverSalt = serverSalt
     return true
@@ -740,7 +721,7 @@ export class NetworkerThread {
     return false
   }
 
-  processError(rawError) {
+  processError(rawError: { [key: string]: * }) {
     const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || []
     rawError.error_code = uintToInt(rawError.error_code)
 
@@ -754,7 +735,7 @@ export class NetworkerThread {
     })
   }
 
-  async processMessage(message, messageID, sessionID) {
+  async processMessage(message: *, messageID: string, sessionID: string) {
     const msgidInt = parseInt(messageID.toString(10).substr(0, -10), 10)
     if (msgidInt % 2) {
       console.warn('[MT] Server even message id: ', messageID, message)
@@ -775,7 +756,7 @@ export class NetworkerThread {
           throw new Error('[MT] Bad server salt for invalid message')
         }
 
-        this.applyServerSalt(message.new_server_salt)
+        await this.applyServerSalt(message.new_server_salt)
         this.pushResend(message.bad_msg_id)
         this.ackMessage(messageID)
         break
@@ -796,7 +777,8 @@ export class NetworkerThread {
             this.updateSession()
           }
           const badMessage = this.updateSentMessage(message.bad_msg_id)
-          this.pushResend(badMessage.msg_id)
+          if (badMessage instanceof NetMessage)
+            this.pushResend(badMessage.msg_id)
           this.ackMessage(messageID)
         }
         break
@@ -818,7 +800,7 @@ export class NetworkerThread {
         this.ackMessage(messageID)
 
         this.processMessageAck(message.first_msg_id)
-        this.applyServerSalt(message.server_salt)
+        await this.applyServerSalt(message.server_salt)
 
 
         const baseDcID = await this.storage.get('dc')
@@ -918,7 +900,10 @@ export class NetworkerThread {
 }
 
 class RawError extends Error {
-  constructor(obj: Object) {
+  code: number | string
+  type: string
+  originalError: { [key: string]: * }
+  constructor(obj: *) {
     super(`${obj.code} ${obj.type} ${obj.description}`)
     this.code = obj.code
     this.type = obj.type
@@ -930,10 +915,10 @@ class RawError extends Error {
 export type Networker = NetworkerThread
 
 export const NetworkerFabric = (
-    appConfig,
+    appConfig: { [key: string]: * },
     { Serialization, Deserialization }: TLFabric,
     storage: AsyncStorage,
-    emit: Emit) => chooseServer =>
+    emit: Emit) => (chooseServer: *) =>
   (dc: number,
     authKey: string,
     serverSalt: string,
@@ -948,10 +933,12 @@ export const NetworkerFabric = (
   }, dc, authKey, serverSalt, options)
 
 
-export const getDeserializeOpts = msgGetter => ({
+type MsgGetter = ({ req_msg_id: string }) => NetMessage
+
+export const getDeserializeOpts = (msgGetter: MsgGetter) => ({
   mtproto : true,
   override: {
-    mt_message(result, field) {
+    mt_message(result: { [key: string]: * }, field: string) {
       result.msg_id = readLong(this.typeBuffer, `${ field }[msg_id]`)
       result.seqno = readInt(this.typeBuffer, `${ field }[seqno]`)
       result.bytes = readInt(this.typeBuffer, `${ field }[bytes]`)
@@ -971,10 +958,10 @@ export const getDeserializeOpts = msgGetter => ({
       }
       // console.log(dTime(), 'override message', result)
     },
-    mt_rpc_result(result, field: string) {
+    mt_rpc_result(result: { [key: string]: * }, field: string) {
       result.req_msg_id = readLong(this.typeBuffer, `${ field }[req_msg_id]`)
 
-      const sentMessage = msgGetter(result)
+      const sentMessage: NetMessage = msgGetter(result)
       const type = sentMessage && sentMessage.resultType || 'Object'
 
       if (result.req_msg_id && !sentMessage) {
@@ -996,7 +983,7 @@ export const startAll = () => {
 
 export const stopAll = () => akStopped = true
 
-export const setUpdatesProcessor = callback =>
+export const setUpdatesProcessor = (callback: *) =>
   updatesProcessor = callback
 
 export default NetworkerFabric
