@@ -3,14 +3,14 @@
 import EventEmitter from 'eventemitter2'
 
 import { ApiManager } from '../api-manager'
-import NetworkerFabric from '../networker'
 import MemoryStorage from '../../plugins/memory-storage'
-import TL from '../../tl'
+import Layout from '../../layout'
 
 import configValidator from './config-validation'
 import generateInvokeLayer from './invoke-layer-generator'
+import { registerInstance } from '../../config-provider'
 
-import type { TLFabric } from '../../tl'
+import type { TLSchema } from '../../tl/index.h'
 import type { ApiConfig, ConfigType, StrictConfig, Emit, On, PublicKey } from './index.h'
 // import type { ApiManagerInstance } from '../api-manager/index.h'
 
@@ -28,9 +28,14 @@ const apiConfig: ApiConfig = {
   lang_code      : 'en'
 }
 
+const generateLayers = (api: TLSchema, mt: TLSchema) => ({
+  apiLayer: new Layout(api),
+  mtLayer : new Layout(mt),
+})
+
 class MTProto {
   config: StrictConfig
-  tls: TLFabric
+  uid: string
   emitter = new EventEmitter({
     wildcard: true
   })
@@ -38,10 +43,23 @@ class MTProto {
   on: On = this.emitter.on.bind(this.emitter)
   emit: Emit = this.emitter.emit.bind(this.emitter)
   constructor(config: ConfigType) {
-    this.config = configNormalization(config)
-    this.tls = TL(this.config.schema, this.config.mtSchema)
-    const netFabric = NetworkerFabric(this.config.api, this.tls, this.config.app.storage, this.emit)
-    this.api = new ApiManager(this.config, this.tls, netFabric, { on: this.on, emit: this.emit })
+    const fullConfig = configNormalization(config)
+    this.config = fullConfig
+    const { apiLayer, mtLayer } = generateLayers(this.config.schema, this.config.mtSchema)
+    const uid = registerInstance({
+      signIn: false,
+      schema: {
+        apiSchema: fullConfig.schema,
+        mtSchema : fullConfig.mtSchema
+      },
+      layer: {
+        apiLayer,
+        mtLayer
+      }
+    })
+    this.uid = uid
+
+    this.api = new ApiManager(fullConfig,  { on: this.on, emit: this.emit }, uid)
   }
 }
 
@@ -76,7 +94,7 @@ const configNormalization = (config: ConfigType): StrictConfig => {
 *  Server public key, obtained from here: https://core.telegram.org/api/obtaining_api_id
 *
 * -----BEGIN RSA PUBLIC KEY-----
-* MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zwrzKOaaQdr01vAbU4E1pvkfj4sqDsm6
+* MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zw = rzKOaaQdr01vAbU4E1pvkfj4sqDsm6
 * lyDONS789sVoD/xCS9Y0hkkC3gtL1tSfTlgCMOOul9lcixlEKzwKENj1Yz/s7daS
 * an9tqw3bfUV/nqgbhGX81v/+7RFAEd+RwFnK7a+XYl9sluzHRyVVaTTveB2GazTw
 * Efzk2DWgkBluml8OREmvfraX3bkHZJTKX4EQSjBbbdJ2ZXIsRrYOXfaA+xayEGB+

@@ -6,7 +6,7 @@ import replace from 'ramda/src/replace'
 
 const stream = process.stdout
 
-const formatter = (log) => (...str: any[]) => {
+const writer = (log: *) => (...str: any[]) => {
   // const fmt = format(...str)
   // console.log(fmt)
   // console.log(fmt.replace('telegram-mtproto:', ''))
@@ -16,7 +16,7 @@ const formatter = (log) => (...str: any[]) => {
   const result = splits.map(
     replace('telegram-mtproto:', ''))
   // console.log(result)
-  flatten(result).map(e => stream.write('\n'+e))
+  flatten(result).map(e => stream.write(`\n${e}`))
 }
 
-export default formatter
+export default writer

@@ -28,7 +28,7 @@ import transduce from 'ramda/src/transduce'
 import chalk from 'chalk'
 import memoize from 'memoizee'
 
-import dTime from '../dtime'
+import { dTimePure } from '../dtime'
 import { immediate } from '../smart-timeout'
 
 import Sheduler from './sheduler'
@@ -69,6 +69,8 @@ const fullNormalize: FullNormalize = pipe(
   transducer(transNormalize),
   join('')
 )
+
+const makeTime = (time: string) => chalk.gray(chalk.italic(time))
 
 
 const memoized = memoize(fullNormalize, { length: 1 })
@@ -116,10 +118,14 @@ const Logger = (moduleName: VariString, ...rest: string[]) => {
   const fullModule: string[] = arrify(moduleName, ...rest)
   fullModule.unshift('telegram-mtproto')
   const fullname = fullModule.join(':')
+  const padding =
+    Array(fullname.length - 17 + 1)
+    .fill(' ')
+    .join('')
   const debug = Debug(fullname)
   const logFunction = (tag: string, objects: any[]) => {
-    const time = dTime()
-    immediate(sheduler.add, debug, time, tag, objects)
+    const time = makeTime(dTimePure())
+    immediate(sheduler.add, debug, time, tag, objects, padding)
   }
 
 

@@ -13,6 +13,7 @@ import { writeInt, writeIntBytes, writeBytes, writeDouble,
 
 import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
 import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
+import { getConfig } from '../config-provider'
 import type { TLSchema } from './index.h'
 
 // import writer from '../util/file-log'
@@ -30,19 +31,21 @@ type SerialConstruct = {
   startMaxLength: number
 }
 
-let apiLayer: Layout
-let mtLayer: Layout
-
 export class Serialization {
   writer: TypeWriter = new TypeWriter()
+  uid: string
   mtproto: boolean
-  api: TLSchema
-  mtApi: TLSchema
   apiLayer: Layout
   mtLayer: Layout
-  constructor({ mtproto, startMaxLength }: SerialConstruct, api: TLSchema, mtApi: TLSchema) {
-    this.api = api
-    this.mtApi = mtApi
+
+  constructor(
+    {
+      mtproto = false,
+      startMaxLength = 2048 /* 2Kb */
+    }: SerialConstruct,
+    uid: string) {
+
+    this.uid = uid
 
     this.writer.maxLength = startMaxLength
 
@@ -62,6 +65,9 @@ export class Serialization {
     //   methodName,
     //   params
     // })
+
+    const { layer: { apiLayer, mtLayer } } = getConfig(this.uid)
+
     const layer = this.mtproto
       ? mtLayer
       : apiLayer
@@ -192,7 +198,8 @@ export class Serialization {
     if (!is(Object, obj))
       throw new Error(`Invalid object for type ${  type}`)
 
-    const schema = selectSchema(this.mtproto, this.api, this.mtApi)
+    const { schema: { apiSchema, mtSchema } } = getConfig(this.uid)
+    const schema = selectSchema(this.mtproto, apiSchema, mtSchema)
 
     const predicate = obj['_']
     let isBare = false
@@ -250,20 +257,18 @@ export class Deserialization {
   typeBuffer: TypeBuffer
   override: Object
   mtproto: boolean
-  api: TLSchema
-  mtApi: TLSchema
+  uid: string
   emitter: EventEmitter
 
   constructor(
-    buffer: Buffer | ArrayBuffer | Uint8Array, {
-    mtproto,
-    override
-  }: DConfig,
-    api: TLSchema,
-    mtApi: TLSchema) {
+    buffer: Buffer | ArrayBuffer | Uint8Array,
+    {
+      mtproto = false,
+      override = {}
+    }: DConfig,
+    uid: string) {
 
-    this.api = api
-    this.mtApi = mtApi
+    this.uid = uid
     this.override = override
 
     this.typeBuffer = new TypeBuffer(buffer)
@@ -341,7 +346,7 @@ export class Deserialization {
         mtproto : this.mtproto,
         override: this.override
       },
-      this.api, this.mtApi)
+      this.uid)
 
     return newDeserializer.fetchObject(type, field)
   }
@@ -405,7 +410,12 @@ export class Deserialization {
     if (typeProps.isVector)
       return this.fetchVector(type, field)
 
-    const schema = selectSchema(this.mtproto, this.api, this.mtApi)
+    const { schema: { apiSchema, mtSchema } } = getConfig(this.uid)
+
+    const fn = (arr: string[]) => (next: string[]) => [58, null, arr, next]
+    const res = fn([`ook`])`as`
+
+    const schema = selectSchema(this.mtproto, apiSchema, mtSchema)
     let predicate = false
     let constructorData = false
 
@@ -430,7 +440,7 @@ export class Deserialization {
 
       fallback = false
       if (!constructorData && this.mtproto) {
-        const schemaFallback = this.api
+        const schemaFallback = apiSchema
         const finded = getTypeConstruct(constructorCmp, schemaFallback)
         if (finded) {
           constructorData = finded
@@ -472,7 +482,7 @@ export class Deserialization {
 
     if (fallback)
       this.mtproto = true
-
+    const { layer: { apiLayer } } = getConfig(this.uid)
     if (apiLayer.seqSet.has(predicate)) {
       this.emitter.emit('seq', result)
     }
@@ -501,41 +511,6 @@ type DConfig = {
   override: Object
 }
 
-export type DeserializationFabric = (
-  buffer: Buffer,
-  config: {
-    mtproto: boolean,
-    override: Object
-  }) => Deserialization
-
-export type SerializationFabric = (
-  config: {
-    mtproto: boolean,
-    startMaxLength: number
-  }) => typeof Serialization
-
-export type TLFabric = {
-  apiLayer: Layout,
-  mtLayer: Layout,
-  Serialization: SerializationFabric,
-  Deserialization: DeserializationFabric
-}
-
-type SerializeOpts = {
-  mtproto: boolean,
-  startMaxLength: number
-}
-
-export const TL = (api: TLSchema, mtApi: TLSchema) => ({
-  on           : emitter.on.bind(emitter),
-  apiLayer     : !apiLayer ? apiLayer = new Layout(api) : apiLayer,
-  mtLayer      : !mtLayer ? mtLayer = new Layout(mtApi) : mtLayer,
-  Serialization: ({ mtproto = false, startMaxLength = 2048 /* 2Kb */ } = {}) =>
-    new Serialization({ mtproto, startMaxLength }, api, mtApi),
-  Deserialization: (buffer: Buffer, { mtproto = false, override = {} }: DConfig = {}) =>
-    new Deserialization(buffer, { mtproto, override }, api, mtApi)
-})
-
 
 export { TypeWriter } from './type-buffer'
-export default TL
+

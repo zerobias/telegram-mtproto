@@ -12,19 +12,19 @@ import { generateID } from '../time-manager'
 import { readLong, readInt } from '../../tl/reader'
 import { writeLong, writeLongP, writeInt } from '../../tl/writer'
 
-import type { TLFabric } from '../../tl'
+import { Serialization, Deserialization } from '../../tl'
 
 import request from '../chain'
 
 const is404 = pathEq(['response', 'status'], 404)
 const notError = allPass([has('message'), has('type')])
 
-const SendPlain = ({ Serialization, Deserialization }: TLFabric) => {
+const SendPlain = (uid: string) => {
   const onlySendPlainReq = (url: string, requestBuffer: ArrayBuffer) => {
     const requestLength = requestBuffer.byteLength,
           requestArray = new Int32Array(requestBuffer)
 
-    const header = Serialization()
+    const header = new Serialization({}, uid)
     const headBox = header.writer
 
     writeLongP(headBox, 0, 0, 'auth_key_id') // Auth key
@@ -73,7 +73,7 @@ const SendPlain = ({ Serialization, Deserialization }: TLFabric) => {
       return Promise.reject(new ErrorBadResponse(url))
     let deserializer
     try {
-      deserializer = Deserialization(req.data, { mtproto: true })
+      deserializer = new Deserialization(req.data, { mtproto: true }, uid)
       const ctx = deserializer.typeBuffer
       readLong(ctx, 'auth_key_id')
       readLong(ctx, 'msg_id')

@@ -6,7 +6,6 @@ import is from 'ramda/src/is'
 import contains from 'ramda/src/contains'
 import mapObjIndexed from 'ramda/src/mapObjIndexed'
 
-import CryptoWorker from '../../crypto'
 import { dTime, tsNow, generateID, applyServerTime } from '../time-manager'
 import random from '../secure-random'
 import { NetMessage, NetContainer } from './net-message'
@@ -14,7 +13,7 @@ import State from './state'
 import smartTimeout, { immediate } from '../../util/smart-timeout'
 import { httpClient } from '../../http'
 
-import { Serialization as Serial, Deserialization as Deserial } from '../../tl'
+import { Serialization, Deserialization } from '../../tl'
 import { readResponse, getDataWithPad, readHash, parsedResponse } from '../chain/parse-response'
 import { writeInnerMessage } from '../chain/perform-request'
 import { ErrorBadRequest, ErrorBadResponse } from '../../error'
@@ -27,20 +26,16 @@ import {
   convertToUint8Array,
   convertToArrayBuffer,
   sha1BytesSync,
-  bytesCmp,
   bytesToHex,
-  bytesFromArrayBuffer,
-  bytesToArrayBuffer,
   longToBytes,
   uintToInt,
   rshift32
 } from '../../bin'
 
 import type { AsyncStorage } from '../../plugins/index.h'
-import type { TLFabric } from '../../tl'
 import { TypeWriter } from '../../tl'
 import { readLong, readInt } from '../../tl/reader'
-import { writeInt, writeIntBytes, writeBytes, writeLong } from '../../tl/writer'
+import { writeInt, writeBytes, writeLong } from '../../tl/writer'
 import { apiMessage, encryptApiBytes, mtMessage } from '../chain/encrypted-message'
 import type { Emit } from '../main/index.h'
 
@@ -64,14 +59,12 @@ type NetOptions = {
 }
 type Bytes = number[]
 
-type ContextConfig = {
-  Serialization(config: *): Serial,
-  Deserialization(buffer: *, config: *): Deserial,
+type ContextConfig = {|
   emit: Emit,
   storage: AsyncStorage,
   appConfig: { [key: string]: * },
   chooseServer: *
-}
+|}
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
   switch (typeof value) {
@@ -82,6 +75,7 @@ const storeIntString = (writer: TypeWriter) => (value: number | string, field: s
 }
 
 export class NetworkerThread {
+  uid: string
   dcID: number
   authKey: Bytes
   authKeyUint8: Uint8Array
@@ -98,8 +92,6 @@ export class NetworkerThread {
   connectionInited = false
   checkConnectionPeriod = 0
   checkConnectionPromise: Promise<*>
-  Serialization: (config: *) => Serial
-  Deserialization: (buffer: *, config: *) => Deserial
   emit: Emit
   lastServerMessages: string[] = []
   offline: boolean
@@ -114,19 +106,17 @@ export class NetworkerThread {
   constructor({
       appConfig,
       chooseServer,
-      Serialization,
-      Deserialization,
       storage,
       emit
     }: ContextConfig,
               dc: number,
               authKey: Bytes,
               serverSalt: string,
-              options: NetOptions) {
+              options: NetOptions,
+              uid: string) {
+    this.uid = uid
     this.appConfig = appConfig
     this.chooseServer = chooseServer
-    this.Serialization = Serialization
-    this.Deserialization = Deserialization
     this.storage = storage
     this.emit = emit
     this.dcID = dc
@@ -196,7 +186,7 @@ export class NetworkerThread {
   }
 
   wrapMtpCall(method: string, params: Object, options: NetOptions) {
-    const serializer = this.Serialization({ mtproto: true })
+    const serializer = new Serialization({ mtproto: true }, this.uid)
 
     serializer.storeMethod(method, params)
 
@@ -205,8 +195,8 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
-    log(`Call method,msg_id,seqNo`)(method, message.msg_id, seqNo)
-    log(`Call method,params`)(params)
+    log(`Call method`, `msg_id`, `seqNo`)(method, message.msg_id, seqNo)
+    log(`Call method`, `params`)(params)
 
     this.pushMessage(message, options)
     return message.deferred.promise
@@ -214,7 +204,7 @@ export class NetworkerThread {
 
   wrapMtpMessage(object: Object, options: NetOptions = {}) {
 
-    const serializer = this.Serialization({ mtproto: true })
+    const serializer = new Serialization({ mtproto: true }, this.uid)
     serializer.storeObject(object, 'Object')
 
     const seqNo = this.generateSeqNo(options.notContentRelated)
@@ -222,15 +212,15 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
-    log(`MT message,msg_id,seqNo`)(message.msg_id, seqNo)
-    log(`MT message,result`)(object)
+    log(`MT message`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
+    log(`MT message`, `result`)(object)
     verifyInnerMessages(object.msg_ids)
     this.pushMessage(message, options)
     return message
   }
 
   wrapApiCall(method: string, params: { [key: string]: * } = {}, options: *) {
-    const serializer = this.Serialization(options)
+    const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
       // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
@@ -260,9 +250,9 @@ export class NetworkerThread {
     message.isAPI = true
 
     log(`Api call`)(method)
-    log(`|      |,msg_id,seqNo`)(message.msg_id, seqNo)
-    log(`|      |,params`)(params)
-    log(`|      |,options`)(options)
+    log(`|      |`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
+    log(`|      |`, `params`)(params)
+    log(`|      |`, `options`)(options)
     this.pushMessage(message, options)
     return message.deferred.promise
   }
@@ -320,7 +310,7 @@ export class NetworkerThread {
     log(`Check connection`)(event)
     smartTimeout.cancel(this.checkConnectionPromise)
 
-    const serializer = this.Serialization({ mtproto: true })
+    const serializer = new Serialization({ mtproto: true }, this.uid)
     const pingID = getRandomId()
 
     serializer.storeMethod('ping', { ping_id: pingID })
@@ -454,7 +444,7 @@ export class NetworkerThread {
     if (!message) return Promise.resolve(false)
 
     if (message.isAPI && !message.longPoll) {
-      const serializer = this.Serialization({ mtproto: true })
+      const serializer = new Serialization({ mtproto: true }, this.uid)
       serializer.storeMethod('http_wait', {
         max_delay : 500,
         wait_after: 150,
@@ -475,7 +465,7 @@ export class NetworkerThread {
     let noResponseMsgs = []
 
     if (messages.length > 1) {
-      const container = this.Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
+      const container = new Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 }, this.uid)
       const contBox = container.writer
       writeInt(contBox, 0x73f1f8dc, 'CONTAINER[id]')
       writeInt(contBox, messages.length, 'CONTAINER[count]')
@@ -563,7 +553,7 @@ export class NetworkerThread {
 
   sendEncryptedRequest = async (message: NetMessage, options: NetOptions = {}) => {
     const apiBytes = apiMessage({
-      ctx       : this.Serialization({ startMaxLength: message.body.length + 64 }).writer,
+      ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, this.uid).writer,
       serverSalt: this.serverSalt,
       sessionID : this.sessionID,
       message
@@ -574,7 +564,7 @@ export class NetworkerThread {
       authKey: this.authKeyUint8
     })
 
-    const request = this.Serialization({ startMaxLength: encryptedBytes.byteLength + 256 }).writer
+    const request = new Serialization({ startMaxLength: encryptedBytes.byteLength + 256 }, this.uid).writer
 
     const mtBytes = mtMessage({
       ctx      : request,
@@ -602,7 +592,7 @@ export class NetworkerThread {
   async parseResponse(responseBuffer: Uint8Array) {
 
     const { msgKey, encryptedData } = readResponse({
-      reader       : this.Deserialization(responseBuffer),
+      reader       : new Deserialization(responseBuffer, {}, this.uid),
       response     : responseBuffer,
       authKeyStored: this.authKeyID
     })
@@ -620,7 +610,7 @@ export class NetworkerThread {
       buffer,
       sessionID
     } = readHash({
-      reader        : this.Deserialization(dataWithPadding, { mtproto: true }),
+      reader        : new Deserialization(dataWithPadding, { mtproto: true }, this.uid),
       currentSession: this.sessionID,
       prevSession   : this.prevSessionID,
       dataWithPadding
@@ -631,7 +621,7 @@ export class NetworkerThread {
     const response = await parsedResponse({
       hashData,
       msgKey,
-      reader: this.Deserialization(buffer, deserializerOptions)
+      reader: new Deserialization(buffer, deserializerOptions, this.uid)
     })
 
     return {
@@ -915,26 +905,6 @@ class RawError extends Error {
   }
 }
 
-export type Networker = NetworkerThread
-
-export const NetworkerFabric = (
-    appConfig: { [key: string]: * },
-    { Serialization, Deserialization }: TLFabric,
-    storage: AsyncStorage,
-    emit: Emit) => (chooseServer: *) =>
-  (dc: number,
-    authKey: string,
-    serverSalt: string,
-    options: NetOptions = {}) =>
-  new NetworkerThread({
-    appConfig,
-    chooseServer,
-    Serialization,
-    Deserialization,
-    storage,
-    emit
-  }, dc, authKey, serverSalt, options)
-
 
 type MsgGetter = ({ req_msg_id: string }) => NetMessage
 
@@ -988,8 +958,6 @@ export const stopAll = () => akStopped = true
 
 export const setUpdatesProcessor = (callback: *) =>
   updatesProcessor = callback
-
-export default NetworkerFabric
 
 
 const verifyInnerMessages = (messages) => {

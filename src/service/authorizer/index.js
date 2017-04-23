@@ -5,6 +5,7 @@ import Bluebird from 'bluebird'
 import blueDefer from '../../util/defer'
 import { immediate } from '../../util/smart-timeout'
 import CryptoWorker from '../../crypto'
+import { Serialization, Deserialization } from '../../tl'
 
 import random from '../secure-random'
 import { applyServerTime, dTime, tsNow } from '../time-manager'
@@ -22,8 +23,6 @@ const log = Logger`auth`
 // import { ErrorBadResponse } from '../../error'
 
 import SendPlainReq from './send-plain-req'
-
-import type { TLFabric } from '../../tl'
 
 const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' +
   '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' +
@@ -113,15 +112,15 @@ const getTwoPow = () => { //Dirty cheat to count 2^(2048 - 64)
 
 const leemonTwoPow = getTwoPow()
 
-export const Auth = ({ Serialization, Deserialization }: TLFabric,
+export const Auth = (uid: string,
                      { select, prepare }: Args) => {
-  const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
+  const sendPlainReq = SendPlainReq(uid)
 
   async function mtpSendReqPQ(auth: AuthBasic) {
     const deferred = auth.deferred
     log('Send req_pq')(bytesToHex(auth.nonce))
 
-    const request = Serialization({ mtproto: true })
+    const request = new Serialization({ mtproto: true }, uid)
     const reqBox = request.writer
     request.storeMethod('req_pq', { nonce: auth.nonce })
 
@@ -186,7 +185,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
     auth.newNonce = new Array(32)
     random(auth.newNonce)
 
-    const data = Serialization({ mtproto: true })
+    const data = new Serialization({ mtproto: true }, uid)
     const dataBox = data.writer
     data.storeObject({
       _           : 'p_q_inner_data',
@@ -200,7 +199,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
 
     const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(data.getBytes())
 
-    const request = Serialization({ mtproto: true })
+    const request = new Serialization({ mtproto: true }, uid)
     const reqBox = request.writer
     request.storeMethod('req_DH_params', {
       nonce                 : auth.nonce,
@@ -278,7 +277,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
     const answerWithPadding = answerWithHash.slice(20)
     const buffer = bytesToArrayBuffer(answerWithPadding)
 
-    const deserializer = Deserialization(buffer, { mtproto: true })
+    const deserializer = new Deserialization(buffer, { mtproto: true }, uid)
     const response = deserializer.fetchObject('Server_DH_inner_data', 'server_dh')
 
     if (response._ !== 'server_DH_inner_data')
@@ -368,7 +367,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
     random(auth.b)
 
     const gB = await CryptoWorker.modPow(gBytes, auth.b, auth.dhPrime)
-    const data = Serialization({ mtproto: true })
+    const data = new Serialization({ mtproto: true }, uid)
 
     data.storeObject({
       _           : 'client_DH_inner_data',
@@ -382,7 +381,7 @@ export const Auth = ({ Serialization, Deserialization }: TLFabric,
 
     const encryptedData = aesEncryptSync(dataWithHash, auth.tmpAesKey, auth.tmpAesIv)
 
-    const request = Serialization({ mtproto: true })
+    const request = new Serialization({ mtproto: true }, uid)
 
     request.storeMethod('set_client_DH_params', {
       nonce         : auth.nonce,

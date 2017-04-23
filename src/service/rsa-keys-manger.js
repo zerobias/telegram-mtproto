@@ -4,7 +4,6 @@ import Bluebird from 'bluebird'
 
 import type { PublicKey } from './main/index.h'
 import type { Cached } from './api-manager/index.h'
-import type { SerializationFabric } from '../tl/index'
 import { Serialization } from '../tl'
 
 import { writeBytes } from '../tl/writer'
@@ -13,13 +12,13 @@ import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../bin'
 
 
-export const KeyManager = (serialization: SerializationFabric,
+export const KeyManager = (uid: string,
   publisKeysHex: PublicKey[],
   publicKeysParsed: Cached<PublicKey>) => {
   let prepared = false
 
   const mapPrepare = ({ modulus, exponent }: PublicKey) => {
-    const RSAPublicKey: Serialization = serialization()
+    const RSAPublicKey = new Serialization({}, uid)
     const rsaBox = RSAPublicKey.writer
     writeBytes(rsaBox, bytesFromHex(modulus), 'n')
     writeBytes(rsaBox, bytesFromHex(exponent), 'e')

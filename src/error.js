@@ -2,6 +2,7 @@
 
 import type { $AxiosXHR } from 'axios'
 
+import stackCleaner from './util/clean-stack'
 import type { TypeBuffer } from './tl/type-buffer'
 
 Error.stackTraceLimit = 25
@@ -17,6 +18,7 @@ export class MTError extends Error {
     super(fullMessage)
     this.code = code
     this.type = type
+    this.stack = stackCleaner(this.stack)
   }
 }
 
@@ -62,5 +64,11 @@ export class TypeBufferIntError extends MTError {
 export class AuthKeyError extends MTError {
   constructor() {
     super(401, 'AUTH_KEY_EMPTY', '')
+  }
+}
+
+export class ProviderRegistryError extends MTError {
+  constructor(uid: string) {
+    super(850, 'NO_INSTANCE', `Lib instance ${uid} not found in registry`)
   }
 }

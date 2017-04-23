@@ -2,6 +2,10 @@
 
 import both from 'ramda/src/both'
 import is from 'ramda/src/is'
+import isNil from 'ramda/src/isNil'
+import isEmpty from 'ramda/src/isEmpty'
+import pipe from 'ramda/src/pipe'
+import map from 'ramda/src/map'
 import when from 'ramda/src/when'
 import take from 'ramda/src/take'
 import tail from 'ramda/src/tail'
@@ -20,14 +24,27 @@ class LogEvent {
   }
 }
 
+const ensureNonEmpty =
+  (list: any[]) => isEmpty(list)
+    ? [' ']
+    : list
+
 const stringLimiting = when(
     both(is(String), e => e.length > 50),
     take(150)
   )
 
+const normalizeVaules: <V>(list: V) => V = pipe(
+  map(stringLimiting),
+  ensureNonEmpty
+)
+
 const isSingleObject = (results: any[]) =>
   results.length === 1 &&
+  // !isNil(results[0]) &&
   is(Object, results[0])
+  // !isEmpty(results[0])
+
 
 class Sheduler {
   queue: LogEvent[][] = []
@@ -36,14 +53,18 @@ class Sheduler {
   add = (log: Debug.IDebugger,
     time: string,
     tagStr: string,
-    values: mixed[]) => {
-    const results = values.map(stringLimiting)
+    values: mixed[],
+    padding: string) => {
+    const results = normalizeVaules(values)
     if (isSingleObject(results))
       results.unshift('%O')
-    const first = results[0] || ''
+    const first = results[0]
     const other = tail(results)
-    const firstLine = [tagStr, time, first].join('  ')
-    this.buffer.push(new LogEvent(log, [firstLine, ...other]))
+    const firstLine = [tagStr, time].join('  ')
+
+    this.buffer.push(new LogEvent(log, [firstLine]))
+    this.buffer.push(new LogEvent(log, [first, ...other]))
+
   }
 
   sheduleBuffer = () => {

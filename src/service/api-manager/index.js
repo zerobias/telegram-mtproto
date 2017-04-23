@@ -21,7 +21,6 @@ import { AuthKeyError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-import type { TLFabric } from '../../tl'
 import type { TLSchema } from '../../tl/index.h'
 import { switchErrors } from './error-cases'
 import { delayedCall } from '../../util/smart-timeout'
@@ -33,7 +32,7 @@ import type { PublicKey, ApiConfig, StrictConfig, Emit, On, ServerConfig } from 
 
 import type { AsyncStorage } from '../../plugins'
 
-import type { Networker } from '../networker'
+import { NetworkerThread } from '../networker'
 
 const baseDcID = 2
 
@@ -54,10 +53,10 @@ export class ApiManager {
     servers   : {},
     keysParsed: {}
   }
+  uid: string
   apiConfig: ApiConfig
   publicKeys: PublicKey[]
   storage: AsyncStorage
-  TL: TLFabric
   serverConfig: ServerConfig
   schema: TLSchema
   mtSchema: TLSchema
@@ -72,7 +71,7 @@ export class ApiManager {
   chooseServer: (dcID: number, upload?: boolean) => {}
   currentDc: number = 2
   online: boolean = false
-  constructor(config: StrictConfig, tls: TLFabric, netFabric: Function, { on, emit }: { on: On, emit: Emit }) {
+  constructor(config: StrictConfig, { on, emit }: { on: On, emit: Emit }, uid: string) {
     const {
       server,
       api,
@@ -83,6 +82,7 @@ export class ApiManager {
       schema,
       mtSchema
     } = config
+    this.uid = uid
     this.apiConfig = api
     this.publicKeys = publicKeys
     this.storage = storage
@@ -92,10 +92,8 @@ export class ApiManager {
     this.chooseServer = chooseServer(this.cache.servers, server)
     this.on = on
     this.emit = emit
-    this.TL = tls
-    this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
-    this.auth = Auth(this.TL, this.keyManager)
-    this.networkFabric = netFabric(this.chooseServer)
+    this.keyManager = KeyManager(uid, publicKeys, this.cache.keysParsed)
+    this.auth = Auth(uid, this.keyManager)
 
     //$FlowIssue
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
@@ -111,8 +109,13 @@ export class ApiManager {
     })
   }
   networkSetter = (dc: number, options: LeftOptions) =>
-    (authKey: Bytes, serverSalt: Bytes): Networker => {
-      const networker = this.networkFabric(dc, authKey, serverSalt, options)
+    (authKey: Bytes, serverSalt: Bytes) => {
+      const networker = new NetworkerThread({
+        appConfig   : this.apiConfig,
+        storage     : this.storage,
+        emit        : this.emit,
+        chooseServer: this.chooseServer
+      }, dc, authKey, serverSalt, options, this.uid)
       this.cache.downloader[dc] = networker
       return networker
     }
