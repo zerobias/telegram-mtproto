@@ -4,9 +4,14 @@ const { FileStorage } = require('../lib/plugins/file-storage')
 
 const { delayExit } = require('./fixtures')
 
+// const phoneDC1 = {
+//   num : '+9996610000',
+//   code: '11111'
+// }
+
 const phone = {
-  num : '+9996610000',
-  code: '11111'
+  num : '+9996620000',
+  code: '22222'
 }
 
 const api = {
@@ -64,14 +69,26 @@ const getHistory = async (chat) => {
   return history
 }
 
+const isAlreadyAuth = async () => {
+  const dc = await telegram.storage.get('dc')
+  if (!dc) return false
+  const authKey = await telegram.storage.get(`dc${dc}_auth_key`)
+  const salt = await telegram.storage.get(`dc${dc}_server_salt`)
+  return !!authKey && !!salt
+  // dc${ this.dcID }_server_salt
+}
+
 
 const connectionTest = async t => {
   let res, i = 0
   t.plan(1)
-  await telegram.storage.clear() //Just for clean test
+  // await telegram.storage.clear() //Just for clean test
   while (i<5) {
     try {
-      await telegram.storage.get('dc')
+      if (await isAlreadyAuth()) {
+        t.ok(true, 'already authorized, skip')
+        return
+      }
       const { phone_code_hash } = await telegram('auth.sendCode', {
             phone_number  : phone.num,
             current_number: false,

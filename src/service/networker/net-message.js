@@ -14,10 +14,28 @@ export class NetMessage {
   acked: boolean = false
   msg_id: string = generateID()
   container: boolean = false
-  deferred = blueDefer()
+  deferred: *
   constructor(seq_no: number, body: BodyBytes) {
     this.seq_no = seq_no
-    this.body = body
+    // this.body = body
+    Object.defineProperty(this, 'body', {
+      enumerable  : false,
+      configurable: true,
+      writable    : true,
+      value       : body
+    })
+    Object.defineProperty(this, 'deferred', {
+      enumerable  : false,
+      configurable: true,
+      writable    : true,
+      value       : blueDefer()
+    })
+    Object.defineProperty(this, 'copyHelper', {
+      enumerable  : false,
+      configurable: true,
+      writable    : true,
+      value       : this.copyHelper
+    })
   }
   copyOptions(options: Object) { //TODO remove this
     forEachObjIndexed(this.copyHelper, options)

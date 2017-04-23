@@ -16,6 +16,7 @@ import { httpClient } from '../../http'
 
 import { Serialization as Serial, Deserialization as Deserial } from '../../tl'
 import { readResponse, getDataWithPad, readHash, parsedResponse } from '../chain/parse-response'
+import { writeInnerMessage } from '../chain/perform-request'
 import { ErrorBadRequest, ErrorBadResponse } from '../../error'
 
 import Logger from '../../util/log'
@@ -204,7 +205,8 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
-    log(`MT call`)(method, params, message.msg_id, seqNo)
+    log(`Call method,msg_id,seqNo`)(method, message.msg_id, seqNo)
+    log(`Call method,params`)(params)
 
     this.pushMessage(message, options)
     return message.deferred.promise
@@ -220,7 +222,8 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
-    log(`MT message`)(message.msg_id, object, seqNo)
+    log(`MT message,msg_id,seqNo`)(message.msg_id, seqNo)
+    log(`MT message,result`)(object)
     verifyInnerMessages(object.msg_ids)
     this.pushMessage(message, options)
     return message
@@ -256,8 +259,10 @@ export class NetworkerThread {
     )
     message.isAPI = true
 
-    log(`Api call`)(method, params, message.msg_id, seqNo, options)
-
+    log(`Api call`)(method)
+    log(`|      |,msg_id,seqNo`)(message.msg_id, seqNo)
+    log(`|      |,params`)(params)
+    log(`|      |,options`)(options)
     this.pushMessage(message, options)
     return message.deferred.promise
   }
@@ -420,12 +425,14 @@ export class NetworkerThread {
       // const currentTime = tsNow()
     let lengthOverflow = false
     let singlesCount = 0
-
+    const logGroup = log.group('perform sheduled request')
     for (const [messageID, value] of this.state.pendingIterator()) {
       if (value && value < tsNow()) continue
       this.state.deletePending(messageID)
       if (!this.state.hasSent(messageID)) continue
       message = this.state.getSent(messageID)
+      logGroup('message')(message)
+      logGroup('messageID, value' )(messageID, value)
       const messageByteLength = message.size() + 32
       const cond1 = !message.notContentRelated && lengthOverflow
       const cond2 = !message.notContentRelated &&
@@ -442,7 +449,8 @@ export class NetworkerThread {
       messages.push(message)
       messagesByteLen += messageByteLength
     }
-
+    logGroup('message, final')(message)
+    logGroup('messages')(messages)
     if (!message) return Promise.resolve(false)
 
     if (message.isAPI && !message.longPoll) {
@@ -464,40 +472,38 @@ export class NetworkerThread {
       return Promise.resolve()
     }
 
-    const noResponseMsgs = []
+    let noResponseMsgs = []
 
     if (messages.length > 1) {
       const container = this.Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 })
       const contBox = container.writer
       writeInt(contBox, 0x73f1f8dc, 'CONTAINER[id]')
       writeInt(contBox, messages.length, 'CONTAINER[count]')
-      const innerMessages = []
-      let i = 0
-      for (const msg of messages) {
-        writeLong(contBox, msg.msg_id, `CONTAINER[${i}][msg_id]`)
-        innerMessages.push(msg.msg_id)
-        writeInt(contBox, msg.seq_no, `CONTAINER[${i}][seq_no]`)
-        writeInt(contBox, msg.body.length, `CONTAINER[${i}][bytes]`)
-        writeIntBytes(contBox, msg.body, false, `CONTAINER[${i}][body]`)
-        if (msg.noResponse)
-          noResponseMsgs.push(msg.msg_id)
-        i++
-      }
+
+      const {
+        innerMessages,
+        noResponseMessages
+      } = writeInnerMessage({
+        writer: contBox,
+        messages
+      })
+      noResponseMsgs = noResponseMessages
 
       message = new NetContainer(
         this.generateSeqNo(true),
         container.getBytes(true),
         innerMessages)
 
-      log(`Container`)(innerMessages,
-                       noResponseMsgs,
-                       message.msg_id,
-                       message.seq_no)
+      logGroup(`Container`)(innerMessages,
+                            noResponseMessages,
+                            message.msg_id,
+                            message.seq_no)
+
     } else {
       if (message.noResponse)
         noResponseMsgs.push(message.msg_id)
     }
-
+    logGroup.groupEnd()
     this.state.addSent(message)
 
     this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
@@ -512,7 +518,8 @@ export class NetworkerThread {
       const result = await this.sendEncryptedRequest(message)
       this.toggleOffline(false)
       const response = await this.parseResponse(result.data)
-      log(`Server response`)(this.dcID, response)
+      log(`Server response`, `dc${this.dcID}`)(response)
+      log(`message`)(message)
 
       await this.processMessage(
         response.response,
@@ -555,12 +562,8 @@ export class NetworkerThread {
   }
 
   sendEncryptedRequest = async (message: NetMessage, options: NetOptions = {}) => {
-    // console.log(dTime(), 'Send encrypted'/*, message*/)
-    // console.trace()
-    const data = this.Serialization({ startMaxLength: message.body.length + 64 }).writer
-
     const apiBytes = apiMessage({
-      ctx       : data,
+      ctx       : this.Serialization({ startMaxLength: message.body.length + 64 }).writer,
       serverSalt: this.serverSalt,
       sessionID : this.sessionID,
       message
@@ -869,7 +872,7 @@ export class NetworkerThread {
           }
         } else {
           if (deferred) {
-            log(`Rpc response`)(message.result)
+            // log(`Rpc response`)(message.result)
               /*if (debug) {
                 console.log(dTime(), 'Rpc response', message.result)
               } else {
@@ -994,53 +997,4 @@ const verifyInnerMessages = (messages) => {
     console.log(`!!!!!!WARN!!!!!!`, 'container check failed', messages)
       // throw new Error('Container bug')
   }
-}
-
-
-async function getMsgKeyIv(authKey: Uint8Array, msgKey: Uint8Array, isOut: boolean): * {
-  const x = isOut
-    ? 0
-    : 8
-  const sha1aText = new Uint8Array(48)
-  const sha1bText = new Uint8Array(48)
-  const sha1cText = new Uint8Array(48)
-  const sha1dText = new Uint8Array(48)
-  const promises = []
-
-  sha1aText.set(msgKey, 0)
-  sha1aText.set(authKey.subarray(x, x + 32), 16)
-  promises.push(CryptoWorker.sha1Hash(sha1aText))
-
-  sha1bText.set(authKey.subarray(x + 32, x + 48), 0)
-  sha1bText.set(msgKey, 16)
-  sha1bText.set(authKey.subarray(x + 48, x + 64), 32)
-  promises.push(CryptoWorker.sha1Hash(sha1bText))
-
-  sha1cText.set(authKey.subarray(x + 64, x + 96), 0)
-  sha1cText.set(msgKey, 32)
-  promises.push(CryptoWorker.sha1Hash(sha1cText))
-
-  sha1dText.set(msgKey, 0)
-  sha1dText.set(authKey.subarray(x + 96, x + 128), 16)
-  promises.push(CryptoWorker.sha1Hash(sha1dText))
-
-  const results = await Promise.all(promises)
-  const aesKey = new Uint8Array(32),
-        aesIv = new Uint8Array(32),
-        sha1a = new Uint8Array(results[0]),
-        sha1b = new Uint8Array(results[1]),
-        sha1c = new Uint8Array(results[2]),
-        sha1d = new Uint8Array(results[3])
-
-  aesKey.set(sha1a.subarray(0, 8))
-  aesKey.set(sha1b.subarray(8, 20), 8)
-  aesKey.set(sha1c.subarray(4, 16), 20)
-
-  aesIv.set(sha1a.subarray(8, 20))
-  aesIv.set(sha1b.subarray(0, 8), 12)
-  aesIv.set(sha1c.subarray(16, 20), 20)
-  aesIv.set(sha1d.subarray(0, 8), 24)
-
-  const result: [Uint8Array, Uint8Array] = [aesKey, aesIv]
-  return result
 }
