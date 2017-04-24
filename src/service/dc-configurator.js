@@ -28,14 +28,8 @@ const portString = ({ port = 80 }) => port === 80
   ? ''
   : `:${port}`
 
-//$FlowIssue
-type PropEq = (key: string) => (value: *) => (obj: *) => boolean
-
-//$FlowIssue
-const propEqTyped: PropEq = propEq
-
 type FindById = (dc: number) => (list: DC[]) => ?DC
-const findById: FindById = pipe( propEqTyped('id'), find )
+const findById: FindById = pipe( propEq('id'), find )
 
 export const chooseServer = (chosenServers: { [id: number]: string | false }, {
   dev = false,

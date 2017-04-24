@@ -12,10 +12,11 @@ export class NetMessage {
   seq_no: number
   isAPI: boolean
   acked: boolean = false
-  msg_id: string = generateID()
+  msg_id: string
   container: boolean = false
   deferred: *
-  constructor(seq_no: number, body: BodyBytes) {
+  constructor(uid: string, seq_no: number, body: BodyBytes) {
+    this.msg_id = generateID(uid)
     this.seq_no = seq_no
     // this.body = body
     Object.defineProperty(this, 'body', {
@@ -54,8 +55,8 @@ export class NetMessage {
 
 export class NetContainer extends NetMessage {
   inner: string[]
-  constructor(seq_no: number, body: BodyBytes, inner: string[]) {
-    super(seq_no, body)
+  constructor(uid: string, seq_no: number, body: BodyBytes, inner: string[]) {
+    super(uid, seq_no, body)
     this.container = true
     this.inner = inner
   }

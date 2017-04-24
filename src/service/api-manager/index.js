@@ -13,7 +13,7 @@ import Auth from '../authorizer'
 import type { Args } from '../authorizer'
 
 import blueDefer from '../../util/defer'
-import { dTime } from '../time-manager'
+import dTime from '../../util/dtime'
 import { chooseServer } from '../dc-configurator'
 
 import KeyManager from '../rsa-keys-manger'
@@ -58,8 +58,6 @@ export class ApiManager {
   publicKeys: PublicKey[]
   storage: AsyncStorage
   serverConfig: ServerConfig
-  schema: TLSchema
-  mtSchema: TLSchema
   keyManager: Args
   networkFabric: *
   updatesManager: any
@@ -78,17 +76,13 @@ export class ApiManager {
       app: {
         storage,
         publicKeys
-      },
-      schema,
-      mtSchema
+      }
     } = config
     this.uid = uid
     this.apiConfig = api
     this.publicKeys = publicKeys
     this.storage = storage
     this.serverConfig = server
-    this.schema = schema
-    this.mtSchema = mtSchema
     this.chooseServer = chooseServer(this.cache.servers, server)
     this.on = on
     this.emit = emit
@@ -190,7 +184,7 @@ export class ApiManager {
         // })
 
       }
-      debug(`nearest Dc, this dc`)(nearestDc, this_dc)
+      debug(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
       this.authPromise.resolve()
     } catch (err) {
       this.authPromise.reject(err)

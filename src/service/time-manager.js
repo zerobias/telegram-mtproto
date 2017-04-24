@@ -1,13 +1,15 @@
+//@flow
+
 import isNode from 'detect-node'
 
-import { TimeOffset } from '../store'
 import { nextRandomInt, lshift32 } from '../bin'
+import Config from '../config-provider'
 
 import Logger from '../util/log'
 
 const log = Logger`time-manager`
 
-export const tsNow = seconds => {
+export const tsNow = (seconds?: boolean) => {
   let t = +new Date()
   //eslint-disable-next-line
   if (!isNode) t += window.tsOffset || 0
@@ -16,40 +18,36 @@ export const tsNow = seconds => {
     : t
 }
 
-export { dTime } from '../util/dtime'
 
-let lastMessageID = [0, 0]
-let timerOffset = 0
-
-const offset = TimeOffset.get()
-if (offset) timerOffset = offset
-
-const generateMessageID = () => {
+const generateMessageID = (uid: string) => {
   const timeTicks = tsNow(),
-        timeSec = Math.floor(timeTicks / 1000) + timerOffset,
+        timeSec = Math.floor(timeTicks / 1000) + Config.timerOffset.get(uid),
         timeMSec = timeTicks % 1000,
         random = nextRandomInt(0xFFFF)
 
   let messageID = [timeSec, timeMSec << 21 | random << 3 | 4]
+  const lastMessageID = Config.lastMessageID.get(uid)
   if (lastMessageID[0] > messageID[0] ||
     lastMessageID[0] == messageID[0] && lastMessageID[1] >= messageID[1]) {
     messageID = [lastMessageID[0], lastMessageID[1] + 4]
   }
-
-  lastMessageID = messageID
+  Config.lastMessageID.set(uid, messageID)
 
   // console.log('generated msg id', messageID, timerOffset)
 
   return lshift32(messageID[0], messageID[1])
 }
 
-export const applyServerTime = (serverTime, localTime) => {
-  const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000)
-  const changed = Math.abs(timerOffset - newTimeOffset) > 10
-  TimeOffset.set(newTimeOffset)
+export const applyServerTime = (
+  uid: string,
+  serverTime: string,
+  localTime?: number) => {
 
-  lastMessageID = [0, 0]
-  timerOffset = newTimeOffset
+  const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000)
+  const changed = Math.abs(Config.timerOffset.get(uid) - newTimeOffset) > 10
+
+  Config.lastMessageID.set(uid, [0, 0])
+  Config.timerOffset.set(uid, newTimeOffset)
   log('Apply server time')(serverTime, localTime, newTimeOffset, changed)
 
   return changed

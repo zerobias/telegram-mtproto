@@ -16,28 +16,69 @@ type InstanceConfig = {|
   layer: {|
     apiLayer: Layout,
     mtLayer: Layout,
-  |}
+  |},
+  timerOffset: number,
+  lastMessageID: [number, number]
 |}
 
-type Registry = {
+type Provider = {
   [uid: string]: InstanceConfig
 }
 
+type InstanceDiff = {
+  uid: string,
+  timerOffset: number,
+  lastMessageID: [number, number]
+}
 
 
-const registry: Registry = { }
+const provider: Provider = { }
 
+
+const Config = {
+  signIn: {
+    get: (uid: string) => getConfig(uid).signIn,
+    set(uid: string, value: boolean) {
+      getConfig(uid).signIn = value
+    }
+  },
+
+  layer: {
+    apiLayer: (uid: string) => getConfig(uid).layer.apiLayer,
+    mtLayer : (uid: string) => getConfig(uid).layer.mtLayer,
+  },
+  schema: {
+    get      : (uid: string) => getConfig(uid).schema,
+    apiSchema: (uid: string) => getConfig(uid).schema.apiSchema,
+    mtSchema : (uid: string) => getConfig(uid).schema.mtSchema,
+  },
+  timerOffset: {
+    get: (uid: string) => getConfig(uid).timerOffset,
+    set(uid: string, value: number) {
+      getConfig(uid).timerOffset = value
+    }
+  },
+  lastMessageID: {
+    get: (uid: string) => getConfig(uid).lastMessageID,
+    set(uid: string, value: [number, number]) {
+      getConfig(uid).lastMessageID = value
+    }
+  },
+}
 
 export function getConfig(uid: string) {
-  if (registry[uid] == null) throw new ProviderRegistryError(uid)
-  return registry[uid]
+  const config = provider[uid]
+  if (config == null) throw new ProviderRegistryError(uid)
+  return config
 }
 
 
-export function registerInstance(config: $Diff<InstanceConfig, { uid: string }>) {
+export function registerInstance(config: $Diff<InstanceConfig, InstanceDiff>) {
   const uid = uuid()
   //$FlowIssue
-  const fullConfig: InstanceConfig = { ...config, uid }
-  registry[uid] = fullConfig
+  const fullConfig: InstanceConfig = { ...config, uid, timerOffset: 0, lastMessageID: [0, 0] }
+  provider[uid] = fullConfig
   return uid
 }
+
+export default Config

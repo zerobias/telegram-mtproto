@@ -13,7 +13,7 @@ import { writeInt, writeIntBytes, writeBytes, writeDouble,
 
 import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
 import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
-import { getConfig } from '../config-provider'
+import Config, { getConfig } from '../config-provider'
 import type { TLSchema } from './index.h'
 
 // import writer from '../util/file-log'
@@ -27,8 +27,13 @@ const debug = Logger`tl`
 const PACKED = 0x3072cfa1
 
 type SerialConstruct = {
-  mtproto: boolean,
-  startMaxLength: number
+  mtproto?: boolean,
+  startMaxLength?: number
+}
+
+type DConfig = {
+  mtproto?: boolean,
+  override?: *
 }
 
 export class Serialization {
@@ -66,11 +71,9 @@ export class Serialization {
     //   params
     // })
 
-    const { layer: { apiLayer, mtLayer } } = getConfig(this.uid)
-
     const layer = this.mtproto
-      ? mtLayer
-      : apiLayer
+      ? Config.layer.mtLayer(this.uid)
+      : Config.layer.apiLayer(this.uid)
     const pred = layer.funcs.get(methodName)
     if (!pred) throw new Error(`No method name ${methodName} found`)
 
@@ -198,8 +201,9 @@ export class Serialization {
     if (!is(Object, obj))
       throw new Error(`Invalid object for type ${  type}`)
 
-    const { schema: { apiSchema, mtSchema } } = getConfig(this.uid)
-    const schema = selectSchema(this.mtproto, apiSchema, mtSchema)
+    const schema = this.mtproto
+      ? Config.schema.mtSchema(this.uid)
+      : Config.schema.apiSchema(this.uid)
 
     const predicate = obj['_']
     let isBare = false
@@ -255,7 +259,7 @@ const emitter = new EventEmitter({ wildcard: true })
 
 export class Deserialization {
   typeBuffer: TypeBuffer
-  override: Object
+  override: *
   mtproto: boolean
   uid: string
   emitter: EventEmitter
@@ -410,12 +414,11 @@ export class Deserialization {
     if (typeProps.isVector)
       return this.fetchVector(type, field)
 
-    const { schema: { apiSchema, mtSchema } } = getConfig(this.uid)
+    const { apiSchema, mtSchema } = Config.schema.get(this.uid)
 
-    const fn = (arr: string[]) => (next: string[]) => [58, null, arr, next]
-    const res = fn([`ook`])`as`
-
-    const schema = selectSchema(this.mtproto, apiSchema, mtSchema)
+    const schema = this.mtproto
+      ? mtSchema
+      : apiSchema
     let predicate = false
     let constructorData = false
 
@@ -502,14 +505,6 @@ export class Deserialization {
 
 }
 
-const selectSchema = (mtproto: boolean, api: TLSchema, mtApi: TLSchema) => mtproto
-  ? mtApi
-  : api
-
-type DConfig = {
-  mtproto: boolean,
-  override: Object
-}
 
 
 export { TypeWriter } from './type-buffer'

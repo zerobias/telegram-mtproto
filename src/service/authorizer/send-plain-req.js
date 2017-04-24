@@ -28,7 +28,7 @@ const SendPlain = (uid: string) => {
     const headBox = header.writer
 
     writeLongP(headBox, 0, 0, 'auth_key_id') // Auth key
-    writeLong(headBox, generateID(), 'msg_id') // Msg_id
+    writeLong(headBox, generateID(uid), 'msg_id') // Msg_id
     writeInt(headBox, requestLength, 'request_length')
 
     const headerBuffer: ArrayBuffer = headBox.getBuffer(),

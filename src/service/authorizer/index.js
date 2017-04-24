@@ -8,7 +8,8 @@ import CryptoWorker from '../../crypto'
 import { Serialization, Deserialization } from '../../tl'
 
 import random from '../secure-random'
-import { applyServerTime, dTime, tsNow } from '../time-manager'
+import { applyServerTime, tsNow } from '../time-manager'
+import dTime from '../../util/dtime'
 
 import { bytesCmp, bytesToHex, sha1BytesSync,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
@@ -304,7 +305,7 @@ export const Auth = (uid: string,
       throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch')
 
     auth.localTime = tsNow()
-    applyServerTime(auth.serverTime, auth.localTime)
+    applyServerTime(uid, auth.serverTime, auth.localTime)
   }
 
   const innerLog = log('VerifyDhParams')

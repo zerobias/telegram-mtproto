@@ -6,7 +6,8 @@ import is from 'ramda/src/is'
 import contains from 'ramda/src/contains'
 import mapObjIndexed from 'ramda/src/mapObjIndexed'
 
-import { dTime, tsNow, generateID, applyServerTime } from '../time-manager'
+import { tsNow, generateID, applyServerTime } from '../time-manager'
+import dTime from '../../util/dtime'
 import random from '../secure-random'
 import { NetMessage, NetContainer } from './net-message'
 import State from './state'
@@ -163,7 +164,7 @@ export class NetworkerThread {
       sentMessage.inner = newInner
     }
     this.state.deleteSent(sentMessage)
-    const newId = generateID()
+    const newId = generateID(this.uid)
     sentMessage.msg_id = newId
     sentMessage.seq_no = this.generateSeqNo(
       sentMessage.notContentRelated ||
@@ -192,6 +193,7 @@ export class NetworkerThread {
 
     const seqNo = this.generateSeqNo()
     const message = new NetMessage(
+      this.uid,
       seqNo,
       serializer.getBytes(true)
     )
@@ -209,6 +211,7 @@ export class NetworkerThread {
 
     const seqNo = this.generateSeqNo(options.notContentRelated)
     const message = new NetMessage(
+      this.uid,
       seqNo,
       serializer.getBytes(true)
     )
@@ -244,6 +247,7 @@ export class NetworkerThread {
 
     const seqNo = this.generateSeqNo()
     const message = new NetMessage(
+      this.uid,
       seqNo,
       serializer.getBytes(true)
     )
@@ -316,6 +320,7 @@ export class NetworkerThread {
     serializer.storeMethod('ping', { ping_id: pingID })
 
     const pingMessage = new NetMessage(
+      this.uid,
       this.generateSeqNo(true),
       serializer.getBytes()
     )
@@ -450,7 +455,7 @@ export class NetworkerThread {
         wait_after: 150,
         max_wait  : 3000
       })
-      messages.push(new NetMessage(
+      messages.push(new NetMessage(this.uid,
         this.generateSeqNo(),
         serializer.getBytes()
       ))
@@ -480,6 +485,7 @@ export class NetworkerThread {
       noResponseMsgs = noResponseMessages
 
       message = new NetContainer(
+        this.uid,
         this.generateSeqNo(true),
         container.getBytes(true),
         innerMessages)
@@ -764,6 +770,7 @@ export class NetworkerThread {
 
         if (message.error_code == 16 || message.error_code == 17) {
           if (applyServerTime(
+              this.uid,
               rshift32(messageID)
             )) {
             log(`Update session`)()
