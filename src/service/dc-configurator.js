@@ -4,7 +4,6 @@ import has from 'ramda/src/has'
 import propEq from 'ramda/src/propEq'
 import find from 'ramda/src/find'
 import pipe from 'ramda/src/pipe'
-import prop from 'ramda/src/prop'
 
 import type { ServerConfig, DC } from './main/index.h'
 
@@ -39,9 +38,7 @@ export const chooseServer = (chosenServers: { [id: number]: string | false }, {
     : prodDC
   }: ServerConfig = {}) =>
   (dcID: number, upload: boolean = false) => {
-    const choosen = prop(dcID)
-    if (has(dcID, chosenServers)) return choosen(chosenServers)
-    let chosenServer = false
+    if (has(dcID, chosenServers)) return chosenServers[dcID]
 
 
     if (webogram) {
@@ -49,13 +46,13 @@ export const chooseServer = (chosenServers: { [id: number]: string | false }, {
       const path = dev
         ? 'apiw_test1'
         : 'apiw1'
-      chosenServer = `https://${ subdomain }.web.telegram.org/${ path }`
+      const chosenServer = `https://${ subdomain }.web.telegram.org/${ path }`
       return chosenServer //TODO Possibly bug. Isn't it necessary? chosenServers[dcID] = chosenServer
     }
     const dcOption = findById(dcID)(dcList)
-    if (dcOption)
-      chosenServer = `http://${ dcOption.host }${portString(dcOption)}/apiw1`
-    chosenServers[dcID] = chosenServer
-
-    return choosen(chosenServers)
+    if (dcOption) {
+      const chosenServer = `http://${ dcOption.host }${portString(dcOption)}/apiw1`
+      chosenServers[dcID] = chosenServer
+    }
+    return false
   }

@@ -265,7 +265,7 @@ export class Deserialization {
   emitter: EventEmitter
 
   constructor(
-    buffer: Buffer | ArrayBuffer | Uint8Array,
+    buffer: Buffer | ArrayBuffer,
     {
       mtproto = false,
       override = {}

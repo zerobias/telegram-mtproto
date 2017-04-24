@@ -17,6 +17,8 @@ import { bytesCmp, bytesToHex, sha1BytesSync,
 import { bpe, str2bigInt, one,
     dup, sub_, sub, greater } from '../../vendor/leemon'
 
+import type { ResPQ, Server_DH_Params, Server_DH_inner_data, Set_client_DH_params_answer } from './index.h'
+
 import Logger from '../../util/log'
 
 const log = Logger`auth`
@@ -43,13 +45,14 @@ const tmpAesKey = (serverNonce, newNonce) => {
   return key1.concat(key2)
 }
 
-const tmpAesIv = (serverNonce, newNonce) => {
+const tmpAesIv = (serverNonce, newNonce: Bytes) => {
   const arr1 = concat(serverNonce, newNonce)
   const arr2 = concat(newNonce, newNonce)
   const arr3 = newNonce.slice(0, 4)
   const key1 = sha1BytesSync(arr1)
   const key2 = sha1BytesSync(arr2)
-  return key1.slice(12).concat(key2, arr3)
+  const res = key1.slice(12).concat(key2, arr3)
+  return res
 }
 
 type Defer = {
@@ -76,26 +79,26 @@ type AuthBasic = {
   dcUrl: string,
   nonce: Bytes,
   deferred: Defer,
-  serverNonce: Bytes,
-  pq: Bytes,
+  serverNonce: Uint8Array,
+  pq: Uint8Array,
   fingerprints: string[],
-  p: number,
-  q: number,
+  p: Bytes,
+  q: Bytes,
   publicKey: {
     fingerprint: string
   },
-  newNonce: number[],
+  newNonce: Bytes,
   b: Bytes,
   g: number,
   gA: any,
   retry: number,
-  dhPrime: any,
+  dhPrime: Uint8Array,
   serverTime: number,
   localTime: number,
   tmpAesKey: Bytes,
   tmpAesIv: Bytes,
   authKeyID: Bytes,
-  authKey: string,
+  authKey: Bytes,
   serverSalt: Bytes
 }
 
@@ -112,6 +115,9 @@ const getTwoPow = () => { //Dirty cheat to count 2^(2048 - 64)
 }
 
 const leemonTwoPow = getTwoPow()
+
+
+
 
 export const Auth = (uid: string,
                      { select, prepare }: Args) => {
@@ -137,7 +143,8 @@ export const Auth = (uid: string,
     }
 
     try {
-      const response = deserializer.fetchObject('ResPQ', 'ResPQ')
+      //$FlowIssue
+      const response: ResPQ = deserializer.fetchObject('ResPQ', 'ResPQ')
 
       if (response._ !== 'resPQ') {
         const error = new Error(`[MT] resPQ response invalid: ${  response._}`)
@@ -198,7 +205,9 @@ export const Auth = (uid: string,
       new_nonce   : auth.newNonce
     }, 'P_Q_inner_data', 'DECRYPTED_DATA')
 
-    const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(data.getBytes())
+    //$FlowIssue
+    const hash: Bytes = data.getBytes()
+    const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(hash)
 
     const request = new Serialization({ mtproto: true }, uid)
     const reqBox = request.writer
@@ -222,8 +231,8 @@ export const Auth = (uid: string,
       throw error
     }
 
-
-    const response = deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
+    //$FlowIssue
+    const response: Server_DH_Params = deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
 
     if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
       const error = new Error(`[MT] Server_DH_Params response invalid: ${  response._}`)
@@ -279,7 +288,9 @@ export const Auth = (uid: string,
     const buffer = bytesToArrayBuffer(answerWithPadding)
 
     const deserializer = new Deserialization(buffer, { mtproto: true }, uid)
-    const response = deserializer.fetchObject('Server_DH_inner_data', 'server_dh')
+
+    //$FlowIssue
+    const response: Server_DH_inner_data = deserializer.fetchObject('Server_DH_inner_data', 'server_dh')
 
     if (response._ !== 'server_DH_inner_data')
       throw new Error(`[MT] server_DH_inner_data response invalid`)
@@ -378,7 +389,9 @@ export const Auth = (uid: string,
       g_b         : gB
     }, 'Client_DH_Inner_Data', 'client_DH')
 
-    const dataWithHash = sha1BytesSync(data.writer.getBuffer()).concat(data.getBytes())
+    //$FlowIssue
+    const hash: Bytes = data.getBytes()
+    const dataWithHash = sha1BytesSync(data.writer.getBuffer()).concat(hash)
 
     const encryptedData = aesEncryptSync(dataWithHash, auth.tmpAesKey, auth.tmpAesIv)
 
@@ -394,7 +407,8 @@ export const Auth = (uid: string,
 
     const deserializer = await sendPlainReq(auth.dcUrl, request.writer.getBuffer())
 
-    const response = deserializer.fetchObject('Set_client_DH_params_answer', 'client_dh')
+    //$FlowIssue
+    const response: Set_client_DH_params_answer = deserializer.fetchObject('Set_client_DH_params_answer', 'client_dh')
 
     if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
       const error = new Error(`[MT] Set_client_DH_params_answer response invalid: ${  response._}`)

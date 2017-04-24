@@ -102,17 +102,16 @@ export class ApiManager {
       this.currentDc = newDc
     })
   }
-  networkSetter = (dc: number, options: LeftOptions) =>
-    (authKey: Bytes, serverSalt: Bytes) => {
-      const networker = new NetworkerThread({
-        appConfig   : this.apiConfig,
-        storage     : this.storage,
-        emit        : this.emit,
-        chooseServer: this.chooseServer
-      }, dc, authKey, serverSalt, options, this.uid)
-      this.cache.downloader[dc] = networker
-      return networker
-    }
+  networkSetter(dc: number, authKey: Bytes, serverSalt: Bytes) {
+    const networker = new NetworkerThread({
+      appConfig   : this.apiConfig,
+      storage     : this.storage,
+      emit        : this.emit,
+      chooseServer: this.chooseServer
+    }, dc, authKey, serverSalt, this.uid)
+    this.cache.downloader[dc] = networker
+    return networker
+  }
   async mtpGetNetworker(dcID: number, options: LeftOptions = {}) {
     // const isUpload = options.fileUpload || options.fileDownload
     // const cache = isUpload
@@ -129,8 +128,6 @@ export class ApiManager {
 
     const dcUrl = this.chooseServer(dcID, false)
 
-    const networkSetter = this.networkSetter(dcID, options)
-
 
     if (cache[dcID]) return cache[dcID]
 
@@ -143,7 +140,7 @@ export class ApiManager {
       const authKey = bytesFromHex(authKeyHex)
       const serverSalt = bytesFromHex(serverSaltHex)
 
-      return networkSetter(authKey, serverSalt)
+      return this.networkSetter(dcID, authKey, serverSalt)
     }
 
     if (!options.createNetworker)
@@ -161,7 +158,7 @@ export class ApiManager {
     await this.storage.set(akk, bytesToHex(authKey))
     await this.storage.set(ssk, bytesToHex(serverSalt))
 
-    return networkSetter(authKey, serverSalt)
+    return this.networkSetter(dcID, authKey, serverSalt)
   }
   async doAuth() {
     this.authBegin = true

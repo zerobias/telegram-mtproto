@@ -40,7 +40,7 @@ const generateMessageID = (uid: string) => {
 
 export const applyServerTime = (
   uid: string,
-  serverTime: string,
+  serverTime: number,
   localTime?: number) => {
 
   const newTimeOffset = serverTime - Math.floor((localTime || tsNow()) / 1000)

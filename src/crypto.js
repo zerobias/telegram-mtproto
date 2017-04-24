@@ -8,6 +8,7 @@ import both from 'ramda/src/both'
 import isNode from 'detect-node'
 
 import blueDefer from './util/defer'
+import type { Defer } from './util/defer'
 import smartTimeout from './util/smart-timeout'
 import { convertToUint8Array, sha1HashSync, sha256HashSync,
   aesEncryptSync, aesDecryptSync, convertToByteArray, convertToArrayBuffer,
@@ -16,7 +17,7 @@ import { convertToUint8Array, sha1HashSync, sha256HashSync,
 const convertIfArray = when(is(Array), convertToUint8Array)
 let webWorker = !isNode
 let taskID = 0
-const awaiting = {}
+const awaiting: { [task: number]: Defer } = {}
 const webCrypto = isNode
   ? false
   //eslint-disable-next-line
@@ -26,7 +27,7 @@ const webCrypto = isNode
 const useWebCrypto = webCrypto && !!webCrypto.digest
 let useSha1Crypto = useWebCrypto
 let useSha256Crypto = useWebCrypto
-const finalizeTask = (taskID, result) => {
+const finalizeTask = (taskID: number, result) => {
   const deferred = awaiting[taskID]
   if (deferred) {
     // console.log(rework_d_T(), 'CW done')
@@ -114,21 +115,24 @@ const sha256Hash = (bytes: *) => {
   return smartTimeout.immediate(sha256HashSync, bytes)
 }
 
-const aesEncrypt = (bytes, keyBytes, ivBytes): Promise<ArrayBuffer> =>
+const aesEncrypt = (bytes: *, keyBytes: *, ivBytes: *): Promise<ArrayBuffer> =>
   smartTimeout.immediate(() => convertToArrayBuffer(aesEncryptSync(bytes, keyBytes, ivBytes)))
 
-const aesDecrypt = (encryptedBytes, keyBytes, ivBytes): Promise<ArrayBuffer> =>
+const aesDecrypt = (encryptedBytes: *, keyBytes: *, ivBytes: *): Promise<ArrayBuffer> =>
   smartTimeout.immediate(() => convertToArrayBuffer(
     aesDecryptSync(encryptedBytes, keyBytes, ivBytes)))
 
-const factorize = (bytes: *) => {
+const factorize = (bytes: number[] | Uint8Array) => {
   bytes = convertToByteArray(bytes)
   return webWorker
     ? performTaskWorker('factorize', { bytes })
     : smartTimeout.immediate(pqPrimeFactorization, bytes)
 }
 
-const modPow = (x, y, m): Promise<number[]> => webWorker
+const modPow = (x: number[] | Uint8Array,
+                y: number[] | Uint8Array,
+                m: number[] | Uint8Array): Promise<number[]> =>
+webWorker
   ? performTaskWorker('mod-pow', {
     x,
     y,

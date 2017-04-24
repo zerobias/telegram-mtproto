@@ -154,10 +154,10 @@ export class TypeWriter {
 
 export class TypeBuffer {
   offset: number = 0
-  buffer: Buffer | ArrayBuffer | Uint8Array
+  buffer: Buffer | ArrayBuffer
   intView: Uint32Array
   byteView: Uint8Array
-  constructor(buffer: Buffer | ArrayBuffer | Uint8Array) {
+  constructor(buffer: Buffer | ArrayBuffer) {
     this.buffer = buffer
     this.intView = toUint32(buffer)
     this.byteView = new Uint8Array(buffer)
@@ -193,17 +193,16 @@ export class TypeBuffer {
   }
 }
 
-const toUint32 = (buf: Buffer | ArrayBuffer | Uint8Array) => {
+const toUint32 = (buf: Buffer | ArrayBuffer) => {
   let ln, res
   if (!isNode) //TODO browser behavior not equals, why?
     return new Uint32Array( buf )
-  if (buf.readUInt32LE) {
+  if (buf instanceof Buffer) {
     ln = buf.byteLength / 4
     res = new Uint32Array( ln )
     for (let i = 0; i < ln; i++)
       res[i] = buf.readUInt32LE( i*4 )
   } else {
-    //$FlowIssue
     const data = new DataView( buf )
     ln = data.byteLength / 4
     res = new Uint32Array( ln )

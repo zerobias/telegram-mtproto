@@ -7,7 +7,7 @@ import getMsgKeyIv from './msg-key'
 import { readLong } from '../../tl/reader'
 
 type ReadResponse = {
-  response: Uint8Array,
+  response: ArrayBuffer | Buffer,
   reader: Deserialization,
   authKeyStored: number[]
 }

@@ -81,7 +81,7 @@ export class NetworkerThread {
   authKey: Bytes
   authKeyUint8: Uint8Array
   authKeyBuffer: ArrayBuffer
-  serverSalt: string
+  serverSalt: number[]
   iii: number
   authKeyID: Bytes
   upload: boolean
@@ -112,8 +112,7 @@ export class NetworkerThread {
     }: ContextConfig,
               dc: number,
               authKey: Bytes,
-              serverSalt: string,
-              options: NetOptions,
+              serverSalt: number[],
               uid: string) {
     this.uid = uid
     this.appConfig = appConfig
@@ -136,7 +135,7 @@ export class NetworkerThread {
     // this.checkLongPollCond = this.checkLongPollCond.bind(this)
     this.serverSalt = serverSalt
 
-    this.upload = options.fileUpload || options.fileDownload || false
+    this.upload = false //options.fileUpload || options.fileDownload || false
 
     this.updateSession()
 
@@ -595,7 +594,7 @@ export class NetworkerThread {
 
   getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
 
-  async parseResponse(responseBuffer: Uint8Array) {
+  async parseResponse(responseBuffer: ArrayBuffer | Buffer) {
 
     const { msgKey, encryptedData } = readResponse({
       reader       : new Deserialization(responseBuffer, {}, this.uid),
@@ -734,7 +733,7 @@ export class NetworkerThread {
     })
   }
 
-  async processMessage(message: *, messageID: string, sessionID: string) {
+  async processMessage(message: *, messageID: string, sessionID: Uint8Array) {
     const msgidInt = parseInt(messageID.toString(10).substr(0, -10), 10)
     if (msgidInt % 2) {
       console.warn('[MT] Server even message id: ', messageID, message)

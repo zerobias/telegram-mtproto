@@ -7,9 +7,14 @@ import { writeInt, writeIntBytes, writeLong } from '../../tl/writer'
 import { NetMessage } from '../networker/net-message'
 import { TypeWriter } from '../../tl/type-buffer'
 
+import Logger from '../../util/log'
+
+const log = Logger`encrypted message`
+
+
 type ApiMessageProps = {
   ctx: TypeWriter,
-  serverSalt: string,
+  serverSalt: number[],
   sessionID: number[],
   message: NetMessage
 }

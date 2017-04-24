@@ -2,14 +2,12 @@
 
 import Bluebird from 'bluebird'
 
-const createResolver = () => {
-
-}
+export type Defer = $Shape<Bluebird.Defer>
 
 /**
  * Defered promise like in Q and $q
  */
-export const blueDefer: () => $Shape<Bluebird.Defer> = () => {
+export const blueDefer: () => Defer = () => {
   let resolve, reject
   const promise = new Bluebird((rs, rj) => {
     resolve = rs

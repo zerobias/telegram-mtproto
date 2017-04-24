@@ -87,7 +87,7 @@ export function bytesCmp(bytes1: Bytes | Uint8Array,
   return true
 }
 
-export function bytesXor(bytes1: Bytes, bytes2: Bytes) {
+export function bytesXor(bytes1: Bytes | Uint8Array, bytes2: Bytes | Uint8Array) {
   const len = bytes1.length
   const bytes = []
 
@@ -139,9 +139,10 @@ export function convertToArrayBuffer(bytes: Buffer | ArrayBuffer | Uint8Array | 
   if (bytes instanceof ArrayBuffer) {
     return bytes
   }
-  if (bytes.buffer !== undefined &&
-    bytes.buffer.byteLength == bytes.length * bytes.BYTES_PER_ELEMENT) {
-    return bytes.buffer
+  if (bytes instanceof Uint8Array) {
+    //$FlowIssue
+    if (bytes.buffer.byteLength == bytes.length * bytes.BYTES_PER_ELEMENT)
+      return bytes.buffer
   }
   return bytesToArrayBuffer(bytes)
 }
@@ -251,7 +252,7 @@ export function uintToInt(val: number): number {
   return val
 }
 
-export function sha1HashSync(bytes: Bytes | ArrayBuffer): ArrayBuffer {
+export function sha1HashSync(bytes: Bytes | ArrayBuffer | Uint8Array): ArrayBuffer {
   // console.log(dT(), 'SHA-1 hash start', bytes.byteLength || bytes.length)
   const hashBytes = rushaInstance.rawDigest(bytes).buffer
   // console.log(dT(), 'SHA-1 hash finish')
@@ -259,7 +260,7 @@ export function sha1HashSync(bytes: Bytes | ArrayBuffer): ArrayBuffer {
   return hashBytes
 }
 
-export function sha1BytesSync(bytes: Bytes | ArrayBuffer) {
+export function sha1BytesSync(bytes: Bytes | ArrayBuffer | Uint8Array) {
   return bytesFromArrayBuffer(sha1HashSync(bytes))
 }
 
@@ -273,22 +274,23 @@ export function sha256HashSync(bytes: Bytes | ArrayBuffer) {
   return hashBytes
 }
 
-export function rsaEncrypt(publicKey: *, bytes: Bytes) {
-  bytes = addPadding(bytes, 255)
+export function rsaEncrypt(publicKey: { modulus: string, exponent: string }, bytes: Bytes) {
+  //$FlowIssue
+  const newBytes: number[] = addPadding(bytes, 255)
 
   const N = str2bigInt(publicKey.modulus, 16, 256)
   const E = str2bigInt(publicKey.exponent, 16, 256)
-  const X = str2bigInt(bytesToHex(bytes), 16, 256)
+  const X = str2bigInt(bytesToHex(newBytes), 16, 256)
   const encryptedBigInt = powMod(X, E, N),
         encryptedBytes = bytesFromHex(bigInt2str(encryptedBigInt, 16))
 
   return encryptedBytes
 }
 
-export function addPadding<ArrayBytes: ArrayBuffer | Bytes>(
-  bytes: ArrayBytes,
+export function addPadding(
+  bytes: ArrayBuffer | Bytes,
   blockSize: number = 16,
-  zeroes: boolean = false): ArrayBytes {
+  zeroes: boolean = false): ArrayBuffer | Bytes {
   let len
 
   if (bytes instanceof ArrayBuffer) {
@@ -305,10 +307,10 @@ export function addPadding<ArrayBytes: ArrayBuffer | Bytes>(
         padding[i] = 0
     } else
       random(padding)
-
-    bytes = bytes instanceof ArrayBuffer
-      ? bufferConcat(bytes, padding)
-      : bytes.concat(padding)
+    if (bytes instanceof ArrayBuffer) {
+      bytes = bufferConcat(bytes, padding)
+    } else
+      bytes = bytes.concat(padding)
   }
 
   return bytes
@@ -316,9 +318,9 @@ export function addPadding<ArrayBytes: ArrayBuffer | Bytes>(
 
 export function aesEncryptSync(bytes: Bytes, keyBytes: Bytes, ivBytes: Bytes) {
   // console.log(dT(), 'AES encrypt start', len/*, bytesToHex(keyBytes), bytesToHex(ivBytes)*/)aesEncryptSync
-  bytes = addPadding(bytes)
 
-  const encryptedWords = CryptoJS.AES.encrypt(bytesToWords(bytes), bytesToWords(keyBytes), {
+  const newBytes = addPadding(bytes)
+  const encryptedWords = CryptoJS.AES.encrypt(bytesToWords(newBytes), bytesToWords(keyBytes), {
     iv     : bytesToWords(ivBytes),
     padding: CryptoJS.pad.NoPadding,
     mode   : CryptoJS.mode.IGE
@@ -330,7 +332,7 @@ export function aesEncryptSync(bytes: Bytes, keyBytes: Bytes, ivBytes: Bytes) {
   return encryptedBytes
 }
 
-export function aesDecryptSync(encryptedBytes: Bytes, keyBytes: Bytes, ivBytes: Bytes) {
+export function aesDecryptSync(encryptedBytes: Bytes | Uint8Array, keyBytes: Bytes, ivBytes: Bytes) {
 
   // console.log(dT(), 'AES decrypt start', encryptedBytes.length)
   const decryptedWords = CryptoJS.AES.decrypt({ ciphertext: bytesToWords(encryptedBytes) }, bytesToWords(keyBytes), {
@@ -440,7 +442,7 @@ export function pqPrimeLeemon(what: Bytes) {
   return [bytesFromLeemonBigInt(P), bytesFromLeemonBigInt(Q), it]
 }
 
-export function bytesModPow(x: Bytes, y: Bytes, m: Bytes) {
+export function bytesModPow(x: Bytes | Uint8Array, y: Bytes | Uint8Array, m: Bytes | Uint8Array) {
   const xBigInt = str2bigInt(bytesToHex(x), 16)
   const yBigInt = str2bigInt(bytesToHex(y), 16)
   const mBigInt = str2bigInt(bytesToHex(m), 16)
