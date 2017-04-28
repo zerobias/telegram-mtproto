@@ -120,7 +120,7 @@ Module accepts the following interface
 ```typescript
 interface AsyncStorage {
   get(key: string): Promise<any>;
-  set(obj: any): Promise<void>;
+  set(key: string, value: any): Promise<void>;
   remove(...keys: string[]): Promise<void>;
   clear(): Promise<void>;
 }
