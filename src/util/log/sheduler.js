@@ -2,7 +2,7 @@
 
 import both from 'ramda/src/both'
 import is from 'ramda/src/is'
-import isNil from 'ramda/src/isNil'
+// import isNil from 'ramda/src/isNil'
 import isEmpty from 'ramda/src/isEmpty'
 import pipe from 'ramda/src/pipe'
 import map from 'ramda/src/map'
@@ -29,12 +29,19 @@ const ensureNonEmpty =
     ? [' ']
     : list
 
+const isLongerThan50 = (e: string) => e.length > 50
+
+const isLongString = both(
+  is(String),
+  isLongerThan50
+)
+
 const stringLimiting = when(
-    both(is(String), e => e.length > 50),
+    isLongString,
     take(150)
   )
 
-const normalizeVaules: <V>(list: V) => V = pipe(
+const normalizeVaules = pipe(
   map(stringLimiting),
   ensureNonEmpty
 )
@@ -46,14 +53,14 @@ const isSingleObject = (results: any[]) =>
   // !isEmpty(results[0])
 
 
-class Sheduler {
+export class Sheduler {
   queue: LogEvent[][] = []
   buffer: LogEvent[] = []
 
   add = (log: Debug.IDebugger,
     time: string,
     tagStr: string,
-    values: mixed[],
+    values: any[],
     padding: string) => {
     const results = normalizeVaules(values)
     if (isSingleObject(results))
@@ -86,4 +93,6 @@ class Sheduler {
   }
 }
 
-export default Sheduler
+const sheduler = new Sheduler
+
+export default sheduler
