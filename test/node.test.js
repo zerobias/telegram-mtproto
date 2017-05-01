@@ -1,6 +1,6 @@
 const { test } = require('tap')
 const { MTProto } = require('../lib')
-const { FileStorage } = require('../lib/plugins/file-storage')
+const { ReactiveStorage } = require('../lib/plugins/file-storage')
 
 const { delayExit } = require('./fixtures')
 
@@ -28,7 +28,7 @@ const server = {
 }
 
 const app = {
-  storage: new FileStorage('./test/storage.json')
+  storage: new ReactiveStorage('./test/storage.json')
 }
 
 const config = {

@@ -1,4 +1,5 @@
 const { MTProto } = require('../lib')
+const { ReactiveStorage } = require('../lib/plugins/file-storage')
 
 const api = {
   invokeWithLayer: 0xda9b0d0d,
@@ -11,6 +12,10 @@ const api = {
 
 const server = { webogram: true, dev: true }
 
-const telegram = MTProto({ api, server })
+const app = {
+  storage: new ReactiveStorage('./test/storage')
+}
+
+const telegram = MTProto({ api, server, app })
 
 module.exports = telegram
