@@ -20,4 +20,4 @@ typings.json
 typings/**
 src/**/*.draft.js
 test/storage.json
-flow-typed/**
+flow-typed/npm/**

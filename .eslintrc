@@ -62,7 +62,7 @@
         "avoidExplicitReturnArrows": true
       }
     ],
-    "no-extra-parens"      : "error",
+    "no-extra-parens"      : "off",
     "multiline-ternary"    : "off",
 
     //General

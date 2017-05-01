@@ -14,3 +14,7 @@
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_type=$FlowIssue
 unsafe.enable_getters_and_setters=true
+emoji=true
+esproposal.decorators=ignore
+module.use_strict=true
+strip_root=true
