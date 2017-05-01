@@ -24,7 +24,7 @@ const api = {
 }
 const server = {
   dev     : true,
-  webogram: false
+  webogram: true
 }
 
 const app = {
@@ -81,12 +81,13 @@ const isAlreadyAuth = async () => {
 
 const connectionTest = async t => {
   let res, i = 0
-  t.plan(1)
+  // t.plan(1)
   // await telegram.storage.clear() //Just for clean test
   while (i<5) {
     try {
       if (await isAlreadyAuth()) {
         t.ok(true, 'already authorized, skip')
+        t.end()
         return
       }
       const { phone_code_hash } = await telegram('auth.sendCode', {
@@ -105,9 +106,11 @@ const connectionTest = async t => {
       console.log('\n Logined as user')
       console.dir && console.dir(res.user, { colors: true })
       t.ok(res, 'result is ok')
+      t.end()
       break
     } catch (err) {
       console.log('err', err)
+      t.end()
       delayExit()
     }
     i++
@@ -115,9 +118,6 @@ const connectionTest = async t => {
 }
 
 const reuseStoredAuth = async (t) => {
-  t.plan(1)
-
-
   const anotherTelegram = MTProto({ server, api, app })
 
   //NOTE No auth here
@@ -127,7 +127,7 @@ const reuseStoredAuth = async (t) => {
   })
 
   t.ok(dialogs, 'dialogs is ok')
-
+  t.end()
   // const chat1 = dialogs.chats[2]
 
   // const history = await getHistory(chat1)

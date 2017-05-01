@@ -1,11 +1,12 @@
 const { test } = require('tap')
-const { TL } = require('../lib/tl/index')
+const { MTProto } = require('../lib')
+const { Deserialization, Serialization } = require('../lib/tl/index')
 const { delayExit } = require('./fixtures')
 
 const api57 = require('../schema/api-57.json')
 const mtproto57 = require('../schema/mtproto-57.json')
 
-const { getDeserializeOpts } = require('../lib/service/networker/index')
+// const { getDeserializeOpts } = require('../lib/service/networker/index')
 
 const {
   channelMessages,
@@ -21,13 +22,13 @@ const {
   getHistoryBinary
 } = require('./tl-data')
 
-const override = getDeserializeOpts(() => {})
+// const override = getDeserializeOpts(() => {})
 
-const creator = TL(api57, mtproto57)
+const mt = MTProto({ schema: api57, mtSchema: mtproto57 })
 
 const createDeserializer = (arr, type) => {
   const uint = type.from(arr)
-  return creator.Deserialization(uint.buffer, { mtproto: true, override })
+  return new Deserialization(uint.buffer, { mtproto: true }, mt.uid)
 }
 
 const deserializationTester = (expected, arr, typeField, field, offset = 0, type = Uint8Array) => t => {
@@ -65,7 +66,7 @@ const serializationTester =
     t => {
       let serialization
       t.notThrow(
-        () => serialization = creator.Serialization(serialParams),
+        () => serialization = new Serialization(serialParams, mt.uid),
         'create serialization')
       t.notThrow(
         () => serialization.storeMethod(methodName, data),
