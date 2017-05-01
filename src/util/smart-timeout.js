@@ -35,6 +35,12 @@ export const immediate = <T>(fn: (...args: Array<*>) => T, ...args: Array<*>): P
     .resolve()
     .then(() => fn(...args))
 
+export const immediateWrap =
+  <T>(fn: (...args: Array<*>) => T) =>
+    (...args: Array<*>): Promise<T> =>
+      Promise
+        .resolve()
+        .then(() => fn(...args))
 
 export const delayedCall =
   <T>(fn: (...args: Array<*>) => T, delay?: number = 0, ...args: Array<*>) =>
