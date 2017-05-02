@@ -1,0 +1,12 @@
+{
+  "extends": ["tslint:recommended"],
+  "rules": {
+    "quotemark": [true, "single"],
+    "trailing-comma": [false, "never"],
+    "semicolon": [true, "never"],
+    "array-type": [true, "generic"],
+    "interface-name": [true, "never-prefix"],
+    "ban-types": false,
+    "interface-over-type-literal": false
+  }
+}

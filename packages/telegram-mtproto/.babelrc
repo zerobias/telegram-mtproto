@@ -1,0 +1,25 @@
+{
+  "presets": [
+  ],
+  "plugins": [
+    "transform-flow-strip-types",
+    "transform-exponentiation-operator",
+    ["transform-es2015-for-of", {
+      "loose": true
+    }],
+    "transform-class-properties",
+    "transform-async-to-generator",
+    ["transform-es2015-block-scoping", {
+      "throwIfClosureRequired": true
+    }],
+    ["transform-object-rest-spread", { "useBuiltIns": true }]
+    ,"closure-elimination"
+  ],
+  "env": {
+    "commonjs": {
+      "plugins": [
+        "transform-es2015-modules-commonjs"
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "mtproto-storage-fs",
+  "version": "0.1.1",
+  "description": "",
+  "main": "lib/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "scripts": {
+    "build": "npm run build:cjs && npm run build:es",
+    "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
+    "build:es": "babel src/ -d es -s",
+    "clean": "rimraf lib/ && rimraf es/",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "files": [
+    "lib",
+    "src",
+    "es"
+  ],
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "chokidar": "^1.6.1",
+    "ramda": "^0.23.0",
+    "fs-extra": "^3.0.0",
+    "mtproto-shared": "^0.1.1",
+    "mtproto-logger": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^2.1.0",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "cross-env": "^4.0.0",
+    "flow-bin": "^0.45.0",
+    "rimraf": "^2.6.1"
+  },
+  "author": "Zero Bias",
+  "license": "MIT"
+}

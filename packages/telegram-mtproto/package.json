@@ -1,0 +1,114 @@
+{
+  "description": "Telegram MTProto library",
+  "name": "telegram-mtproto",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "typings": "index.d.ts",
+  "scripts": {
+    "build": "npm run build:cjs && npm run build:es",
+    "watch:node": "npm run build:cjs -- --watch",
+    "watch:web": "node_modules/.bin/webpack-dev-server --config=config/web/webpack.config.js",
+    "build:web:vendor": "webpack --config config/web/webpack.vendor.config.js",
+    "build:web": "webpack --config config/web/webpack.config.js",
+    "rebuild:web": "npm run build:web:vendor && npm run build:web",
+    "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
+    "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
+    "build:async": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --no-babelrc --plugins=transform-flow-strip-types,transform-es2015-modules-commonjs,transform-class-properties,transform-object-rest-spread,closure-elimination",
+    "clean:cjs": "rimraf lib/",
+    "rebuild:es": "npm run clean:es & npm run build:es",
+    "build:es": "babel src/ -d es -s",
+    "clean:es": "rimraf es/",
+    "test": "node --harmony test/node.test.js",
+    "test:esnext": "node_modules/.bin/tap test/*.test.js",
+    "prepublish": "npm run rebuild:es && npm run rebuild:cjs"
+  },
+  "author": "Zero Bias",
+  "dependencies": {
+    "@goodmind/node-cryptojs-aes": "^0.5.0",
+    "ajv": "^5.0.1",
+    "ajv-keywords": "^2.0.0",
+    "axios": "^0.16.1",
+    "bluebird": "^3.5.0",
+    "detect-node": "^2.0.3",
+    "eventemitter2": "^4.1.0",
+    "flow-static-land": "^0.2.6",
+    "kefir": "^3.7.1",
+    "mtproto-storage-fs": "^0.1.1",
+    "mtproto-logger": "^0.1.1",
+    "mtproto-shared": "^0.1.1",
+    "pako": "^1.0.5",
+    "ramda": "^0.23.0",
+    "randombytes": "^2.0.3",
+    "rusha": "^0.8.5",
+    "uuid": "^3.0.1",
+    "worker-loader": "^0.8.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^2.0.29",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-closure-elimination": "^1.1.14",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
+    "babel-plugin-transform-es2015-for-of": "^6.23.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-plugin-transform-exponentiation-operator": "^6.24.1",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "cross-env": "^4.0.0",
+    "flow-bin": "^0.45.0",
+    "flow-typed": "^2.1.2",
+    "hirestime": "^3.1.1",
+    "html-webpack-plugin": "^2.28.0",
+    "prompt": "^1.0.0",
+    "rimraf": "^2.6.1",
+    "tap": "^10.3.2",
+    "tslint": "^5.1.0",
+    "typescript": "^2.3.2",
+    "webpack": "^2.4.1",
+    "webpack-dev-server": "^2.4.5"
+  },
+  "engines": {
+    "node": ">=6.0"
+  },
+  "bugs": {
+    "url": "https://github.com/zerobias/telegram-mtproto/issues"
+  },
+  "files": [
+    "lib",
+    "test",
+    "examples",
+    "schema",
+    "src",
+    "es",
+    "index.d.ts"
+  ],
+  "keywords": [
+    "telegram",
+    "mt",
+    "mtproto",
+    "mobile",
+    "protocol",
+    "library"
+  ],
+  "maintainers": [
+    {
+      "name": "Zero Bias",
+      "email": "ribkatt@gmail.com"
+    },
+    {
+      "name": "goodmind",
+      "email": "andwebar@gmail.com"
+    }
+  ],
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zerobias/telegram-mtproto.git"
+  },
+  "version": "3.0.1-experimental"
+}

@@ -1,0 +1,14 @@
+{
+  "presets": [
+  ],
+  "plugins": [
+    "transform-flow-strip-types"
+  ],
+  "env": {
+    "commonjs": {
+      "plugins": [
+        "transform-es2015-modules-commonjs"
+      ]
+    }
+  }
+}
