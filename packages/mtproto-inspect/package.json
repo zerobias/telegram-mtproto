@@ -1,0 +1,49 @@
+{
+  "name": "mtproto-inspect",
+  "version": "0.0.3",
+  "private": true,
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node_modules/.bin/webpack-dashboard -p 8891 webpack-dev-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zero Bias",
+  "license": "MIT",
+  "files": [
+    "lib",
+    "src",
+    "es"
+  ],
+  "dependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "blessed": "^0.1.81",
+    "mtproto-storage-fs": "^0.1.2",
+    "pty.js": "^0.3.1",
+    "react": "~0.14.9",
+    "react-blessed": "^0.1.8",
+    "telegram-mtproto": "^3.0.2",
+    "term.js": "0.0.7",
+    "webpack": "^2.4.1",
+    "webpack-dev-server": "^2.4.5"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-closure-elimination": "^1.1.14",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
+    "babel-plugin-transform-es2015-for-of": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-react": "^6.24.1",
+    "cross-env": "^4.0.0",
+    "flow-bin": "^0.45.0",
+    "happypack": "^3.0.3",
+    "html-webpack-plugin": "^2.28.0",
+    "react-hot-loader": "^3.0.0-beta.6",
+    "rimraf": "^2.6.1",
+    "webpack-dashboard": "^0.3.0"
+  }
+}

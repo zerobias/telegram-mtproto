@@ -15,6 +15,7 @@
     "rebuild:web": "npm run build:web:vendor && npm run build:web",
     "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
+    "types": "flow-copy-source src lib && flow-copy-source src es",
     "build:async": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --no-babelrc --plugins=transform-flow-strip-types,transform-es2015-modules-commonjs,transform-class-properties,transform-object-rest-spread,closure-elimination",
     "clean:cjs": "rimraf lib/",
     "rebuild:es": "npm run clean:es & npm run build:es",
@@ -22,7 +23,7 @@
     "clean:es": "rimraf es/",
     "test": "node --harmony test/node.test.js",
     "test:esnext": "node_modules/.bin/tap test/*.test.js",
-    "prepublish": "npm run rebuild:es && npm run rebuild:cjs"
+    "prepublish": "npm run rebuild:es && npm run rebuild:cjs && npm run types"
   },
   "author": "Zero Bias",
   "dependencies": {
@@ -35,9 +36,9 @@
     "eventemitter2": "^4.1.0",
     "flow-static-land": "^0.2.6",
     "kefir": "^3.7.1",
-    "mtproto-logger": "^0.1.1",
-    "mtproto-shared": "^0.1.1",
-    "mtproto-storage-fs": "^0.1.1",
+    "mtproto-logger": "^0.1.2",
+    "mtproto-shared": "^0.1.2",
+    "mtproto-storage-fs": "^0.1.2",
     "pako": "^1.0.5",
     "ramda": "^0.23.0",
     "randombytes": "^2.0.3",
@@ -61,6 +62,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "cross-env": "^4.0.0",
     "flow-bin": "^0.45.0",
+    "flow-copy-source": "^1.1.0",
     "flow-typed": "^2.1.2",
     "hirestime": "^3.1.1",
     "html-webpack-plugin": "^2.28.0",
@@ -110,5 +112,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "3.0.1"
+  "version": "3.0.2"
 }

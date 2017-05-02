@@ -1,6 +1,6 @@
 {
   "name": "mtproto-shared",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -10,8 +10,9 @@
     "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",
     "build:es": "babel src/ -d es -s",
     "clean": "rimraf es/ && rimraf lib/",
-    "prepublish": "npm run clean && npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublish": "npm run clean && npm run build && npm run types",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types": "flow-copy-source src lib && flow-copy-source src es"
   },
   "files": [
     "lib",
@@ -30,6 +31,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "cross-env": "^4.0.0",
     "flow-bin": "^0.45.0",
+    "flow-copy-source": "^1.1.0",
     "rimraf": "^2.6.1"
   },
   "author": "Zero Bias",
