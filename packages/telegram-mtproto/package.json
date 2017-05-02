@@ -35,9 +35,9 @@
     "eventemitter2": "^4.1.0",
     "flow-static-land": "^0.2.6",
     "kefir": "^3.7.1",
-    "mtproto-storage-fs": "^0.1.1",
     "mtproto-logger": "^0.1.1",
     "mtproto-shared": "^0.1.1",
+    "mtproto-storage-fs": "^0.1.1",
     "pako": "^1.0.5",
     "ramda": "^0.23.0",
     "randombytes": "^2.0.3",
@@ -110,5 +110,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "3.0.1-experimental"
+  "version": "3.0.1"
 }

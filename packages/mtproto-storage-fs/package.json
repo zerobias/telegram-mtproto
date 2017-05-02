@@ -21,10 +21,10 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "chokidar": "^1.6.1",
-    "ramda": "^0.23.0",
     "fs-extra": "^3.0.0",
+    "mtproto-logger": "^0.1.1",
     "mtproto-shared": "^0.1.1",
-    "mtproto-logger": "^0.1.1"
+    "ramda": "^0.23.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^2.1.0",
