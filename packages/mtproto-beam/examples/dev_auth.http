@@ -1,0 +1,18 @@
+POST http://localhost:5000/invoke/auth.sendCode
+Content-Type: application/json
+
+{
+  "phone_number": "+9996620000",
+  "current_number": false,
+  "api_id":49631,
+  "api_hash":"fb050b8f6771e15bfda5df2409931569"
+}
+
+POST http://localhost:5000/invoke/auth.signIn
+Content-Type: application/json
+
+{
+  "phone_number": "+9996620000",
+  "phone_code_hash": "",
+  "phone_code": "22222"
+}

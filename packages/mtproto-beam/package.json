@@ -1,0 +1,37 @@
+{
+  "name": "mtproto-beam",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telegram-mtproto as web server",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel src/ -d lib -s",
+    "start": "node lib",
+    "clean": "rimraf lib",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run clean && npm run build && npm run types",
+    "types": "flow-copy-source src lib && flow-copy-source src es"
+  },
+  "author": "Zero Bias",
+  "license": "MIT",
+  "dependencies": {
+    "kcors": "^2.2.1",
+    "koa": "^2.2.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.1.1",
+    "mtproto-storage-fs": "^0.1.2",
+    "telegram-mtproto": "^3.0.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "cross-env": "^4.0.0",
+    "flow-bin": "^0.45.0",
+    "flow-copy-source": "^1.1.0",
+    "flow-typed": "^2.1.2",
+    "rimraf": "^2.6.1"
+  }
+}
