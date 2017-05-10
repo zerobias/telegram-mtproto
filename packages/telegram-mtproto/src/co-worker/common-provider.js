@@ -15,12 +15,14 @@ const testWebCrypto = (): void | WebCryptoType => {
 
   try {
     /* eslint-disable */
-    if (window.crypto) {
-      webCrypto =
-        window.crypto.subtle
-        || window.crypto.webkitSubtle
-    } else if (window.msCrypto) {
-      webCrypto = window.msCrypto.subtle
+    if (typeof window !== 'undefined') {
+      if (window.crypto) {
+        webCrypto =
+          window.crypto.subtle
+          || window.crypto.webkitSubtle
+      } else if (window.msCrypto) {
+        webCrypto = window.msCrypto.subtle
+      }
     }
   } finally {
     return webCrypto

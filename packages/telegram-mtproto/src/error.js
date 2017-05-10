@@ -54,6 +54,19 @@ export class DcUrlError extends MTError {
   }
 }
 
+export type RpcErrorType = {
+  error_message?: string,
+  error_code?: number,
+}
+
+export class RpcError extends MTError {
+  originalError: *
+  constructor(code: number, type: string, message: string, originalError: *) {
+    super(code, type, message)
+    this.originalError = originalError
+  }
+}
+
 export class TypeBufferIntError extends MTError {
   static getTypeBufferMessage(ctx: TypeBuffer) {
     const offset = ctx.offset

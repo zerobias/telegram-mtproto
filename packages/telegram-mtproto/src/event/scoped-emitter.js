@@ -1,6 +1,9 @@
 //@flow
+//@ts-check
 
 import type { EventEmitterType, EventID, Listener } from 'eventemitter2'
+import { tagged } from 'daggy'
+import { fromEvents } from 'kefir'
 import arrify from '../util/arrify'
 
 const normalizeScope = (scope: EventID) => arrify(scope)
@@ -41,4 +44,84 @@ class ScopedEmitter implements EventEmitterType {
   }
 }
 
+
+const Predicate = tagged('Predicate', ['f'])
+
+// Make a Predicate that runs `f` to get
+// from `b` to `a`, then uses the original
+// Predicate function!
+// contramap :: Predicate a ~> (b -> a)
+//                          -> Predicate b
+Predicate.prototype.contramap =
+  function(f) {
+    return Predicate(
+      x => this.f(f(x))
+    )
+  }
+
+
+
+interface ScopeType {
+  value: string[],
+  static of(val: string[]): ScopeType,
+  map(fn: (val: string[]) => string[]): ScopeType,
+  concat(e: ScopeType): ScopeType,
+  ap(root: EventEmitterType): Emitter,
+  equals(val: ScopeType): boolean
+}
+
+
+
+
+type Emitter = <V>(val: V) => boolean
+
+export class EventScope {
+  value: string[]
+  joined: string
+  static of(val: string[] | string) {
+    let list
+    if (Array.isArray(val))
+      list = val
+    else
+      list = [val]
+    return new EventScope(list)
+  }
+  map(fn: (val: string[]) => string[]) {
+    return EventScope.of(fn(this.value))
+  }
+  concat(e: ScopeType) {
+    return EventScope.of([...this.value, ...e.value])
+  }
+  ap<T>(fn: (list: string[]) => T): T {
+    return fn(this.value)
+  }
+  equals(scope: EventScope) {
+    for (const [index, str] of this.value.entries())
+      if (str !== scope.value[index])
+        return false
+    return true
+  }
+  static empty() {
+    return EventScope.of([])
+  }
+  constructor(val: string[]) {
+    this.value = val
+    this.joined = val.join('.')
+  }
+}
+
+export const emitScope =
+  (es: EventScope) =>
+    (em: EventEmitterType) =>
+      <-T>(data: T) => em.emit(es.value, data)
+
+export const fromScope =
+  (es: EventScope) =>
+    (em: EventEmitterType) =>
+      fromEvents(em, es.joined)
+
+const ex = EventScope.of(['uid', 'scope'])
+
+const mp = (val: string[]) => [val[0], 'a']
+const ex1 = ex.map(mp)
 export default ScopedEmitter

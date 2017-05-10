@@ -1,25 +1,20 @@
 //@flow
 
-import EventEmitter, { EventEmitterType } from 'eventemitter2'
-
-import { fromEvents } from 'kefir'
+import EventEmitter from 'eventemitter2'
 
 import { ApiManager } from '../api-manager'
 import MemoryStorage from '../../plugins/memory-storage'
 import Layout from '../../layout'
-import { NetMessage } from '../networker/net-message'
 
 import configValidator from './config-validation'
 import generateInvokeLayer from './invoke-layer-generator'
-import Config, { curriedRegister } from '../../config-provider'
+import { curriedRegister } from '../../config-provider'
 import State from './state'
-import NetRequest from './request'
 
 import Logger from 'mtproto-logger'
 const log = Logger`main`
 
 import streamBus from '../../event/stream-bus'
-import NetworkerThread from '../networker'
 import { ScopedEmitter } from '../../event'
 import type { AsyncStorage } from '../../plugins/index.h'
 import type { TLSchema } from '../../tl/index.h'
@@ -46,25 +41,6 @@ const generateLayers = (api: TLSchema, mt: TLSchema) => ({
   apiLayer: new Layout(api),
   mtLayer : new Layout(mt),
 })
-
-
-interface CastFn <V>{
-  (obj: V): V
-}
-const cast: any = (obj) => obj
-
-function makeEventStream(emitter: EventEmitterType) {
-  return function<Cast>(
-    name: string[] | string,
-    casted: Cast) {
-    const casts: CastFn<Cast> = cast
-    const eventName = Array.isArray(name)
-      ? name.join('.')
-      : name
-    const eventStream = fromEvents(emitter, eventName, casts)
-    return eventStream
-  }
-}
 
 class MTProto {
   config: StrictConfig

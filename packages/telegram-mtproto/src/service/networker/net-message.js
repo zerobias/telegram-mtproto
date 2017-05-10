@@ -1,9 +1,10 @@
 //@flow
 
-import forEachObjIndexed from 'ramda/src/forEachObjIndexed'
+import { forEachObjIndexed } from 'ramda'
 
 import { generateID } from '../time-manager'
 import blueDefer from '../../util/defer'
+import type { Defer } from '../../util/defer'
 
 type BodyBytes = number[] | Uint8Array
 
@@ -16,7 +17,7 @@ export class NetMessage {
   msg_id: string
   container: boolean = false
   notContentRelated: boolean = false
-  deferred: *
+  deferred: Defer
   requestID: ?string
   dc: ?number
   dcID: ?number
@@ -68,8 +69,8 @@ export class NetMessage {
   }
   toJSON() {
     return {
-      uid: this.uid,
-      deferred: this.deferred,
+      uid      : this.uid,
+      deferred : this.deferred,
       requestID: this.requestID,
       noShedule: this.noShedule,
 

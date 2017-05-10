@@ -1,7 +1,7 @@
 //@flow
 
 import uuid from 'uuid/v4'
-import isNode from 'detect-node'
+// import isNode from 'detect-node'
 
 import { ProviderRegistryError } from './error'
 import type { TLSchema } from './tl/index.h'

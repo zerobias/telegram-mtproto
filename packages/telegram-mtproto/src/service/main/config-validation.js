@@ -1,6 +1,5 @@
 import Ajv from 'ajv'
 import AjvKeys from 'ajv-keywords/keywords/typeof'
-import propIs from 'ramda/src/propIs'
 
 const type = {
   func: { typeof: 'function' },
@@ -97,7 +96,7 @@ const configValidator = config => {
   }
 }
 
-const canDir = propIs(Function, 'dir', console)
+const canDir = typeof console.dir === 'function'
 const printObj = canDir
   ? (arg) => console.dir( arg, { colors: true })
   : (arg) => console.log(arg)

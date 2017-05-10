@@ -1,17 +1,19 @@
 //@flow
 
 import uuid from 'uuid/v4'
+import type { Defer } from '../../util/defer'
+import blueDefer from '../../util/defer'
 
 export type ApiMethod = {
   method: string,
   params: { [arg: string]: * }
 }
 
-type Defer = {
-  resolve<T>(rs: T): void,
-  reject<E>(rs: E): void,
-  promise: Promise<*>
-}
+// type Defer = {
+//   resolve<T>(rs: T): void,
+//   reject<E>(rs: E): void,
+//   promise: Promise<*>
+// }
 
 export type RequestStatus =
   'wait'
@@ -20,25 +22,24 @@ export type RequestStatus =
   | 'done'
   | 'error'
 
-export type RequestOptions = {
-  dc: number | '@@home'
-}
+export type RequestOptions = {|
+  dc: number | '@@home',
+  requestID: string
+|}
 
-class Request {
+class ApiRequest {
   data: ApiMethod
   requestID: string = uuid()
-  defer: Defer
+  defer: Defer = blueDefer()
   // status: RequestStatus = 'wait'
   options: RequestOptions
   constructor(data: ApiMethod,
-              options: RequestOptions,
-              defer: Defer) {
+              options: RequestOptions) {
     this.data = data
-    this.defer = defer
     this.options = options
   }
 }
 
-export type { Request }
+export type { ApiRequest as Request }
 
-export default Request
+export default ApiRequest

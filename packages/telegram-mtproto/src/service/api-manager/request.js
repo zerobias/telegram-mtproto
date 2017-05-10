@@ -22,14 +22,14 @@ class Request {
     this.method = method
     this.params = params
 
+    //$FlowIssue
     this.performRequest = this.performRequest.bind(this)
     //$FlowIssue
     this.error303 = this.error303.bind(this)
     //$FlowIssue
     this.error420 = this.error420.bind(this)
-    this.initNetworker = this.initNetworker.bind(this)
   }
-  initNetworker = async (): Promise<NetworkerType> => {
+  async initNetworker(): Promise<NetworkerType> {
     if (!this.config.networker) {
       const { getNetworker, netOpts, dc } = this.config
       const networker = await getNetworker(dc, netOpts)
@@ -38,9 +38,15 @@ class Request {
     return this.config.networker
   }
 
-  performRequest = () => this.initNetworker().then(this.requestWith)
-  requestWith = (networker: NetworkerType): Bluebird$Promise<*> => networker
-    .wrapApiCall(this.method, this.params, this.config.netOpts)
+  async performRequest(): Promise<any> {
+    const networker = await this.initNetworker()
+    return networker.wrapApiCall(
+      this.method,
+      this.params,
+      this.config.netOpts)
+  }
+  // requestWith = (networker: NetworkerType): Bluebird$Promise<*> => networker
+  //   .wrapApiCall(this.method, this.params, this.config.netOpts)
     // .catch({ code: 303 }, this.error303)
     // .catch({ code: 420 }, this.error420)
   error303(err: MTError) {
@@ -58,7 +64,7 @@ class Request {
     //NOTE Shouldn't we must reassign current networker/cachedNetworker?
     return this.performRequest()
   }
-  error420(err: MTError): Bluebird$Promise<*> {
+  error420(err: MTError): Bluebird<any> {
     const matched = err.type.match(/^FLOOD_WAIT_(\d+)/)
     if (!matched || matched.length < 2) return Bluebird.reject(err)
     const [ , waitTime ] = matched

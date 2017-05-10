@@ -2,7 +2,7 @@
 
 import Promise from 'bluebird'
 
-import toPairs from 'ramda/src/toPairs'
+import { toPairs } from 'ramda'
 
 import type { AsyncStorage } from './index.h'
 

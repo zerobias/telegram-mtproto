@@ -14,8 +14,8 @@ class LongPoll {
   thread: NetworkerThread
 
   maxWait = 25e3
-  pendingTime = -Infinity
-  requestTime = -Infinity
+  pendingTime = Date.now()
+  requestTime = Date.now()
   isActive = true
 
   constructor(thread: NetworkerThread) {

@@ -1,8 +1,6 @@
 //@flow
 
 import EventEmitter from 'eventemitter2'
-import is from 'ramda/src/is'
-import has from 'ramda/src/has'
 
 import { uintToInt, intToUint, bytesToHex,
   gzipUncompress, bytesToArrayBuffer } from '../bin'
@@ -90,7 +88,7 @@ export class Serialization {
       const paramName = param.name
       const typeClass = param.typeClass
       let fieldObj
-      if (!has(paramName, params)) {
+      if (typeof params[paramName] === 'undefined') {
         if (param.isFlag) continue
         else if (layer.typeDefaults.has(typeClass))
           fieldObj = layer.typeDefaults.get(typeClass)
@@ -200,7 +198,7 @@ export class Serialization {
       throw new Error('Invalid vector object')
     }
 
-    if (!is(Object, obj))
+    if (typeof obj !== 'object')
       throw new Error(`Invalid object for type ${  type}`)
 
     const schema = this.mtproto
@@ -335,12 +333,16 @@ export class Deserialization {
   }
 
   fetchRawBytes(len: number | false, field: string = '') {
-    if (len === false) {
-      len = this.readInt(`${ field }_length`)
-      if (len > this.typeBuffer.byteView.byteLength)
-        throw new Error(`Invalid raw bytes length: ${  len  }, buffer len: ${this.typeBuffer.byteView.byteLength}`)
-    }
-    const bytes = this.typeBuffer.next(len)
+    let ln: number
+    if (typeof len === 'number')
+      ln = len
+    else if (typeof len === 'boolean' && len === false) {
+      ln = this.readInt(`${ field }_length`)
+      if (ln > this.typeBuffer.byteView.byteLength)
+        throw new Error(`Invalid raw bytes length: ${ln}, buffer len: ${this.typeBuffer.byteView.byteLength}`)
+    } else
+      throw new TypeError(`[fetchRawBytes] len must be number or false, get ${typeof len}`)
+    const bytes = this.typeBuffer.next(ln)
     logr(`raw bytes`)(bytesToHex(bytes), field)
 
     return bytes

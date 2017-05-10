@@ -2,9 +2,7 @@
 
 import Promise from 'bluebird'
 
-import has from 'ramda/src/has'
-import pathEq from 'ramda/src/pathEq'
-import allPass from 'ramda/src/allPass'
+import { has, pathEq, allPass } from 'ramda'
 
 import httpClient from '../../http'
 import { ErrorBadResponse, ErrorNotFound } from '../../error'

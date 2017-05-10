@@ -1,7 +1,6 @@
 {
   "name": "mtproto-beam",
   "version": "0.1.0",
-  "private": true,
   "description": "Telegram-mtproto as web server",
   "main": "lib/index.js",
   "scripts": {

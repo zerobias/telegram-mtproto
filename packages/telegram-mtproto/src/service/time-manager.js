@@ -9,7 +9,7 @@ import Logger from 'mtproto-logger'
 
 const log = Logger`time-manager`
 
-export const tsNow = (seconds?: boolean) => {
+export const tsNow = (seconds?: boolean): number => {
   let t = +new Date()
   //eslint-disable-next-line
   if (!isNode) t += window.tsOffset || 0

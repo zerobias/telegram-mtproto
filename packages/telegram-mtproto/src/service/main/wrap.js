@@ -19,9 +19,11 @@ function MTProto(config: ConfigType = {}): ApiManagerInstance {
   telegram.setUserAuth = api.setUserAuth
   telegram.on = api.on
   telegram.emit = api.emit
+  telegram.cache = api.cache
   telegram.storage = api.storage
   telegram.uid = mtproto.uid
   telegram.bus = mtproto.bus
+  telegram.mtproto = mtproto
   return telegram
 }
 

@@ -1,7 +1,6 @@
 import MTProto from './service/main/wrap'
 
 export { CryptoWorker } from './crypto'
-export { bin } from './bin'
 export { ApiManager } from './service/api-manager/index'
 export { setLogger } from 'mtproto-logger'
 

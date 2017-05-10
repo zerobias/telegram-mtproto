@@ -1,8 +1,6 @@
 //@flow
 
-import propEq from 'ramda/src/propEq'
-import find from 'ramda/src/find'
-import pipe from 'ramda/src/pipe'
+import { propEq, find, pipe } from 'ramda'
 
 import type { ServerConfig, DC } from './main/index.h'
 

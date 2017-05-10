@@ -28,7 +28,7 @@ const server = {
 }
 
 const app = {
-  storage: new Storage('./test/storage.json')
+  // storage: new Storage('./test/storage.json')
 }
 
 const config = {
@@ -47,6 +47,7 @@ const tests = async () => {
   try {
     await test(`Connection test`, connectionTest)
     await test(`Reuse stored auth`, reuseStoredAuth)
+    // await app.storage.save()
   } catch (err) {
     console.log(err)
   } finally {
@@ -118,11 +119,11 @@ const connectionTest = async t => {
 }
 
 const reuseStoredAuth = async (t) => {
-  const anotherTelegram = MTProto({ server, api, app })
+  // const anotherTelegram = MTProto({ server, api, app })
 
   //NOTE No auth here
 
-  const dialogs = await anotherTelegram('messages.getDialogs', {
+  const dialogs = await telegram('messages.getDialogs', {
     limit: 100,
   })
 

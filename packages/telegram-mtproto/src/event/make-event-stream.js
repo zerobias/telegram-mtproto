@@ -16,7 +16,12 @@ export function makeEventStream(emitter: EventEmitterType) {
     const eventName = Array.isArray(name)
       ? name.join('.')
       : name
-    const eventStream = fromEvents(emitter, eventName, casts)
+    let eventStream
+    if (typeof casted === 'function') {
+      eventStream = fromEvents(emitter, eventName, casted)
+    } else {
+      eventStream = fromEvents(emitter, eventName, casts)
+    }
     return eventStream
   }
 }

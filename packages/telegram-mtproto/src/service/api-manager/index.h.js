@@ -3,6 +3,7 @@
 import type { Emit, On } from 'eventemitter2'
 import type { AsyncStorage } from '../../plugins'
 import type { PublicKey } from '../main/index.h'
+import type { NetworkerType } from '../networker'
 
 export type Bytes = number[]
 
@@ -15,10 +16,6 @@ export type LeftOptions = {
 
 export type Cached<Model> = {
   [id: number]: Model
-}
-
-export type NetworkerType = {
-  wrapApiCall: (method: string, params: { [key: string]: * }, options?: LeftOptions) => Bluebird$Promise<*>
 }
 
 export type Cache = {
@@ -36,7 +33,8 @@ export interface ApiManagerInstance {
   storage: AsyncStorage,
   setUserAuth(dc: number, userAuth: any): Promise<void>,
   on: On,
-  emit: Emit
+  emit: Emit,
+  bus: *
 }
 
 export type RequestOptions = {|
@@ -46,3 +44,5 @@ export type RequestOptions = {|
   getNetworker: (dcID: number, options: LeftOptions) => Promise<NetworkerType>,
   netOpts: { [arg: string]: * }
 |}
+
+export type { NetworkerType } from '../networker'

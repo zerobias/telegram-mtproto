@@ -1,8 +1,6 @@
 //@flow
 
-import has from 'ramda/src/has'
-import flip from 'ramda/src/flip'
-import contains from 'ramda/src/contains'
+import { has, flip, contains } from 'ramda'
 
 import type { SchemaElement, TLMethod, TLConstruct, TLSchema, SchemaParam } from './index.h'
 

@@ -1,17 +1,19 @@
-import isNil from 'ramda/src/isNil'
-import propOr from 'ramda/src/propOr'
+//@flow
+
+import { isNil, propOr } from 'ramda'
 
 import blueDefer from '../../util/defer'
 import Switch from '../../util/switch'
+import { MTError } from '../../error'
 import { tsNow } from '../time-manager'
 
 const cachedExportPromise = {}
 
 const protect = (
-    { code = NaN, type = '' },
-    { rawError = null },
-    dcID,
-    baseDcID
+    { code = NaN, type = '' }: MTError,
+    { rawError = null }: { rawError: * },
+    dcID: number,
+    baseDcID: number
   ) => ({
     base: baseDcID,
     errR: rawError,
@@ -20,27 +22,42 @@ const protect = (
     dcID
   })
 
+type ProtectedProps = {
+  type: string,
+  code: number,
+  dcID: number,
+  base: number,
+  errR: *,
+}
+
 const patterns = {
-  noBaseAuth: ({ code, dcID, base })  =>  code === 401 && dcID === base,
-  noDcAuth  : ({ code, dcID, base })  =>  code === 401 && dcID !== base,
-  waitFail  : ({ code, type, errR })  =>  !errR && (code === 500 || type === 'MSG_WAIT_FAILED'),
-  _         : ()                      =>  true
+  noBaseAuth: ({ code, dcID, base }: ProtectedProps)  =>
+    code === 401 &&
+    dcID === base,
+  noDcAuth: ({ code, dcID, base }: ProtectedProps)  =>
+    code === 401 &&
+    dcID !== base,
+  waitFail: ({ code, type, errR }: ProtectedProps)  =>
+    !errR && (
+      code === 500 ||
+      type === 'MSG_WAIT_FAILED'),
+  _       : ()                      =>  true
 }
 
 
 const matchProtect =
-  matched => (
-      error,
-      options,
-      dcID,
-      emit,
-      rejectPromise,
-      requestThunk,
-      apiSavedNet,
-      apiRecall,
-      deferResolve,
-      mtpInvokeApi,
-      storage
+  (matched: *) => (
+      error: *,
+      options: *,
+      dcID: number,
+      emit: *,
+      rejectPromise: *,
+      requestThunk: *,
+      apiSavedNet: *,
+      apiRecall: *,
+      deferResolve: *,
+      mtpInvokeApi: *,
+      storage: *
     ) =>
       matched({
         invoke   : mtpInvokeApi,
@@ -67,7 +84,7 @@ const noDcAuth = ({ dcID, reject, apiSavedNet, apiRecall, deferResolve, invoke }
   const importAuth = ({ id, bytes }) => invoke(
     'auth.importAuthorization',
     { id, bytes },
-    { dcID, noErrorBox: true })
+    { dcID, noErrorBox: true, dc: dcID })
 
 
   if (isNil(cachedExportPromise[dcID])) {

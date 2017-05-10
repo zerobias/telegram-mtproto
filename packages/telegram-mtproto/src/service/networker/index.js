@@ -3,9 +3,7 @@
 import Promise from 'bluebird'
 import uuid from 'uuid/v4'
 
-import is from 'ramda/src/is'
-import contains from 'ramda/src/contains'
-import mapObjIndexed from 'ramda/src/mapObjIndexed'
+import { is, contains, mapObjIndexed } from 'ramda'
 
 import { tsNow, generateID, applyServerTime } from '../time-manager'
 import random from '../secure-random'
@@ -50,7 +48,7 @@ let akStopped = false
 //eslint-disable-next-line
 // const xhrSendBuffer = !isNode && !('ArrayBufferView' in window)
 
-type NetOptions = {
+type Neptions = {
   fileUpload?: boolean,
   fileDownload?: boolean,
   notContentRelated?: boolean,
@@ -200,6 +198,7 @@ export class NetworkerThread {
     this.emit('net-message', {
       type  : 'mtp-call',
       msg_id: message.msg_id,
+      message,
       method,
       params,
       options
@@ -225,6 +224,7 @@ export class NetworkerThread {
     this.emit('net-message', {
       type  : 'mtp-message',
       msg_id: message.msg_id,
+      message,
       object,
       options
     })
@@ -235,7 +235,7 @@ export class NetworkerThread {
     return message
   }
 
-  wrapApiCall(method: string, params: { [key: string]: * } = {}, options: *) {
+  wrapApiCall(method: string, params: { [key: string]: * } = {}, options: *): Promise<any> {
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
@@ -269,6 +269,7 @@ export class NetworkerThread {
     this.emit('net-message', {
       type  : 'api-call',
       msg_id: message.msg_id,
+      message,
       method,
       params,
       options
@@ -312,13 +313,6 @@ export class NetworkerThread {
       message,
       options
     })
-    const opts = { ...options }
-    const msg = { ...message }
-    this.emit('push-message', {
-      threadID: this.threadID,
-      msg,
-      opts
-    })
     this.state.addSent(message)
     this.state.setPending(message.msg_id)
 
@@ -359,6 +353,7 @@ export class NetworkerThread {
     this.emit('net-message', {
       type   : 'mtp-call',
       msg_id : pingMessage.msg_id,
+      message: pingMessage,
       method : 'ping',
       params : { ping_id: pingID },
       options: {}
@@ -403,7 +398,7 @@ export class NetworkerThread {
       this.onOnlineCb = this.checkConnection
       this.emit('net.offline', this.onOnlineCb)
     } else {
-      this.longPoll.pendingTime = -Infinity
+      this.longPoll.pendingTime = Date.now()
         //NOTE check long state was here
       this.checkLongPoll().then(() => {})
       this.sheduleRequest()
@@ -491,23 +486,26 @@ export class NetworkerThread {
     if (message.isAPI && !message.longPoll) {
       const serializer = new Serialization({ mtproto: true }, this.uid)
       const params = {
-        max_delay : 500,
-        wait_after: 150,
+        max_delay : 1000,
+        wait_after: 550,
         max_wait  : 3000
       }
       serializer.storeMethod('http_wait', params)
-      messages.push(new NetMessage(this.uid,
+      const netMessage = new NetMessage(
+        this.uid,
         this.generateSeqNo(),
         serializer.getBytes()
-      ))
+      )
       this.longPoll.writePollTime()
       this.emit('net-message', {
         type   : 'mtp-call',
-        msg_id : message.msg_id,
+        msg_id : netMessage.msg_id,
+        message: netMessage,
         method : 'http_wait',
         params,
         options: {}
       })
+      messages.push(netMessage)
     }
 
     if (!messages.length) {
@@ -782,27 +780,15 @@ export class NetworkerThread {
     return false
   }
 
-  processError(rawError: { [key: string]: * }) {
-    const matches = (rawError.error_message || '').match(/^([A-Z_0-9]+\b)(: (.+))?/) || []
-    rawError.error_code = uintToInt(rawError.error_code)
-
-    return new RawError({
-      code: !rawError.error_code || rawError.error_code <= 0
-        ? 500
-        : rawError.error_code,
-      type         : matches[1] || 'UNKNOWN',
-      description  : matches[3] || `CODE#${  rawError.error_code  } ${  rawError.error_message}`,
-      originalError: rawError
-    })
-  }
-
   async processMessage(message: *, messageID: string, sessionID: Uint8Array) {
-    const msgidInt = parseInt(messageID.toString(10).substr(0, -10), 10)
+    if (!isFinite(messageID)) {
+      throw new TypeError(`Message ID should be finite ${messageID} ${typeof messageID}`)
+    }
+    const msgidInt = parseInt(messageID, 10)
     if (msgidInt % 2) {
       console.warn('[MT] Server even message id: ', messageID, message)
       return
     }
-    // console.log('process message', message, messageID, sessionID)
     this.emit('incoming-message', {
       threadID: this.threadID,
       message,
@@ -865,19 +851,25 @@ export class NetworkerThread {
         break
       }
       case 'new_session_created': {
-        this.ackMessage(messageID)
+        // this.ackMessage(messageID)
 
-        this.processMessageAck(message.first_msg_id)
-        await this.applyServerSalt(message.server_salt)
+        // this.processMessageAck(message.first_msg_id)
+        // await this.applyServerSalt(message.server_salt)
 
+        this.emit('new-session', {
+          threadID   : this.threadID,
+          networkerDC: this.dcID,
+          messageID,
+          message
+        })
 
-        const baseDcID = await this.storage.get('dc')
-        const updateCond =
-          baseDcID === this.dcID &&
-          !this.upload &&
-          updatesProcessor
-        if (updateCond)
-          updatesProcessor(message, true)
+        // const baseDcID = await this.storage.get('dc')
+        // const updateCond =
+        //   baseDcID === this.dcID &&
+        //   !this.upload &&
+        //   updatesProcessor
+        // if (updateCond)
+        //   updatesProcessor(message, true)
 
         break
       }
@@ -917,51 +909,16 @@ export class NetworkerThread {
         this.processMessageAck(sentMessageID)
         if (!sentMessage) break
 
-        // const deferred = sentMessage.deferred
         if (message.result._ == 'rpc_error') {
-          const error = this.processError(message.result)
-          log(`ERROR, Rpc error`)(error)
-          const matched = error.type.match(/^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/)
-          if (matched && matched.length >= 2) {
-            const [ , , newDcID] = matched
-            const newDc = parseInt(newDcID, 10)
-            if (newDc !== this.dcID) {
-              this.dcID = +newDcID
-              await this.storage.set('dc', +newDcID)
+          this.emit('rpc-error', {
+            threadID   : this.threadID,
+            networkerDC: this.dcID,
+            error      : message.result,
+            sentMessage,
+            message
+          })
 
-            }
-            this.emit('migrate-error', {
-              threadID   : this.threadID,
-              networkerDC: this.dcID,
-              newDc,
-              error,
-              sentMessage,
-              message
-            })
-            this.emit('error.303', this.dcID)
-          } else {
-            log('non phone error')(error.code, error.description)
-            this.emit('rpc-error', {
-              threadID   : this.threadID,
-              networkerDC: this.dcID,
-              error,
-              sentMessage,
-              message
-            })
-          }
-          // deferred.reject(error)
         } else {
-          // log(`Rpc response`)(message.result)
-            /*if (debug) {
-              console.log(dTime(), 'Rpc response', message.result)
-            } else {
-              let dRes = message.result._
-              if (!dRes)
-                dRes = message.result.length > 5
-                  ? `[..${  message.result.length  }..]`
-                  : message.result
-              console.log(dTime(), 'Rpc response', dRes)
-            }*/
           this.emit('rpc-result', {
             threadID   : this.threadID,
             networkerDC: this.dcID,
@@ -984,19 +941,6 @@ export class NetworkerThread {
         break
       }
     }
-  }
-}
-
-class RawError extends Error {
-  code: number | string
-  type: string
-  originalError: { [key: string]: * }
-  constructor(obj: *) {
-    super(`${obj.code} ${obj.type} ${obj.description}`)
-    this.code = obj.code
-    this.type = obj.type
-    this.description = obj.description
-    this.originalError = obj.originalError
   }
 }
 

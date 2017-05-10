@@ -3,9 +3,6 @@
 import Promise from 'bluebird'
 // import UpdatesManager from '../updates'
 
-import propEq from 'ramda/src/propEq'
-import has from 'ramda/src/has'
-
 import Logger from 'mtproto-logger'
 const debug = Logger`api-manager`
 
@@ -16,11 +13,10 @@ import blueDefer from '../../util/defer'
 import { chooseServer } from '../dc-configurator'
 
 import KeyManager from '../rsa-keys-manger'
-import { AuthKeyError, DcUrlError } from '../../error'
+import { MTError, DcUrlError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-import type { TLSchema } from '../../tl/index.h'
 import { switchErrors } from './error-cases'
 import { delayedCall, dTime } from 'mtproto-shared'
 
@@ -33,14 +29,14 @@ import type { AsyncStorage } from '../../plugins'
 
 import Config from '../../config-provider'
 import NetworkerThread from '../networker'
-import NetRequest from '../main/request'
+import ApiRequest from '../main/request'
 
 const baseDcID = 2
 
 const Ln = (length: number, obj?: *): boolean => {
   if (obj == null) return false
-  //$FlowIssue
-  const res = propEq('length', length, obj)
+  const res = typeof obj.length === 'number' &&
+    obj.length === length
   return res
 }
 
@@ -122,7 +118,7 @@ export class ApiManager {
     const cache = this.cache.downloader
     if (!dcID) throw new Error('get Networker without dcID')
 
-    if (has(dcID, cache)) return cache[dcID]
+    if (typeof cache[dcID] !== 'undefined') return cache[dcID]
 
     const akk = `dc${  dcID  }_auth_key`
     const ssk = `dc${  dcID  }_server_salt`
@@ -133,8 +129,8 @@ export class ApiManager {
 
     if (cache[dcID]) return cache[dcID]
 
-    const authKeyHex: ?string = await this.storage.get(akk)
-    let serverSaltHex: ?string = await this.storage.get(ssk)
+    const authKeyHex: string = await this.storage.get(akk)
+    let serverSaltHex: string = await this.storage.get(ssk)
 
     // if (!authKeyHex || !serverSaltHex)
       // await this.doAuth()
@@ -160,21 +156,25 @@ export class ApiManager {
     await this.storage.set(akk, bytesToHex(authKey))
     await this.storage.set(ssk, bytesToHex(serverSalt))
 
+    this.emit('base', 'WORK')
+
     return this.networkSetter(dcID, authKey, serverSalt)
   }
   async doAuth() {
     this.authBegin = true
+    this.emit('base', 'AUTH')
     try {
       const storedBaseDc = await this.storage.get('dc')
       const baseDc = storedBaseDc || baseDcID
       const opts = {
-        dcID           : baseDc,
+        dc             : baseDc,
         createNetworker: true
       }
       const networker = await this.mtpGetNetworker(baseDc)
       const nearestDc = await networker.wrapApiCall(
         'help.getNearestDc', {}, opts)
       const { nearest_dc, this_dc } = nearestDc
+      await this.storage.set('nearest_dc', nearest_dc)
       if (storedBaseDc == null) {
         await this.storage.set('dc', this_dc)
         // if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
@@ -184,13 +184,13 @@ export class ApiManager {
 
       }
       debug(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
-      this.emit('testing', { nearestDc, this_dc })
       this.authPromise.resolve()
     } catch (err) {
       this.authPromise.reject(err)
     }
   }
   async initConnection() {
+    this.emit('base', 'AUTH')
     if (!isAnyNetworker(this)) {
       if (!this.authBegin)
         this.doAuth()
@@ -198,15 +198,17 @@ export class ApiManager {
     }
   }
   mtpInvokeApi(method: string, params: Object, options: LeftOptions = {}) {
-    const deferred = blueDefer()
-    const netReq = new NetRequest({ method, params }, options, deferred)
+    const netReq = new ApiRequest({ method, params }, options)
 
-    return this.invokeNetRequest(netReq)
+    netReq.options.requestID = netReq.requestID
+    this.emit('new-request', netReq)
+
+    return netReq.defer.promise
+    // this.invokeNetRequest(netReq)
   }
 
-  async invokeNetRequest(netReq: NetRequest) {
-    netReq.options.requestID = netReq.requestID
-    this.emit('new-request', { ...netReq })
+  async invokeNetRequest(netReq: ApiRequest) {
+
     const rejectPromise = (error: any) => {
       let err
       if (error instanceof Error)
@@ -221,7 +223,7 @@ export class ApiManager {
       // else if (!is(Object, error))
       //   err = { message: error }
       // else err = error
-      netReq.defer.reject(err)
+      console.warn(`[rejectPromise] Unhandled error!`, err)
 
       if (!netReq.options.noErrorBox) {
         //TODO weird code. `error` changed after `.reject`?
@@ -235,49 +237,88 @@ export class ApiManager {
           (new Error()).stack*/
         this.emit('error.invoke', error)
       }
+      netReq.defer.reject(err)
     }
+    let networker
+
+    let dcID: number
     try {
       await this.initConnection()
 
-      const requestThunk = waitTime => delayedCall(req.performRequest, +waitTime * 1e3)
 
-      const dcID = netReq.options.dcID
-        ? netReq.options.dcID
-        : await this.storage.get('dc')
+      if (netReq.options.dc) {
+        const reqDc = netReq.options.dc
+        if (typeof reqDc === 'number')
+          dcID = reqDc
+        else if (reqDc === '@@home')
+          dcID = await this.storage.get('dc')
+        else throw new Error(`invokeNetRequest wrong request id ${reqDc}`)
+      } else
+        dcID = await this.storage.get('dc')
 
-      const networker = await this.mtpGetNetworker(dcID)
-
-      const cfg: RequestOptions = {
-        networker,
-        dc          : dcID,
-        storage     : this.storage,
-        getNetworker: this.mtpGetNetworker,
-        netOpts     : netReq.options
-      }
-      const req = new Request(cfg, netReq.data.method, netReq.data.params)
-
-
-      req.performRequest()
-        .then(
-          netReq.defer.resolve,
-          error => {
-            const deferResolve = netReq.defer.resolve
-            const apiSavedNet = () => networker
-            const apiRecall = networker => {
-              req.config.networker = networker
-              return req.performRequest()
-            }
-            console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
-
-            return switchErrors(error, netReq.options, dcID, baseDcID)(
-              error, netReq.options, dcID, this.emit, rejectPromise, requestThunk,
-              apiSavedNet, apiRecall, deferResolve, this.mtpInvokeApi,
-              this.storage)
-          })
-        .catch(rejectPromise)
+      networker = await this.mtpGetNetworker(dcID)
     } catch (e) {
       netReq.defer.reject(e)
+      return netReq.defer.promise
     }
+
+    const cfg: RequestOptions = {
+      networker,
+      dc          : dcID,
+      storage     : this.storage,
+      getNetworker: this.mtpGetNetworker,
+      netOpts     : netReq.options
+    }
+    const req = new Request(cfg, netReq.data.method, netReq.data.params)
+    const requestThunk = (waitTime: number): Promise<any> => {
+      debug('requestThunk', 'waitTime')(waitTime)
+      return delayedCall(req.performRequest, +waitTime * 1e3)
+    }
+    const apiRecall = (networker: NetworkerThread) => {
+      req.config.networker = networker
+      return req.performRequest()
+    }
+    req.performRequest()
+      .then(
+        netReq.defer.resolve,
+        (error: MTError) => {
+          const deferResolve = netReq.defer.resolve
+          const apiSavedNet = () => networker
+
+          console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
+
+          const noAuth = error.code === 401
+          if (noAuth) {
+            debug('performRequest', 'no auth')(dcID)
+            this.emit('no-auth', {
+              dc: dcID,
+              req,
+              apiReq: netReq,
+              error
+            })
+          }
+          const waitFailRegExp = /MSG_WAIT_FAILED_(\d+)/
+
+        //   return switchErrors(
+        //     error,
+        //     netReq.options,
+        //     dcID,
+        //     baseDcID
+        //   )(
+        //     error,
+        //     netReq.options,
+        //     dcID,
+        //     this.emit,
+        //     rejectPromise,
+        //     requestThunk,
+        //     apiSavedNet,
+        //     apiRecall,
+        //     deferResolve,
+        //     this.mtpInvokeApi,
+        //     this.storage)
+        // })
+      .catch(rejectPromise)
+
     return netReq.defer.promise
   }
 
