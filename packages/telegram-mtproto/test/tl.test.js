@@ -107,4 +107,5 @@ test('Serialization test', t => {
   ))
 
   t.end()
-}).then(delayExit)
+  delayExit()
+})

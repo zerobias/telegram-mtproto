@@ -1,4 +1,4 @@
 
-const delayExit = () => setTimeout(() => process.exit(0), 2e3)
+const delayExit = () => setTimeout(() => process.exit(0), 4e3)
 
 exports.delayExit = delayExit
