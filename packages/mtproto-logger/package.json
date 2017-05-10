@@ -1,6 +1,6 @@
 {
   "name": "mtproto-logger",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "chalk": "^1.1.3",
     "debug": "^2.6.6",
     "eventemitter2": "^4.1.0",
-    "mtproto-shared": "^0.1.2"
+    "mtproto-shared": "^0.1.3"
   },
   "devDependencies": {
     "@types/chalk": "^0.4.31",

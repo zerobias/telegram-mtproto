@@ -1,6 +1,6 @@
 {
   "name": "mtproto-beam",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Telegram-mtproto as web server",
   "main": "lib/index.js",
   "scripts": {
@@ -18,8 +18,8 @@
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.1.1",
-    "mtproto-storage-fs": "^0.1.2",
-    "telegram-mtproto": "^3.0.2"
+    "mtproto-storage-fs": "^0.1.3",
+    "telegram-mtproto": "^3.0.3-unstable"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
