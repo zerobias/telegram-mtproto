@@ -1,6 +1,6 @@
 const { test } = require('tap')
 const { MTProto } = require('../lib')
-const { Storage } = require('mtproto-storage-fs')
+// const { Storage } = require('mtproto-storage-fs')
 
 const { delayExit } = require('./fixtures')
 

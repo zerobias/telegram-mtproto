@@ -316,18 +316,18 @@ export class ApiManager {
         //     deferResolve,
         //     this.mtpInvokeApi,
         //     this.storage)
-        // })
+        })
       .catch(rejectPromise)
 
     return netReq.defer.promise
   }
 
-  setUserAuth = async (dcID: number, userAuth: any) => {
-    const fullUserAuth = { dcID, ...userAuth }
-    await this.storage.set('dc', dcID)
-    await this.storage.set('user_auth', fullUserAuth)
-    this.emit('auth.dc', { dc: dcID, auth: userAuth })
-  }
+  // setUserAuth = async (dcID: number, userAuth: any) => {
+  //   const fullUserAuth = { dcID, ...userAuth }
+  //   await this.storage.set('dc', dcID)
+  //   await this.storage.set('user_auth', fullUserAuth)
+  //   this.emit('auth.dc', { dc: dcID, auth: userAuth })
+  // }
 }
 
 const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0
