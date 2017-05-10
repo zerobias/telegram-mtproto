@@ -1,4 +1,4 @@
-
+//@flow
 type chalk$StyleElement = {
   open: string;
   close: string;
@@ -73,7 +73,7 @@ type chalk$StyleMap = {
   bgWhite: chalk$StyleElement;
 };
 
-declare module "chalk" {
+declare module 'chalk' {
   declare var enabled: boolean;
   declare var supportsColor: boolean;
   declare var styles: chalk$StyleMap;

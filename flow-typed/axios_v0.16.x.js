@@ -81,7 +81,7 @@ declare module 'axios' {
     ): AxiosInterceptorIdent;
     eject(ident: AxiosInterceptorIdent): void;
   }
-  declare type AxiosPromise<T> = Promise<AxiosXHR<T>>;
+  declare export type AxiosPromise<T> = Promise<AxiosXHR<T>>;
   declare class Axios {
     constructor<T>(config?: AxiosXHRConfigBase<T>): void;
     $call: <T>(config: AxiosXHRConfig<T> | string, config?: AxiosXHRConfig<T>) => AxiosPromise<T>;
@@ -115,5 +115,5 @@ declare module 'axios' {
     all: typeof Promise.all;
     spread(callback: Function): (arr: Array<any>) => Function
   }
-  declare module.exports: AxiosExport;
+  declare export default AxiosExport;
 }

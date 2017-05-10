@@ -101,6 +101,49 @@ declare class GenericContructorMulti {
 
 declare module 'ramda' {
 
+  declare export function pipe<A,B,C,D,E,F,G,H>(
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D,
+    de: (d: D) => E,
+    ef: (e: E) => F,
+    fg: (f: F) => G,
+    gh: (g: G) => H
+  ): (a: A) => H
+  declare export function pipe<A,B,C,D,E,F,G>(
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D,
+    de: (d: D) => E,
+    ef: (e: E) => F,
+    fg: (f: F) => G
+  ): (a: A) => G
+  declare export function pipe<A,B,C,D,E,F>(
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D,
+    de: (d: D) => E,
+    ef: (e: E) => F
+  ): (a: A) => F
+  declare export function pipe<A,B,C,D,E>(
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D,
+    de: (d: D) => E
+  ): (a: A) => E
+  declare export function pipe<A,B,C,D>(
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D
+  ): (a: A) => D
+  declare export function pipe<A,B,C>(
+    ab: (a: A) => B,
+    bc: (b: B) => C
+  ): (a: A) => C
+  declare export function pipe<A,B>(
+    ab: (a: A) => B
+  ): (a: A) => B
+
   /**
   * DONE:
   * Function*
@@ -114,7 +157,6 @@ declare module 'ramda' {
   */
 
   declare var compose: Compose;
-  declare var pipe: Pipe;
   declare var curry: Curry;
   declare export function curryN(length: number, fn: (...args: Array<any>) => any): Function
 

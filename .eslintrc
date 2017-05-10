@@ -33,6 +33,7 @@
     "jquery": false
   },
   "rules": {
+    "flowtype/no-weak-types": "off",
     // "strict"               : "error",
     "no-console"           : "off",
     "no-cond-assign"       : "warn",

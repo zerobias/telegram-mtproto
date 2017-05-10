@@ -1,14 +1,26 @@
 [ignore]
-<PROJECT_ROOT>/lib/**/.*
-<PROJECT_ROOT>/es/**/.*
-<PROJECT_ROOT>/dist/.*
-<PROJECT_ROOT>/logs/.*
-<PROJECT_ROOT>/examples/.*
-<PROJECT_ROOT>/.vscode/.*
-<PROJECT_ROOT>/typings/**/.*
-<PROJECT_ROOT>/**/*.draft.js
+<PROJECT_ROOT>/node_modules/[^ar].*
+<PROJECT_ROOT>/packages/mtproto-inspect/node_modules/[^ar].*
+<PROJECT_ROOT>/packages/mtproto-inspect/node_modules/*.flow
+<PROJECT_ROOT>/packages/mtproto-inspect/node_modules/*.json
+<PROJECT_ROOT>/packages/mtproto-inspect/node_modules/jss/*
+.*/dist/.*
+.*/logs/.*
+.*/examples/.*
+.*/.vscode/.*
+.*/typings/.*
+.*/**/*.draft.js
+**/lib/*.flow
+.*/**/es/*.flow
 
 [include]
+./packages/mtproto-logger/src
+./packages/mtproto-shared/src
+./packages/mtproto-storage-fs/src
+./packages/telegram-mtproto/src
+
+[libs]
+./flow-typed
 
 [options]
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
@@ -18,3 +30,4 @@ emoji=true
 esproposal.decorators=ignore
 module.use_strict=true
 strip_root=true
+esproposal.export_star_as=enable

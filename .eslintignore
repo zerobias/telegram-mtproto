@@ -1,4 +1,6 @@
-lib/**
-es/**
-dist/**
-flow-typed/**
+**/lib/**
+**/es/**
+**/dist/**
+**/flow-typed/**
+**/**/*.flow
+**/logs/**

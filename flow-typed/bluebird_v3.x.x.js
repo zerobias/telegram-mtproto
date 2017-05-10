@@ -173,12 +173,12 @@ declare class Bluebird$Promise<+R> extends Promise<R>{
   reason(): any;
 }
 
-declare class Bluebird$Defer {
-  promise: Bluebird$Promise<*>;
-  resolve: (value: any) => any;
-  reject: (value: any) => any;
+declare interface Bluebird$Defer {
+  promise: Bluebird$Promise<*>,
+  resolve: (value: any) => any,
+  reject: (value: any) => any,
 }
 
 declare module 'bluebird' {
-  declare var exports: typeof Bluebird$Promise;
+  declare export default typeof Bluebird$Promise
 }
