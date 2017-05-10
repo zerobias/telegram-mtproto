@@ -111,5 +111,5 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "3.0.3-unstable"
+  "version": "3.0.4-unstable"
 }

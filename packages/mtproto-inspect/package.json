@@ -1,6 +1,6 @@
 {
   "name": "mtproto-inspect",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "description": "",
   "main": "dist/index.js",
@@ -40,7 +40,7 @@
     "redux-act": "^1.2.0",
     "redux-thunk": "^2.2.0",
     "style-loader": "^0.17.0",
-    "telegram-mtproto": "^3.0.3-unstable",
+    "telegram-mtproto": "^3.0.4-unstable",
     "universal-router": "^3.1.0",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.5"
