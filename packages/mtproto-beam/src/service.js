@@ -30,7 +30,8 @@ app
 
 
 app.listen(PORT, () => console.log(`
-B E A M
+ + B E A M - - - - - - - - -
+
 telegram-mtproto web service
 
   host ${HOST}

@@ -13,10 +13,12 @@
     "eslint-plugin-babel": "^4.1.1",
     "eslint-plugin-flowtype": "^2.32.1",
     "eslint-plugin-promise": "^3.5.0",
-    "lerna": "^2.0.0-rc.4",
+    "eslint-plugin-react": "^6.10.3",
     "flow-bin": "^0.45.0",
-    "flow-typed": "^2.1.2"
+    "flow-typed": "^2.1.2",
+    "flowgen": "^1.2.0",
+    "lerna": "^2.0.0-rc.4"
   },
   "dependencies": {},
-  "version": "0.0.1"
+  "version": "0.0.2"
 }

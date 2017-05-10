@@ -2,6 +2,7 @@
   "presets": [
   ],
   "plugins": [
+    // "runtyper",
     "transform-flow-strip-types",
     "transform-exponentiation-operator",
     ["transform-es2015-for-of", {

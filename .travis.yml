@@ -9,6 +9,4 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
-before_script:
-  - npm run build:cjs
 script: npm run test:esnext
