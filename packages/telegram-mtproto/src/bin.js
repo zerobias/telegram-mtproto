@@ -1,6 +1,5 @@
 //@flow
 
-import toLower from 'ramda/src/toLower'
 import Rusha from 'rusha'
 import * as CryptoJSlib from '@goodmind/node-cryptojs-aes'
 const { CryptoJS } = CryptoJSlib
@@ -44,10 +43,10 @@ export function stringToChars(str: string) {
   return result
 }
 
-export const strDecToHex = (str: string) => toLower(
+export const strDecToHex = (str: string) =>
   bigInt2str(
     str2bigInt(str, 10, 0), 16
-  ))
+  ).toLowerCase()
 
 export function bytesToHex(bytes: Bytes | Uint8Array = []) {
   const arr = []

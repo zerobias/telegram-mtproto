@@ -1,17 +1,25 @@
 //@flow
 
-import both from 'ramda/src/both'
-import is from 'ramda/src/is'
-// import isNil from 'ramda/src/isNil'
-import isEmpty from 'ramda/src/isEmpty'
-import pipe from 'ramda/src/pipe'
-import map from 'ramda/src/map'
-import when from 'ramda/src/when'
-import take from 'ramda/src/take'
-import tail from 'ramda/src/tail'
+import Emitter from 'eventemitter2'
+import { fromEvents } from 'kefir'
 
 import Debug from './debug'
 
+const emitter = new Emitter()
+
+
+const eventsHandler = (queue: LogEvent[][]): LogEvent[] => {
+  const result = []
+  const ln = queue.length
+  for (let i = 0; i < ln; i++) {
+    const qInstance = queue[i]
+    const qLn = qInstance.length
+    for (let j = 0; j < qLn; j++)
+      result.push(qInstance[j])
+  }
+  return result
+}
+export const logStream = fromEvents(emitter, 'log', eventsHandler)
 class LogEvent {
   log: Debug.IDebugger
   values: mixed[]
@@ -24,33 +32,21 @@ class LogEvent {
   }
 }
 
-const ensureNonEmpty =
-  (list: any[]) => isEmpty(list)
-    ? [' ']
-    : list
+const stringLimiting =
+  (str: *) =>
+    typeof str === 'string' && str > 50
+      ? str.slice(0, 150)
+      : str
 
-const isLongerThan50 = (e: string) => e.length > 50
+const normalizeVaules = (list: any[]) => {
+  if (list.length === 0) return [' ']
+  return list.map(stringLimiting)
+}
 
-const isLongString = both(
-  is(String),
-  isLongerThan50
-)
-
-const stringLimiting = when(
-    isLongString,
-    take(150)
-  )
-
-const normalizeVaules = pipe(
-  map(stringLimiting),
-  ensureNonEmpty
-)
 
 const isSingleObject = (results: any[]) =>
   results.length === 1 &&
-  // !isNil(results[0]) &&
-  is(Object, results[0])
-  // !isEmpty(results[0])
+  typeof results[0] === 'object'
 
 
 export class Sheduler {
@@ -65,12 +61,10 @@ export class Sheduler {
     const results = normalizeVaules(values)
     if (isSingleObject(results))
       results.unshift('%O')
-    const first = results[0]
-    const other = tail(results)
     const firstLine = [tagStr, time].join('  ')
 
     this.buffer.push(new LogEvent(log, [firstLine]))
-    this.buffer.push(new LogEvent(log, [first, ...other]))
+    this.buffer.push(new LogEvent(log, results))
 
   }
 
@@ -80,6 +74,7 @@ export class Sheduler {
   }
 
   print = () => {
+    emitter.emit('log', this.queue)
     for (const buffer of this.queue)
       for (const logEvent of buffer)
         logEvent.print()

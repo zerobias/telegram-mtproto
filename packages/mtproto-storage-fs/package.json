@@ -24,8 +24,7 @@
     "chokidar": "^1.6.1",
     "fs-extra": "^3.0.0",
     "mtproto-logger": "^0.1.2",
-    "mtproto-shared": "^0.1.2",
-    "ramda": "^0.23.0"
+    "mtproto-shared": "^0.1.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^2.1.0",

@@ -2,21 +2,7 @@
 
 import chalk from 'chalk'
 
-import flatten from 'ramda/src/flatten'
-import trim from 'ramda/src/trim'
-import map from 'ramda/src/map'
-import chain from 'ramda/src/chain'
-import pipe from 'ramda/src/pipe'
-import split from 'ramda/src/split'
-import when from 'ramda/src/when'
-import reject from 'ramda/src/reject'
-import isEmpty from 'ramda/src/isEmpty'
-import toUpper from 'ramda/src/toUpper'
-import join from 'ramda/src/join'
-import append from 'ramda/src/append'
-import flip from 'ramda/src/flip'
-import contains from 'ramda/src/contains'
-import transduce from 'ramda/src/transduce'
+import flatten from 'array-flatten'
 
 import { memoize } from 'mtproto-shared'
 
@@ -25,47 +11,66 @@ const brackets = {
   close: chalk.gray(']')
 }
 
-const tagBrackets = (e: string) => `${brackets.open}${e}${brackets.close}`
-
-const fillLine = when(
-  contains('|'),
-  pipe(chalk.hidden, chalk.black),
-)
-
-type Transducer = <T>(fn: T) => T
-
-const transducer: Transducer = (fn) => transduce(fn, flip(append), [])
-
-const createGroupHeader = pipe(
-  trim,
-  toUpper,
-  chalk.magenta,
-  chalk.bold,
-  name => `--- ---  ${name}  --- ---`
-)
-
-const noOpNormalizeTags = pipe(
-  chain(split(',')),
-  map(trim),
-  reject(isEmpty),
-  map(pipe(chalk.blue, chalk.bold)),
-  map(tagBrackets),
-  map(fillLine),
-)
-
-const normalizeTags = pipe(
-  flatten,
-  transducer(noOpNormalizeTags),
-  join('')
-)
+const createGroupHeader = (str: string) => {
+  const text = str.trim().toUpperCase()
+  const colorfull = chalk.bold(chalk.magenta(text))
+  const result = `--- ---  ${colorfull}  --- ---`
+  return result
+}
 
 
-export const makeModuleName = pipe(
-  flatten,
-  chain(split(',')),
-  map(trim),
-  reject(isEmpty),
-)
+const noOpNormalizeTag = (str: string) => {
+  const trimmed = str.trim()
+  if (trimmed === '') return ''
+  if (trimmed.indexOf('|') !== -1)
+    return Array(trimmed.length+2)
+      .fill(' ')
+      .join('')
+  const colorfull = chalk.bold(chalk.blue(trimmed))
+  const enclosed = `${brackets.open}${colorfull}${brackets.close}`
+  return enclosed
+}
+
+const mapToString =
+  (str: *): string =>
+    typeof str === 'string'
+      ? str
+      : str.toString()
+
+const flatSplit =
+  (acc: string[], val: string) => {
+    acc.push(...val.split(','))
+    return acc
+  }
+
+const normalizeTags = (list: *) => {
+  const flatList: string[] = flatten(list)
+  const result =
+    flatList
+      .map(mapToString)
+      .reduce(flatSplit, [])
+      .map(noOpNormalizeTag)
+      .join(''); //eslint-disable-line
+  return result
+}
+
+const trimReject =
+  (acc: string[], val: string) => {
+    const result = val.trim()
+    if (result !== '')
+      acc.push(result)
+    return acc
+  }
+
+export const makeModuleName = (list: *) => {
+  const flatList: string[] = flatten(list)
+  const result =
+    flatList
+      .map(mapToString)
+      .reduce(flatSplit, [])
+      .reduce(trimReject, []); //eslint-disable-line
+  return result
+}
 
 export const makeTime = (time: string) => chalk.gray(chalk.italic(time))
 

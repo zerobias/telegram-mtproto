@@ -1,6 +1,5 @@
 //@flow
 
-import omit from 'ramda/src/omit'
 import Bluebird from 'bluebird'
 import {
   readJson,
@@ -82,7 +81,9 @@ export class FileStorage implements AsyncStorage {
   }
 
   async remove(...keys: string[]): Promise<void> {
-    this.data = omit(keys, this.data)
+    const data = this.data
+    for (const key of keys)
+      delete data[key]
     log('remove')(keys)
     await this.save()
   }
