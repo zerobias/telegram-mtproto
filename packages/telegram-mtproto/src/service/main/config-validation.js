@@ -1,3 +1,5 @@
+//@flow
+
 import Ajv from 'ajv'
 import AjvKeys from 'ajv-keywords/keywords/typeof'
 

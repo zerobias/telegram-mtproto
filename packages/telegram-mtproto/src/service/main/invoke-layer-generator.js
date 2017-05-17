@@ -7,7 +7,6 @@
  * https://github.com/telegramdesktop/tdesktop/blob/dev/Telegram/Resources/scheme.tl
  *
  * @param {number} apiLevel
- * @returns
  */
 function generateInvokeLayer(apiLevel: number) {
   switch (apiLevel) {
