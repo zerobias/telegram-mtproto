@@ -2,8 +2,7 @@
 
 import type { EventEmitterType } from 'eventemitter2'
 // import { taggedSum } from 'daggy'
-
-import { fromEvents } from 'kefir'
+import { from, of } from 'most'
 
 import Config from '../config-provider'
 import { makeEventStream } from './make-event-stream'
@@ -23,12 +22,12 @@ import NetworkerThread from '../service/networker'
 import { NetMessage } from '../service/networker/net-message'
 import { MTError, RpcError } from '../error'
 import dcStoreKeys from '../util/dc-store-keys'
-import { EventScope } from './scoped-emitter'
-
+// import { EventScope } from './scoped-emitter'
 
 import Logger from 'mtproto-logger'
 const log = Logger`stream-bus`
 
+/*
 const makeStateScopes = (uid: string) => {
   const uidScope = EventScope.of(uid)
   const stateScope = EventScope.of('state')
@@ -42,7 +41,7 @@ const makeStateScopes = (uid: string) => {
   }
 
   return fullScope
-}
+}*/
 
 type BaseType =
   'INIT'
@@ -58,14 +57,14 @@ const createStreamBus = (ctx: MTProto) => {
   //   [ctx.uid, 'base'].join('.'),
   //   (str: BaseType) => str
   // ).toProperty((): BaseType => 'INIT')
-  bus.baseState.onValue(log('base state'))
+  bus.baseState.onValue(log`base state`)
   bus.baseState.onValue(e => console.log(e))
-  const stateScopes = makeStateScopes(ctx.uid)
+  // const stateScopes = makeStateScopes(ctx.uid)
 
-  bus.scopes = {
-    messages: fromEvents(ctx.emitter, stateScopes.messages),
-    requests: fromEvents(ctx.emitter, stateScopes.requests),
-  }
+  // bus.scopes = {
+  //   messages: fromEvents(ctx.emitter, stateScopes.messages),
+  //   requests: fromEvents(ctx.emitter, stateScopes.requests),
+  // }
 
   // pushMessage.onValue(log('push message'))
 
@@ -108,11 +107,19 @@ const createStreamBus = (ctx: MTProto) => {
     }
   })
 
-  bus.rpcResult.observe(async (data) => {
+  bus.rpcResult.observe(async (data: OnRpcResult) => {
     log('rpc result')(data)
-    ctx.state.messages.delete(data.sentMessage.msg_id)
-    ctx.state.requests.delete(data.sentMessage.requestID)
     data.sentMessage.deferred.resolve(data.result)
+    ctx.state.messages.delete(data.sentMessage.msg_id)
+    const requestID = data.sentMessage.requestID
+    if (typeof requestID !== 'string') return
+    const req = ctx.state.requests.get(requestID)
+    if (!req) {
+      // data.sentMessage.deferred.reject('No such request!')
+      return log('on rpc result error')('req', req)
+    }
+    req.defer.resolve(data.result)
+    ctx.state.requests.delete(requestID)
   })
 
   bus.rpcError.onValue(log('rpc error'))
@@ -184,6 +191,7 @@ const createStreamBus = (ctx: MTProto) => {
       log('on auth restart')(authKey, saltKey)
       await ctx.storage.remove(authKey, saltKey)
       log('on auth restart')('before end')
+      await ctx.api.doAuth()
       await ctx.api.invokeNetRequest(req)
     } else if (error.code === 401) {
 
@@ -200,7 +208,7 @@ const createStreamBus = (ctx: MTProto) => {
         return log('error', 'on auth key unreg')('no request info', dc, reqId)
       }
 
-      const { authKey, saltKey } = dcStoreKeys(dc)
+      // const { authKey, saltKey } = dcStoreKeys(dc)
       // await ctx.storage.remove(authKey)
       const thread = ctx.state.threads.get(data.threadID)
       if (!thread) {
@@ -242,7 +250,7 @@ const createStreamBus = (ctx: MTProto) => {
     }
     netReq.options.dc = dc
 
-    log('request', 'new')(netReq)
+    log`request, new`(netReq)
     await new Promise(rs => setTimeout(rs, 100))
     ctx.api.invokeNetRequest(netReq)
   })
@@ -255,14 +263,26 @@ const createStreamBus = (ctx: MTProto) => {
   }) => {
     const thread = ctx.state.threads.get(threadID)
     if (!thread) {
-      log('new session', 'error', 'no thread')(threadID, messageID)
+      log`new session, error, no thread`(threadID, messageID)
       return
     }
     await thread.applyServerSalt(message.server_salt)
     thread.ackMessage(messageID)
     thread.processMessageAck(message.first_msg_id)
 
-    log('new session', 'handled')(messageID, networkerDC)
+    log`new session, handled`(messageID, networkerDC)
+
+    const repeatRequest =
+      (req: ApiRequest) =>
+        of(req)
+          .map(ctx.api.invokeNetRequest)
+          .awaitPromises()
+
+    await from(ctx.state.requests.values())
+      .debounce(100)
+      .map(repeatRequest)
+      .mergeConcurrently(1)
+      .observe(log`recurring requests`)
   })
 
   bus.noAuth.observe(async ({
@@ -375,7 +395,7 @@ function changeRpcError({ error, ...raw }: OnRpcErrorRaw): OnRpcError {
   return result
 }
 
-type ApiCall = {
+/*type ApiCall = {
   type: 'api-call',
   msg_id: string,
   method: string,
@@ -384,7 +404,7 @@ type ApiCall = {
     messageID?: string,
     dcID?: number
   }
-}
+}*/
 
 type MtpCall = {
   type: 'mtp-call',

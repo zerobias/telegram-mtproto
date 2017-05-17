@@ -16,7 +16,7 @@ import { MTError, DcUrlError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-import { switchErrors } from './error-cases'
+// import { switchErrors } from './error-cases'
 import { delayedCall, dTime } from 'mtproto-shared'
 
 import Request from './request'
@@ -89,7 +89,6 @@ export class ApiManager {
 
     //$FlowIssue
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
-    //$FlowIssue
     this.invokeNetRequest = this.invokeNetRequest.bind(this)
     //$FlowIssue
     this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
@@ -195,7 +194,7 @@ export class ApiManager {
     }
   }
   async initConnection() {
-    this.emit('base', 'AUTH')
+    this.emit('base', 'REQUEST')
     if (!isAnyNetworker(this)) {
       if (!this.authBegin)
         this.doAuth()
@@ -275,20 +274,20 @@ export class ApiManager {
       netOpts     : netReq.options
     }
     const req = new Request(cfg, netReq.data.method, netReq.data.params)
-    const requestThunk = (waitTime: number): Promise<any> => {
-      debug('requestThunk', 'waitTime')(waitTime)
-      return delayedCall(req.performRequest, +waitTime * 1e3)
-    }
-    const apiRecall = (networker: NetworkerThread) => {
-      req.config.networker = networker
-      return req.performRequest()
-    }
+    // const requestThunk = (waitTime: number): Promise<any> => {
+    //   debug('requestThunk', 'waitTime')(waitTime)
+    //   return delayedCall(req.performRequest, +waitTime * 1e3)
+    // }
+    // const apiRecall = (networker: NetworkerThread) => {
+    //   req.config.networker = networker
+    //   return req.performRequest()
+    // }
     req.performRequest()
       .then(
         netReq.defer.resolve,
         (error: MTError) => {
-          const deferResolve = netReq.defer.resolve
-          const apiSavedNet = () => networker
+          // const deferResolve = netReq.defer.resolve
+          // const apiSavedNet = () => networker
 
           console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
 
@@ -302,7 +301,7 @@ export class ApiManager {
               error
             })
           }
-          const waitFailRegExp = /MSG_WAIT_FAILED_(\d+)/
+          // const waitFailRegExp = /MSG_WAIT_FAILED_(\d+)/
 
         //   return switchErrors(
         //     error,
