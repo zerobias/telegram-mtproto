@@ -922,7 +922,6 @@ export class NetworkerThread {
             sentMessage,
             result     : message.result
           })
-          // deferred.resolve(message.result)
           if (sentMessage.isAPI)
             this.connectionInited = true
         }
@@ -931,8 +930,14 @@ export class NetworkerThread {
       }
       default: {
         this.ackMessage(messageID)
-
-        // console.log('Update', message)
+        this.emit('untyped-message', {
+          threadID   : this.threadID,
+          networkerDC: this.dcID,
+          message,
+          messageID,
+          sessionID,
+          result     : message.result
+        })
         if (updatesProcessor) updatesProcessor(message, true)
         break
       }

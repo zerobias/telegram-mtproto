@@ -33,17 +33,18 @@ const createDeserializer = (arr, type) => {
 
 const deserializationTester = (expected, arr, typeField, field, offset = 0, type = Uint8Array) => t => {
   let deserialization
+  t.plan(3)
   t.notThrow(() => deserialization = createDeserializer(arr, type), 'create Deserializer')
   deserialization.typeBuffer.offset = offset
   let result
   t.notThrow(() => result = deserialization.fetchObject('', 'INPUT'), 'fetch Object')
 
   t.same(result, expected, 'compare results')
-
   t.end()
 }
 
-test('Deserialization test', { skip: false }, t => {
+test('Deserialization test', t => {
+  t.plan(2)
   t.test('msg_detailed_info', deserializationTester(
     msg_detailed_info,
     msg_detailed_infoBinary,
@@ -65,6 +66,7 @@ const serializationTester =
   (methodName, data, serialParams, expected) =>
     t => {
       let serialization
+      t.plan(5)
       t.notThrow(
         () => serialization = new Serialization(serialParams, mt.uid),
         'create serialization')
@@ -75,11 +77,10 @@ const serializationTester =
       t.equal(offset, expected.offset, 'offset')
       t.equal(maxLength, expected.maxLength, 'maxLength')
       t.same(intView, expected.intView, 'intView')
-
       t.end()
     }
-
-test('Serialization test', t => {
+test('tl test', t => {
+  t.plan(3)
   t.test('req_pq', serializationTester(
     'req_pq',
     req_pq,
@@ -105,7 +106,6 @@ test('Serialization test', t => {
     getHistory, {},
     getHistoryBinary
   ))
-
   t.end()
-  delayExit()
-})
+}).then(delayExit)
+// delayExit()

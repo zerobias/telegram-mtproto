@@ -1,6 +1,8 @@
 const { test } = require('tap')
 const { MTProto } = require('../lib')
 const { Storage } = require('mtproto-storage-fs')
+const debug = require('debug')
+debug.useColors = false
 
 const { delayExit } = require('./fixtures')
 
@@ -40,18 +42,6 @@ const config = {
 const telegram = MTProto({ server, api, app })
 
 
-const tests = async () => {
-  try {
-    await test(`Connection test`, connectionTest)
-    await test(`Reuse stored auth`, reuseStoredAuth)
-    // await app.storage.save()
-  } catch (err) {
-    console.log(err)
-  } finally {
-    delayExit()
-  }
-}
-
 const getHistory = async (chat) => {
   const peer = {
     _               : `inputPeerC${chat._.slice(1)}`,
@@ -78,54 +68,45 @@ const isAlreadyAuth = async () => {
 
 
 const connectionTest = async t => {
-  let res, i = 0
-  // t.plan(1)
   // await telegram.storage.clear() //Just for clean test
-  while (i<5) {
-    try {
-      if (await isAlreadyAuth()) {
-        t.ok(true, 'already authorized, skip')
-        t.end()
-        return
-      }
-      const { phone_code_hash } = await telegram('auth.sendCode', {
-            phone_number  : phone.num,
-            current_number: false,
-            api_id        : config.id,
-            api_hash      : config.hash
-      })
-      console.log('phone_code_hash', phone_code_hash)
-      res = await telegram('auth.signIn', {
-        phone_number: phone.num,
-        phone_code_hash,
-        phone_code  : phone.code,
-      })
-      console.log('signIn', res)
-      console.log('\n Logined as user')
-      console.dir && console.dir(res.user, { colors: true })
-      t.ok(res, 'result is ok')
-      t.end()
-      break
-    } catch (err) {
-      console.log('err', err)
-      t.end()
-      // delayExit()
-    }
-    i++
+  t.plan(1)
+  const isAuth = await isAlreadyAuth()
+  let message
+  if (!isAuth) {
+    const { phone_code_hash } = await telegram('auth.sendCode', {
+          phone_number  : phone.num,
+          current_number: false,
+          api_id        : config.id,
+          api_hash      : config.hash
+    })
+    console.log('phone_code_hash', phone_code_hash)
+    const res = await telegram('auth.signIn', {
+      phone_number: phone.num,
+      phone_code_hash,
+      phone_code  : phone.code,
+    })
+    console.log('signIn', res)
+    console.log('\n Logined as user')
+    console.dir && console.dir(res.user, { colors: true })
+    message = 'result is ok'
+  } else {
+    message = 'already authorized, skip'
   }
+  t.ok(true, message)
+  t.end()
 }
 
 const reuseStoredAuth = async (t) => {
   // const anotherTelegram = MTProto({ server, api, app })
-
   //NOTE No auth here
-
+  t.plan(1)
   const dialogs = await telegram('messages.getDialogs', {
     limit: 100,
   })
 
   t.ok(dialogs, 'dialogs is ok')
   t.end()
+  delayExit()
   // const chat1 = dialogs.chats[2]
 
   // const history = await getHistory(chat1)
@@ -135,4 +116,8 @@ const reuseStoredAuth = async (t) => {
   // t.ok(list, 'chat1')
 }
 
-tests()
+// const tests = () =>
+test(`Connection test`, connectionTest)
+test(`Reuse stored auth`, reuseStoredAuth)
+// delayExit()
+  // await app.storage.save()

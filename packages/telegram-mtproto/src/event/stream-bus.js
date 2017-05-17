@@ -285,18 +285,20 @@ const createStreamBus = (ctx: MTProto) => {
       .observe(log`recurring requests`)
   })
 
+  bus.untypedMessage.observe(log`untyped`)
+
   bus.noAuth.observe(async ({
     dc,
     req,
     apiReq,
     error
   }: NoAuth) => {
-    const mainDc  = await ctx.storage.get('dc')
-    if (dc === mainDc) {
+    // const mainDc  = await ctx.storage.get('dc')
+    // if (dc === mainDc) {
 
-    } else {
+    // } else {
 
-    }
+    // }
   })
 
   return bus
@@ -310,6 +312,7 @@ const responseRawCast    : RawEvent<Object> = an
 const incomingMessageCast: IncomingMessageEvent = an
 const newNetworkerCast   : NetworkerThread = an
 const rpcResultCast      : OnRpcResult = an
+const untypedMessageCast : OnUntypedMessage = an
 
 const netMessageCast     : MtpCall = an
 const newRequestCast     : ApiRequest = an
@@ -328,6 +331,7 @@ function makeStreamMap(emitter: EventEmitterType) {
   const newNetworker    = getter('new-networker', newNetworkerCast)
   const rpcError        = getter('rpc-error', changeRpcError)
   const rpcResult       = getter('rpc-result', rpcResultCast)
+  const untypedMessage  = getter('untyped-message', untypedMessageCast)
   const netMessage      = getter('net-message', netMessageCast)
   const newRequest      = getter('new-request', newRequestCast)
   const messageIn       = getter('message-in', messageInCast)
@@ -341,6 +345,7 @@ function makeStreamMap(emitter: EventEmitterType) {
     incomingMessage,
     newNetworker,
     rpcError,
+    untypedMessage,
     netMessage,
     newRequest,
     messageIn,
@@ -387,6 +392,19 @@ type OnNewSession = {
     [key: string]: any
   },
   messageID: string
+}
+
+type OnUntypedMessage = {
+  threadID: string,
+  networkerDC: number,
+  message: {
+    _: string,
+    req_msg_id: string,
+    [key: string]: any
+  },
+  messageID: string,
+  sessionID: Uint8Array,
+  result: Object,
 }
 
 function changeRpcError({ error, ...raw }: OnRpcErrorRaw): OnRpcError {
