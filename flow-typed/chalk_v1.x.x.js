@@ -78,7 +78,7 @@ declare module 'chalk' {
   declare var supportsColor: boolean;
   declare var styles: chalk$StyleMap;
 
-  declare function stripColor(value: string): any;
+  declare function stripColor(value: string): string;
   declare function hasColor(str: string): boolean;
 
   // General
