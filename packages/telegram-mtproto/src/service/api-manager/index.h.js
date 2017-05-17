@@ -4,14 +4,13 @@ import type { Emit, On } from 'eventemitter2'
 import type { AsyncStorage } from '../../plugins'
 import type { PublicKey } from '../main/index.h'
 import type { NetworkerType } from '../networker'
+import { typeof ApiManager } from '../api-manager'
 
 export type Bytes = number[]
 
 export type LeftOptions = {
   dcID?: number,
-  createNetworker?: boolean,
-  fileDownload?: boolean,
-  fileUpload?: boolean
+  createNetworker: ?boolean,
 }
 
 export type Cached<Model> = {
@@ -31,10 +30,10 @@ export interface ApiManagerInstance {
   (method: string, params: Object): Promise<any>,
   (method: string, params: Object, options: LeftOptions): Promise<any>,
   storage: AsyncStorage,
-  setUserAuth(dc: number, userAuth: any): Promise<void>,
   on: On,
   emit: Emit,
-  bus: *
+  bus: *,
+  api: ApiManager
 }
 
 export type RequestOptions = {|

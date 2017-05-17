@@ -4,8 +4,8 @@ import uuid from 'uuid/v4'
 // import isNode from 'detect-node'
 
 import { ProviderRegistryError } from './error'
-import type { TLSchema } from './tl/index.h'
-import type { Emit, EventEmitterType } from 'eventemitter2'
+import { type TLSchema } from './tl/index.h'
+import { type Emit, type EventEmitterType } from 'eventemitter2'
 import Layout from './layout'
 import cryptoCommon from './co-worker/common-provider'
 import getCrypto from './co-worker'
@@ -24,7 +24,8 @@ type InstanceConfig = {|
     mtLayer: Layout,
   |},
   timerOffset: number,
-  lastMessageID: [number, number]
+  lastMessageID: [number, number],
+  dcMap: Map<number, string>
 |}
 
 type Provider = {
@@ -74,7 +75,12 @@ const Config = {
       getConfig(uid).lastMessageID = value
     }
   },
-
+  dcMap(uid: string, id: number) {
+    const dc = getConfig(uid).dcMap.get(id)
+    if (typeof dc !== 'string')
+      throw new Error(`Wrong dc id! ${id}`)
+    return dc
+  },
   common
 }
 

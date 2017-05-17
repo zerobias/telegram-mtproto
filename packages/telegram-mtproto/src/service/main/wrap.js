@@ -2,8 +2,8 @@
 
 import Main from './index'
 
-import type { ConfigType } from './index.h'
-import type { ApiManagerInstance, LeftOptions } from '../api-manager/index.h'
+import { type ConfigType } from './index.h'
+import { type ApiManagerInstance, type LeftOptions } from '../api-manager/index.h'
 
 function MTProto(config: ConfigType = {}): ApiManagerInstance {
   const mtproto = new Main(config)
@@ -16,7 +16,6 @@ function MTProto(config: ConfigType = {}): ApiManagerInstance {
     return api.mtpInvokeApi(method, params, options)
   }
 
-  telegram.setUserAuth = api.setUserAuth
   telegram.on = api.on
   telegram.emit = api.emit
   telegram.cache = api.cache

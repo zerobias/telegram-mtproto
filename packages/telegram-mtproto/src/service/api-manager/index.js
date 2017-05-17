@@ -10,7 +10,6 @@ import Auth from '../authorizer'
 import type { Args } from '../authorizer'
 
 import blueDefer from '../../util/defer'
-import { chooseServer } from '../dc-configurator'
 
 import KeyManager from '../rsa-keys-manger'
 import { MTError, DcUrlError } from '../../error'
@@ -30,6 +29,7 @@ import type { AsyncStorage } from '../../plugins'
 import Config from '../../config-provider'
 import NetworkerThread from '../networker'
 import ApiRequest from '../main/request'
+import Property from '../../property'
 
 const baseDcID = 2
 
@@ -43,6 +43,7 @@ const Ln = (length: number, obj?: *): boolean => {
 
 
 export class ApiManager {
+  invokeNetRequest: (netReq: ApiRequest) => Promise<mixed>
   cache: Cache = {
     uploader  : {},
     downloader: {},
@@ -63,9 +64,9 @@ export class ApiManager {
   emit: Emit
   authPromise: * = blueDefer()
   authBegin = false
-  chooseServer: (dcID: number, upload?: boolean) => *
   currentDc: number = 2
   online: boolean = false
+  onlineProp: *
   constructor(config: StrictConfig, uid: string) {
     const {
       server,
@@ -80,7 +81,6 @@ export class ApiManager {
     this.publicKeys = publicKeys
     this.storage = storage
     this.serverConfig = server
-    this.chooseServer = chooseServer(this.cache.servers, server)
     const emitter = Config.rootEmitter(this.uid)
     this.on = emitter.on
     this.emit = emitter.emit
@@ -90,11 +90,16 @@ export class ApiManager {
     //$FlowIssue
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     //$FlowIssue
+    this.invokeNetRequest = this.invokeNetRequest.bind(this)
+    //$FlowIssue
     this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
 
+    const onlineProp = Property([this.uid, 'state', 'online'].join('.'), false, emitter.root)
+    this.onlineProp = onlineProp
+    onlineProp.get.observe(debug`online prop`)
+    onlineProp.get.drain()
     // this.updatesManager = UpdatesManager(apiManager, this.TL)
     // apiManager.updates = this.updatesManager
-
     emitter.on('error.303', (newDc: number) => {
       this.authBegin = false
       this.currentDc = newDc
@@ -102,9 +107,8 @@ export class ApiManager {
   }
   networkSetter(dc: number, authKey: Bytes, serverSalt: Bytes) {
     const networker = new NetworkerThread({
-      appConfig   : this.apiConfig,
-      storage     : this.storage,
-      chooseServer: this.chooseServer
+      appConfig: this.apiConfig,
+      storage  : this.storage,
     }, dc, authKey, serverSalt, this.uid)
     this.cache.downloader[dc] = networker
     return networker
@@ -123,7 +127,7 @@ export class ApiManager {
     const akk = `dc${  dcID  }_auth_key`
     const ssk = `dc${  dcID  }_server_salt`
 
-    const dcUrl = this.chooseServer(dcID, false)
+    const dcUrl = Config.dcMap(this.uid, dcID)
     if (typeof dcUrl !== 'string')
       throw new DcUrlError(dcID, dcUrl)
 
@@ -184,6 +188,7 @@ export class ApiManager {
 
       }
       debug(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
+      this.onlineProp.set(true)
       this.authPromise.resolve()
     } catch (err) {
       this.authPromise.reject(err)
@@ -291,7 +296,7 @@ export class ApiManager {
           if (noAuth) {
             debug('performRequest', 'no auth')(dcID)
             this.emit('no-auth', {
-              dc: dcID,
+              dc    : dcID,
               req,
               apiReq: netReq,
               error

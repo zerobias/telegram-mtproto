@@ -14,13 +14,14 @@ import State from './state'
 import Logger from 'mtproto-logger'
 const log = Logger`main`
 
+import parseServerConfig from '../../config-check/dc'
 import streamBus from '../../event/stream-bus'
 import { ScopedEmitter } from '../../event'
-import type { AsyncStorage } from '../../plugins/index.h'
-import type { TLSchema } from '../../tl/index.h'
-import type { ApiConfig, ConfigType, StrictConfig, PublicKey } from './index.h'
-import type { Emit, On } from 'eventemitter2'
-import type { ProcessMessage } from '../emit.h'
+import { type AsyncStorage } from '../../plugins/index.h'
+import { type TLSchema } from '../../tl/index.h'
+import { type ApiConfig, type ConfigType, type StrictConfig, type PublicKey } from './index.h'
+import { type Emit, type On } from 'eventemitter2'
+import { type ProcessMessage } from '../emit.h'
 // import type { ApiManagerInstance } from '../api-manager/index.h'
 
 const api57 = require('../../../schema/api-57.json')
@@ -57,6 +58,7 @@ class MTProto {
   bus: *
   constructor(config: ConfigType) {
     const fullConfig = configNormalization(config)
+    const dcMap = parseServerConfig(config.server)
     this.config = fullConfig
     const { apiLayer, mtLayer } = generateLayers(this.config.schema, this.config.mtSchema)
     const { uid, next } = curriedRegister()
@@ -71,7 +73,8 @@ class MTProto {
       layer: {
         apiLayer,
         mtLayer
-      }
+      },
+      dcMap
     })
     this.uid = uid
     this.storage = fullConfig.app.storage
@@ -145,3 +148,4 @@ const publisKeysHex: PublicKey[] = [{
   '4a5bfc920f6abf59ba5c75506373e7130f9042da922179251f',
   exponent: '010001'
 }]
+

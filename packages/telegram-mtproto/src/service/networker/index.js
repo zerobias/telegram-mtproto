@@ -48,7 +48,7 @@ let akStopped = false
 //eslint-disable-next-line
 // const xhrSendBuffer = !isNode && !('ArrayBufferView' in window)
 
-type Neptions = {
+type NetOptions = {
   fileUpload?: boolean,
   fileDownload?: boolean,
   notContentRelated?: boolean,
@@ -60,8 +60,7 @@ type Bytes = number[]
 
 type ContextConfig = {|
   storage: AsyncStorage,
-  appConfig: { [key: string]: * },
-  chooseServer: *
+  appConfig: { [key: string]: * }
 |}
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
@@ -99,12 +98,10 @@ export class NetworkerThread {
   onOnlineCb: *
   nextReq: *
   appConfig: { [key: string]: * }
-  chooseServer: (dc: number) => string
   nextReqPromise: *
   lastResendReq: *
   constructor({
       appConfig,
-      chooseServer,
       storage
     }: ContextConfig,
               dc: number,
@@ -113,7 +110,6 @@ export class NetworkerThread {
               uid: string) {
     this.uid = uid
     this.appConfig = appConfig
-    this.chooseServer = chooseServer
     this.storage = storage
     const emitter = Config.rootEmitter(this.uid)
     this.emit = emitter.emit
@@ -626,7 +622,7 @@ export class NetworkerThread {
     })
 
 
-    const url = this.chooseServer(this.dcID, this.upload)
+    const url = Config.dcMap(this.uid, this.dcID)
     const requestOpts = { responseType: 'arraybuffer', ...options }
 
     try {

@@ -30,6 +30,7 @@ const chatHistory = async chat => {
       offset: -full.length,
       limit
     })
+    console.dir(history, { colors: true })
     messages = history.messages.filter(filterLastDay)
     full = full.concat(messages)
     messages.length > 0 && (offset = messages[0].id)
@@ -64,7 +65,7 @@ const formatMessage = ({ message, date, from_id }) => {
 const printMessages = messages => {
   const filteredMsg = messages.filter(filterUsersMessages)
   const formatted = filteredMsg.map(formatMessage)
-  formatted.forEach(e => console.log(e))
+  formatted.forEach(e => console.dir(e, { colors: true }))
   return formatted
 }
 
