@@ -5,10 +5,15 @@ import Bluebird from 'bluebird'
 import { tsNow } from '../service/time-manager'
 import { NetworkerThread } from '../service/networker/index'
 
-// import Logger from 'mtproto-logger'
-// const log = Logger`long-poll`
+import Logger from 'mtproto-logger'
+const log = Logger`long-poll`
 
 // let inited = false
+
+const waitToTime = async (poll: LongPoll): Promise<void> => {
+  while (!poll.allowLongPoll())
+    await new Promise(rs => setTimeout(rs, 500))
+}
 
 class LongPoll {
   thread: NetworkerThread
@@ -17,7 +22,8 @@ class LongPoll {
   pendingTime = Date.now()
   requestTime = Date.now()
   isActive = true
-
+  alreadyWaitPending: boolean = false
+  pending: Promise<any>
   constructor(thread: NetworkerThread) {
     this.thread = thread
     // if (inited) {
@@ -52,15 +58,27 @@ class LongPoll {
   }
 
   allowLongPoll() {
-    return this.requestTime + 3500 < tsNow()
+    const result = this.requestTime + 1500 < tsNow()
+    log`allow long poll`(result)
+    return result
   }
-
-  sendLongPool(): Promise<any> {
-    //TODO add base dc check
-    if (!this.isActive) return Bluebird.resolve(false)
-    if (!this.allowLongPoll()) return Bluebird.resolve(false)
+  async sending() {
+    this.alreadyWaitPending = true
+    await waitToTime(this)
+    this.alreadyWaitPending = false
     this.setPendingTime()
-    return this.request()
+    const result = await this.request()
+    return result
+  }
+  async sendLongPool(): Promise<any> {
+    //TODO add base dc check
+    if (!this.isActive) return false
+    if (this.allowLongPoll()) {
+      this.pending = this.sending()
+    }
+
+    const result = await this.pending
+    return result
   }
 }
 

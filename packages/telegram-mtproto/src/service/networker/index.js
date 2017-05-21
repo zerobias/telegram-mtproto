@@ -191,6 +191,11 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
+    const logGroup = log.group('Wrap mtp call')
+    logGroup`Call method, msg_id, seqNo`(method, message.msg_id, seqNo)
+    logGroup`Call method, params`(params)
+    logGroup.groupEnd()
+    this.pushMessage(message, options)
     this.emit('net-message', {
       type  : 'mtp-call',
       msg_id: message.msg_id,
@@ -199,10 +204,6 @@ export class NetworkerThread {
       params,
       options
     })
-    log(`Call method`, `msg_id`, `seqNo`)(method, message.msg_id, seqNo)
-    log(`Call method`, `params`)(params)
-
-    this.pushMessage(message, options)
     return message.deferred.promise
   }
 
@@ -217,6 +218,15 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
+
+    const logGroup = log.group('Wrap mtp message')
+    const isAcks = object._ === 'msgs_ack'
+    logGroup`MT message, msg_id, seqNo`(message.msg_id, seqNo)
+    logGroup`MT message, result`(object)
+    logGroup`is acks`(isAcks)
+    logGroup.groupEnd()
+    verifyInnerMessages(object.msg_ids)
+    this.pushMessage(message, options)
     this.emit('net-message', {
       type  : 'mtp-message',
       msg_id: message.msg_id,
@@ -224,10 +234,6 @@ export class NetworkerThread {
       object,
       options
     })
-    log(`MT message`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
-    log(`MT message`, `result`)(object)
-    verifyInnerMessages(object.msg_ids)
-    this.pushMessage(message, options)
     return message
   }
 
@@ -262,6 +268,11 @@ export class NetworkerThread {
     )
     message.isAPI = true
 
+    log(`Api call`)(method)
+    log(`|      |`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
+    log(`|      |`, `params`)(params)
+    log(`|      |`, `options`)(options)
+    this.pushMessage(message, options)
     this.emit('net-message', {
       type  : 'api-call',
       msg_id: message.msg_id,
@@ -270,11 +281,6 @@ export class NetworkerThread {
       params,
       options
     })
-    log(`Api call`)(method)
-    log(`|      |`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
-    log(`|      |`, `params`)(params)
-    log(`|      |`, `options`)(options)
-    this.pushMessage(message, options)
     return message.deferred.promise
   }
 

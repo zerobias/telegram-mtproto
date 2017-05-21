@@ -21,3 +21,4 @@ typings/**
 src/**/*.draft.js
 test/storage.json
 flow-typed/npm/**
+*.private.json

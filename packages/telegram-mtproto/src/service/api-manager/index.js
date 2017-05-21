@@ -201,7 +201,14 @@ export class ApiManager {
       await this.authPromise.promise
     }
   }
-  mtpInvokeApi(method: string, params: Object, options: LeftOptions = {}) {
+  async mtpInvokeApi(method: string, params: Object, options: LeftOptions = {}) {
+    const akk = `dc${this.currentDc}_auth_key`
+    // const ssk = `dc${  dcID  }_server_salt`
+    if (method === 'auth.sendCode' || method === 'auth.signIn') {
+      const dcKey = await this.storage.get(akk)
+      if (typeof dcKey === 'string' && dcKey.length > 0) alreadyAuthWarning(method)
+    }
+
     const netReq = new ApiRequest({ method, params }, options)
 
     netReq.options.requestID = netReq.requestID
@@ -339,4 +346,12 @@ const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).le
 const netError = error => {
   console.log('Get networker error', error, error.stack)
   return Promise.reject(error)
+}
+
+const alreadyAuthWarning = (method: string) => {
+  const message = `
+!! WARNING !!
+You call ${method} method at the time when you are already authorized.
+That will have result in unnecessary re-creation of the session`
+  console.warn(message)
 }
