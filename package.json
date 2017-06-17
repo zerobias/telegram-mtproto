@@ -3,7 +3,7 @@
   "description": "Mtproto dev package",
   "private": true,
   "scripts": {
-    "postinstall": "lerna bootstrap",
+    "postinstall": "lerna bootstrap --hoist",
     "test": "node --harmony packages/telegram-mtproto/test/node.test.js",
     "test:esnext": "packages/telegram-mtproto/node_modules/.bin/tap packages/telegram-mtproto/test/*.test.js"
   },

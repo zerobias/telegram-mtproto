@@ -28,7 +28,7 @@ class BrowserStorage implements AsyncStorage {
   }
 
   async remove(...keys: string[]) {
-    await Bluebird.map(keys, this.storage.removeItem.bind(this.storage))
+    await Bluebird.map(keys, (key) => this.storage.removeItem(key))
   }
 
   clear() {

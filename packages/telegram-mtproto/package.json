@@ -7,7 +7,7 @@
   "module": "es/index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "prepublish" : "npm run rebuild:es && npm run rebuild:cjs && npm run rebuild:web",
+    "prepublish" : "npm run rebuild:es && npm run rebuild:cjs",
     "types"      : "flow-copy-source src lib && flow-copy-source src es",
     "test"       : "node --harmony test/node.test.js",
     "test:esnext": "tap test/*.test.js",

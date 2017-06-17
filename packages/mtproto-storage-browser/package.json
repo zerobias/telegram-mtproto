@@ -38,5 +38,14 @@
     "rimraf": "^2.6.1"
   },
   "author": "Zero Bias",
+  "maintainers": [
+    {
+      "name": "Zero Bias",
+      "email": "ribkatt@gmail.com"
+    }, {
+      "name": "goodmind",
+      "email": "andwebar@gmail.com"
+    }
+  ],
   "license": "MIT"
 }
