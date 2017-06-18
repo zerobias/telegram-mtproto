@@ -35,24 +35,19 @@ declare module 'telegram-mtproto' {
     schema?: object
     mtSchema?: object
   }
-  type UpdatesManager = any
+  type UpdatesManager = {}
 
   interface ApiManagerInstance {
     readonly storage: AsyncStorage
     readonly updates: UpdatesManager
     <T>(method: string, params?: object, options?: object): Promise<T>
     setUserAuth<T>(dc: number, userAuth: T): void
-    on(event: string|Array<string>, handler: Function)
+    on(event: string|Array<string>, handler: (msg: any) => void): void
   }
   interface ApiManager {
     new ({ server, api, app, schema, mtSchema }?: Config): ApiManagerInstance
   }
   export const ApiManager: ApiManager
-  class ApiManagerClass {
-    public readonly storage: AsyncStorage
-    public setUserAuth<T>(dc: number, userAuth: T): void
-    public on(event: string|Array<string>, handler: Function)
-  }
   export interface AsyncStorage {
     get(key: string): Promise<any>
     set(key: string, val: any): Promise<void>
