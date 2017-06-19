@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "build": "npm run build:cjs && npm run build:es",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s",

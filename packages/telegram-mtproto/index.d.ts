@@ -1,4 +1,5 @@
 declare module 'telegram-mtproto' {
+  import { AsyncStorage } from 'mtproto-shared'
   type DC = {
     id: number
     host: string
@@ -48,12 +49,7 @@ declare module 'telegram-mtproto' {
     new ({ server, api, app, schema, mtSchema }?: Config): ApiManagerInstance
   }
   export const ApiManager: ApiManager
-  export interface AsyncStorage {
-    get(key: string): Promise<any>
-    set(key: string, val: any): Promise<void>
-    remove(...keys: Array<string>): Promise<void>
-    clear(): Promise<void>
-  }
+  export { AsyncStorage }
 
   type Bytes = Array<number>
 
