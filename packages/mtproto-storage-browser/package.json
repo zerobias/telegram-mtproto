@@ -1,6 +1,6 @@
 {
   "name": "mtproto-storage-browser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -24,7 +24,7 @@
     "bluebird": "^3.5.0",
     "localforage": "^1.5.0",
     "mtproto-logger": "^0.1.5",
-    "mtproto-shared": "^0.1.4"
+    "mtproto-shared": "^0.1.6"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -43,7 +43,8 @@
     {
       "name": "Zero Bias",
       "email": "ribkatt@gmail.com"
-    }, {
+    },
+    {
       "name": "goodmind",
       "email": "andwebar@gmail.com"
     }
