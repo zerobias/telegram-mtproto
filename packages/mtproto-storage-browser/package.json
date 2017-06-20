@@ -1,6 +1,6 @@
 {
   "name": "mtproto-storage-browser",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -18,13 +18,14 @@
   "files": [
     "lib",
     "src",
-    "es"
+    "es",
+    "index.d.ts"
   ],
   "dependencies": {
     "bluebird": "^3.5.0",
     "localforage": "^1.5.0",
     "mtproto-logger": "^0.1.5",
-    "mtproto-shared": "^0.1.6"
+    "mtproto-shared": "^0.1.7"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
