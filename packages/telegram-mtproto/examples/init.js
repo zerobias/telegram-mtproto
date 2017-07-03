@@ -10,7 +10,7 @@ const api = {
   lang_code      : 'en'
 }
 
-const server = { webogram: true, dev: true }
+const server = { webogram: true, dev: false }
 
 const app = {
   storage: new Storage('./test/storage')

@@ -1,8 +1,7 @@
 const telegram = require('./init')
+const { inputField } = require('./fixtures')
 
-// const { inputField } = require('./fixtures')
-
-const crypto = require('crypto')
+const makePasswordHash = require('../lib/plugins/math-help').makePasswordHash
 
 const config = {
   // NOTE: if you FORK the project you MUST use your APP ID.
@@ -12,48 +11,52 @@ const config = {
   hash: 'fb050b8f6771e15bfda5df2409931569'
 }
 
+telegram.bus
+  .rpcError
+  .filter(message => message.error.type === 'SESSION_PASSWORD_NEEDED')
+  .observe(async (message) => {
+    const password = await inputField('password')
+
+    const { current_salt } = await telegram('account.getPassword', {})
+    const password_hash = makePasswordHash(current_salt, password)
+
+    const { user } = await telegram('auth.checkPassword', {
+      password_hash
+    })
+    const {
+      first_name = '',
+      username = ''
+    } = user
+    console.log('signIn', first_name, username, user.phone)
+  })
+
 const login = async () => {
   try {
-    // const phone = await inputField('phone')
+    const phone = await inputField('phone')
     // console.log(phone)
-    const phone = '+9996620000'
     const { phone_code_hash } = await telegram('auth.sendCode', {
             phone_number  : phone,
             current_number: false,
             api_id        : config.id,
             api_hash      : config.hash
     })
-    // const code = await inputField('code')
-    const code = '22222'
-    let res
+    const code = await inputField('code')
     try {
-      res = await telegram('auth.signIn', {
+      const res = await telegram('auth.signIn', {
         phone_number: phone,
         phone_code_hash,
         phone_code  : code
       })
+      console.log(res)
     } catch (error) {
-      if (error.type !== 'SESSION_PASSWORD_NEEDED') throw error
-
-      const password = 'sekrit'
-      const { current_salt } = await telegram('account.getPassword', {})
-      const password_hash = crypto.createHash('sha256')
-        .update(current_salt + password + current_salt)
-        .digest()
-      res = await telegram('auth.checkPassword', {
-        password_hash
-      })
+      console.error(error)
+      throw error
     }
-    const { user } = res
-    const {
-      first_name = '',
-      username = ''
-    } = user
-    console.log('signIn', first_name, username, user.phone)
-    return first_name
   } catch (error) {
     console.error(error)
   }
 }
+
+login()
 
 module.exports = login
