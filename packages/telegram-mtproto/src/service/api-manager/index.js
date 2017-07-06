@@ -66,7 +66,6 @@ export class ApiManager {
   authBegin = false
   currentDc: number = 2
   online: boolean = false
-  onlineProp: *
   constructor(config: StrictConfig, uid: string) {
     const {
       server,
@@ -93,10 +92,6 @@ export class ApiManager {
     //$FlowIssue
     this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
 
-    const onlineProp = Property([this.uid, 'state', 'online'].join('.'), false, emitter.root)
-    this.onlineProp = onlineProp
-    onlineProp.get.observe(debug`online prop`)
-    onlineProp.get.drain()
     // this.updatesManager = UpdatesManager(apiManager, this.TL)
     // apiManager.updates = this.updatesManager
     emitter.on('error.303', (newDc: number) => {
@@ -187,7 +182,6 @@ export class ApiManager {
 
       }
       debug(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
-      this.onlineProp.set(true)
       this.authPromise.resolve()
     } catch (err) {
       this.authPromise.reject(err)

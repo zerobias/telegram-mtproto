@@ -10,6 +10,7 @@ import configValidator from './config-validation'
 import generateInvokeLayer from './invoke-layer-generator'
 import { curriedRegister } from '../../config-provider'
 import State from './state'
+import busFactory from '../../event/bus'
 
 import Logger from 'mtproto-logger'
 const log = Logger`main`
@@ -22,8 +23,10 @@ import { type TLSchema } from '../../tl/index.h'
 import { type ApiConfig, type ConfigType, type StrictConfig, type PublicKey } from './index.h'
 import { type Emit, type On } from 'eventemitter2'
 import { type ProcessMessage } from '../emit.h'
+import { type Bus } from '../../event/bus'
 // import type { ApiManagerInstance } from '../api-manager/index.h'
-
+import { dispatch } from '../../state/core'
+import { MAIN } from '../../state/action/index'
 const api57 = require('../../../schema/api-57.json')
 const mtproto57 = require('../../../schema/mtproto-57.json')
 
@@ -56,7 +59,10 @@ class MTProto {
   state = new State
   defaultDC: number = 2
   bus: *
+  bus$: Bus
   constructor(config: ConfigType) {
+    const bus$ = busFactory()
+    this.bus$ = bus$
     const fullConfig = configNormalization(config)
     const dcMap = parseServerConfig(config.server)
     this.config = fullConfig
@@ -85,6 +91,8 @@ class MTProto {
         log('event', 'rest')(rest)
     })
     this.bus = streamBus(this)
+    setTimeout(() => dispatch(MAIN.SWITCH_ON.action(uid)), 3e3)
+
   }
 
   processMessage = ({ threadID, message }: $PropertyType<ProcessMessage, 'value'>) => {

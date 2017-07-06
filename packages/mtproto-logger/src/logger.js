@@ -6,7 +6,7 @@ import Debug from './debug'
 import disabledLogger from './disabled'
 import { dTimePure, immediate } from 'mtproto-shared'
 
-import type { VariString, LoggerInstance, GroupLogger } from './index.h'
+import { type VariString, type LoggerInstance, type GroupLogger } from './index.h'
 
 const Logger = (moduleName: Array<string> | string, ...rest: Array<string>) => {
   const fullModule = makeModuleName([moduleName, rest])

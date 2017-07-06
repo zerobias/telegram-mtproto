@@ -14,10 +14,15 @@
       "throwIfClosureRequired": true
     }],
     ["transform-object-rest-spread", { "useBuiltIns": true }]
-    ,"closure-elimination"
+    // ,"closure-elimination"
   ],
   "env": {
     "commonjs": {
+      "plugins": [
+        "transform-es2015-modules-commonjs"
+      ]
+    },
+    "test": {
       "plugins": [
         "transform-es2015-modules-commonjs"
       ]

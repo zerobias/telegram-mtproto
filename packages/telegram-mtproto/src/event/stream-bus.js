@@ -27,21 +27,6 @@ import dcStoreKeys from '../util/dc-store-keys'
 import Logger from 'mtproto-logger'
 const log = Logger`stream-bus`
 
-/*
-const makeStateScopes = (uid: string) => {
-  const uidScope = EventScope.of(uid)
-  const stateScope = EventScope.of('state')
-  const messagesScope = EventScope.of('messages')
-  const requestsScope = EventScope.of('requests')
-  const stateMessages = stateScope.concat(messagesScope)
-  const stateRequests = stateScope.concat(requestsScope)
-  const fullScope = {
-    requests: uidScope.concat(stateRequests).joined,
-    messages: uidScope.concat(stateMessages).joined,
-  }
-
-  return fullScope
-}*/
 
 type BaseType =
   'INIT'
@@ -107,7 +92,7 @@ const createStreamBus = (ctx: MTProto) => {
     }
   })
 
-  bus.rpcResult.observe(async (data: OnRpcResult) => {
+  bus.rpcResult.observe(async(data: OnRpcResult) => {
     log('rpc result')(data)
     data.sentMessage.deferred.resolve(data.result)
     ctx.state.messages.delete(data.sentMessage.msg_id)
@@ -125,10 +110,10 @@ const createStreamBus = (ctx: MTProto) => {
   bus.rpcError.onValue(log('rpc error'))
 
   const isAuthRestart = (error: MTError) =>
-    error.code === 500 &&
-    error.type === 'AUTH_RESTART'
+    error.code === 500
+    && error.type === 'AUTH_RESTART'
 
-  bus.rpcError.observe(async ({ error, ...data }: OnRpcError) => {
+  bus.rpcError.observe(async({ error, ...data }: OnRpcError) => {
     if (isFileMigrateError(error)) {
       const newDc = getFileMigrateDc(error)
       if (typeof newDc !== 'number') throw error
@@ -238,7 +223,7 @@ const createStreamBus = (ctx: MTProto) => {
 
   bus.netMessage.onValue(log('new request'))
 
-  bus.newRequest.observe(async (netReq) => {
+  bus.newRequest.observe(async(netReq) => {
     if (state.requests.has(netReq.requestID)) return log('request', 'repeat')(netReq)
     ctx.state.requests.set(netReq.requestID, netReq)
     let dc = netReq.options.dc
@@ -255,7 +240,7 @@ const createStreamBus = (ctx: MTProto) => {
     ctx.api.invokeNetRequest(netReq)
   })
 
-  bus.newSession.observe(async ({
+  bus.newSession.observe(async({
     threadID,
     networkerDC,
     message,
@@ -287,12 +272,12 @@ const createStreamBus = (ctx: MTProto) => {
 
   bus.untypedMessage.observe(log`untyped`)
 
-  bus.noAuth.observe(async ({
+  bus.noAuth.observe(async({
     dc,
     req,
     apiReq,
     error
-  }: NoAuth) => {
+    }: NoAuth) => {
     // const mainDc  = await ctx.storage.get('dc')
     // if (dc === mainDc) {
 

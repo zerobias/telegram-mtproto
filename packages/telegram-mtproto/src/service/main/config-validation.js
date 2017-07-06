@@ -28,7 +28,11 @@ const app = {
         clear : type.func
       },
       additionalProperties: true
-    }
+    },
+    plugins: {
+      type       : 'array',
+      uniqueItems: true,
+    },
   },
   additionalProperties: false
 }
@@ -89,7 +93,7 @@ const ajv = new Ajv()
 AjvKeys(ajv)
 const validate = ajv.compile(schema)
 
-const configValidator = config => {
+const configValidator = (config: *) => {
   const valid = validate(config)
   if (!valid) {
     console.log('config errors')

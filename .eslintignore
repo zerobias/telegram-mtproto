@@ -2,5 +2,6 @@
 **/es/**
 **/dist/**
 **/flow-typed/**
+**/node_modules/**
 **/**/*.flow
 **/logs/**

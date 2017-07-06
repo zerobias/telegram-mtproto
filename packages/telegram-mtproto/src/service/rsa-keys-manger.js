@@ -20,8 +20,8 @@ export const KeyManager = (uid: string,
   const mapPrepare = ({ modulus, exponent }: PublicKey) => {
     const RSAPublicKey = new Serialization({}, uid)
     const rsaBox = RSAPublicKey.writer
-    writeBytes(rsaBox, bytesFromHex(modulus), 'n')
-    writeBytes(rsaBox, bytesFromHex(exponent), 'e')
+    writeBytes(rsaBox, bytesFromHex(modulus)/*, 'n'*/)
+    writeBytes(rsaBox, bytesFromHex(exponent)/*, 'e'*/)
 
     const buffer = rsaBox.getBuffer()
 

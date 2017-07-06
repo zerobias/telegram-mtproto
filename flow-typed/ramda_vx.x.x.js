@@ -1,5 +1,4 @@
-// flow-typed signature: 73ae792cbdb15eb5eaf1ad114f97724e
-// flow-typed version: <<STUB>>/ramda_v^0.23.0/flow_v0.43.1
+// flow-typed version: <<STUB>>/ramda_v^0.24.0/flow_v0.47.0
 
 /* eslint-disable no-unused-vars, no-redeclare */
 
@@ -53,19 +52,6 @@ declare type CurriedFunction6<T1, T2, T3, T4, T5, T6, R> =
   & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5) => (t6: T6) => R)
   & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5, t6: T6) => R)
 
-declare type Pipe = (<A,B,C,D,E,F,G>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, cd: UnaryFn<C,D>, de: UnaryFn<D,E>, ef: UnaryFn<E,F>, fg: UnaryFn<F,G>, ...rest: Array<void>) => UnaryFn<A,G>)
-  & (<A,B,C,D,E,F>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, cd: UnaryFn<C,D>, de: UnaryFn<D,E>, ef: UnaryFn<E,F>, ...rest: Array<void>) => UnaryFn<A,F>)
-  & (<A,B,C,D,E>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, cd: UnaryFn<C,D>, de: UnaryFn<D,E>, ...rest: Array<void>) => UnaryFn<A,E>)
-  & (<A,B,C,D>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, cd: UnaryFn<C,D>, ...rest: Array<void>) => UnaryFn<A,D>)
-  & (<A,B,C>(ab: UnaryFn<A,B>, bc: UnaryFn<B,C>, ...rest: Array<void>) => UnaryFn<A,C>)
-  & (<A,B>(ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,B>)
-
-declare type Compose = & (<A,B,C,D,E,F,G>(fg: UnaryFn<F,G>, ef: UnaryFn<E,F>, de: UnaryFn<D,E>, cd: UnaryFn<C,D>, bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,G>)
-  & (<A,B,C,D,E,F>(ef: UnaryFn<E,F>, de: UnaryFn<D,E>, cd: UnaryFn<C,D>, bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,F>)
-  & (<A,B,C,D,E>(de: UnaryFn<D,E>, cd: UnaryFn<C,D>, bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,E>)
-  & (<A,B,C,D>(cd: UnaryFn<C,D>, bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,D>)
-  & (<A,B,C>(bc: UnaryFn<B,C>, ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,C>)
-  & (<A,B>(ab: UnaryFn<A,B>, ...rest: Array<void>) => UnaryFn<A,B>)
 
 declare type Curry = & (<T1, T2, TResult>(fn: (a: T1, b: T2) => TResult) => CurriedFunction2<T1,T2, TResult>)
   & (<T1, T2, T3, TResult>(fn: (a: T1, b: T2, c: T3) => TResult) => CurriedFunction3<T1,T2, T3, TResult>)
@@ -100,7 +86,6 @@ declare class GenericContructorMulti {
 
 
 declare module 'ramda' {
-
   declare export function pipe<A,B,C,D,E,F,G,H>(
     ab: (a: A) => B,
     bc: (b: B) => C,
@@ -144,6 +129,50 @@ declare module 'ramda' {
     ab: (a: A) => B
   ): (a: A) => B
 
+  declare export function compose<A,B,C,D,E,F,G,H>(
+    gh: (g: G) => H,
+    fg: (f: F) => G,
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B,
+  ): (a: A) => H
+  declare export function compose<A,B,C,D,E,F,G>(
+    fg: (f: F) => G,
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B,
+  ): (a: A) => G
+  declare export function compose<A,B,C,D,E,F>(
+    ef: (e: E) => F,
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B,
+  ): (a: A) => F
+  declare export function compose<A,B,C,D,E>(
+    de: (d: D) => E,
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B,
+  ): (a: A) => E
+  declare export function compose<A,B,C,D>(
+    cd: (c: C) => D,
+    bc: (b: B) => C,
+    ab: (a: A) => B,
+  ): (a: A) => D
+  declare export function compose<A,B,C>(
+    bc: (b: B) => C,
+    ab: (a: A) => B,
+  ): (a: A) => C
+  declare export function compose<A,B>(
+    ab: (a: A) => B
+  ): (a: A) => B
+
+
   /**
   * DONE:
   * Function*
@@ -156,7 +185,6 @@ declare module 'ramda' {
   * Type
   */
 
-  declare var compose: Compose;
   declare var curry: Curry;
   declare export function curryN(length: number, fn: (...args: Array<any>) => any): Function
 
@@ -189,9 +217,24 @@ declare module 'ramda' {
   declare export function toUpper(a: string): string;
   declare export function trim(a: string): string;
 
-  // *Type
-  declare export function is<T>(t: T, ...rest: Array<void>): (v: any) => boolean;
-  declare export function is<T>(t: T, v: any): boolean;
+  declare type NativeType =
+    typeof Number
+  | typeof String
+  | typeof Boolean
+  | typeof Object
+  | typeof Array
+  | typeof Function
+  | typeof RegExp
+  | typeof Symbol
+
+  declare export function is<+T: NativeType>(t: T, v: mixed): boolean
+  declare export function is<+T>(t: Class<T>, v: T): true
+  declare export function is<+T, +C: Class<T>>(t: C, v: T): true
+  declare export function is<+T>(t: Class<T>, v: $Diff<mixed, T>): false
+  declare export function is<+T>(t: Class<T>): (v: T) => true
+  declare export function is(t: NativeType): (v: mixed) => boolean
+
+
   declare var propIs: CurriedFunction3<any,string,Object,boolean>;
   declare export function type(x: ?any): string;
   declare export function isArrayLike(x: any): boolean;
@@ -211,8 +254,8 @@ declare module 'ramda' {
   declare export function aperture<T>(n: number, xs: Array<T>): Array<Array<T>>;
   declare export function aperture<T>(n: number, ...rest: Array<void>): (xs: Array<T>) => Array<Array<T>>;
 
-  declare export function append<E>(x: E, xs: Array<E>): Array<E>
-  declare export function append<E>(x: E, ...rest: Array<void>): (xs: Array<E>) => Array<E>
+  declare export function append<+E>(x: E): (xs: Array<E>) => Array<E>
+  declare export function append<+E>(x: E, xs: Array<E>): Array<E>
 
   declare export function prepend<E>(x: E, xs: Array<E>): Array<E>
   declare export function prepend<E>(x: E, ...rest: Array<void>): (xs: Array<E>) => Array<E>
@@ -220,8 +263,12 @@ declare module 'ramda' {
   declare export function concat<V,T:Array<V>|string>(x: T, y: T): T;
   declare export function concat<V,T:Array<V>|string>(x: T): (y: T) => T;
 
-  declare export function contains<E,T:Array<E>|string>(x: E, xs: T): boolean
-  declare export function contains<E,T:Array<E>|string>(x: E, ...rest: Array<void>): (xs: T) => boolean
+  declare export function contains(x: string, xs: string): boolean
+  declare export function contains(x: string, xs: string[]): boolean
+  declare export function contains<E>(x: E, xs: Array<E>): boolean
+  declare export function contains(x: string, no: void): (xs: string) => boolean
+  declare export function contains(x: string, no: void): (xs: string[]) => boolean
+  declare export function contains<E>(x: E, no: void): (xs: Array<E>) => boolean
 
   declare export function drop<V,T:Array<V>|string>(n: number, ...rest: Array<void>):(xs: T) => T;
   declare export function drop<V,T:Array<V>|string>(n: number, xs: T): T;
@@ -322,6 +369,9 @@ declare module 'ramda' {
 
   declare var range: CurriedFunction2<number,number,Array<number>>;
 
+  declare export function T(): true
+  declare export function F(): false
+
   declare export function remove<T>(from: number, ...rest: Array<void>): ((to: number, ...rest: Array<void>) => (src: Array<T>) => Array<T>) & ((to: number, src: Array<T>) => Array<T>)
   declare export function remove<T>(from: number, to: number, ...rest: Array<void>): (src: Array<T>) => Array<T>
   declare export function remove<T>(from: number, to: number, src: Array<T>): Array<T>
@@ -372,7 +422,7 @@ declare module 'ramda' {
   declare export function xprod<T,S>(xs: Array<T>, ...rest: Array<void>): (ys: Array<S>) => Array<[T,S]>
 
   declare export function zip<T,S>(xs: Array<T>, ys: Array<S>): Array<[T,S]>
-  declare export function zip<T,S>(xs: Array<T>, ...rest: Array<void>): (ys: Array<S>) => Array<[T,S]>
+  declare export function zip<T,S>(xs: Array<T>): (ys: Array<S>) => Array<[T,S]>
 
   declare export function zipObj<T:string,S>(xs: Array<T>, ys: Array<S>): {[key:T]:S}
   declare export function zipObj<T:string,S>(xs: Array<T>, ...rest: Array<void>): (ys: Array<S>) => {[key:T]:S}
@@ -432,8 +482,8 @@ declare module 'ramda' {
   declare export function zipWith<T,S,R>(fn: (a: T, b: S) => R, xs: Array<T>, ys: Array<S>): Array<R>;
 
   // *Relation
-  declare export function equals<T>(x: T, ...rest: Array<void>): (y: T) => boolean;
-  declare export function equals<T>(x: T, y: T): boolean;
+  declare export function equals<+T>(x: T): (y: T) => boolean;
+  declare export function equals<+T>(x: T, y: T): boolean;
 
   declare export function eqBy<A,B>(fn: (x: A) => B, ...rest: Array<void>): ((x: A, y: A) => boolean) & ((x: A, ...rest: Array<void>) => (y: A) => boolean);
   declare export function eqBy<A,B>(fn: (x: A) => B, x: A, ...rest: Array<void>): (y: A) => boolean;
@@ -655,9 +705,6 @@ declare module 'ramda' {
   // *Function
   declare var __: *;
 
-  declare var T: (_: any) => boolean;
-  declare var F: (_: any) => boolean;
-
   declare export function addIndex<A,B>(iterFn:(fn:(x:A) => B, xs: Array<A>) => Array<B>): (fn: (x: A, idx: number, xs: Array<A>) => B, xs: Array<A>) => Array<B>;
 
   declare export function always<T>(x:T): (x: any) => T;
@@ -689,6 +736,30 @@ declare module 'ramda' {
 
   declare export function empty<T>(x: T): T;
 
+  declare export function o<F, G, X>(
+    f: (val: G) => F,
+  ): (
+    g: (val: X) => G,
+  ) => (x: X) => F
+  declare export function o<F, G, X>(
+    f: (val: G) => F,
+  ): (
+    g: (val: X) => G,
+    x: X
+  ) => F
+  declare export function o<F, G, X>(
+    f: (val: G) => F,
+    g: (val: X) => G,
+  ): (
+    x: X
+  ) => F
+  declare export function o<F, G, X>(
+    f: (val: G) => F,
+    g: (val: X) => G,
+    x: X
+  ): F
+
+
   declare export function flip<A,B,TResult>(fn: (arg0: A, arg1: B) => TResult): CurriedFunction2<B,A,TResult>;
   declare export function flip<A,B,C,TResult>(fn: (arg0: A, arg1: B, arg2: C) => TResult): (( arg0: B, arg1: A, ...rest: Array<void>) => (arg2: C) => TResult) & (( arg0: B, arg1: A, arg2: C) => TResult);
   declare export function flip<A,B,C,D,TResult>(fn: (arg0: A, arg1: B, arg2: C, arg3: D) => TResult): ((arg1: B, arg0: A, ...rest: Array<void>) => (arg2: C, arg3: D) => TResult) & ((arg1: B, arg0: A, arg2: C, arg3: D) => TResult);
@@ -700,7 +771,7 @@ declare module 'ramda' {
 
   declare export function juxt<T,S>(fns: Array<(...args: Array<S>) => T>): (...args: Array<S>) => Array<T>;
 
-  // TODO lift
+  declare export function lift<F: Function>(fn: F): F
 
   // TODO liftN
 
@@ -719,8 +790,8 @@ declare module 'ramda' {
   // TODO pipeK
   // TODO pipeP
 
-  declare export function tap<T>(fn: (x: T) => any, ...rest: Array<void>): (x: T) => T;
-  declare export function tap<T>(fn: (x: T) => any, x: T): T;
+  declare export function tap<T, +S>(fn: (x: T) => S): (x: T) => T;
+  declare export function tap<T, +S>(fn: (x: T) => S, x: T): T;
 
   // TODO tryCatch
 
@@ -1982,4 +2053,3 @@ declare module 'ramda/src/zipObj' {
 declare module 'ramda/src/zipWith' {
   declare export default any;
 }
-

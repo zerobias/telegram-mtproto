@@ -7,9 +7,9 @@ import { writeInt, writeIntBytes, writeLong } from '../../tl/writer'
 import { NetMessage } from '../networker/net-message'
 import { TypeWriter } from '../../tl/type-buffer'
 
-import Logger from 'mtproto-logger'
+// import Logger from 'mtproto-logger'
 
-const log = Logger`encrypted message`
+// const log = Logger`encrypted message`
 
 
 type ApiMessageProps = {
@@ -33,20 +33,20 @@ type MtMessageProps = {
 
 
 export const apiMessage = ({ ctx, serverSalt, sessionID, message }: ApiMessageProps) => {
-  writeIntBytes(ctx, serverSalt, 64, 'salt')
-  writeIntBytes(ctx, sessionID, 64, 'session_id')
+  writeIntBytes(ctx, serverSalt, 64)
+  writeIntBytes(ctx, sessionID, 64)
   writeLong(ctx, message.msg_id, 'message_id')
   writeInt(ctx, message.seq_no, 'seq_no')
 
   writeInt(ctx, message.body.length, 'message_data_length')
-  writeIntBytes(ctx, message.body, false, 'message_data')
+  writeIntBytes(ctx, message.body, false)
 
   const apiBytes = ctx.getBuffer()
 
   return apiBytes
 }
 
-export const encryptApiBytes = async ({ bytes, authKey }: EncryptApiMessageProps) => {
+export const encryptApiBytes = async({ bytes, authKey }: EncryptApiMessageProps) => {
   const bytesHash = await CryptoWorker.sha1Hash(bytes)
   const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
   const [aesKey, aesIv] = await getMsgKeyIv(authKey, msgKey, true)
@@ -56,9 +56,9 @@ export const encryptApiBytes = async ({ bytes, authKey }: EncryptApiMessageProps
 }
 
 export const mtMessage = ({ ctx, authKeyID, msgKey, encryptedBytes }: MtMessageProps) => {
-  writeIntBytes(ctx, authKeyID, 64, 'auth_key_id')
-  writeIntBytes(ctx, msgKey, 128, 'msg_key')
-  writeIntBytes(ctx, encryptedBytes, false, 'encrypted_data')
+  writeIntBytes(ctx, authKeyID, 64)
+  writeIntBytes(ctx, msgKey, 128)
+  writeIntBytes(ctx, encryptedBytes, false)
 
   const mtBytes = ctx.getArray()
 

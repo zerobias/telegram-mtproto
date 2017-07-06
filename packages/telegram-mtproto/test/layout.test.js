@@ -1,4 +1,3 @@
-const { test } = require('tap')
 const { getFlags, Layout } = require('../lib/layout')
 const apiSchema = require('../schema/api-57.json')
 
@@ -155,7 +154,7 @@ const entityCreatorModel = {
 for (const param of method.params) {
 
 }*/
-test('flags counter', t => {
+test('flags counter', () => {
   const flagTests = [
     [{}, 0],
     [{
@@ -173,11 +172,12 @@ test('flags counter', t => {
 
 
   let getter
-  t.notThrow(() => getter = getFlags(methodModel), 'getFlags')
+  expect(() => {
+    getter = getFlags(methodModel)
+  }).not.toThrow()
   for (const [ obj, result ] of flagTests)
-    t.equal(getter(obj), result, `flags test`)
-  // let layout
-  t.notThrow(() => /*layout =*/ new Layout(apiSchema), 'make new layout')
-  // console.log(layout)
-  t.end()
+    expect(getter(obj)).toBe(result)
+  expect(() => {
+    new Layout(apiSchema)
+  }).not.toThrow()
 })

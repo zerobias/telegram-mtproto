@@ -1,7 +1,8 @@
 //@flow
 
 import Emitter from 'eventemitter2'
-import { fromEvents } from 'kefir'
+import { fromEvent } from 'most'
+import { type Stream } from 'most'
 
 import Debug from './debug'
 
@@ -19,7 +20,8 @@ const eventsHandler = (queue: LogEvent[][]): LogEvent[] => {
   }
   return result
 }
-export const logStream = fromEvents(emitter, 'log', eventsHandler)
+
+export const logStream: Stream<LogEvent[]> = fromEvent('log', emitter).map(eventsHandler)
 class LogEvent {
   log: Debug.IDebugger
   values: mixed[]
@@ -56,8 +58,7 @@ export class Sheduler {
   add = (log: Debug.IDebugger,
     time: string,
     tagStr: string,
-    values: any[],
-    padding: string) => {
+    values: any[]) => {
     const results = normalizeVaules(values)
     if (isSingleObject(results))
       results.unshift('%O')

@@ -9,13 +9,11 @@ import Logger from 'mtproto-logger'
 
 const log = Logger`time-manager`
 
-export const tsNow = (seconds?: boolean): number => {
-  let t = +new Date()
+export const tsNow = (): number => {
+  let t = Date.now()
   //eslint-disable-next-line
   if (!isNode) t += window.tsOffset || 0
-  return seconds
-    ? Math.floor(t / 1000)
-    : t
+  return t
 }
 
 
@@ -48,7 +46,7 @@ export const applyServerTime = (
 
   Config.lastMessageID.set(uid, [0, 0])
   Config.timerOffset.set(uid, newTimeOffset)
-  log('Apply server time')(serverTime, localTime, newTimeOffset, changed)
+  log`Apply server time`(serverTime, localTime, newTimeOffset, changed)
 
   return changed
 }

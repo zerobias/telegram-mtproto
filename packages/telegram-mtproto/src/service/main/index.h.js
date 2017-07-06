@@ -1,7 +1,8 @@
 //@flow
 
-import type { TLSchema } from '../../tl/index.h'
-import type { AsyncStorage } from '../../plugins'
+import { type TLSchema } from '../../tl/index.h'
+import { type AsyncStorage } from '../../plugins'
+import type { MTProto } from './index'
 
 export type ApiConfig = {
   invokeWithLayer?: number,
@@ -34,15 +35,21 @@ export type ServerConfig = {
   dcList?: Array<DC>
 }
 
+export interface Plugin {
+  (ctx: MTProto): mixed,
+  pluginName: string,
+}
+
 export type ConfigType = {
   server?: ServerConfig,
   api?: ApiConfig,
   app?: {
     storage?: AsyncStorage,
-    publicKeys?: PublicKey[]
+    publicKeys?: PublicKey[],
+    plugins?: Plugin[],
   },
   schema?: TLSchema,
-  mtSchema?: TLSchema,
+  mtSchema?: TLSchema
 }
 
 export type StrictConfig = {
@@ -50,7 +57,8 @@ export type StrictConfig = {
   api: ApiConfig,
   app: {
     storage: AsyncStorage,
-    publicKeys: PublicKey[]
+    publicKeys: PublicKey[],
+    plugins: Plugin[],
   },
   schema: TLSchema,
   mtSchema: TLSchema,

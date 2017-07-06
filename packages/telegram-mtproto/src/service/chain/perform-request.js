@@ -24,7 +24,7 @@ export const writeInnerMessage =
       innerMessages.push(msg.msg_id)
       writeInt(writer, msg.seq_no, `CONTAINER[${i}][seq_no]`)
       writeInt(writer, msg.body.length, `CONTAINER[${i}][bytes]`)
-      writeIntBytes(writer, msg.body, false, `CONTAINER[${i}][body]`)
+      writeIntBytes(writer, msg.body, false)
       if (msg.noResponse)
         noResponseMessages.push(msg.msg_id)
     })
@@ -34,13 +34,4 @@ export const writeInnerMessage =
       noResponseMessages
     }
   }
-const sendRequest = async ({ message, url, writer }: SendRequest) => {
 
-}
-
-
-const performRequest = async () => {
-
-}
-
-export default performRequest

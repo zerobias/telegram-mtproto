@@ -61,21 +61,24 @@ export class NetMessage {
       return this.body.byteLength
     else
       return this.body.length
+    /*
+    else if (this.body != null) return this.body.length
+    return 0*/
   }
   clone(seq_no: number, dc: number/* | '@@home'*/): NetMessage {
     const copy = new NetMessage(this.uid, seq_no, this.body)
     const result = clone(this, copy, dc)
     return result
   }
-  toJSON() {
-    return {
-      uid      : this.uid,
-      deferred : this.deferred,
-      requestID: this.requestID,
-      noShedule: this.noShedule,
+  // toJSON() {
+  //   return {
+  //     uid      : this.uid,
+  //     deferred : this.deferred,
+  //     requestID: this.requestID,
+  //     noShedule: this.noShedule,
 
-    }
-  }
+  //   }
+  // }
 }
 
 export class NetContainer extends NetMessage {

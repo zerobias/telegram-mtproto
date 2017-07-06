@@ -57,7 +57,7 @@ declare module 'axios' {
     url: string;
   }
   declare type $AxiosXHRConfig<T> = AxiosXHRConfig<T>;
-  declare class AxiosXHR<T> {
+  declare export class AxiosXHR<T> {
     config: AxiosXHRConfig<T>;
     data: T;
     headers: Object;

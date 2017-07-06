@@ -1,9 +1,27 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/[^ar].*
+<PROJECT_ROOT>/packages/mtproto-inspect/*
+<PROJECT_ROOT>/packages/mtproto-beam/*
+<PROJECT_ROOT>/packages/mtproto-inspect/lib/*
+<PROJECT_ROOT>/packages/mtproto-inspect/es/*
+<PROJECT_ROOT>/packages/mtproto-beam/lib/*
+<PROJECT_ROOT>/packages/mtproto-beam/es/*
+<PROJECT_ROOT>/packages/mtproto-logger/es/*
+💩 <PROJECT_ROOT>/packages/mtproto-shared/lib/*
+<PROJECT_ROOT>/packages/mtproto-shared/es/*
+<PROJECT_ROOT>/packages/mtproto-storage-fs/es/*
+<PROJECT_ROOT>/packages/mtproto-storage-fs/lib/*
+<PROJECT_ROOT>/packages/telegram-mtproto/es/*
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/[^ar].*
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/*.flow
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/*.json
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/jss/*
+<PROJECT_ROOT>/packages/telegram-mtproto/node_modules/mezzanine/*
+<PROJECT_ROOT>/node_modules/mezzanine/*
+<PROJECT_ROOT>/node_modules/config-chain/*
+<PROJECT_ROOT>/node_modules/conventional-changelog-core/*
+<PROJECT_ROOT>/node_modules/esformatter/*
+<PROJECT_ROOT>/node_modules/jss/*
+<PROJECT_ROOT>/node_modules/fbjs/*
 .*/dist/.*
 .*/logs/.*
 .*/examples/.*
@@ -21,16 +39,41 @@
 
 [libs]
 ./flow-typed
-<PROJECT_ROOT>/packages/telegram-mtproto/node_modules/flow-static-land
+💩 <PROJECT_ROOT>/packages/telegram-mtproto/node_modules/flow-static-land
 
 [options]
+esproposal.class_instance_fields=enable
+esproposal.class_static_fields=enable
+experimental.const_params=true
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_type=$FlowIssue
 unsafe.enable_getters_and_setters=true
 emoji=true
 esproposal.decorators=ignore
 module.use_strict=true
-strip_root=true
 esproposal.export_star_as=enable
-module.name_mapper='^flow-static-land/lib\(.*\)$' -> 'flow-static-land/src\1'
-module.name_mapper='^flow-static-land/src\(.*\)$' -> 'flow-static-land/\1'
+module.name_mapper='^array-flatten$' -> '<PROJECT_ROOT>/node_modules/array-flatten'
+module.name_mapper='^debug$' -> '<PROJECT_ROOT>/node_modules/debug'
+module.name_mapper='^memoizee$' -> '<PROJECT_ROOT>/node_modules/memoizee'
+
+module.name_mapper='^axios$' -> '<PROJECT_ROOT>/node_modules/axios'
+module.name_mapper='^ajv\(.*\)$' -> '<PROJECT_ROOT>/node_modules/ajv\1'
+module.name_mapper='^most-subject$' -> '<PROJECT_ROOT>/node_modules/most-subject'
+module.name_mapper='^rusha$' -> '<PROJECT_ROOT>/node_modules/rusha'
+module.name_mapper='^fs-extra$' -> '<PROJECT_ROOT>/node_modules/fs-extra'
+module.name_mapper='^chokidar$' -> '<PROJECT_ROOT>/node_modules/chokidar'
+module.name_mapper='^\(.*\)goodmind\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1goodmind\2'
+module.name_mapper='^pako\(.*\)$' -> '<PROJECT_ROOT>/node_modules/pako\1'
+module.name_mapper='^daggy$' -> '<PROJECT_ROOT>/node_modules/daggy'
+module.name_mapper='^\(.*\)redux\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1redux\2'
+module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1'
+
+💩 module.name_mapper='^flow-static-land/lib\(.*\)$' -> 'flow-static-land/src\1'
+💩 module.name_mapper='^flow-static-land/src\(.*\)$' -> 'flow-static-land/\1'
+traces=2
+module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules
+module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/telegram-mtproto/node_modules
+module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-shared/node_modules
+module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-storage-fs/node_modules
+module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-logger/node_modules
+

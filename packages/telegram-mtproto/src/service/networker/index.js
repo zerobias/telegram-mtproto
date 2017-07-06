@@ -40,6 +40,9 @@ import type { Emit } from 'eventemitter2'
 
 import LongPoll from '../../plugins/long-poll'
 import { getRandomId } from '../../plugins/math-help'
+import { NET } from '../../state/action/index'
+
+import { dispatch } from '../../state/core'
 
 let updatesProcessor: *
 let iii = 0
@@ -296,7 +299,7 @@ export class NetworkerThread {
     this.sleepAfter < tsNow()
   )
 
-  checkLongPoll = async () => {
+  checkLongPoll = async() => {
     const isClean = this.cleanupSent()
     if (this.checkLongPollCond())
       return false
@@ -338,8 +341,8 @@ export class NetworkerThread {
 
 
 
-  checkConnection = async (event: * ) => {
-    log(`Check connection`)(event)
+  checkConnection = async(event: * ) => {
+    /*log(`Check connection`)(event)
     smartTimeout.cancel(this.checkConnectionPromise)
 
     const serializer = new Serialization({ mtproto: true }, this.uid)
@@ -375,7 +378,7 @@ export class NetworkerThread {
     log(`checkConnection, Delay`)(delay)
     this.checkConnectionPromise = smartTimeout(
       this.checkConnection, delay)
-    this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)
+    this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)*/
   }
 
   toggleOffline(enabled: boolean) {
@@ -552,16 +555,16 @@ export class NetworkerThread {
 
     this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
     if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
-
-    return this.requestPerformer(message, noResponseMsgs)
+    dispatch(NET.SEND_REQUEST.action({ message, options: {}, threadID: this.threadID, thread: this, noResponseMsgs }))
+    return
   }
 
 
-  async requestPerformer(message: NetMessage, noResponseMsgs: string[]) {
+  async requestPerformer(message: NetMessage, noResponseMsgs: string[], response: *) {
     try {
-      const result = await this.sendEncryptedRequest(message)
+      // const result = await this.sendEncryptedRequest(message)
       this.toggleOffline(false)
-      const response = await this.parseResponse(result.data)
+      // const response = await this.parseResponse(result.data)
       log(`Server response`, `dc${this.dcID}`)(response)
       log(`message`)(message)
 
@@ -605,7 +608,10 @@ export class NetworkerThread {
     }
   }
 
-  sendEncryptedRequest = async (message: NetMessage, options: NetOptions = {}) => {
+  sendEncryptedRequest = async(message: NetMessage, options: NetOptions = {}) => {
+
+    dispatch(NET.SEND_REQUEST.action({ message, options, threadID: this.threadID, thread: this }))
+
     const apiBytes = apiMessage({
       ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, this.uid).writer,
       serverSalt: this.serverSalt,
@@ -631,7 +637,7 @@ export class NetworkerThread {
     const url = Config.dcMap(this.uid, this.dcID)
     const requestOpts = { responseType: 'arraybuffer', ...options }
 
-    try {
+    /*try {
       const result = await httpClient.post(url, mtBytes, requestOpts)
       if (!result.data.byteLength) {
         const err = new ErrorBadResponse(url, result)
@@ -650,7 +656,7 @@ export class NetworkerThread {
       const err = new ErrorBadRequest(url, error)
       this.emit('response-raw', err)
       return Promise.reject(err)
-    }
+    }*/
   }
 
   getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)

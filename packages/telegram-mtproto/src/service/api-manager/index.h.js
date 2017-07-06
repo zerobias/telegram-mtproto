@@ -33,15 +33,14 @@ export interface ApiManagerInstance {
   on: On,
   emit: Emit,
   bus: *,
-  api: ApiManager
 }
 
-export type RequestOptions = {|
+export type RequestOptions = {
   networker?: NetworkerType,
   dc: number,
   storage: AsyncStorage,
   getNetworker: (dcID: number, options: LeftOptions) => Promise<NetworkerType>,
   netOpts: { [arg: string]: * }
-|}
+}
 
 export type { NetworkerType } from '../networker'

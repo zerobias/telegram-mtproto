@@ -1,6 +1,6 @@
 //@flow
 
-import type { VariString, LoggerInstance, GroupLogger } from './index.h'
+import { type VariString, type LoggerInstance, type GroupLogger } from './index.h'
 
 //eslint-disable-next-line
 const disabledSubfn = (...objects: any[]) => {}

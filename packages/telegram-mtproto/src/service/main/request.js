@@ -1,7 +1,7 @@
 //@flow
 
 import uuid from 'uuid/v4'
-import type { Defer } from '../../util/defer'
+import { type Defer } from '../../util/defer'
 import blueDefer from '../../util/defer'
 
 export type ApiMethod = {
@@ -37,6 +37,7 @@ class ApiRequest {
               options: RequestOptions) {
     this.data = data
     this.options = options
+    // this.messageID = options.messageID
   }
 }
 

@@ -13,7 +13,8 @@
   "plugins": [
     "babel",
     "promise",
-    "flowtype"
+    "flowtype",
+    "jest"
   ],
   "settings": {
     "flowtype": {
@@ -21,16 +22,14 @@
     }
   },
   "globals": {
-    "inject": true,
-    "setZeroTimeout": true
   },
   "env": {
     "node"  : true,
     "browser": false,
     "worker": true,
     "es6"   : true,
-    "jasmine": false,
-    "jquery": false
+    "jest": true,
+    "jasmine": true
   },
   "rules": {
     "flowtype/no-weak-types": "off",
@@ -129,10 +128,12 @@
       "ArrayExpression": 1,
       "ObjectExpression": "first"
     }],
-    "operator-linebreak": ["error", "after", {
+    "operator-linebreak": ["warn", "after", {
       "overrides": {
         "?": "before",
-        ":": "before"
+        ":": "before",
+        "||": "before",
+        "&&": "before"
       }
     }],
     "newline-per-chained-call": ["error", {

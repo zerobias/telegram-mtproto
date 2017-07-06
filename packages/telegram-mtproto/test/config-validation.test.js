@@ -1,4 +1,3 @@
-const test = require('tap').test
 
 const Ajv = require('ajv')
 const AjvKeys = require('ajv-keywords/keywords/typeof')
@@ -80,8 +79,7 @@ const schema = {
   additionalProperties: false
 }
 
-test('full module config validation', t => {
-  t.plan(1)
+test('full module config validation', () => {
   const ajv = new Ajv()
   AjvKeys(ajv)
 
@@ -125,5 +123,5 @@ test('full module config validation', t => {
     : validate.errors
 
   console.log(print(valid))
-  t.equal(valid, true, 'validation result is true')
+  expect(valid).toBeTruthy()
 })

@@ -8,7 +8,7 @@ const timeoutRefs = new WeakSet
 
 export const pause = (delay: number): Bluebird$Promise<void> => new Promise(r => setTimeout(r, delay))
 
-export const smartTimeout = <T>(fn: (...args: Array<*>) => T, delay?: number = 0, ...args: Array<*>) => {
+export const smartTimeout = <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, delay?: number = 0, ...args: Args) => {
   const newToken = Symbol('cancel id')
   const checkRun = () => {
     if (timeoutRefs.has(newToken)) {
@@ -30,20 +30,20 @@ const cancel = promise => {
     : false
 }
 
-export const immediate = <T>(fn: (...args: Array<*>) => T, ...args: Array<*>): Promise<T> =>
+export const immediate = <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, ...args: Args): Promise<T> =>
   Promise
     .resolve()
     .then(() => fn(...args))
 
 export const immediateWrap =
-  <T>(fn: (...args: Array<*>) => T) =>
-    (...args: Array<*>): Promise<T> =>
+  <+T, +A, +Args: Array<A>>(fn: (...args: Args) => T) =>
+    (...args: Args): Promise<T> =>
       Promise
         .resolve()
         .then(() => fn(...args))
 
 export const delayedCall =
-  <T>(fn: (...args: Array<*>) => T, delay?: number = 0, ...args: Array<*>) =>
+  <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, delay?: number = 0, ...args: Args) =>
     pause(delay)
       .then(() => fn(...args))
 

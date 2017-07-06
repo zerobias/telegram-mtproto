@@ -26,7 +26,6 @@ const vendorModules = [
   'detect-node',
   'eventemitter2',
   'folktale',
-  'kefir',
   'memoizee',
   'most',
   'most-subject',

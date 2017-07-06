@@ -148,19 +148,27 @@ export function convertToArrayBuffer(bytes: Buffer | ArrayBuffer | Uint8Array | 
 }
 
 export function convertToUint8Array(bytes: Bytes | Uint8Array | ArrayBuffer): Uint8Array {
-  if (bytes.buffer !== undefined)
-  //$FlowIssue
+  if (bytes instanceof Uint8Array)
     return bytes
-  return new Uint8Array(bytes)
+  if (Array.isArray(bytes))
+    return new Uint8Array(bytes)
+  if (bytes instanceof ArrayBuffer)
+    return new Uint8Array(bytes)
+  throw new TypeError(`convertToUint8Array mismatch! ${bytes}`)
 }
 
-export function convertToByteArray(bytes: Bytes | Uint8Array) {
+export function convertToByteArray(bytes: Bytes | Uint8Array): number[] {
   if (Array.isArray(bytes))
     return bytes
-  bytes = convertToUint8Array(bytes)
-  const newBytes = []
-  for (let i = 0, len = bytes.length; i < len; i++)
-    newBytes.push(bytes[i])
+  const bytesUint8 = convertToUint8Array(bytes)
+  const ln = bytesUint8.length
+  if (ln === 0) {
+    return []
+  }
+  const newBytes: number[] = new Array(ln)
+  newBytes[0] = 0
+  for (let i = 0; i < ln; i++)
+    newBytes[i] = bytesUint8[i]
   return newBytes
 }
 
@@ -275,7 +283,6 @@ export function sha256HashSync(bytes: Bytes | ArrayBuffer) {
 }
 
 export function rsaEncrypt(publicKey: PublicKeyExtended, bytes: Bytes) {
-  //$FlowIssue
   const newBytes: number[] = addPadding(bytes, 255)
 
   const N = str2bigInt(publicKey.modulus, 16, 256)
@@ -287,10 +294,15 @@ export function rsaEncrypt(publicKey: PublicKeyExtended, bytes: Bytes) {
   return encryptedBytes
 }
 
-export function addPadding(
-  bytes: ArrayBuffer | Bytes,
+interface AddPadding {
+  (bytes: Bytes, blockSize?: number, zeroes?: boolean): Bytes,
+  (bytes: ArrayBuffer, blockSize?: number, zeroes?: boolean): ArrayBuffer,
+}
+
+const addPadding: AddPadding = (
+  bytes,
   blockSize: number = 16,
-  zeroes: boolean = false): ArrayBuffer | Bytes {
+  zeroes: boolean = false) => {
   let len
 
   if (bytes instanceof ArrayBuffer) {
@@ -298,6 +310,8 @@ export function addPadding(
   } else {
     len = bytes.length
   }
+
+  let result = bytes
 
   const needPadding = blockSize - len % blockSize
   if (needPadding > 0 && needPadding < blockSize) {
@@ -308,12 +322,12 @@ export function addPadding(
     } else
       random(padding)
     if (bytes instanceof ArrayBuffer) {
-      bytes = bufferConcat(bytes, padding)
+      result = bufferConcat(bytes, padding)
     } else
-      bytes = bytes.concat(padding)
+      result = bytes.concat(padding)
   }
 
-  return bytes
+  return result
 }
 
 export function aesEncryptSync(bytes: Bytes, keyBytes: Bytes, ivBytes: Bytes) {
