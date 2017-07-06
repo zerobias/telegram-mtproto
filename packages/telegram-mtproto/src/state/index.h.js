@@ -6,5 +6,6 @@ export type State = {
   active: boolean,
   mainDc: number,
   uid: string,
+  messageHistory: { id: string, seqNo: number }[],
 }
 

@@ -1,7 +1,7 @@
 //@flow
 
 import { append, prepend, head, tail } from 'ramda'
-import type { Stream } from 'most'
+import { type Stream } from 'most'
 import Property from './property'
 import Logger from 'mtproto-logger'
 const log = Logger`pull-stream`

@@ -259,7 +259,6 @@ const createStreamBus = (ctx: MTProto) => {
 
   bus.noAuth.observe(async({
     dc,
-    req,
     apiReq,
     error
     }: NoAuth) => {
@@ -288,7 +287,6 @@ const netMessageCast     : MtpCall = an
 const newRequestCast     : ApiRequest = an
 const messageInCast      : NetMessage = an
 const newSessionCast     : OnNewSession = an
-const baseCast           : BaseType = an
 const noAuthCast         : NoAuth = an
 
 function makeStreamMap(emitter: EventEmitterType) {

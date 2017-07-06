@@ -16,20 +16,16 @@ import { MTError, DcUrlError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
 
-// import { switchErrors } from './error-cases'
-import { delayedCall, dTime } from 'mtproto-shared'
+import { dTime } from 'mtproto-shared'
 
-import Request from './request'
-
-import type { Bytes, LeftOptions, Cache, RequestOptions } from './index.h'
-import type { PublicKey, ApiConfig, StrictConfig, ServerConfig } from '../main/index.h'
-import type { Emit, On } from 'eventemitter2'
-import type { AsyncStorage } from '../../plugins'
+import { type Bytes, type LeftOptions, type Cache } from './index.h'
+import { type PublicKey, type ApiConfig, type StrictConfig, type ServerConfig } from '../main/index.h'
+import { type Emit, type On } from 'eventemitter2'
+import { type AsyncStorage } from '../../plugins'
 
 import Config from '../../config-provider'
 import NetworkerThread from '../networker'
 import ApiRequest from '../main/request'
-import Property from '../../property'
 
 const baseDcID = 2
 
@@ -267,14 +263,8 @@ export class ApiManager {
       return netReq.defer.promise
     }
 
-    const cfg: RequestOptions = {
-      networker,
-      dc          : dcID,
-      storage     : this.storage,
-      getNetworker: this.mtpGetNetworker,
-      netOpts     : netReq.options
-    }
-    const req = new Request(cfg, netReq.data.method, netReq.data.params)
+
+
     // const requestThunk = (waitTime: number): Promise<any> => {
     //   debug('requestThunk', 'waitTime')(waitTime)
     //   return delayedCall(req.performRequest, +waitTime * 1e3)
@@ -283,7 +273,10 @@ export class ApiManager {
     //   req.config.networker = networker
     //   return req.performRequest()
     // }
-    req.performRequest()
+    networker.wrapApiCall(
+      netReq.data.method,
+      netReq.data.params,
+      netReq.options)
       .then(
         netReq.defer.resolve,
         (error: MTError) => {
@@ -291,13 +284,12 @@ export class ApiManager {
           // const apiSavedNet = () => networker
 
           console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
-
+          console.trace('Unhandled performRequest')
           const noAuth = error.code === 401
           if (noAuth) {
             debug('performRequest', 'no auth')(dcID)
             this.emit('no-auth', {
               dc    : dcID,
-              req,
               apiReq: netReq,
               error
             })

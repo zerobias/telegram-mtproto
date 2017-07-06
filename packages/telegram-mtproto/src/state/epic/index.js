@@ -12,6 +12,8 @@ import NetworkerThread from '../../service/networker/index'
 import { Serialization } from '../../tl/index'
 import { ErrorBadResponse, ErrorBadRequest } from '../../error'
 import { httpClient } from '../../http'
+import signal from '../signal'
+import { faucet } from '../../pull-stream'
 
 const initialize = (action: Stream<{ type: string, payload: any }>) =>
   action
@@ -19,9 +21,16 @@ const initialize = (action: Stream<{ type: string, payload: any }>) =>
     .delay(15)
     .map(() => MAIN.ACTIVATED.action())
 
+
+
+const faucetC =
+  (source: Stream<*>) =>
+    faucet(source, signal.active).stream
+
 const netRequest = (action: Stream<*>) =>
   action
     .thru(e => NET.SEND_REQUEST.stream(e))
+    .thru(faucetC)
     .map((val: { payload: { message: NetMessage, options: Object, threadID: string, thread: NetworkerThread } }) => {
       const { payload } = val
       const { message, options, threadID, thread } = payload

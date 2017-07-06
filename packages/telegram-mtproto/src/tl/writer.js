@@ -36,7 +36,7 @@ export function writeLong(ctx: TypeWriter,
   if (Array.isArray(sLong))
     return sLong.length === 2
         ? writeLongP(ctx, sLong[0], sLong[1], field)
-        : writeIntBytes(ctx, sLong, 64, field)
+        : writeIntBytes(ctx, sLong, 64)
   let str
   if (typeof sLong !== 'string')
     str = sLong

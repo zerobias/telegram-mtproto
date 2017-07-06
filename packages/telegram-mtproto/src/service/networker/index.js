@@ -68,7 +68,7 @@ type ContextConfig = {|
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
   switch (typeof value) {
-    case 'string': return writeBytes(writer, value, `${field}:string`)
+    case 'string': return writeBytes(writer, value)
     case 'number': return writeInt(writer, value, field)
     default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
   }
@@ -608,55 +608,8 @@ export class NetworkerThread {
     }
   }
 
-  sendEncryptedRequest = async(message: NetMessage, options: NetOptions = {}) => {
-
+  async sendEncryptedRequest(message: NetMessage, options: NetOptions = {}) {
     dispatch(NET.SEND_REQUEST.action({ message, options, threadID: this.threadID, thread: this }))
-
-    const apiBytes = apiMessage({
-      ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, this.uid).writer,
-      serverSalt: this.serverSalt,
-      sessionID : this.sessionID,
-      message
-    })
-
-    const { encryptedBytes, msgKey } = await encryptApiBytes({
-      bytes  : apiBytes,
-      authKey: this.authKeyUint8
-    })
-
-    const request = new Serialization({ startMaxLength: encryptedBytes.byteLength + 256 }, this.uid).writer
-
-    const mtBytes = mtMessage({
-      ctx      : request,
-      authKeyID: this.authKeyID,
-      msgKey,
-      encryptedBytes
-    })
-
-
-    const url = Config.dcMap(this.uid, this.dcID)
-    const requestOpts = { responseType: 'arraybuffer', ...options }
-
-    /*try {
-      const result = await httpClient.post(url, mtBytes, requestOpts)
-      if (!result.data.byteLength) {
-        const err = new ErrorBadResponse(url, result)
-        this.emit('response-raw', err)
-        return Promise.reject(err)
-      }
-      this.emit('response-raw', {
-        data      : result.data,
-        status    : result.status,
-        statusText: result.statusText,
-        message,
-        options
-      })
-      return result
-    } catch (error) {
-      const err = new ErrorBadRequest(url, error)
-      this.emit('response-raw', err)
-      return Promise.reject(err)
-    }*/
   }
 
   getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)

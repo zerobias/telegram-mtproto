@@ -6,7 +6,7 @@ import { composeWithDevTools } from 'remote-redux-devtools'
 
 import rootReducer from './reducer'
 import rootEpic from './epic'
-
+import { rootSignal } from './signal'
 
 const composeEnhancers = composeWithDevTools({ realtime: true, hostname: 'localhost', port: 8000 })
 function configureStore(rootReducer: *, initialState: *) {
@@ -26,6 +26,10 @@ function configureStore(rootReducer: *, initialState: *) {
 }
 
 const store = configureStore(rootReducer, {})
+
+store.subscribe(
+  () => rootSignal.next(store.getState())
+)
 
 export default store
 setTimeout(

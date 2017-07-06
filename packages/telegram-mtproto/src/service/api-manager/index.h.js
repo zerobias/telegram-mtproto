@@ -1,10 +1,9 @@
 //@flow
 
-import type { Emit, On } from 'eventemitter2'
-import type { AsyncStorage } from '../../plugins'
-import type { PublicKey } from '../main/index.h'
-import type { NetworkerType } from '../networker'
-import { typeof ApiManager } from '../api-manager'
+import { type Emit, type On } from 'eventemitter2'
+import { type AsyncStorage } from '../../plugins'
+import { type PublicKey } from '../main/index.h'
+import { type NetworkerType } from '../networker'
 
 export type Bytes = number[]
 
@@ -33,14 +32,6 @@ export interface ApiManagerInstance {
   on: On,
   emit: Emit,
   bus: *,
-}
-
-export type RequestOptions = {
-  networker?: NetworkerType,
-  dc: number,
-  storage: AsyncStorage,
-  getNetworker: (dcID: number, options: LeftOptions) => Promise<NetworkerType>,
-  netOpts: { [arg: string]: * }
 }
 
 export type { NetworkerType } from '../networker'

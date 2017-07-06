@@ -417,7 +417,7 @@ function mult(x: Bytes, y: Bytes) {
 //return (x**y mod n) where x,y,n are bigInts and ** is exponentiation.  0**0=1. Faster for odd n.
 export function powMod(x: Bytes, y: Bytes, n: Bytes) {
   var ans=expand(x, n.length);
-  powMod_(ans, trim(y, 2), trim(n, 2), 0);  //this should work without the trim, but doesn't
+  powMod_(ans, trim(y, 2), trim(n, 2));  //this should work without the trim, but doesn't
   return trim(ans, 1);
 }
 

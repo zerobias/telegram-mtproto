@@ -43,7 +43,7 @@ type Net = {
     threadID: string,
     thread: NetworkerThread
   }>,
-  RECIEVE_RESPONSE: ActionPair<'recieve resonce', any>,
+  RECIEVE_RESPONSE: ActionPair<'recieve response', any>,
   NETWORK_ERROR: ActionPair<'network error', any>,
 }
 
@@ -63,6 +63,6 @@ export const MAIN: Main = {
 
 export const NET: Net = {
   SEND_REQUEST    : doubleCreator('send request'),
-  RECIEVE_RESPONSE: doubleCreator('recieve resonce'),
+  RECIEVE_RESPONSE: doubleCreator('recieve response'),
   NETWORK_ERROR   : doubleCreator('network error'),
 }

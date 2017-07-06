@@ -14,7 +14,7 @@ interface Subject<T> extends Stream<T> {
   complete (value?: T): Subject<T>,
 }
 
-const rootSignal: Subject<State> = async()
+export const rootSignal: Subject<State> = async()
 const root: Stream<State> = rootSignal.thru(multicast)
 
 const isActive = root
@@ -28,10 +28,6 @@ const mainDc = root
 const uid = root
   .map(state => state.uid)
   .skipRepeats()
-
-store.subscribe(
-  () => rootSignal.next(store.getState())
-)
 
 const stateModel = {
   active: isActive,
