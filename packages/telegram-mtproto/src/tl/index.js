@@ -164,15 +164,15 @@ export class Serialization {
       case 'long':
         return writeLong(this.writer, obj, field)
       case 'int128':
-        return writeIntBytes(this.writer, obj, 128, field)
+        return writeIntBytes(this.writer, obj, 128)
       case 'int256':
-        return writeIntBytes(this.writer, obj, 256, field)
+        return writeIntBytes(this.writer, obj, 256)
       case 'int512':
-        return writeIntBytes(this.writer, obj, 512, field)
+        return writeIntBytes(this.writer, obj, 512)
       case 'string':
-        return writeBytes(this.writer, obj, `${field}:string`)
+        return writeBytes(this.writer, obj)
       case 'bytes':
-        return writeBytes(this.writer, obj, field)
+        return writeBytes(this.writer, obj)
       case 'double':
         return writeDouble(this.writer, obj, field)
       case 'Bool':

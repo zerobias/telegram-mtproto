@@ -17,7 +17,6 @@ import {
   getFileMigrateDc
 } from './rpc'
 import ApiRequest from '../service/main/request'
-import Request from '../service/api-manager/request'
 import NetworkerThread from '../service/networker'
 import { NetMessage } from '../service/networker/net-message'
 import { MTError, RpcError } from '../error'
@@ -418,7 +417,6 @@ type RawEvent<T> = {
 
 type NoAuth = {
   dc: number,
-  req: Request,
   apiReq: ApiRequest,
   error: MTError,
 }

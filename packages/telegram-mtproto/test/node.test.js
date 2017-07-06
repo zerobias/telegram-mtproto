@@ -102,7 +102,7 @@ const connectionTest = async () => {
     })
     console.log('signIn', res)
     console.log('\n Logined as user')
-    console.dir && console.dir(res.user, { colors: true })
+    // console.dir && console.dir(res.user, { colors: true })
     message = 'result is ok'
   } else {
     message = 'already authorized, skip'
@@ -111,7 +111,7 @@ const connectionTest = async () => {
   const dialogs = await telegram('messages.getDialogs', {
     limit: 100,
   })
-  console.dir && console.dir(dialogs, { colors: true })
+  // console.dir && console.dir(dialogs, { colors: true })
   app.storage.data = {
     nearest_dc: 2,
     dc        : 2,

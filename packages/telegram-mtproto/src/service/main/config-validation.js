@@ -102,10 +102,8 @@ const configValidator = (config: *) => {
   }
 }
 
-const canDir = typeof console.dir === 'function'
-const printObj = canDir
-  ? (arg) => console.dir( arg, { colors: true })
-  : (arg) => console.log(arg)
+// const canDir = typeof console.dir === 'function'
+const printObj = (arg) => console.log(arg)
 
 
 export default configValidator

@@ -209,37 +209,6 @@ export class ApiManager {
   }
 
   async invokeNetRequest(netReq: ApiRequest) {
-
-    const rejectPromise = (error: any) => {
-      let err
-      if (error instanceof Error)
-        err = error
-      else {
-        err = new Error()
-        //$FlowIssue
-        err.data = error
-      }
-      // if (!error)
-      //   err = { type: 'ERROR_EMPTY', input: '' }
-      // else if (!is(Object, error))
-      //   err = { message: error }
-      // else err = error
-      console.warn(`[rejectPromise] Unhandled error!`, err)
-
-      if (!netReq.options.noErrorBox) {
-        //TODO weird code. `error` changed after `.reject`?
-
-        /*err.input = method
-
-        err.stack =
-          stack ||
-          hasPath(['originalError', 'stack'], error) ||
-          error.stack ||
-          (new Error()).stack*/
-        this.emit('error.invoke', error)
-      }
-      netReq.defer.reject(err)
-    }
     let networker
 
     let dcID: number
@@ -269,62 +238,50 @@ export class ApiManager {
     //   debug('requestThunk', 'waitTime')(waitTime)
     //   return delayedCall(req.performRequest, +waitTime * 1e3)
     // }
-    // const apiRecall = (networker: NetworkerThread) => {
-    //   req.config.networker = networker
-    //   return req.performRequest()
-    // }
-    networker.wrapApiCall(
-      netReq.data.method,
-      netReq.data.params,
-      netReq.options)
-      .then(
-        netReq.defer.resolve,
-        (error: MTError) => {
-          // const deferResolve = netReq.defer.resolve
-          // const apiSavedNet = () => networker
-
-          console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
-          console.trace('Unhandled performRequest')
-          const noAuth = error.code === 401
-          if (noAuth) {
-            debug('performRequest', 'no auth')(dcID)
-            this.emit('no-auth', {
-              dc    : dcID,
-              apiReq: netReq,
-              error
-            })
-          }
-          // const waitFailRegExp = /MSG_WAIT_FAILED_(\d+)/
-
-        //   return switchErrors(
-        //     error,
-        //     netReq.options,
-        //     dcID,
-        //     baseDcID
-        //   )(
-        //     error,
-        //     netReq.options,
-        //     dcID,
-        //     this.emit,
-        //     rejectPromise,
-        //     requestThunk,
-        //     apiSavedNet,
-        //     apiRecall,
-        //     deferResolve,
-        //     this.mtpInvokeApi,
-        //     this.storage)
+    try {
+      const result = await networker.wrapApiCall(
+        netReq.data.method,
+        netReq.data.params,
+        netReq.options)
+      netReq.defer.resolve(result)
+      return result
+    } catch (err) {
+      const error: MTError = err
+      console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
+      console.trace('Unhandled performRequest')
+      const noAuth = error.code === 401
+      if (noAuth) {
+        debug('performRequest', 'no auth')(dcID)
+        this.emit('no-auth', {
+          dc    : dcID,
+          apiReq: netReq,
+          error
         })
-      .catch(rejectPromise)
+      }
+      // if (!error)
+      //   err = { type: 'ERROR_EMPTY', input: '' }
+      // else if (!is(Object, error))
+      //   err = { message: error }
+      // else err = error
+      console.warn(`[rejectPromise] Unhandled error!`, err)
+
+      if (!netReq.options.noErrorBox) {
+        //TODO weird code. `error` changed after `.reject`?
+
+        /*err.input = method
+
+        err.stack =
+          stack ||
+          hasPath(['originalError', 'stack'], error) ||
+          error.stack ||
+          (new Error()).stack*/
+        /*this.emit('error.invoke', error)*/
+      }
+      netReq.defer.reject(error)
+    }
 
     return netReq.defer.promise
   }
-
-  // setUserAuth = async (dcID: number, userAuth: any) => {
-  //   const fullUserAuth = { dcID, ...userAuth }
-  //   await this.storage.set('dc', dcID)
-  //   await this.storage.set('user_auth', fullUserAuth)
-  //   this.emit('auth.dc', { dc: dcID, auth: userAuth })
-  // }
 }
 
 const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0
