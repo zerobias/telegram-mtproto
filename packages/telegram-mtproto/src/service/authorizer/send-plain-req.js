@@ -63,14 +63,14 @@ const SendPlain = (uid: string) => {
       default:
         error = err
     }
-    Config.emit(uid)([uid, 'response-raw'], error)
+    Config.emit(uid)('response-raw', error)
     return Promise.reject(error)
   }
 
   const onlySendPlainRes = ({ url, req }: { url: string, req: * }) => {
     if (!req.data || !req.data.byteLength) {
       const error = new ErrorBadResponse(url)
-      Config.emit(uid)([uid, 'response-raw'], error)
+      Config.emit(uid)('response-raw', error)
       return Promise.reject(error)
     }
 
@@ -83,10 +83,10 @@ const SendPlain = (uid: string) => {
       readInt(ctx, 'msg_len')
     } catch (e) {
       const error = new ErrorBadResponse(url, e)
-      Config.emit(uid)([uid, 'response-raw'], error)
+      Config.emit(uid)('response-raw', error)
       return Promise.reject(error)
     }
-    Config.emit(uid)([uid, 'response-raw'], {
+    Config.emit(uid)('response-raw', {
       data      : req.data,
       status    : req.status,
       statusText: req.statusText

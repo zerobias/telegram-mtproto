@@ -60,6 +60,8 @@ const netRequest = (action: Stream<*>) =>
           thread.emit('response-raw', err)
           return Promise.reject(err)
         }
+        const response = await thread.parseResponse(result.data)
+        await thread.requestPerformer(message, noResponseMsgs, response)
         thread.emit('response-raw', {
           data      : result.data,
           status    : result.status,
@@ -67,8 +69,6 @@ const netRequest = (action: Stream<*>) =>
           message,
           options
         })
-        const response = await thread.parseResponse(result.data)
-        await thread.requestPerformer(message, noResponseMsgs, response)
         return {
           data      : response,
           status    : result.status,

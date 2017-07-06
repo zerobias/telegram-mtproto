@@ -37,13 +37,6 @@ const createStreamBus = (ctx: MTProto) => {
   const emitter = Config.rootEmitter(ctx.uid)
   const bus = makeStreamMap(emitter)
 
-  // const baseState = fromEvents(
-  //   ctx.emitter,
-  //   [ctx.uid, 'base'].join('.'),
-  //   (str: BaseType) => str
-  // ).toProperty((): BaseType => 'INIT')
-  bus.baseState.onValue(log`base state`)
-  bus.baseState.onValue(e => console.log(e))
   // const stateScopes = makeStateScopes(ctx.uid)
 
   // bus.scopes = {
@@ -51,22 +44,20 @@ const createStreamBus = (ctx: MTProto) => {
   //   requests: fromEvents(ctx.emitter, stateScopes.requests),
   // }
 
-  // pushMessage.onValue(log('push message'))
+  // pushMessage.observe(log('push message'))
 
-  bus.responseRaw.onValue(log('raw response'))
-  bus.responseRaw.onError(log('raw error'))
+  bus.responseRaw.observe(log('raw response'))
+  // bus.responseRaw.onError(log('raw error'))
 
-  bus.incomingMessage.onValue(log('incoming message'))
+  bus.incomingMessage.observe(log('incoming message'))
 
   const state = ctx.state
 
-  bus.incomingMessage.observe({
-    value(val) {
-      // ctx.state.messages.delete(val.message.msg_id)
-      const networker = state.threads.get(val.threadID)
-      if (networker == null) return
-      log('observer', 'type')(val.message._, networker.dcID)
-    }
+  bus.incomingMessage.observe((val) => {
+    // ctx.state.messages.delete(val.message.msg_id)
+    const networker = state.threads.get(val.threadID)
+    if (networker == null) return
+    log('observer', 'type')(val.message._, networker.dcID)
   })
 
   bus.newNetworker.observe((networker) => {
@@ -74,22 +65,16 @@ const createStreamBus = (ctx: MTProto) => {
     state.threads.set(networker.threadID, networker)
   })
 
-  bus.messageIn.onValue(log('message in'))
+  bus.messageIn.observe(log('message in'))
 
   const apiOnly = bus.messageIn.filter(value => value.isAPI)
   const mtOnly = bus.messageIn.filter(value => !value.isAPI)
 
-  apiOnly.observe({
-    value(val) {
-      ctx.state.messages.set(val.msg_id, val)
-
-    }
+  apiOnly.observe((val) => {
+    ctx.state.messages.set(val.msg_id, val)
   })
-  mtOnly.observe({
-    value(val) {
-      ctx.state.messages.set(val.msg_id, val)
-
-    }
+  mtOnly.observe((val) => {
+    ctx.state.messages.set(val.msg_id, val)
   })
 
   bus.rpcResult.observe(async(data: OnRpcResult) => {
@@ -107,7 +92,7 @@ const createStreamBus = (ctx: MTProto) => {
     ctx.state.requests.delete(requestID)
   })
 
-  bus.rpcError.onValue(log('rpc error'))
+  bus.rpcError.observe(log('rpc error'))
 
   const isAuthRestart = (error: MTError) =>
     error.code === 500
@@ -215,13 +200,13 @@ const createStreamBus = (ctx: MTProto) => {
     }
   })
 
-  bus.netMessage.onValue((message) => {
+  bus.netMessage.observe((message) => {
     log('net message')(message)
     const req = ctx.state.messages.get(message.msg_id)
     log('req')(req)
   })
 
-  bus.netMessage.onValue(log('new request'))
+  bus.netMessage.observe(log('new request'))
 
   bus.newRequest.observe(async(netReq) => {
     if (state.requests.has(netReq.requestID)) return log('request', 'repeat')(netReq)
@@ -321,7 +306,6 @@ function makeStreamMap(emitter: EventEmitterType) {
   const newRequest      = getter('new-request', newRequestCast)
   const messageIn       = getter('message-in', messageInCast)
   const newSession      = getter('new-session', newSessionCast)
-  const baseState       = getter('base', baseCast)
   const noAuth          = getter('no-auth', noAuthCast)
 
   const streamMap = {
@@ -337,7 +321,6 @@ function makeStreamMap(emitter: EventEmitterType) {
     rpcResult,
     newSession,
     noAuth,
-    baseState: baseState.toProperty((): BaseType => 'INIT' )
   }
 
   return streamMap
