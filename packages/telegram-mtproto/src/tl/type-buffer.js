@@ -173,9 +173,9 @@ export class TypeBuffer {
     this.offset += 4
     return int
   }
-  readPair(field1: string, field2: string) {
-    const int1 = this.nextInt(field1)
-    const int2 = this.nextInt(field2)
+  readPair() {
+    const int1 = this.nextInt()
+    const int2 = this.nextInt()
     return [ int1, int2 ]
   }
   next(length: number) {

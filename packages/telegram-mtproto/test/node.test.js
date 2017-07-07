@@ -58,7 +58,7 @@ const telegram = MTProto({ server, api, app })
   return history
 }*/
 
-const resetStorage = async () => {
+const resetStorage = async() => {
   telegram.storage.data = {
     nearest_dc: 2,
     dc        : 2,
@@ -66,7 +66,7 @@ const resetStorage = async () => {
   await telegram.storage.save()
 }
 
-const isAlreadyAuth = async () => {
+const isAlreadyAuth = async() => {
   const dc = await telegram.storage.get('dc')
   if (!dc) {
     await resetStorage()
@@ -82,17 +82,17 @@ const isAlreadyAuth = async () => {
 }
 
 
-const connectionTest = async () => {
+const connectionTest = async() => {
   // await telegram.storage.clear() //Just for clean test
   expect.assertions(2)
   const isAuth = await isAlreadyAuth()
   let message
   if (!isAuth) {
     const { phone_code_hash } = await telegram('auth.sendCode', {
-          phone_number  : phone.num,
-          current_number: false,
-          api_id        : config.id,
-          api_hash      : config.hash
+      phone_number  : phone.num,
+      current_number: false,
+      api_id        : config.id,
+      api_hash      : config.hash
     })
     console.log('phone_code_hash', phone_code_hash)
     const res = await telegram('auth.signIn', {
@@ -146,4 +146,4 @@ const connectionTest = async () => {
 // const tests = () =
 test(`Connection test`, connectionTest)
 // delayExit()
-  // await app.storage.save()
+// await app.storage.save()

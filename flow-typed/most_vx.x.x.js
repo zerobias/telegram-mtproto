@@ -147,6 +147,8 @@ declare module 'most' {
     // Note: Without higher-kinded types, this type cannot be written properly
     await<B>(): Stream<B>,
 
+    awaitPromises(): Stream<A>,
+
     sample<B, C, R>(
       fn: (b: B, c: C) => R,
       b: Stream<B>,
