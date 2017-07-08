@@ -118,7 +118,7 @@ export class NetworkerThread {
     this.iii = iii++
 
     this.longPoll = new LongPoll(this)
-    dispatch(AUTH.SET_AUTH_KEY.action(authKey))
+    dispatch(AUTH.SET_AUTH_KEY(authKey, this.dcID))
     this.authKey = authKey
     this.authKeyUint8 = convertToUint8Array(authKey)
     this.authKeyBuffer = convertToArrayBuffer(authKey)
@@ -129,7 +129,7 @@ export class NetworkerThread {
 
     // this.checkLongPollCond = this.checkLongPollCond.bind(this)
     this.serverSalt = serverSalt
-    dispatch(AUTH.SET_SERVER_SALT.action(serverSalt))
+    dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID))
 
     this.upload = false //options.fileUpload || options.fileDownload || false
 
@@ -145,7 +145,7 @@ export class NetworkerThread {
     this.prevSessionID = this.sessionID
     this.sessionID = new Array(8)
     random(this.sessionID)
-    dispatch(AUTH.SET_SESSION_ID.action(this.sessionID))
+    dispatch(AUTH.SET_SESSION_ID(this.sessionID, this.dcID))
   }
 
   updateSentMessage(sentMessageID: string) {
@@ -161,7 +161,7 @@ export class NetworkerThread {
       }
       sentMessage.inner = newInner
     }
-    dispatch(NETWORKER_STATE.SENT.DEL.action([sentMessage]))
+    dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
     this.state.deleteSent(sentMessage)
     const newId = generateID(this.uid)
     sentMessage.msg_id = newId
@@ -170,7 +170,7 @@ export class NetworkerThread {
       sentMessage.container
     )
     this.state.addSent(sentMessage)
-
+    dispatch(NETWORKER_STATE.SENT.ADD([sentMessage], this.dcID))
     return sentMessage
   }
 
@@ -314,8 +314,8 @@ export class NetworkerThread {
 
   pushMessage(message: NetMessage, options: NetOptions = {}) {
     message.copyOptions(options)
-    dispatch(NETWORKER_STATE.SENT.ADD.action(message))
-    dispatch(NETWORKER_STATE.PENDING.ADD.action([message.msg_id]))
+    dispatch(NETWORKER_STATE.SENT.ADD(message, this.dcID))
+    dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
     this.emit('push-message', {
       threadID: this.threadID,
       message,
@@ -337,9 +337,9 @@ export class NetworkerThread {
       for (const msg of sentMessage.inner) {
         this.state.setPending(msg, value)
       }
-      dispatch(NETWORKER_STATE.PENDING.ADD.action(sentMessage.inner))
+      dispatch(NETWORKER_STATE.PENDING.ADD(sentMessage.inner, this.dcID))
     } else {
-      dispatch(NETWORKER_STATE.PENDING.ADD.action([messageID]))
+      dispatch(NETWORKER_STATE.PENDING.ADD([messageID], this.dcID))
       this.state.setPending(messageID, value)
     }
     this.sheduleRequest(delay)
@@ -490,7 +490,7 @@ export class NetworkerThread {
       messages.push(message)
       messagesByteLen += messageByteLength
     }
-    dispatch(NETWORKER_STATE.PENDING.DEL.action(pendingIds))
+    dispatch(NETWORKER_STATE.PENDING.DEL(pendingIds, this.dcID))
     logGroup('message, final')(message)
     logGroup('messages')(messages)
     messages.map(msg => this.emit('message-in', msg))
@@ -564,13 +564,13 @@ export class NetworkerThread {
 
     this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
     if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
-    dispatch(NET.SEND_REQUEST.action({
+    dispatch(NET.SEND_REQUEST({
       message,
       options : {},
       threadID: this.threadID,
       thread  : this,
       noResponseMsgs,
-    }))
+    }, this.dcID))
     return
   }
 
@@ -594,7 +594,7 @@ export class NetworkerThread {
           this.state.deleteSent(msg)
           msg.deferred.resolve()
         }
-      dispatch(NETWORKER_STATE.SENT.DEL.action(sentDel))
+      dispatch(NETWORKER_STATE.SENT.DEL(sentDel, this.dcID))
       this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod))
 
       //return
@@ -608,10 +608,10 @@ export class NetworkerThread {
           this.state.setPending(msgID)
         }
         noRespSent.push(message)
-        dispatch(NETWORKER_STATE.PENDING.ADD.action(message.inner))
+        dispatch(NETWORKER_STATE.PENDING.ADD(message.inner, this.dcID))
         this.state.deleteSent(message)
       } else {
-        dispatch(NETWORKER_STATE.PENDING.ADD.action([message.msg_id]))
+        dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
         this.state.setPending(message.msg_id)
       }
 
@@ -624,8 +624,8 @@ export class NetworkerThread {
           this.state.deletePending(msgID)
           msg.deferred.reject()
         }
-      dispatch(NETWORKER_STATE.SENT.DEL.action(noRespSent))
-      dispatch(NETWORKER_STATE.PENDING.DEL.action(noRespPending))
+      dispatch(NETWORKER_STATE.SENT.DEL(noRespSent, this.dcID))
+      dispatch(NETWORKER_STATE.PENDING.DEL(noRespPending, this.dcID))
       this.toggleOffline(true)
       return Promise.reject(error)
     }
@@ -682,6 +682,7 @@ export class NetworkerThread {
     const serverSalt = longToBytes(newServerSalt)
     await this.storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
 
+    dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID))
     this.serverSalt = serverSalt
     return true
   }
@@ -751,7 +752,7 @@ export class NetworkerThread {
       } else
         notEmpty = true
     }
-    dispatch(NETWORKER_STATE.SENT.DEL.action(sentDel))
+    dispatch(NETWORKER_STATE.SENT.DEL(sentDel, this.dcID))
     return !notEmpty
   }
 
@@ -886,7 +887,7 @@ export class NetworkerThread {
             resendDel.push(badMsgID)
             this.state.deleteResent(badMsgID)
           }
-          dispatch(NETWORKER_STATE.RESEND.DEL.action(resendDel))
+          dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
         }
         break
       }
@@ -919,7 +920,7 @@ export class NetworkerThread {
           if (sentMessage.isAPI)
             this.connectionInited = true
         }
-        dispatch(NETWORKER_STATE.SENT.DEL.action([sentMessage]))
+        dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
         this.state.deleteSent(sentMessage)
         break
       }

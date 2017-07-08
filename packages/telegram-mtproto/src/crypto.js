@@ -9,7 +9,10 @@ import { convertToUint8Array, sha1HashSync, sha256HashSync,
   aesEncryptSync, aesDecryptSync, convertToByteArray, convertToArrayBuffer,
   pqPrimeFactorization, bytesModPow } from './bin'
 
-const convertIfArray = when(is(Array), convertToUint8Array)
+const convertIfArray = (val) => Array.isArray(val)
+  ? convertToUint8Array(val)
+  : val
+
 let webWorker = !isNode
 let taskID = 0
 const awaiting: { [task: number]: Defer } = {}

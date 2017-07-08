@@ -14,8 +14,8 @@ const config = {
 telegram.bus
   .rpcError
   .filter(message => message.error.type === 'SESSION_PASSWORD_NEEDED')
-  .observe(async (message) => {
-    const password = await inputField('password')
+  .observe(async(message) => {
+    // const password = await inputField('password')
 
     const { current_salt } = await telegram('account.getPassword', {})
     const password_hash = makePasswordHash(current_salt, password)
@@ -30,15 +30,18 @@ telegram.bus
     console.log('signIn', first_name, username, user.phone)
   })
 
-const login = async () => {
+const phone = process.env.PHONE
+const password = process.env.PASS
+
+const login = async() => {
   try {
-    const phone = await inputField('phone')
+    // const phone = await inputField('phone')
     // console.log(phone)
     const { phone_code_hash } = await telegram('auth.sendCode', {
-            phone_number  : phone,
-            current_number: false,
-            api_id        : config.id,
-            api_hash      : config.hash
+      phone_number  : phone,
+      current_number: false,
+      api_id        : config.id,
+      api_hash      : config.hash
     })
     const code = await inputField('code')
     try {

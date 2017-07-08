@@ -12,8 +12,6 @@ import { writeLong, writeLongP, writeInt } from '../../tl/writer'
 import Config from '../../config-provider'
 import { Serialization, Deserialization } from '../../tl'
 
-import request from '../chain'
-
 const is404 = pathEq(['response', 'status'], 404)
 const notError = allPass([has('message'), has('type')])
 

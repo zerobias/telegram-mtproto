@@ -91,7 +91,7 @@ class MTProto {
         log('event', 'rest')(rest)
     })
     this.bus = streamBus(this)
-    setTimeout(() => dispatch(MAIN.SWITCH_ON.action(uid)), 3e3)
+    setTimeout(() => dispatch(MAIN.SWITCH_ON(uid)), 3e3)
 
   }
 
