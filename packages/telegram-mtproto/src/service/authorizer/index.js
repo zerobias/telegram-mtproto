@@ -3,14 +3,13 @@
 import Bluebird from 'bluebird'
 
 import blueDefer from '../../util/defer'
-import { immediate } from 'mtproto-shared'
+import { immediate, dTime } from 'mtproto-shared'
 // import CryptoWorker from '../../crypto'
 import Config from '../../config-provider'
 import { Serialization, Deserialization } from '../../tl'
 
 import random from '../secure-random'
 import { applyServerTime, tsNow } from '../time-manager'
-import { dTime } from 'mtproto-shared'
 
 import { bytesCmp, bytesToHex, sha1BytesSync,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,

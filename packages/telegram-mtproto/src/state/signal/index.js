@@ -26,10 +26,14 @@ const uid = root
   .map(state => state.uid)
   .skipRepeats()
 
+const networker = root
+  .map(state => state.networker)
+
 const stateModel = {
   active: isActive,
   mainDc,
   uid,
+  networker,
 }
 
 export default stateModel

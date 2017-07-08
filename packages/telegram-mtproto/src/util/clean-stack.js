@@ -1,7 +1,8 @@
 //@flow
 
 const extractPathRegex = /\s+at.*(?:\(|\s)(.*)\)?/
-const pathRegex = /^(?:(?:(?:node|(?:internal\/[\w/]*|.*node_modules\/babel-polyfill\/.*)?\w+)\.js:\d+:\d+)|native|<anonymous>)/
+const pathRegex =
+  /^(?:(?:(?:node|(?:internal\/[\w/]*|.*node_modules\/babel-polyfill\/.*)?\w+)\.js:\d+:\d+)|native|<anonymous>)/
 
 const stackFilter = (x: string) => {
   const pathMatches = x.match(extractPathRegex)

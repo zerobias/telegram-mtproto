@@ -1,4 +1,5 @@
-// const { test } = require('tap')
+const { outputJsonSync } = require('fs-extra')
+const { join } = require('path')
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 40e3
 const { MTProto } = require('../lib')
 const { Storage } = require('mtproto-storage-fs')
@@ -11,6 +12,11 @@ const { Storage } = require('mtproto-storage-fs')
 //   num : '+9996610000',
 //   code: '11111'
 // }
+
+outputJsonSync(join(__dirname, 'storage.json'), {
+  nearest_dc: 2,
+  dc        : 2,
+}, { spaces: 2 })
 
 const phone = {
   num : '+9996620000',

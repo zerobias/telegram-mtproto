@@ -48,7 +48,7 @@ export const readResponse = ({ response, reader, authKeyStored }: ReadResponse) 
 }
 
 
-export const getDataWithPad = async ({ authKey, msgKey, encryptedData }: GetDataWithPad) => {
+export const getDataWithPad = async({ authKey, msgKey, encryptedData }: GetDataWithPad) => {
   const [aesKey, aesIv] = await getMsgKeyIv(authKey, msgKey, false)
   const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, aesKey, aesIv)
   return dataWithPadding
@@ -59,9 +59,9 @@ export const readHash = ({ reader, currentSession, prevSession, dataWithPadding 
   const sessionID = reader.fetchIntBytes(64, 'session_id')
   const messageID = readLong(reader.typeBuffer, 'message_id')
 
-  const isInvalidSession = !bytesCmp(sessionID, currentSession) && (!prevSession ||
+  const isInvalidSession = !bytesCmp(sessionID, currentSession) && (!prevSession
     //eslint-disable-next-line
-    !bytesCmp(sessionID, prevSession));
+    || !bytesCmp(sessionID, prevSession));
   if (isInvalidSession) {
     console.warn('Sessions', sessionID, currentSession, prevSession)
     throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) }`)
@@ -73,8 +73,8 @@ export const readHash = ({ reader, currentSession, prevSession, dataWithPadding 
   const totalLength = dataWithPadding.byteLength
 
   const messageBodyLength = reader.fetchInt('message_data[length]')
-  if (messageBodyLength % 4 ||
-    messageBodyLength > totalLength - offset) {
+  if (messageBodyLength % 4
+    || messageBodyLength > totalLength - offset) {
     throw new Error(`[MT] Invalid body length: ${  messageBodyLength}`)
   }
   const messageBody = reader.fetchRawBytes(messageBodyLength, 'message_data')
@@ -99,7 +99,7 @@ export const readHash = ({ reader, currentSession, prevSession, dataWithPadding 
 }
 
 
-export const parsedResponse = async ({ hashData, msgKey, reader }: ParsedResponse) => {
+export const parsedResponse = async({ hashData, msgKey, reader }: ParsedResponse) => {
   const dataHash = await CryptoWorker.sha1Hash(hashData)
 
   if (!bytesCmp(msgKey, bytesFromArrayBuffer(dataHash).slice(-16))) {
