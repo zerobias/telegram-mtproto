@@ -1,6 +1,6 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 import { has, pathEq, allPass } from 'ramda'
 
@@ -44,9 +44,9 @@ const SendPlain = (uid: string) => {
       responseType: 'arraybuffer'
     })
     // } catch (e) {
-    //   reqPromise = Promise.reject(new ErrorBadResponse(url, e))
+    //   reqPromise = Bluebird.reject(new ErrorBadResponse(url, e))
     // }
-    return Promise.props({ url, req: reqPromise })
+    return Bluebird.props({ url, req: reqPromise })
   }
 
   const onlySendPlainErr = (err) => {
@@ -62,14 +62,14 @@ const SendPlain = (uid: string) => {
         error = err
     }
     Config.emit(uid)('response-raw', error)
-    return Promise.reject(error)
+    return Bluebird.reject(error)
   }
 
   const onlySendPlainRes = ({ url, req }: { url: string, req: * }) => {
     if (!req.data || !req.data.byteLength) {
       const error = new ErrorBadResponse(url)
       Config.emit(uid)('response-raw', error)
-      return Promise.reject(error)
+      return Bluebird.reject(error)
     }
 
     let deserializer
@@ -82,7 +82,7 @@ const SendPlain = (uid: string) => {
     } catch (e) {
       const error = new ErrorBadResponse(url, e)
       Config.emit(uid)('response-raw', error)
-      return Promise.reject(error)
+      return Bluebird.reject(error)
     }
     Config.emit(uid)('response-raw', {
       data      : req.data,

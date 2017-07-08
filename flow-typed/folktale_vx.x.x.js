@@ -64,11 +64,13 @@ declare module 'folktale/result' {
   }
 
   declare export function fromNullable<Right>(obj: ?Right): IResult<Right, null | void>
-  declare export function hasInstance(obj: ?IResult<*>): boolean
+  declare export function hasInstance(obj: mixed): boolean
 
-  declare export function of<Right, Left: *>(obj: Right): IOk<Right, Left>
-  declare export function Ok<Right, Left: *>(obj: Right): IOk<Right, Left>
-  declare export function Error<Right: *, Left>(obj: Left): IError<Right, Left>
+  declare export function of<Right, Left: mixed>(obj: Right): IOk<Right, Left>
+  declare export function Ok<Right, Left: mixed>(obj: Right): IOk<Right, Left>
+  declare export function Error<Right: mixed, Left>(obj: Left): IError<Right, Left>
+  declare var Either: { Ok: typeof Ok, Error: typeof Error }
+  declare export default Either
 }
 
 declare module 'folktale/validation' {

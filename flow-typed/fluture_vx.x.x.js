@@ -42,4 +42,5 @@ declare module 'fluture' {
   declare export function or<TA, FA, TB, FB>(futureA: Fluture<TA, FA>, futureB: Fluture<TB, FB>): Fluture<TA | TB, FA | FB>
   declare export function and<TA, FA, TB, FB>(futureA: Fluture<TA, FA>, futureB: Fluture<TB, FB>): Fluture<TA | TB, FA | FB>
   declare export function isFuture(val: mixed): boolean
+  declare export function of<T>(val: T): Fluture<T, mixed>
 }

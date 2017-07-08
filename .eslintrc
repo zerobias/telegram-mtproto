@@ -14,7 +14,8 @@
     "babel",
     "promise",
     "flowtype",
-    "jest"
+    "jest",
+    "jsdoc"
   ],
   "settings": {
     "flowtype": {

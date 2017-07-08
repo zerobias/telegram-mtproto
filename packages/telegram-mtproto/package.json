@@ -35,7 +35,7 @@
   "dependencies": {
     "@goodmind/node-cryptojs-aes": "^0.5.0",
     "@most/hold": "^2.0.0",
-    "ajv": "^5.2.0",
+    "ajv": "^5.2.1",
     "ajv-keywords": "^2.1.0",
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
@@ -43,7 +43,7 @@
     "detect-node": "^2.0.3",
     "eventemitter2": "^4.1.0",
     "flow-static-land": "^0.2.7",
-    "fluture": "^6.2.7",
+    "fluture": "^6.2.8",
     "folktale": "^2.0.0-rc1",
     "most": "^1.5.0",
     "most-subject": "^5.3.0",
@@ -58,7 +58,7 @@
     "redux-most": "^0.5.2",
     "rusha": "^0.8.6",
     "uuid": "^3.1.0",
-    "worker-loader": "^0.8.0"
+    "worker-loader": "^0.8.1"
   },
   "devDependencies": {
     "@types/uuid": "^3.0.0",
@@ -84,9 +84,9 @@
     "remote-redux-devtools": "^0.5.12",
     "remotedev-server": "^0.2.2",
     "rimraf": "^2.6.1",
-    "tslint": "^5.4.3",
+    "tslint": "^5.5.0",
     "typescript": "^2.3.4",
-    "webpack": "^3.0.0"
+    "webpack": "^3.1.0"
   },
   "engines": {
     "node": ">=6.0"
