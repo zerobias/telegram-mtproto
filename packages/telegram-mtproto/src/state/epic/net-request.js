@@ -105,8 +105,8 @@ const netRequest = (action: Stream<*>) =>
       options
     }))
     .tap(log`response-raw`)
-    .map(NET.RECIEVE_RESPONSE.action)
-    .recoverWith(err => of(NET.NETWORK_ERROR.action(err)).delay(15))
+    .map(NET.RECIEVE_RESPONSE)
+    .recoverWith(err => of(NET.NETWORK_ERROR(err)).delay(15))
 
 
 export default netRequest
