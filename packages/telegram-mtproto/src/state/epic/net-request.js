@@ -20,11 +20,11 @@ function wait<Value>(val: Promise<Value>): Stream<Value> {
   return of(val).awaitPromises()
 }
 
-const makeApiBytes = ({ message, thread }) =>
+const makeApiBytes = ({ message, uid, authData }) =>
   apiMessage({
-    ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, thread.uid).writer,
-    serverSalt: thread.serverSalt,
-    sessionID : thread.sessionID,
+    ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, uid).writer,
+    serverSalt: authData.salt,
+    sessionID : authData.session,
     message
   })
 const intoError = (data, url: string) => throwError(new ErrorBadResponse(url, data))
@@ -32,7 +32,7 @@ const intoError = (data, url: string) => throwError(new ErrorBadResponse(url, da
 const encryptedBytes = (opts: *) =>
   encryptApiBytes({
     bytes  : makeApiBytes(opts),
-    authKey: opts.thread.authKeyUint8
+    authKey: opts.authData.authKeyUint8
   })
 //$FlowIssue
 const waitRequest = (url, data, config): Stream<AxiosXHR<ArrayBuffer>> =>
@@ -54,32 +54,50 @@ type NetRequestPayload = {
   },
   type: 'send request',
 }
+
+const getAuthData = (id: number) =>
+  signal.networker
+    .map(e => e.get(id))
+    .map(({ authKey, authSubKey, salt, session }) => ({
+      authKey,
+      session,
+      salt,
+      ...authSubKey,
+    }))
+
 const netRequest = (action: Stream<*>) =>
   action
     .thru(e => NET.SEND_REQUEST.stream(e))
     .thru(faucetC)
     .map(({ payload }: NetRequestPayload) => payload)
+    .chain(opts =>
+      getAuthData(opts.thread.dcID)
+        .map((authData: *) => ({
+          ...opts,
+          uid: opts.thread.uid, authData,
+          dc : opts.thread.dcID,
+        })))
     .chain((opts) =>
       zip((opts, data) => ({ ...opts, ...data }),
           of(opts),
           wait(encryptedBytes(opts))))
-    .map(({ options, ...rest }) => ({
-      ...rest,
+    .map((opts) => ({
+      ...opts,
       options: {
-        responseType: 'arraybuffer', ...options } }))
-    .map(({ encryptedBytes, thread, msgKey, ...rest }) => {
+        responseType: 'arraybuffer', ...opts.options } }))
+    .map(({ encryptedBytes, authData, uid, dc, msgKey, ...rest }) => {
       const request = new Serialization({
         startMaxLength: encryptedBytes.byteLength + 256
-      }, thread.uid).writer
+      }, uid).writer
 
       const mtBytes = mtMessage({
         ctx      : request,
-        authKeyID: thread.authKeyID,
+        authKeyID: authData.authKeyID,
         msgKey,
         encryptedBytes
       })
-      const url = Config.dcMap(thread.uid, thread.dcID)
-      return { thread, mtBytes, url, ...rest } })
+      const url = Config.dcMap(uid, dc)
+      return { mtBytes, url, ...rest } })
     .chain(
       ({ options, mtBytes, url, ...rest }) =>
         zip((opts, result) => ({ ...opts, options, url, result }),
@@ -105,8 +123,8 @@ const netRequest = (action: Stream<*>) =>
       options
     }))
     .tap(log`response-raw`)
-    .map(NET.RECIEVE_RESPONSE.action)
-    .recoverWith(err => of(NET.NETWORK_ERROR.action(err)).delay(15))
+    .map(NET.RECIEVE_RESPONSE)
+    .recoverWith(err => of(NET.NETWORK_ERROR(err)).delay(15))
 
 
 export default netRequest
