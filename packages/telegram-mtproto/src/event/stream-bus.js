@@ -27,23 +27,9 @@ import Logger from 'mtproto-logger'
 const log = Logger`stream-bus`
 
 
-type BaseType =
-  'INIT'
-  | 'AUTH'
-  | 'WORK'
-
 const createStreamBus = (ctx: MTProto) => {
   const emitter = Config.rootEmitter(ctx.uid)
   const bus = makeStreamMap(emitter)
-
-  // const stateScopes = makeStateScopes(ctx.uid)
-
-  // bus.scopes = {
-  //   messages: fromEvents(ctx.emitter, stateScopes.messages),
-  //   requests: fromEvents(ctx.emitter, stateScopes.requests),
-  // }
-
-  // pushMessage.observe(log('push message'))
 
   bus.responseRaw.observe(log('raw response'))
   // bus.responseRaw.onError(log('raw error'))
@@ -83,12 +69,11 @@ const createStreamBus = (ctx: MTProto) => {
     const requestID = data.sentMessage.requestID
     if (typeof requestID !== 'string') return
     const req = ctx.state.requests.get(requestID)
-    if (!req) {
+    if (req) {
       // data.sentMessage.deferred.reject('No such request!')
-      return log('on rpc result error')('req', req)
+      req.defer.resolve(data.result)
+      ctx.state.requests.delete(requestID)
     }
-    req.defer.resolve(data.result)
-    ctx.state.requests.delete(requestID)
   })
 
   bus.rpcError.observe(log('rpc error'))

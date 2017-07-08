@@ -11,7 +11,7 @@ const initialize = (action: Stream<{ type: string, payload: any }>) =>
   action
     .thru(MAIN.SWITCH_ON.stream)
     .delay(15)
-    .map(() => MAIN.ACTIVATED.action())
+    .map(() => MAIN.ACTIVATED())
 
 const rootEpic = combineEpics([
   initialize,
