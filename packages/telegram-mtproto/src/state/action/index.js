@@ -66,3 +66,45 @@ export const NET: Net = {
   RECIEVE_RESPONSE: doubleCreator('recieve response'),
   NETWORK_ERROR   : doubleCreator('network error'),
 }
+
+type Auth = {
+  SET_AUTH_KEY: ActionPair<'set auth key', number[]>,
+  SET_SERVER_SALT: ActionPair<'set server salt', number[]>,
+  SET_SESSION_ID: ActionPair<'set session id', number[]>,
+}
+
+export const AUTH: Auth = {
+  SET_AUTH_KEY   : doubleCreator('set auth key'),
+  SET_SERVER_SALT: doubleCreator('set server salt'),
+  SET_SESSION_ID : doubleCreator('set session id'),
+}
+
+type NetworkerState = {
+  RESEND: {
+    ADD: ActionPair<'networker/resend add', string[]>,
+    DEL: ActionPair<'networker/resend delete', string[]>,
+  },
+  SENT: {
+    ADD: ActionPair<'networker/sent add', NetMessage>,
+    DEL: ActionPair<'networker/sent delete', NetMessage[]>,
+  },
+  PENDING: {
+    ADD: ActionPair<'networker/pending add', string[]>,
+    DEL: ActionPair<'networker/pending delete', string[]>,
+  },
+}
+
+export const NETWORKER_STATE: NetworkerState = {
+  RESEND: {
+    ADD: doubleCreator('networker/resend add'),
+    DEL: doubleCreator('networker/resend delete'),
+  },
+  SENT: {
+    ADD: doubleCreator('networker/sent add'),
+    DEL: doubleCreator('networker/sent delete'),
+  },
+  PENDING: {
+    ADD: doubleCreator('networker/pending add'),
+    DEL: doubleCreator('networker/pending delete'),
+  },
+}

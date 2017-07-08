@@ -4,9 +4,6 @@ import store from '../core'
 import { type State } from '../index.h'
 import { async } from 'most-subject'
 import { type Stream } from 'most'
-import multicast from '@most/multicast'
-
-(multicast: <T>(val: Stream<T>) => Stream<T>)
 
 interface Subject<T> extends Stream<T> {
   next (value: T): Subject<T>,
@@ -15,7 +12,7 @@ interface Subject<T> extends Stream<T> {
 }
 
 export const rootSignal: Subject<State> = async()
-const root: Stream<State> = rootSignal.thru(multicast)
+const root: Stream<State> = rootSignal.multicast()
 
 const isActive = root
   .map(state => state.active)

@@ -54,5 +54,10 @@ function Property<T>(name: string, value: T): HoldSubject<T> {
   return property
 }
 
+export function subject<T>(value: T): HoldSubject<T> {
+  const plainStream: HoldSubject<T> = async()
+  return plainStream
+}
+
 export default Property
 

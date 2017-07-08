@@ -415,8 +415,8 @@ declare module 'ramda' {
   declare export function update<T>(index: number, elem: T, src: Array<T>): Array<T>
 
   // TODO `without` as a transducer
+  declare export function without<T>(xs: Array<T>): (src: Array<T>) => Array<T>
   declare export function without<T>(xs: Array<T>, src: Array<T>): Array<T>
-  declare export function without<T>(xs: Array<T>, ...rest: Array<void>): (src: Array<T>) => Array<T>
 
   declare export function xprod<T,S>(xs: Array<T>, ys: Array<S>): Array<[T,S]>
   declare export function xprod<T,S>(xs: Array<T>, ...rest: Array<void>): (ys: Array<S>) => Array<[T,S]>
@@ -571,10 +571,10 @@ declare module 'ramda' {
   declare export function unionWith<T>(fn: BinaryPredicateFn<T>, x: Array<T>, y: Array<T>): Array<T>;
 
   // *Object
-  declare export function assoc<T,S>(key: string, ...args: Array<void>):
-    ((val: T, ...rest: Array<void>) => (src: {[k:string]:S}) => {[k:string]:S|T}) & ((val: T, src: {[k:string]:S}) => {[k:string]:S|T});
-  declare export function assoc<T,S>(key: string, val:T, ...args: Array<void>): (src: {[k:string]:S}) => {[k:string]:S|T};
-  declare export function assoc<T,S>(key: string, val: T, src: {[k:string]:S}): {[k:string]:S|T};
+  declare export function assoc<T,S,Id: number | string>(key: Id):
+    ((val: T) => (src: {[k:Id]:S}) => {[k:Id]:S|T}) & ((val: T, src: {[k:Id]:S}) => {[k:Id]:S|T})
+  declare export function assoc<T,S,Id: number | string>(key: Id, val:T): (src: {[k:Id]:S}) => {[k:Id]:S|T}
+  declare export function assoc<T,S,Id: number | string>(key: Id, val: T, src: {[k:Id]:S}): {[k:Id]:S|T}
 
   declare export function assocPath<T,S>(key: Array<string>, ...args: Array<void>):
     ((val: T, ...rest: Array<void>) => (src: {[k:string]:S}) => {[k:string]:S|T})
@@ -584,10 +584,9 @@ declare module 'ramda' {
 
   declare export function clone<T>(src: T): $Shape<T>;
 
-  declare export function dissoc<T>(key: string, ...args: Array<void>):
-    ((val: T, ...rest: Array<void>) => (src: {[k:string]:T}) => {[k:string]:T}) & ((val: T, src: {[k:string]:T}) => {[k:string]:T});
-  declare export function dissoc<T>(key: string, val:T, ...args: Array<void>): (src: {[k:string]:T}) => {[k:string]:T};
-  declare export function dissoc<T>(key: string, val: T, src: {[k:string]:T}): {[k:string]:T};
+  declare export function dissoc<T,Id: number | string>(key: Id):
+    (src: {[k:Id]:T}) => {[k:Id]:T}
+  declare export function dissoc<T,Id: number | string>(key: Id, src: {[k:Id]:T}): {[k:Id]:T}
 
   declare export function dissocPath<T>(key: Array<string>, ...args: Array<void>):
     ((val: T, ...rest: Array<void>) => (src: {[k:string]:T}) => {[k:string]:T})
@@ -875,101 +874,6 @@ declare module 'ramda' {
   declare export function when<T,V,S>(pred: UnaryPredicateFn<T>, fn: (x: S) => V, x: T|S): T|V;
 }
 
-// declare var R: ramda
-
-/**
- * We include stubs for each file inside this npm package in case you need to
- * require those files directly. Feel free to delete any files that aren't
- * needed.
- */
-declare module 'ramda/dist/ramda' {
-  declare export default any;
-}
-
-declare module 'ramda/dist/ramda.min' {
-  declare export default any;
-}
-
-declare module 'ramda/src/__' {
-  declare export default any;
-}
-
-declare module 'ramda/src/add' {
-  declare export default any;
-}
-
-declare module 'ramda/src/addIndex' {
-  declare export default any;
-}
-
-declare module 'ramda/src/adjust' {
-  declare export default any;
-}
-
-declare module 'ramda/src/all' {
-  declare export default any;
-}
-
-declare module 'ramda/src/allPass' {
-  declare export default any;
-}
-
-declare module 'ramda/src/always' {
-  declare export default any;
-}
-
-declare module 'ramda/src/and' {
-  declare export default any;
-}
-
-declare module 'ramda/src/any' {
-  declare export default any;
-}
-
-declare module 'ramda/src/anyPass' {
-  declare export default any;
-}
-
-declare module 'ramda/src/ap' {
-  declare export default any;
-}
-
-declare module 'ramda/src/aperture' {
-  declare export default any;
-}
-
-declare module 'ramda/src/append' {
-  declare export default any;
-}
-
-declare module 'ramda/src/apply' {
-  declare export default any;
-}
-
-declare module 'ramda/src/applySpec' {
-  declare export default any;
-}
-
-declare module 'ramda/src/ascend' {
-  declare export default any;
-}
-
-declare module 'ramda/src/assoc' {
-  declare export default any;
-}
-
-declare module 'ramda/src/assocPath' {
-  declare export default any;
-}
-
-declare module 'ramda/src/binary' {
-  declare export default any;
-}
-
-declare module 'ramda/src/bind' {
-  declare export default any;
-}
-
 declare module 'ramda/src/both' {
 
   declare function both<T>(
@@ -983,10 +887,6 @@ declare module 'ramda/src/both' {
     y: (e: S) => boolean
   ): (e: (T & S)|T) => boolean;
   declare export default typeof both;
-}
-
-declare module 'ramda/src/call' {
-  declare export default any;
 }
 
 declare module 'ramda/src/chain' {
@@ -1016,50 +916,6 @@ declare module 'ramda/src/chain' {
   declare export default typeof chain;
 }
 
-declare module 'ramda/src/clamp' {
-  declare export default any;
-}
-
-declare module 'ramda/src/clone' {
-  declare export default any;
-}
-
-declare module 'ramda/src/comparator' {
-  declare export default any;
-}
-
-declare module 'ramda/src/complement' {
-  declare export default any;
-}
-
-declare module 'ramda/src/compose' {
-  declare export default any;
-}
-
-declare module 'ramda/src/composeK' {
-  declare export default any;
-}
-
-declare module 'ramda/src/composeP' {
-  declare export default any;
-}
-
-declare module 'ramda/src/concat' {
-  declare export default any;
-}
-
-declare module 'ramda/src/cond' {
-  declare export default any;
-}
-
-declare module 'ramda/src/construct' {
-  declare export default any;
-}
-
-declare module 'ramda/src/constructN' {
-  declare export default any;
-}
-
 declare module 'ramda/src/contains' {
   declare function contains(x: string, xs: string|Array<string>): boolean
   declare function contains<E>(x: E, xs: Array<E>): boolean
@@ -1069,127 +925,11 @@ declare module 'ramda/src/contains' {
   declare export default typeof contains;
 }
 
-declare module 'ramda/src/converge' {
-  declare export default any;
-}
-
-declare module 'ramda/src/countBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/curry' {
-  declare export default any;
-}
-
-declare module 'ramda/src/curryN' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dec' {
-  declare export default any;
-}
-
-declare module 'ramda/src/defaultTo' {
-  declare export default any;
-}
-
-declare module 'ramda/src/descend' {
-  declare export default any;
-}
-
-declare module 'ramda/src/difference' {
-  declare export default any;
-}
-
-declare module 'ramda/src/differenceWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dissoc' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dissocPath' {
-  declare export default any;
-}
-
-declare module 'ramda/src/divide' {
-  declare export default any;
-}
-
-declare module 'ramda/src/drop' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dropLast' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dropLastWhile' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dropRepeats' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dropRepeatsWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/dropWhile' {
-  declare export default any;
-}
-
-declare module 'ramda/src/either' {
-  declare export default any;
-}
-
-declare module 'ramda/src/empty' {
-  declare export default any;
-}
-
-declare module 'ramda/src/eqBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/eqProps' {
-  declare export default any;
-}
-
-declare module 'ramda/src/equals' {
-  declare export default any;
-}
-
-declare module 'ramda/src/evolve' {
-  declare export default any;
-}
-
-declare module 'ramda/src/F' {
-  declare export default any;
-}
-
-declare module 'ramda/src/filter' {
-  declare export default any;
-}
-
 declare module 'ramda/src/find' {
   declare export function find<V,O:{[key:string]:*},T:Array<V>|O>(fn: UnaryPredicateFn<V>, ...rest: Array<void>): (xs:T|O) => ?V|O;
   declare export function find<V,O:{[key:string]:*},T:Array<V>|O>(fn: UnaryPredicateFn<V>, xs:T|O): ?V|O;
   declare export default typeof find;
 
-}
-
-declare module 'ramda/src/findIndex' {
-  declare export default any;
-}
-
-declare module 'ramda/src/findLast' {
-  declare export default any;
-}
-
-declare module 'ramda/src/findLastIndex' {
-  declare export default any;
 }
 
 declare module 'ramda/src/flatten' {
@@ -1213,38 +953,6 @@ declare module 'ramda/src/flatten' {
   declare export default typeof flatten;
 }
 
-declare module 'ramda/src/flip' {
-  declare export default any;
-}
-
-declare module 'ramda/src/forEach' {
-  declare export default any;
-}
-
-declare module 'ramda/src/forEachObjIndexed' {
-  declare export default any;
-}
-
-declare module 'ramda/src/fromPairs' {
-  declare export default any;
-}
-
-declare module 'ramda/src/groupBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/groupWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/gt' {
-  declare export default any;
-}
-
-declare module 'ramda/src/gte' {
-  declare export default any;
-}
-
 declare module 'ramda/src/has' {
   declare type Has =
     <T: { [key: string | number]: any }>(propName: string | number) => (obj: T) => boolean |
@@ -1254,86 +962,10 @@ declare module 'ramda/src/has' {
   declare export default typeof has;
 }
 
-declare module 'ramda/src/hasIn' {
-  declare export default any;
-}
-
-declare module 'ramda/src/head' {
-  declare export default any;
-}
-
-declare module 'ramda/src/identical' {
-  declare export default any;
-}
-
-declare module 'ramda/src/identity' {
-  declare export default any;
-}
-
-declare module 'ramda/src/ifElse' {
-  declare export default any;
-}
-
-declare module 'ramda/src/inc' {
-  declare export default any;
-}
-
-declare module 'ramda/src/indexBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/indexOf' {
-  declare export default any;
-}
-
-declare module 'ramda/src/init' {
-  declare export default any;
-}
-
-declare module 'ramda/src/insert' {
-  declare export default any;
-}
-
-declare module 'ramda/src/insertAll' {
-  declare export default any;
-}
-
-declare module 'ramda/src/intersection' {
-  declare export default any;
-}
-
-declare module 'ramda/src/intersectionWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/intersperse' {
-  declare export default any;
-}
-
-declare module 'ramda/src/into' {
-  declare export default any;
-}
-
-declare module 'ramda/src/invert' {
-  declare export default any;
-}
-
-declare module 'ramda/src/invertObj' {
-  declare export default any;
-}
-
-declare module 'ramda/src/invoker' {
-  declare export default any;
-}
-
 declare module 'ramda/src/is' {
   declare function is<T>(t: T): (v: any) => boolean;
   declare function is<T>(t: T, v: any): boolean;
   declare export default typeof is;
-}
-
-declare module 'ramda/src/isArrayLike' {
-  declare export default any;
 }
 
 declare module 'ramda/src/isEmpty' {
@@ -1341,70 +973,10 @@ declare module 'ramda/src/isEmpty' {
   declare export default typeof isEmpty;
 }
 
-declare module 'ramda/src/isNil' {
-  declare export default any;
-}
-
 declare module 'ramda/src/join' {
   declare function join(x: string, xs: Array<any>): string
   declare function join(x: string, no: void): (xs: Array<any>) => string
   declare export default typeof join;
-}
-
-declare module 'ramda/src/juxt' {
-  declare export default any;
-}
-
-declare module 'ramda/src/keys' {
-  declare export default any;
-}
-
-declare module 'ramda/src/keysIn' {
-  declare export default any;
-}
-
-declare module 'ramda/src/last' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lastIndexOf' {
-  declare export default any;
-}
-
-declare module 'ramda/src/length' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lens' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lensIndex' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lensPath' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lensProp' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lift' {
-  declare export default any;
-}
-
-declare module 'ramda/src/liftN' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lt' {
-  declare export default any;
-}
-
-declare module 'ramda/src/lte' {
-  declare export default any;
 }
 
 declare module 'ramda/src/map' {
@@ -1443,146 +1015,10 @@ declare module 'ramda/src/map' {
   declare export default typeof map
 }
 
-declare module 'ramda/src/mapAccum' {
-  declare export default any;
-}
-
-declare module 'ramda/src/mapAccumRight' {
-  declare export default any;
-}
-
 declare module 'ramda/src/mapObjIndexed' {
   declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, o: {[key: string]: A}): {[key: string]: B};
   declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, ...args: Array<void>): (o: {[key: string]: A}) => {[key: string]: B};
   declare export default typeof mapObjIndexed;
-}
-
-declare module 'ramda/src/match' {
-  declare export default any;
-}
-
-declare module 'ramda/src/mathMod' {
-  declare export default any;
-}
-
-declare module 'ramda/src/max' {
-  declare export default any;
-}
-
-declare module 'ramda/src/maxBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/mean' {
-  declare export default any;
-}
-
-declare module 'ramda/src/median' {
-  declare export default any;
-}
-
-declare module 'ramda/src/memoize' {
-  declare export default any;
-}
-
-declare module 'ramda/src/merge' {
-  declare export default any;
-}
-
-declare module 'ramda/src/mergeAll' {
-  declare export default any;
-}
-
-declare module 'ramda/src/mergeWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/mergeWithKey' {
-  declare export default any;
-}
-
-declare module 'ramda/src/min' {
-  declare export default any;
-}
-
-declare module 'ramda/src/minBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/modulo' {
-  declare export default any;
-}
-
-declare module 'ramda/src/multiply' {
-  declare export default any;
-}
-
-declare module 'ramda/src/nAry' {
-  declare export default any;
-}
-
-declare module 'ramda/src/negate' {
-  declare export default any;
-}
-
-declare module 'ramda/src/none' {
-  declare export default any;
-}
-
-declare module 'ramda/src/not' {
-  declare export default any;
-}
-
-declare module 'ramda/src/nth' {
-  declare export default any;
-}
-
-declare module 'ramda/src/nthArg' {
-  declare export default any;
-}
-
-declare module 'ramda/src/objOf' {
-  declare export default any;
-}
-
-declare module 'ramda/src/of' {
-  declare export default any;
-}
-
-declare module 'ramda/src/omit' {
-  declare export default any;
-}
-
-declare module 'ramda/src/once' {
-  declare export default any;
-}
-
-declare module 'ramda/src/or' {
-  declare export default any;
-}
-
-declare module 'ramda/src/over' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pair' {
-  declare export default any;
-}
-
-declare module 'ramda/src/partial' {
-  declare export default any;
-}
-
-declare module 'ramda/src/partialRight' {
-  declare export default any;
-}
-
-declare module 'ramda/src/partition' {
-  declare export default any;
-}
-
-declare module 'ramda/src/path' {
-  declare export default any;
 }
 
 declare module 'ramda/src/pathEq' {
@@ -1592,26 +1028,6 @@ declare module 'ramda/src/pathEq' {
     // | <T: DataType>(pathList: KeyType[], eq: *, obj: T) => boolean
 
   declare export default PathEq;
-}
-
-declare module 'ramda/src/pathOr' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pathSatisfies' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pick' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pickAll' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pickBy' {
-  declare export default any;
 }
 
 declare module 'ramda/src/pipe' {
@@ -1660,31 +1076,6 @@ declare module 'ramda/src/pipe' {
   declare export default typeof pipe;
 }
 
-declare module 'ramda/src/pipeK' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pipeP' {
-  declare export default any;
-}
-
-declare module 'ramda/src/pluck' {
-  declare export default any;
-}
-
-declare module 'ramda/src/prepend' {
-  declare export default any;
-}
-
-declare module 'ramda/src/product' {
-  declare export default any;
-}
-
-declare module 'ramda/src/project' {
-  declare export default any;
-}
-
-
 declare module 'ramda/src/prop' {
   declare type PropType =
     <Key: string | number, Value, T: { [key: Key]: Value }>(propName: Key) => (obj: T) => Value |
@@ -1704,46 +1095,6 @@ declare module 'ramda/src/propEq' {
   declare export default typeof propEq;
 }
 
-declare module 'ramda/src/propIs' {
-  declare export default any;
-}
-
-declare module 'ramda/src/propOr' {
-  declare export default any;
-}
-
-declare module 'ramda/src/props' {
-  declare export default any;
-}
-
-declare module 'ramda/src/propSatisfies' {
-  declare export default any;
-}
-
-declare module 'ramda/src/range' {
-  declare export default any;
-}
-
-declare module 'ramda/src/reduce' {
-  declare export default any;
-}
-
-declare module 'ramda/src/reduceBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/reduced' {
-  declare export default any;
-}
-
-declare module 'ramda/src/reduceRight' {
-  declare export default any;
-}
-
-declare module 'ramda/src/reduceWhile' {
-  declare export default any;
-}
-
 declare module 'ramda/src/reject' {
   declare function reject<V>(fn: (pred: V) => boolean, xs: Array<V>): Array<V>
   declare function reject<V>(fn: (pred: V) => boolean, xs: {[key: string]:V}): {[key: string]:V}
@@ -1753,14 +1104,6 @@ declare module 'ramda/src/reject' {
   declare export default typeof reject;
 }
 
-declare module 'ramda/src/remove' {
-  declare export default any;
-}
-
-declare module 'ramda/src/repeat' {
-  declare export default any;
-}
-
 declare module 'ramda/src/replace' {
   declare function replace(t1: RegExp|string, t2: string, t3: string): string
   declare function replace(t1: RegExp|string, t2: string): (t3: string) => string
@@ -1768,78 +1111,10 @@ declare module 'ramda/src/replace' {
   declare export default typeof replace;
 }
 
-declare module 'ramda/src/reverse' {
-  declare export default any;
-}
-
-declare module 'ramda/src/scan' {
-  declare export default any;
-}
-
-declare module 'ramda/src/sequence' {
-  declare export default any;
-}
-
-declare module 'ramda/src/set' {
-  declare export default any;
-}
-
-declare module 'ramda/src/slice' {
-  declare export default any;
-}
-
-declare module 'ramda/src/sort' {
-  declare export default any;
-}
-
-declare module 'ramda/src/sortBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/sortWith' {
-  declare export default any;
-}
-
 declare module 'ramda/src/split' {
   declare function split(pattern: RegExp|string, source: string): Array<string>
   declare function split(pattern: RegExp|string, no: void): (source: string) => Array<string>
   declare export default typeof split
-}
-
-declare module 'ramda/src/splitAt' {
-  declare export default any;
-}
-
-declare module 'ramda/src/splitEvery' {
-  declare export default any;
-}
-
-declare module 'ramda/src/splitWhen' {
-  declare export default any;
-}
-
-declare module 'ramda/src/subtract' {
-  declare export default any;
-}
-
-declare module 'ramda/src/sum' {
-  declare export default any;
-}
-
-declare module 'ramda/src/symmetricDifference' {
-  declare export default any;
-}
-
-declare module 'ramda/src/symmetricDifferenceWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/T' {
-  declare export default any;
-}
-
-declare module 'ramda/src/tail' {
-  declare export default any;
 }
 
 declare module 'ramda/src/take' {
@@ -1852,41 +1127,9 @@ declare module 'ramda/src/take' {
   declare export default typeof take;
 }
 
-declare module 'ramda/src/takeLast' {
-  declare export default any;
-}
-
-declare module 'ramda/src/takeLastWhile' {
-  declare export default any;
-}
-
-declare module 'ramda/src/takeWhile' {
-  declare export default any;
-}
-
-declare module 'ramda/src/tap' {
-  declare export default any;
-}
-
-declare module 'ramda/src/test' {
-  declare export default any;
-}
-
-declare module 'ramda/src/times' {
-  declare export default any;
-}
-
 declare module 'ramda/src/toLower' {
   declare function toLower(a: string): string;
   declare export default typeof toLower;
-}
-
-declare module 'ramda/src/toPairs' {
-  declare export default any;
-}
-
-declare module 'ramda/src/toPairsIn' {
-  declare export default any;
 }
 
 declare module 'ramda/src/toString' {
@@ -1898,29 +1141,9 @@ declare module 'ramda/src/toUpper' {
   declare export default typeof toUpper;
 }
 
-declare module 'ramda/src/transduce' {
-  declare export default any;
-}
-
-declare module 'ramda/src/transpose' {
-  declare export default any;
-}
-
-declare module 'ramda/src/traverse' {
-  declare export default any;
-}
-
 declare module 'ramda/src/trim' {
   declare export function trim(str: string): string;
   declare export default typeof trim;
-}
-
-declare module 'ramda/src/tryCatch' {
-  declare export default any;
-}
-
-declare module 'ramda/src/type' {
-  declare export default any;
 }
 
 declare module 'ramda/src/unapply' {
@@ -1931,71 +1154,11 @@ declare module 'ramda/src/unapply' {
   declare export default Unapply;
 }
 
-declare module 'ramda/src/unary' {
-  declare export default any;
-}
-
-declare module 'ramda/src/uncurryN' {
-  declare export default any;
-}
-
-declare module 'ramda/src/unfold' {
-  declare export default any;
-}
-
-declare module 'ramda/src/union' {
-  declare export default any;
-}
-
-declare module 'ramda/src/unionWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/uniq' {
-  declare export default any;
-}
-
-declare module 'ramda/src/uniqBy' {
-  declare export default any;
-}
-
-declare module 'ramda/src/uniqWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/unless' {
-  declare export default any;
-}
-
 declare module 'ramda/src/unnest' {
   // declare type NestedArray = $PropertyType<$Exports<'ramda'>, 'NestedArray'>;
   // declare function unnest<T>(xs: NestedArray<T>): NestedArray<T>;
   declare type Unnest = <T>(xs: Array<T | T[]>) => T[];
   declare export default Unnest;
-}
-
-declare module 'ramda/src/until' {
-  declare export default any;
-}
-
-declare module 'ramda/src/update' {
-  declare export default any;
-}
-
-declare module 'ramda/src/useWith' {
-  declare export default any;
-}
-
-declare module 'ramda/src/values' {
-  declare export default any;
-}
-
-declare module 'ramda/src/valuesIn' {
-  declare export default any;
-}
-
-declare module 'ramda/src/view' {
-  declare export default any;
 }
 
 declare module 'ramda/src/when' {
@@ -2024,32 +1187,4 @@ declare module 'ramda/src/when' {
   ): T|V;
 
   declare export default typeof when;
-}
-
-declare module 'ramda/src/where' {
-  declare export default any;
-}
-
-declare module 'ramda/src/whereEq' {
-  declare export default any;
-}
-
-declare module 'ramda/src/without' {
-  declare export default any;
-}
-
-declare module 'ramda/src/xprod' {
-  declare export default any;
-}
-
-declare module 'ramda/src/zip' {
-  declare export default any;
-}
-
-declare module 'ramda/src/zipObj' {
-  declare export default any;
-}
-
-declare module 'ramda/src/zipWith' {
-  declare export default any;
 }

@@ -35,7 +35,6 @@
   "dependencies": {
     "@goodmind/node-cryptojs-aes": "^0.5.0",
     "@most/hold": "^2.0.0",
-    "@most/multicast": "^1.2.5",
     "ajv": "^5.2.0",
     "ajv-keywords": "^2.1.0",
     "axios": "^0.16.2",

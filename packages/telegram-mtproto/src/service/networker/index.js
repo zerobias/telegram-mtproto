@@ -10,12 +10,10 @@ import random from '../secure-random'
 import { NetMessage, NetContainer } from './net-message'
 import State from './state'
 import { smartTimeout, immediate } from 'mtproto-shared'
-import { httpClient } from '../../http'
 
 import { Serialization, Deserialization } from '../../tl'
 import { readResponse, getDataWithPad, readHash, parsedResponse } from '../chain/parse-response'
 import { writeInnerMessage } from '../chain/perform-request'
-import { ErrorBadRequest, ErrorBadResponse } from '../../error'
 import Config from '../../config-provider'
 
 import Logger from 'mtproto-logger'
@@ -40,7 +38,7 @@ import type { Emit } from 'eventemitter2'
 
 import LongPoll from '../../plugins/long-poll'
 import { getRandomId } from '../../plugins/math-help'
-import { NET } from '../../state/action/index'
+import { NET, NETWORKER_STATE, AUTH } from '../../state/action/index'
 
 import { dispatch } from '../../state/core'
 
@@ -120,7 +118,7 @@ export class NetworkerThread {
     this.iii = iii++
 
     this.longPoll = new LongPoll(this)
-
+    dispatch(AUTH.SET_AUTH_KEY.action(authKey))
     this.authKey = authKey
     this.authKeyUint8 = convertToUint8Array(authKey)
     this.authKeyBuffer = convertToArrayBuffer(authKey)
@@ -131,6 +129,7 @@ export class NetworkerThread {
 
     // this.checkLongPollCond = this.checkLongPollCond.bind(this)
     this.serverSalt = serverSalt
+    dispatch(AUTH.SET_SERVER_SALT.action(serverSalt))
 
     this.upload = false //options.fileUpload || options.fileDownload || false
 
@@ -146,6 +145,7 @@ export class NetworkerThread {
     this.prevSessionID = this.sessionID
     this.sessionID = new Array(8)
     random(this.sessionID)
+    dispatch(AUTH.SET_SESSION_ID.action(this.sessionID))
   }
 
   updateSentMessage(sentMessageID: string) {
@@ -161,6 +161,7 @@ export class NetworkerThread {
       }
       sentMessage.inner = newInner
     }
+    dispatch(NETWORKER_STATE.SENT.DEL.action([sentMessage]))
     this.state.deleteSent(sentMessage)
     const newId = generateID(this.uid)
     sentMessage.msg_id = newId
@@ -313,6 +314,8 @@ export class NetworkerThread {
 
   pushMessage(message: NetMessage, options: NetOptions = {}) {
     message.copyOptions(options)
+    dispatch(NETWORKER_STATE.SENT.ADD.action(message))
+    dispatch(NETWORKER_STATE.PENDING.ADD.action([message.msg_id]))
     this.emit('push-message', {
       threadID: this.threadID,
       message,
@@ -330,12 +333,15 @@ export class NetworkerThread {
   pushResend(messageID: string, delay: number = 0) {
     const value = tsNow() + delay
     const sentMessage = this.state.getSent(messageID)
-    if (sentMessage instanceof NetContainer)
-      for (const msg of sentMessage.inner)
+    if (sentMessage instanceof NetContainer) {
+      for (const msg of sentMessage.inner) {
         this.state.setPending(msg, value)
-    else
+      }
+      dispatch(NETWORKER_STATE.PENDING.ADD.action(sentMessage.inner))
+    } else {
+      dispatch(NETWORKER_STATE.PENDING.ADD.action([messageID]))
       this.state.setPending(messageID, value)
-
+    }
     this.sheduleRequest(delay)
   }
 
@@ -459,9 +465,11 @@ export class NetworkerThread {
     let lengthOverflow = false
     let singlesCount = 0
     const logGroup = log.group('perform sheduled request')
+    const pendingIds = []
     for (const [messageID, value] of this.state.pendingIterator()) {
       if (value && value < tsNow()) continue
       this.state.deletePending(messageID)
+      pendingIds.push(messageID)
       if (!this.state.hasSent(messageID)) continue
       message = this.state.getSent(messageID)
       logGroup('message')(message)
@@ -482,6 +490,7 @@ export class NetworkerThread {
       messages.push(message)
       messagesByteLen += messageByteLength
     }
+    dispatch(NETWORKER_STATE.PENDING.DEL.action(pendingIds))
     logGroup('message, final')(message)
     logGroup('messages')(messages)
     messages.map(msg => this.emit('message-in', msg))
@@ -555,14 +564,19 @@ export class NetworkerThread {
 
     this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
     if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
-    dispatch(NET.SEND_REQUEST.action({ message, options: {}, threadID: this.threadID, thread: this, noResponseMsgs }))
+    dispatch(NET.SEND_REQUEST.action({
+      message,
+      options : {},
+      threadID: this.threadID,
+      thread  : this,
+      noResponseMsgs,
+    }))
     return
   }
 
 
   async requestPerformer(message: NetMessage, noResponseMsgs: string[], response: *) {
     try {
-      // const result = await this.sendEncryptedRequest(message)
       this.toggleOffline(false)
       // const response = await this.parseResponse(result.data)
       log(`Server response`, `dc${this.dcID}`)(response)
@@ -572,44 +586,49 @@ export class NetworkerThread {
         response.response,
         response.messageID,
         response.sessionID)
-
+      const sentDel = []
       for (const msgID of noResponseMsgs)
         if (this.state.hasSent(msgID)) {
           const msg = this.state.getSent(msgID)
+          sentDel.push(msg)
           this.state.deleteSent(msg)
           msg.deferred.resolve()
         }
-
+      dispatch(NETWORKER_STATE.SENT.DEL.action(sentDel))
       this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod))
 
       //return
       this.checkLongPoll() //TODO Bluebird warning here
     } catch (error) {
       console.log('Encrypted request failed', error)
-
+      const noRespPending = []
+      const noRespSent = []
       if (message instanceof NetContainer) {
-        for (const msgID of message.inner)
+        for (const msgID of message.inner) {
           this.state.setPending(msgID)
+        }
+        noRespSent.push(message)
+        dispatch(NETWORKER_STATE.PENDING.ADD.action(message.inner))
         this.state.deleteSent(message)
-      } else
+      } else {
+        dispatch(NETWORKER_STATE.PENDING.ADD.action([message.msg_id]))
         this.state.setPending(message.msg_id)
-
+      }
 
       for (const msgID of noResponseMsgs)
         if (this.state.hasSent(msgID)) {
           const msg = this.state.getSent(msgID)
+          noRespPending.push(msgID)
+          noRespSent.push(msg)
           this.state.deleteSent(msg)
           this.state.deletePending(msgID)
           msg.deferred.reject()
         }
-
+      dispatch(NETWORKER_STATE.SENT.DEL.action(noRespSent))
+      dispatch(NETWORKER_STATE.PENDING.DEL.action(noRespPending))
       this.toggleOffline(true)
       return Promise.reject(error)
     }
-  }
-
-  async sendEncryptedRequest(message: NetMessage, options: NetOptions = {}) {
-    dispatch(NET.SEND_REQUEST.action({ message, options, threadID: this.threadID, thread: this }))
   }
 
   getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
@@ -706,12 +725,14 @@ export class NetworkerThread {
   cleanupSent() {
     let notEmpty = false
       // console.log('clean start', this.dcID/*, this.state.sent*/)
-
+    const sentDel = []
     for (const [msgID, message] of this.state.sentIterator()) {
       let complete = true
-      if (message.notContentRelated && !this.state.hasPending(msgID))
-      // console.log('clean notContentRelated', msgID)
+      if (message.notContentRelated && !this.state.hasPending(msgID)) {
+        sentDel.push(message)
+        // console.log('clean notContentRelated', msgID)
         this.state.deleteSent(message)
+      }
       else if (message instanceof NetContainer) {
         for (const inner of message.inner) {
           if (this.state.hasSent(inner)) {
@@ -723,11 +744,14 @@ export class NetworkerThread {
           }
         }
         // console.log('clean container', msgID)
-        if (complete)
+        if (complete) {
+          sentDel.push(message)
           this.state.deleteSent(message)
+        }
       } else
         notEmpty = true
     }
+    dispatch(NETWORKER_STATE.SENT.DEL.action(sentDel))
     return !notEmpty
   }
 
@@ -856,9 +880,14 @@ export class NetworkerThread {
           this.lastResendReq &&
           //eslint-disable-next-line
           this.lastResendReq.req_msg_id == message.req_msg_id;
-        if (spliceCond)
-          for (const badMsgID of this.lastResendReq.resend_msg_ids)
+        if (spliceCond) {
+          const resendDel = []
+          for (const badMsgID of this.lastResendReq.resend_msg_ids) {
+            resendDel.push(badMsgID)
             this.state.deleteResent(badMsgID)
+          }
+          dispatch(NETWORKER_STATE.RESEND.DEL.action(resendDel))
+        }
         break
       }
       case 'rpc_result': {
@@ -890,6 +919,7 @@ export class NetworkerThread {
           if (sentMessage.isAPI)
             this.connectionInited = true
         }
+        dispatch(NETWORKER_STATE.SENT.DEL.action([sentMessage]))
         this.state.deleteSent(sentMessage)
         break
       }

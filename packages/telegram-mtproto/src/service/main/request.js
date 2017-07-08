@@ -30,7 +30,7 @@ export type RequestOptions = {|
 class ApiRequest {
   data: ApiMethod
   requestID: string = uuid()
-  defer: Defer = blueDefer()
+  defer: Defer
   // status: RequestStatus = 'wait'
   options: RequestOptions
   constructor(data: ApiMethod,
@@ -38,6 +38,11 @@ class ApiRequest {
     this.data = data
     this.options = options
     // this.messageID = options.messageID
+    Object.defineProperty(this, 'defer', {
+      value     : blueDefer(),
+      enumerable: false,
+      writable  : true,
+    })
   }
 }
 

@@ -1,6 +1,9 @@
 //@flow
 
-import { Stream, of, zip } from 'most'
+import { Stream, of, zip, throwError } from 'most'
+import { type AxiosXHR } from 'axios'
+import Logger from 'mtproto-logger'
+const log = Logger`net-request`
 
 import { MAIN, NET } from '../action'
 import { NetMessage } from '../../service/networker/net-message'
@@ -17,8 +20,27 @@ function wait<Value>(val: Promise<Value>): Stream<Value> {
   return of(val).awaitPromises()
 }
 
-const waitRequest = (url, data, config) =>
+const makeApiBytes = ({ message, thread }) =>
+  apiMessage({
+    ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, thread.uid).writer,
+    serverSalt: thread.serverSalt,
+    sessionID : thread.sessionID,
+    message
+  })
+const intoError = (data, url: string) => throwError(new ErrorBadResponse(url, data))
+
+const encryptedBytes = (opts: *) =>
+  encryptApiBytes({
+    bytes  : makeApiBytes(opts),
+    authKey: opts.thread.authKeyUint8
+  })
+//$FlowIssue
+const waitRequest = (url, data, config): Stream<AxiosXHR<ArrayBuffer>> =>
   wait(httpClient.post(url, data, config))
+    .chain(response =>
+      response.data instanceof ArrayBuffer
+        ? of(response)
+        : intoError(response, url))
 
 const faucetC =
   (source: Stream<*>) =>
@@ -36,23 +58,11 @@ const netRequest = (action: Stream<*>) =>
   action
     .thru(e => NET.SEND_REQUEST.stream(e))
     .thru(faucetC)
-    .map(
-      ({ payload }: NetRequestPayload) => {
-        const { message, thread } = payload
-        const apiBytes = apiMessage({
-          ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, thread.uid).writer,
-          serverSalt: thread.serverSalt,
-          sessionID : thread.sessionID,
-          message
-        })
-        return { ...payload, apiBytes } })
-    .chain(
-      ({ apiBytes, thread, ...rest }) =>
-        zip((opts, data) => ({ thread, ...opts, ...data }),
-            of(rest),
-            wait(encryptApiBytes({
-              bytes  : apiBytes,
-              authKey: thread.authKeyUint8 }))))
+    .map(({ payload }: NetRequestPayload) => payload)
+    .chain((opts) =>
+      zip((opts, data) => ({ ...opts, ...data }),
+          of(opts),
+          wait(encryptedBytes(opts))))
     .map(({ options, ...rest }) => ({
       ...rest,
       options: {
@@ -75,42 +85,28 @@ const netRequest = (action: Stream<*>) =>
         zip((opts, result) => ({ ...opts, options, url, result }),
             of(rest),
             waitRequest(url, mtBytes, options)))
-    .map(
-      async({ thread, options, message, noResponseMsgs, url, result, }) => {
-
-        try {
-          // const result = await httpClient.post(url, mtBytes, options)
-          console.log(result.data)
-          if (!result.data.byteLength) {
-            const err = new ErrorBadResponse(url, result)
-            thread.emit('response-raw', err)
-            return Promise.reject(err)
-          }
-          const response = await thread.parseResponse(result.data)
-          await thread.requestPerformer(message, noResponseMsgs, response)
-          thread.emit('response-raw', {
-            data      : result.data,
-            status    : result.status,
-            statusText: result.statusText,
-            message,
-            options
-          })
-          return {
-            data      : response,
-            status    : result.status,
-            statusText: result.statusText,
-            message,
-            options
-          }
-        } catch (error) {
-          const err = new ErrorBadRequest(url, error)
-          thread.emit('response-raw', err)
-          return Promise.reject(err)
-        }
-      })
-    .awaitPromises()
+    .chain((opts) =>
+      zip((opts, response) => ({ ...opts, response }),
+          of(opts),
+          wait(opts.thread.parseResponse(opts.result.data))
+            .recoverWith(err => intoError(err, opts.url))))
+    .chain((opts) =>
+      zip(x => x,
+          of(opts),
+          wait(opts.thread.requestPerformer(opts.message,
+                                            opts.noResponseMsgs,
+                                            opts.response))
+            .recoverWith(err => intoError(err, opts.url))))
+    .map(({ options, message, result, response }) => ({
+      data      : response,
+      status    : result.status,
+      statusText: result.statusText,
+      message,
+      options
+    }))
+    .tap(log`response-raw`)
     .map(NET.RECIEVE_RESPONSE.action)
-    .recoverWith(err => of(NET.NETWORK_ERROR.action(err)))
+    .recoverWith(err => of(NET.NETWORK_ERROR.action(err)).delay(15))
 
 
 export default netRequest
