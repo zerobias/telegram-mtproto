@@ -1,7 +1,6 @@
 //@flow
 
 import Promise from 'bluebird'
-// import UpdatesManager from '../updates'
 
 import Logger from 'mtproto-logger'
 const debug = Logger`api-manager`
@@ -26,6 +25,11 @@ import { type AsyncStorage } from '../../plugins'
 import Config from '../../config-provider'
 import NetworkerThread from '../networker'
 import ApiRequest from '../main/request'
+import Observer from '../../util/observer'
+import { subject } from '../../property'
+import { API } from '../../state/action'
+
+import { dispatch } from '../../state/core'
 
 const baseDcID = 2
 
@@ -191,7 +195,24 @@ export class ApiManager {
       await this.authPromise.promise
     }
   }
-  async mtpInvokeApi(method: string, params: Object, options: LeftOptions = {}) {
+  async mtpInvokeApi(method: string, params: Object = {}, options: LeftOptions = {}) {
+    const ok: any = {}
+    const request = subject(ok)
+    const obs = Observer({
+      next(data) {
+        debug`obs, next`(data)
+        return data
+      },
+      error(data) {
+        debug`obs, error`(data)
+        return request.next(data)
+      },
+      async complete(data) {
+        debug`obs, complete`(data)
+        return data
+      }
+    })(request)
+    obs.then(debug`obs`)
     const akk = `dc${this.currentDc}_auth_key`
     // const ssk = `dc${  dcID  }_server_salt`
     if (method === 'auth.sendCode' || method === 'auth.signIn') {
@@ -203,7 +224,15 @@ export class ApiManager {
 
     netReq.options.requestID = netReq.requestID
     this.emit('new-request', netReq)
-
+    dispatch(API.NEW_REQUEST({
+      method,
+      params,
+      timestamp: Date.now(),
+    }, netReq.requestID))
+    netReq.defer.promise.then(
+      val => request.next(val),
+      err => request.error(err)
+    )
     return netReq.defer.promise
     // this.invokeNetRequest(netReq)
   }

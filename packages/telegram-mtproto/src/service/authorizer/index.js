@@ -1,9 +1,12 @@
 //@flow
 
 import Bluebird from 'bluebird'
+// import { Future } from 'fluture'
+// import Either from 'folktale/result'
+// import { Ok } from 'folktale/result'
 
 import blueDefer from '../../util/defer'
-import { immediate, dTime } from 'mtproto-shared'
+import { immediate } from 'mtproto-shared'
 // import CryptoWorker from '../../crypto'
 import Config from '../../config-provider'
 import { Serialization, Deserialization } from '../../tl'
@@ -15,10 +18,11 @@ import { bytesCmp, bytesToHex, sha1BytesSync,
   aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor, generateNonce } from '../../bin'
 import { bpe, str2bigInt, one,
-    dup, sub_, sub, greater } from '../../vendor/leemon'
+  dup, sub_, sub, greater } from '../../vendor/leemon'
 
 import type { ResPQ, Server_DH_Params, Server_DH_inner_data, Set_client_DH_params_answer } from './index.h'
 import type { PublicKeyExtended } from '../main/index.h'
+import primeHex from './prime-hex'
 
 import Logger from 'mtproto-logger'
 
@@ -27,14 +31,7 @@ const log = Logger`auth`
 // import { ErrorBadResponse } from '../../error'
 
 import SendPlainReq from './send-plain-req'
-
-const primeHex = 'c71caeb9c6b1c9048e6c522f70f13f73980d40238e3e21c14934d037563d93' +
-  '0f48198a0aa7c14058229493d22530f4dbfa336f6e0ac925139543aed44cce7c3720fd51f6945' +
-  '8705ac68cd4fe6b6b13abdc9746512969328454f18faf8c595f642477fe96bb2a941d5bcd1d4a' +
-  'c8cc49880708fa9b378e3c4f3a9060bee67cf9a4a4a695811051907e162753b56b0f6b410dba7' +
-  '4d8a84b2a14b3144e0ef1284754fd17ed950d5965b4b9dd46582db1178d169c6bc465b0d6ff9c' +
-  'a3928fef5b9ae4e418fc15e83ebea0f87fa9ff5eed70050ded2849f47bf959d956850ce929851' +
-  'f0d8115f635b105ee2e4e15d04b2454bf6f4fadf034b10403119cd8e3b92fcc5b'
+import { TypeWriter } from '../../tl/type-buffer'
 
 const concat = (e1, e2) => [...e1, ...e2]
 
@@ -111,9 +108,47 @@ const getTwoPow = () => { //Dirty cheat to count 2^(2048 - 64)
 
 const leemonTwoPow = getTwoPow()
 
+// const prepareSend = (uid: string) => {
+//   const nonce = generateNonce()
+//   log`AUTH I, Send req_pq`(bytesToHex(nonce))
+//   const request = new Serialization({ mtproto: true }, uid)
+//   const reqBox = request.writer
+//   request.storeMethod('req_pq', { nonce })
+//   return { reqBox, nonce, uid }
+// }
+
+const reqPqRequest =
+async(prepare: () => Promise<void>, dcUrl: string, reqBox: TypeWriter, sendPlainReq: *): Promise<ResPQ> => {
+  await prepare()
+  const deserializer = await sendPlainReq(dcUrl, reqBox.getBuffer())
+  //$FlowIssue
+  const response: ResPQ = deserializer.fetchObject('ResPQ', 'ResPQ')
+  return response
+}
+
+/*function checkResponseInvalid(response: ResPQ) {
+  if (response._ === 'resPQ')
+    return Either.Ok(response)
+  const error = new Error(`[MT] resPQ response invalid: ${response._}`)
+  return Either.Error(error)
+}
+
+function checkNonceMismatch(response: ResPQ) {
+  if (response._ === 'resPQ')
+    return Either.Ok(response)
+  const error = new Error(`[MT] resPQ response invalid: ${response._}`)
+  return Either.Error(error)
+}
 
 
-
+const reqPqRequestF = (prepare: () => Promise<void>, dcUrl: string, reqBox: TypeWriter, sendPlainReq: *) =>
+  Future((rj, rs) => { reqPqRequest(prepare, dcUrl, reqBox, sendPlainReq).then(rs, rj) })
+    .mapRej(err => {
+      console.error(dTime(), 'req_pq error', err.message)
+      return err
+    })
+    .fold(Either.Error, Either.Ok)
+    .map(val => val)*/
 export const Auth = (uid: string,
                      { select, prepare }: Args) => {
   const sendPlainReq = SendPlainReq(uid)
@@ -127,7 +162,7 @@ export const Auth = (uid: string,
     request.storeMethod('req_pq', { nonce: auth.nonce })
 
 
-    let deserializer
+    /*let deserializer
     try {
       await prepare()
       deserializer = await sendPlainReq(auth.dcUrl, reqBox.getBuffer())
@@ -135,14 +170,12 @@ export const Auth = (uid: string,
       console.error(dTime(), 'req_pq error', err.message)
       deferred.reject(err)
       throw err
-    }
-
+    }*/
     try {
-      //$FlowIssue
-      const response: ResPQ = deserializer.fetchObject('ResPQ', 'ResPQ')
+      const response: ResPQ = await reqPqRequest(prepare, auth.dcUrl, reqBox, sendPlainReq)
 
       if (response._ !== 'resPQ') {
-        const error = new Error(`[MT] resPQ response invalid: ${  response._}`)
+        const error = new Error(`[MT] resPQ response invalid: ${response._}`)
         deferred.reject(error)
         return Bluebird.reject(error)
       }
@@ -324,39 +357,21 @@ export const Auth = (uid: string,
       throw new Error('[MT] DH params are not verified: unknown dhPrime')
     innerLog('dhPrime cmp OK')
 
-    // const gABigInt = new BigInteger(bytesToHex(gA), 16)
-    // const dhPrimeBigInt = new BigInteger(dhPrimeHex, 16)
-
     const dhPrimeLeemon = str2bigInt(dhPrimeHex, 16, minSize)
     const gALeemon = str2bigInt(bytesToHex(gA), 16, minSize)
     const dhDec = dup(dhPrimeLeemon)
     sub_(dhDec, one)
-    // const dhDecStr = bigInt2str(dhDec, 16)
-    // const comp = dhPrimeBigInt.subtract(BigInteger.ONE).toString(16)
-    // console.log(dhPrimeLeemon, dhDecStr === comp)
     const case1 = !greater(gALeemon, one)
-      //gABigInt.compareTo(BigInteger.ONE) <= 0
     const case2 = !greater(dhDec, gALeemon)
-      //gABigInt.compareTo(dhPrimeBigInt.subtract(BigInteger.ONE)) >= 0
     if (case1)
       throw new Error('[MT] DH params are not verified: gA <= 1')
 
     if (case2)
       throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1')
-    // console.log(dTime(), '1 < gA < dhPrime-1 OK')
-
-
-    // const two = new BigInteger(null)
-    // two.fromInt(2)
-    // const twoPow = two.pow(2048 - 64)
-
     const case3 = !!greater(leemonTwoPow, gALeemon)
-      //gABigInt.compareTo(twoPow) < 0
     const dhSubPow = dup(dhPrimeLeemon)
     sub(dhSubPow, leemonTwoPow)
     const case4 = !greater(dhSubPow, gALeemon)
-      //gABigInt.compareTo(dhPrimeBigInt.subtract(twoPow)) >= 0
-    // console.log(case3 === gABigInt.compareTo(twoPow) < 0)
     if (case3)
       throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}')
     if (case4)

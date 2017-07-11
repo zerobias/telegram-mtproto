@@ -70,7 +70,7 @@ declare module 'folktale/result' {
   declare export function Ok<Right, Left: mixed>(obj: Right): IOk<Right, Left>
   declare export function Error<Right: mixed, Left>(obj: Left): IError<Right, Left>
   declare var Either: { Ok: typeof Ok, Error: typeof Error }
-  declare export default Either
+  declare export default typeof Either
 }
 
 declare module 'folktale/validation' {

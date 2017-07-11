@@ -1,5 +1,7 @@
 //@flow
 
+import './bluebird-config'
+
 import MTProto from './service/main/wrap'
 
 import store from './state'

@@ -2,6 +2,9 @@
 
 import { Stream, of, zip, throwError } from 'most'
 import { type AxiosXHR } from 'axios'
+// import { Future, encaseP2, encaseP, of as ofF } from 'fluture'
+// import Either from 'folktale/result'
+
 import Logger from 'mtproto-logger'
 const log = Logger`net-request`
 
@@ -34,7 +37,6 @@ const encryptedBytes = (opts: *) =>
     bytes  : makeApiBytes(opts),
     authKey: opts.thread.authKeyUint8
   })
-//$FlowIssue
 const waitRequest = (url, data, config): Stream<AxiosXHR<ArrayBuffer>> =>
   wait(httpClient.post(url, data, config))
     .chain(response =>
@@ -54,6 +56,7 @@ type NetRequestPayload = {
   },
   type: 'send request',
 }
+
 const netRequest = (action: Stream<*>) =>
   action
     .thru(e => NET.SEND_REQUEST.stream(e))
@@ -86,6 +89,7 @@ const netRequest = (action: Stream<*>) =>
             of(rest),
             waitRequest(url, mtBytes, options)))
     .chain((opts) =>
+
       zip((opts, response) => ({ ...opts, response }),
           of(opts),
           wait(opts.thread.parseResponse(opts.result.data))

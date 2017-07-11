@@ -38,7 +38,7 @@ import type { Emit } from 'eventemitter2'
 
 import LongPoll from '../../plugins/long-poll'
 import { getRandomId } from '../../plugins/math-help'
-import { NET, NETWORKER_STATE, AUTH } from '../../state/action/index'
+import { NET, NETWORKER_STATE, AUTH } from '../../state/action'
 
 import { dispatch } from '../../state/core'
 
@@ -170,7 +170,7 @@ export class NetworkerThread {
       sentMessage.container
     )
     this.state.addSent(sentMessage)
-    dispatch(NETWORKER_STATE.SENT.ADD([sentMessage], this.dcID))
+    dispatch(NETWORKER_STATE.SENT.ADD(sentMessage, this.dcID))
     return sentMessage
   }
 

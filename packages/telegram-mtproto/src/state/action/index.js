@@ -13,25 +13,19 @@ type ActionCreator<Type, Payload> =
 
 declare class Act<Tag = 'action'> { toString(): Tag }
 
-export type Action<Tag = 'action', Payload = {}> = {
-  (payload: Payload): Action<Tag, Payload>,
+export type Action<Tag = 'action', Payload = {}, Meta = void> = {
+  (payload: Payload, meta: Meta): Action<Tag, Payload>,
+  // (payload: Payload): Action<Tag, Payload>,
   getType(): Tag,
   type: Tag,
   payload: Payload,
-}
-
-function actionCreator({ name, meta }: { name: string, meta: Function }) {
-  if (meta == null)
-    return createAction(name)
-  return createAction(name, x => x, meta)
 }
 
 export const actionSelector =
   (action: any): ActionCreator<any, any> =>
     (stream) => select(action, stream)
 
-//$FlowIssue
-type ActionPair<Type, Payload> = Action<Type, Payload> & {
+type ActionPair<Type, Payload, Meta = void> = Action<Type, Payload, Meta> & {
   stream: ActionCreator<Type, Payload>,
   type: Type,
 }
@@ -48,13 +42,13 @@ type Net = {
     options: Object,
     threadID: string,
     thread: NetworkerThread
-  }>,
+  }, NetworkerMeta>,
   RECIEVE_RESPONSE: ActionPair<'recieve response', any>,
   NETWORK_ERROR: ActionPair<'network error', any>,
 }
 
 const doubleCreator =
-<Type, Payload>(tag: Type, meta?: Function): ActionPair<Type, Payload> => {
+<Type, Payload, Meta>(tag: Type, meta?: (pl: Payload, meta: Meta) => any): ActionPair<Type, Payload, Meta> => {
 
   const action: ActionPair<Type, Payload> = typeof meta === 'function'
     ? createAction(tag, (x) => x, meta)
@@ -80,6 +74,9 @@ export const MAIN: Main = {
 }
 
 const networkerMeta = (_: any, dc: number) => ({ _: 'networker', id: dc })
+const apiMeta = (_: any, id: string) => ({ _: 'api', id })
+type ApiMeta = string
+type NetworkerMeta = number
 
 export const NET: Net = {
   SEND_REQUEST    : doubleCreator('send request', networkerMeta),
@@ -88,9 +85,9 @@ export const NET: Net = {
 }
 
 type Auth = {
-  SET_AUTH_KEY: ActionPair<'set auth key', number[]>,
-  SET_SERVER_SALT: ActionPair<'set server salt', number[]>,
-  SET_SESSION_ID: ActionPair<'set session id', number[]>,
+  SET_AUTH_KEY: ActionPair<'set auth key', number[], NetworkerMeta>,
+  SET_SERVER_SALT: ActionPair<'set server salt', number[], NetworkerMeta>,
+  SET_SESSION_ID: ActionPair<'set session id', number[], NetworkerMeta>,
 }
 
 export const AUTH: Auth = {
@@ -101,16 +98,16 @@ export const AUTH: Auth = {
 
 type NetworkerState = {
   RESEND: {
-    ADD: ActionPair<'networker/resend add', string[]>,
-    DEL: ActionPair<'networker/resend delete', string[]>,
+    ADD: ActionPair<'networker/resend add', string[], NetworkerMeta>,
+    DEL: ActionPair<'networker/resend delete', string[], NetworkerMeta>,
   },
   SENT: {
-    ADD: ActionPair<'networker/sent add', NetMessage>,
-    DEL: ActionPair<'networker/sent delete', NetMessage[]>,
+    ADD: ActionPair<'networker/sent add', NetMessage, NetworkerMeta>,
+    DEL: ActionPair<'networker/sent delete', NetMessage[], NetworkerMeta>,
   },
   PENDING: {
-    ADD: ActionPair<'networker/pending add', string[]>,
-    DEL: ActionPair<'networker/pending delete', string[]>,
+    ADD: ActionPair<'networker/pending add', string[], NetworkerMeta>,
+    DEL: ActionPair<'networker/pending delete', string[], NetworkerMeta>,
   },
 }
 
@@ -127,4 +124,24 @@ export const NETWORKER_STATE: NetworkerState = {
     ADD: doubleCreator('networker/pending add', networkerMeta),
     DEL: doubleCreator('networker/pending delete', networkerMeta),
   },
+}
+
+export type ApiNewRequest = {
+  method: string,
+  params: { [key: string]: mixed },
+  timestamp: number,
+}
+
+type Api = {
+  NEW_REQUEST: ActionPair<'api/request new', ApiNewRequest, ApiMeta>,
+  DONE_REQUEST: ActionPair<'api/request done', ApiNewRequest, ApiMeta>,
+  CALL_TASK: ActionPair<'api/call-task new', any, ApiMeta>,
+  CALL_RESULT: ActionPair<'api/call-task done', Object, ApiMeta>,
+}
+
+export const API: Api = {
+  NEW_REQUEST : doubleCreator('api/request new', apiMeta),
+  DONE_REQUEST: doubleCreator('api/request done', apiMeta),
+  CALL_TASK   : doubleCreator('api/call-task new', apiMeta),
+  CALL_RESULT : doubleCreator('api/call-task done', apiMeta),
 }

@@ -491,7 +491,8 @@ export class Deserialization {
           const condType = type.split('?')
           const fieldBit = condType[0].split('.')
           const fieldName = fieldBit[0]
-          if (!(result[fieldName] & 1 << fieldBit[1]))
+          const bit: any = fieldBit[1]
+          if (!(result[fieldName] & 1 << bit))
             continue
           type = condType[1]
         }

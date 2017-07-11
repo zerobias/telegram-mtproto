@@ -123,6 +123,7 @@ const connectionTest = async() => {
     dc        : 2,
   }
   await app.storage.save()
+  await new Promise(rs => setTimeout(rs, 2e3))
   expect(dialogs).toBeTruthy()
   // test(`Reuse stored auth`, reuseStoredAuth)
 }

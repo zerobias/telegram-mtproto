@@ -1,8 +1,8 @@
 
 declare module 'most' {
   declare interface SeedValue<S, V> {
-      seed: S,
-      value: V
+    seed: S,
+    value: V,
   }
   declare interface TimeValue<V> {
       time: number,
@@ -212,7 +212,7 @@ declare module 'most' {
   declare export function from<+A, +T:Array<A>| Iterable<A> | Iterator<A> | Observable<A>>(as: T): Stream<A>
   declare export function periodic<A>(period: number, a?: A): Stream<A>
   declare export function fromEvent<T>(event: string, target: any, useCapture?: boolean): Stream<T>
-  declare export function unfold<A, B, S>(f: (seed: S) => SeedValue<S, B | Promise<B>> , seed: S): Stream<B>
+  declare export function unfold<A, B, S>(f: (seed: S) => (SeedValue<S, B> | Promise<SeedValue<S, B>>) , seed: S): Stream<B>
   declare export function iterate<A>(f: (a: A) => A | Promise<A>, a: A): Stream<A>
   declare export function generate<A>(g: CreateGenerator<A>, ...args: Array<any>): Stream<A>
   declare export function reduce<A, B>(f: (b: B, a: A) => B, b: B, s: Stream<A>): Promise<B>
