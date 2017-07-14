@@ -5,9 +5,9 @@ import client from './client'
 
 const router = Router()
 
-router.post('/invoke/:method', async (ctx) => {
+router.post('/invoke/:method', async(ctx) => {
   const method = ctx.params.method || ''
-  if (method === '') throw new Error(`Recieved empty method query`)
+  if (method === '') throw new Error(`Received empty method query`)
   console.log(`Call method ${method}`)
   const args = ctx.request.body || {}
   const result = await client(method, args)

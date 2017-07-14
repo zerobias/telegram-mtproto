@@ -11,7 +11,7 @@ const app = new Koa()
 
 app.use(cors())
 app.use(bodyParser())
-app.use(async (ctx, next) => {
+app.use(async(ctx, next) => {
   try {
     ctx.status = 200
     await next(ctx)
