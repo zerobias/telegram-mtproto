@@ -70,7 +70,7 @@ module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1'
 
 💩 module.name_mapper='^flow-static-land/lib\(.*\)$' -> 'flow-static-land/src\1'
 💩 module.name_mapper='^flow-static-land/src\(.*\)$' -> 'flow-static-land/\1'
-traces=2
+traces=3
 module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/telegram-mtproto/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-shared/node_modules
