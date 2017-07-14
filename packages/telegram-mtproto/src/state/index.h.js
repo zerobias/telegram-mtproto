@@ -12,7 +12,7 @@ export type MessageHistory = {
 export type State = {
   _: true,
   active: boolean,
-  mainDc: number,
+  homeDc: number,
   uid: string,
   messageHistory: MessageHistory[],
   networker: List<{

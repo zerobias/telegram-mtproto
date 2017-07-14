@@ -18,20 +18,22 @@ const isActive = root
   .map(state => state.active)
   .skipRepeats()
 
-const mainDc = root
-  .map(state => state.mainDc)
+export { isActive as active }
+
+export const homeDc = root
+  .map(state => state.homeDc)
   .skipRepeats()
 
-const uid = root
+export const uid = root
   .map(state => state.uid)
   .skipRepeats()
 
-const networker = root
+export const networker = root
   .map(state => state.networker)
 
 const stateModel = {
   active: isActive,
-  mainDc,
+  homeDc,
   uid,
   networker,
 }

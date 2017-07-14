@@ -1,6 +1,6 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 import uuid from 'uuid/v4'
 
 import { is, contains, mapObjIndexed } from 'ramda'
@@ -59,10 +59,10 @@ type NetOptions = {
 }
 type Bytes = number[]
 
-type ContextConfig = {|
+type ContextConfig = {
   storage: AsyncStorage,
-  appConfig: { [key: string]: * }
-|}
+  appConfig: { [key: string]: mixed }
+}
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
   switch (typeof value) {
@@ -90,20 +90,20 @@ export class NetworkerThread {
   state = new State
   connectionInited = false
   checkConnectionPeriod = 0
-  checkConnectionPromise: Promise<*>
+  checkConnectionPromise: Promise<mixed>
   emit: Emit
   lastServerMessages: string[] = []
   offline: boolean
   storage: AsyncStorage
   longPoll: LongPoll
-  onOnlineCb: *
-  nextReq: *
-  appConfig: { [key: string]: * }
-  nextReqPromise: *
-  lastResendReq: *
+  onOnlineCb: Function
+  nextReq: number
+  appConfig: { [key: string]: mixed }
+  nextReqPromise: Promise<mixed>
+  lastResendReq: Promise<mixed>
   constructor({
-      appConfig,
-      storage
+    appConfig,
+    storage
     }: ContextConfig,
               dc: number,
               authKey: Bytes,
@@ -241,7 +241,7 @@ export class NetworkerThread {
     return message
   }
 
-  wrapApiCall(method: string, params: { [key: string]: * } = {}, options: *): Promise<any> {
+  wrapApiCall(method: string, params: { [key: string]: mixed } = {}, options: Object): Bluebird<any> {
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
@@ -347,7 +347,7 @@ export class NetworkerThread {
 
 
 
-  checkConnection = async(event: * ) => {
+  async checkConnection() {
     /*log(`Check connection`)(event)
     smartTimeout.cancel(this.checkConnectionPromise)
 
@@ -437,7 +437,7 @@ export class NetworkerThread {
     // console.log(dTime(), 'sheduled', this.dcID, this.iii)
     if (this.offline || akStopped) {
       log(`Cancel sheduled`)(``)
-      return Promise.resolve(false)
+      return Bluebird.resolve(false)
     }
     delete this.nextReq
     if (this.pendingAcks.length) {
@@ -495,7 +495,7 @@ export class NetworkerThread {
     logGroup('messages')(messages)
     messages.map(msg => this.emit('message-in', msg))
 
-    if (!message) return Promise.resolve(false)
+    if (!message) return Bluebird.resolve(false)
 
     if (message.isAPI && !message.longPoll) {
       const serializer = new Serialization({ mtproto: true }, this.uid)
@@ -524,7 +524,7 @@ export class NetworkerThread {
 
     if (!messages.length) {
       // console.log('no sheduled messages')
-      return Promise.resolve()
+      return Bluebird.resolve()
     }
 
     let noResponseMsgs = []
@@ -564,7 +564,7 @@ export class NetworkerThread {
 
     this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
     if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
-    dispatch(NET.SEND_REQUEST({
+    dispatch(NET.SEND({
       message,
       options : {},
       threadID: this.threadID,
@@ -627,13 +627,16 @@ export class NetworkerThread {
       dispatch(NETWORKER_STATE.SENT.DEL(noRespSent, this.dcID))
       dispatch(NETWORKER_STATE.PENDING.DEL(noRespPending, this.dcID))
       this.toggleOffline(true)
-      return Promise.reject(error)
+      return Bluebird.reject(error)
     }
   }
 
-  getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
-
-  async parseResponse(responseBuffer: ArrayBuffer | Buffer) {
+  async parseResponse(responseBuffer: ArrayBuffer): Promise<{
+    response: Object,
+    messageID: string,
+    sessionID: Uint8Array,
+    seqNo: number
+  }> {
 
     const { msgKey, encryptedData } = readResponse({
       reader       : new Deserialization(responseBuffer, {}, this.uid),
@@ -677,6 +680,8 @@ export class NetworkerThread {
       seqNo
     }
   }
+
+  getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
 
   async applyServerSalt(newServerSalt: string) {
     const serverSalt = longToBytes(newServerSalt)

@@ -8,7 +8,7 @@ const log = Logger`tl:reader`
 
 
 
-export function readInt(ctx: TypeBuffer, field: string) {
+export function readInt(ctx: TypeBuffer, field: string): number {
   const result = ctx.nextInt()
   log('int')(field, result)
   return result

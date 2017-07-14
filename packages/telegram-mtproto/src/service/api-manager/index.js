@@ -209,6 +209,7 @@ export class ApiManager {
       },
       async complete(data) {
         debug`obs, complete`(data)
+        dispatch(API.DONE_REQUEST(data, netReq.requestID))
         return data
       }
     })(request)
@@ -233,7 +234,7 @@ export class ApiManager {
       val => request.next(val),
       err => request.error(err)
     )
-    return netReq.defer.promise
+    return obs
     // this.invokeNetRequest(netReq)
   }
 

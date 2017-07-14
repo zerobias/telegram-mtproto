@@ -3,9 +3,10 @@
 import { combineEpics } from 'redux-most'
 import { Stream } from 'most'
 
-import { MAIN, NET } from '../action'
-import { type Action } from '../action'
+import { MAIN } from '../action'
 import netRequest from './net-request'
+import receiveResponse from './receive-response'
+
 
 const initialize = (action: Stream<{ type: string, payload: any }>) =>
   action
@@ -16,6 +17,7 @@ const initialize = (action: Stream<{ type: string, payload: any }>) =>
 const rootEpic = combineEpics([
   initialize,
   netRequest,
+  receiveResponse,
 ])
 
 export default rootEpic

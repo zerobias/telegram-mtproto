@@ -184,11 +184,11 @@ const createStreamBus = (ctx: MTProto) => {
     }
   })
 
-  bus.netMessage.observe((message) => {
-    log('net message')(message)
-    const req = ctx.state.messages.get(message.msg_id)
-    log('req')(req)
-  })
+  // bus.netMessage.observe((message) => {
+  //   log('net message')(message)
+  //   const req = ctx.state.messages.get(message.msg_id)
+  //   log('req')(req)
+  // })
 
   bus.netMessage.observe(log('new request'))
 

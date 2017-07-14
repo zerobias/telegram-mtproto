@@ -2,12 +2,14 @@
 
 import { combineReducers } from 'redux'
 import { createReducer } from 'redux-act'
-import { append, map } from 'ramda'
+import { append } from 'ramda'
 
 import { type MessageHistory } from '../index.h'
 import { MAIN, NET } from '../action'
-import List from '../../util/immutable-list'
+import { type NetIncomingData } from '../action'
+
 import networker from './networker-state'
+import request from './request'
 
 const active = createReducer({
   //$FlowIssue
@@ -21,25 +23,32 @@ const uid = createReducer({
 
 const messageHistory = createReducer({
   //$FlowIssue
-  [NET.RECIEVE_RESPONSE]: (state: MessageHistory[], payload) =>
+  [NET.INCOMING_DATA]: (state: MessageHistory[], { result }: NetIncomingData) =>
     append({
-      id       : payload.data.messageID,
-      seqNo    : payload.data.seqNo,
+      id       : result.messageID,
+      seqNo    : result.seqNo,
+      data     : result.response,
       direction: 'in' }, state),
   //$FlowIssue
-  [NET.SEND_REQUEST]: (state: MessageHistory[], payload) =>
+  [NET.SEND]: (state: MessageHistory[], payload) =>
     append({
       id       : payload.message.msg_id,
       seqNo    : payload.message.seq_no,
       direction: 'out' }, state),
 }, [])
 
+const homeDc = createReducer({
+
+}, 2)
+
 const mainReducer = combineReducers({
   _: () => true,
   active,
+  homeDc,
   uid,
   messageHistory,
   networker,
+  request,
 })
 
 export default mainReducer

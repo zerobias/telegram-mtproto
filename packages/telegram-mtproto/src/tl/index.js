@@ -304,7 +304,7 @@ export class Deserialization {
   readInt = (field: string) =>
     readInt(this.typeBuffer, field)
 
-  fetchInt(field: string = '') {
+  fetchInt(field: string = ''): number {
     return this.readInt(`${ field }:int`)
   }
 
@@ -319,7 +319,7 @@ export class Deserialization {
       }
     }
   }
-  fetchIntBytes(bits: number, field: string = '') {
+  fetchIntBytes(bits: number, field: string = ''): Uint8Array {
     if (bits % 32)
       throw new Error(`Invalid bits: ${bits}`)
 
@@ -332,7 +332,7 @@ export class Deserialization {
     return bytes
   }
 
-  fetchRawBytes(len: number | false, field: string = '') {
+  fetchRawBytes(len: number | false, field: string = ''): Uint8Array {
     let ln: number
     if (typeof len === 'number')
       ln = len

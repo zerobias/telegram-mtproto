@@ -16,7 +16,6 @@ const vendorModules = [
   '@goodmind/node-cryptojs-aes',
   'pako/lib/inflate',
   'debug',
-  '@most/hold',
   'ajv',
   'ajv-keywords',
   'array-flatten',

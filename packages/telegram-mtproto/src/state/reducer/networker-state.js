@@ -80,11 +80,22 @@ const sessionHistory = createReducer({
 
 const dc = createReducer({
   //$FlowIssue
-  [NET.SEND_REQUEST]: (state: string, payload): string =>
+  [NET.SEND]: (state: string, payload): string =>
     payload.thread.threadID
 }, '')
 
+
+const connectionInited = createReducer({
+
+}, false)
+
+const seq = createReducer({
+
+}, 1)
+
 const reducer = indexed('networker')({
+  seq,
+  connectionInited,
   dc,
   resend,
   sent,
