@@ -1,23 +1,23 @@
 //@flow
 
-import Bluebird from 'bluebird'
+import { type PublicKey } from '../main/index.h'
+import { type Cached } from '../api-manager/index.h'
+import { Serialization } from '../../tl'
 
-import type { PublicKey } from './main/index.h'
-import type { Cached } from './api-manager/index.h'
-import { Serialization } from '../tl'
-
-import { writeBytes } from '../tl/writer'
+import { writeBytes } from '../../tl/writer'
 
 import { bytesToHex, sha1BytesSync,
-  bytesFromHex, strDecToHex } from '../bin'
+  bytesFromHex, strDecToHex } from '../../bin'
 
 
-export const KeyManager = (uid: string,
+export function KeyManager(
+  uid: string,
   publisKeysHex: PublicKey[],
-  publicKeysParsed: Cached<PublicKey>) => {
+  publicKeysParsed: Cached<PublicKey>
+) {
   let prepared = false
 
-  const mapPrepare = ({ modulus, exponent }: PublicKey) => {
+  function mapPrepare({ modulus, exponent }: PublicKey) {
     const RSAPublicKey = new Serialization({}, uid)
     const rsaBox = RSAPublicKey.writer
     writeBytes(rsaBox, bytesFromHex(modulus)/*, 'n'*/)
@@ -35,16 +35,15 @@ export const KeyManager = (uid: string,
     }
   }
 
-  async function prepareRsaKeys() {
+  function prepareRsaKeys() {
     if (prepared) return
-
-    await Bluebird.map(publisKeysHex, mapPrepare)
+    publisKeysHex.forEach(mapPrepare)
 
     prepared = true
   }
 
-  async function selectRsaKeyByFingerPrint(fingerprints: string[]) {
-    await prepareRsaKeys()
+  function selectRsaKeyByFingerPrint(fingerprints: string[]) {
+    prepareRsaKeys()
 
     let fingerprintHex, foundKey
     for (const fingerprint of fingerprints) {
@@ -54,7 +53,7 @@ export const KeyManager = (uid: string,
       if (foundKey)
         return { fingerprint, ...foundKey }
     }
-    return false
+    throw new Error('[Key manager] No public key found')
   }
 
   return {

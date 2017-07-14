@@ -4,6 +4,7 @@ import store from '../core'
 import { type State } from '../index.h'
 import { async } from 'most-subject'
 import { type Stream } from 'most'
+import Config from '../../config-provider'
 
 interface Subject<T> extends Stream<T> {
   next (value: T): Subject<T>,

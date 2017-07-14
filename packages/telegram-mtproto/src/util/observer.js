@@ -26,18 +26,20 @@ function Observer<T>({ next, error, complete }: Observable<T>) {
               //$FlowIssue
               .try(() => next(val))
               .tap(data => {
-                if (data instanceof Stream === false)
+                if (isStream(data) === false)
                   stream.complete(data)
               }))
           .awaitPromises()
       return streamNext
-        .chain(val => val instanceof Stream
-          ? val
-          : of(val))
+        .chain(val => isStream(val) ? val : of(val))
         .recoverWith(error)
         // .tap(log`after recover`)
         .observe(x => x)
     }).then(complete)
+}
+
+function isStream(val): boolean %checks {
+  return val instanceof Stream
 }
 
 export default Observer

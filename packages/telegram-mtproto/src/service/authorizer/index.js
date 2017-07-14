@@ -1,13 +1,11 @@
 //@flow
 
 import Bluebird from 'bluebird'
-// import { Future } from 'fluture'
-// import Either from 'folktale/result'
-// import { Ok } from 'folktale/result'
 
 import blueDefer from '../../util/defer'
 import { immediate } from 'mtproto-shared'
-// import CryptoWorker from '../../crypto'
+import { type PublicKey } from '../main/index.h'
+import { type Cached as ApiCached } from '../api-manager/index.h'
 import Config from '../../config-provider'
 import { Serialization, Deserialization } from '../../tl'
 
@@ -23,6 +21,7 @@ import { bpe, str2bigInt, one,
 import type { ResPQ, Server_DH_Params, Server_DH_inner_data, Set_client_DH_params_answer } from './index.h'
 import type { PublicKeyExtended } from '../main/index.h'
 import primeHex from './prime-hex'
+import KeyManager from './rsa-keys-manger'
 
 import Logger from 'mtproto-logger'
 
@@ -60,11 +59,6 @@ type Defer = {
 }
 
 type Cached = {[id: number]: Defer}
-
-export type Args = {
-  select: (fingerprints: string[]) => Promise<PublicKeyExtended | false>,
-  prepare: () => Promise<void>
-}
 
 type Bytes = number[]
 
@@ -108,50 +102,22 @@ const getTwoPow = () => { //Dirty cheat to count 2^(2048 - 64)
 
 const leemonTwoPow = getTwoPow()
 
-// const prepareSend = (uid: string) => {
-//   const nonce = generateNonce()
-//   log`AUTH I, Send req_pq`(bytesToHex(nonce))
-//   const request = new Serialization({ mtproto: true }, uid)
-//   const reqBox = request.writer
-//   request.storeMethod('req_pq', { nonce })
-//   return { reqBox, nonce, uid }
-// }
-
 const reqPqRequest =
-async(prepare: () => Promise<void>, dcUrl: string, reqBox: TypeWriter, sendPlainReq: *): Promise<ResPQ> => {
-  await prepare()
+async(prepare: () => void, dcUrl: string, reqBox: TypeWriter, sendPlainReq: *): Promise<ResPQ> => {
+  prepare()
   const deserializer = await sendPlainReq(dcUrl, reqBox.getBuffer())
   //$FlowIssue
   const response: ResPQ = deserializer.fetchObject('ResPQ', 'ResPQ')
   return response
 }
 
-/*function checkResponseInvalid(response: ResPQ) {
-  if (response._ === 'resPQ')
-    return Either.Ok(response)
-  const error = new Error(`[MT] resPQ response invalid: ${response._}`)
-  return Either.Error(error)
-}
-
-function checkNonceMismatch(response: ResPQ) {
-  if (response._ === 'resPQ')
-    return Either.Ok(response)
-  const error = new Error(`[MT] resPQ response invalid: ${response._}`)
-  return Either.Error(error)
-}
-
-
-const reqPqRequestF = (prepare: () => Promise<void>, dcUrl: string, reqBox: TypeWriter, sendPlainReq: *) =>
-  Future((rj, rs) => { reqPqRequest(prepare, dcUrl, reqBox, sendPlainReq).then(rs, rj) })
-    .mapRej(err => {
-      console.error(dTime(), 'req_pq error', err.message)
-      return err
-    })
-    .fold(Either.Error, Either.Ok)
-    .map(val => val)*/
-export const Auth = (uid: string,
-                     { select, prepare }: Args) => {
+export function Auth(
+  uid: string,
+  publisKeysHex: PublicKey[],
+  publicKeysParsed: ApiCached<PublicKey>
+) {
   const sendPlainReq = SendPlainReq(uid)
+  const { prepare, select } = KeyManager(uid, publisKeysHex, publicKeysParsed)
 
   async function mtpSendReqPQ(auth: AuthBasic) {
     const deferred = auth.deferred
@@ -190,15 +156,9 @@ export const Auth = (uid: string,
 
       log('Got ResPQ')(bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
 
-      const key = await select(auth.fingerprints)
+      const key = select(auth.fingerprints)
+      auth.publicKey = key
 
-      if (key)
-        auth.publicKey = key
-      else {
-        const error = new Error('[MT] No public key found')
-        deferred.reject(error)
-        return Bluebird.reject(error)
-      }
       log('PQ factorization start')(auth.pq)
       const [ p, q, it ] = await Config.common.Crypto.factorize({ bytes: auth.pq })
 

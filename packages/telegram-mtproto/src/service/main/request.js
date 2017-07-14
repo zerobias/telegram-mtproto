@@ -9,19 +9,6 @@ export type ApiMethod = {
   params: { [arg: string]: * }
 }
 
-// type Defer = {
-//   resolve<T>(rs: T): void,
-//   reject<E>(rs: E): void,
-//   promise: Promise<*>
-// }
-
-export type RequestStatus =
-  'wait'
-  | 'request'
-  | 'stale'
-  | 'done'
-  | 'error'
-
 export type RequestOptions = {|
   dc: number | '@@home',
   requestID: string
@@ -31,15 +18,21 @@ class ApiRequest {
   data: ApiMethod
   requestID: string = uuid()
   defer: Defer
-  // status: RequestStatus = 'wait'
+  invoke: () => void
   options: RequestOptions
   constructor(data: ApiMethod,
-              options: RequestOptions) {
+              options: RequestOptions,
+              invoke: (val: ApiRequest) => any) {
     this.data = data
     this.options = options
     // this.messageID = options.messageID
     Object.defineProperty(this, 'defer', {
       value     : blueDefer(),
+      enumerable: false,
+      writable  : true,
+    })
+    Object.defineProperty(this, 'invoke', {
+      value     : () => { invoke(this) },
       enumerable: false,
       writable  : true,
     })

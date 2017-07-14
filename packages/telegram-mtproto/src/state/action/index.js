@@ -7,6 +7,7 @@ import { Stream } from 'most'
 
 import { NetMessage } from '../../service/networker/net-message'
 import { NetworkerThread } from '../../service/networker'
+import ApiRequest from '../../service/main/request'
 
 type ActionCreator<Type, Payload> =
   (stream: Stream<any>) =>
@@ -151,6 +152,7 @@ export const NETWORKER_STATE: NetworkerState = {
 }
 
 export type ApiNewRequest = {
+  netReq: ApiRequest,
   method: string,
   params: { [key: string]: mixed },
   timestamp: number,

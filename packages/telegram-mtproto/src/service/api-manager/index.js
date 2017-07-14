@@ -6,11 +6,9 @@ import Logger from 'mtproto-logger'
 const debug = Logger`api-manager`
 
 import Auth from '../authorizer'
-import type { Args } from '../authorizer'
 
 import blueDefer from '../../util/defer'
 
-import KeyManager from '../rsa-keys-manger'
 import { MTError, DcUrlError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
@@ -27,6 +25,7 @@ import NetworkerThread from '../networker'
 import ApiRequest from '../main/request'
 import Observer from '../../util/observer'
 import { subject } from '../../property'
+import { type HoldSubject } from '../../property'
 import { API } from '../../state/action'
 
 import { dispatch } from '../../state/core'
@@ -56,9 +55,7 @@ export class ApiManager {
   publicKeys: PublicKey[]
   storage: AsyncStorage
   serverConfig: ServerConfig
-  keyManager: Args
   networkFabric: *
-  updatesManager: any
   auth: *
   on: On
   emit: Emit
@@ -83,8 +80,7 @@ export class ApiManager {
     const emitter = Config.rootEmitter(this.uid)
     this.on = emitter.on
     this.emit = emitter.emit
-    this.keyManager = KeyManager(uid, publicKeys, this.cache.keysParsed)
-    this.auth = Auth(uid, this.keyManager)
+    this.auth = Auth(uid, publicKeys, this.cache.keysParsed)
 
     //$FlowIssue
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
@@ -196,36 +192,27 @@ export class ApiManager {
     }
   }
   async mtpInvokeApi(method: string, params: Object = {}, options: LeftOptions = {}) {
-    const ok: any = {}
-    const request = subject(ok)
-    const obs = Observer({
-      next(data) {
-        debug`obs, next`(data)
-        return data
-      },
-      error(data) {
-        debug`obs, error`(data)
-        return request.next(data)
-      },
-      async complete(data) {
-        debug`obs, complete`(data)
-        dispatch(API.DONE_REQUEST(data, netReq.requestID))
-        return data
-      }
-    })(request)
-    obs.then(debug`obs`)
+
     const akk = `dc${this.currentDc}_auth_key`
-    // const ssk = `dc${  dcID  }_server_salt`
     if (method === 'auth.sendCode' || method === 'auth.signIn') {
       const dcKey = await this.storage.get(akk)
       if (typeof dcKey === 'string' && dcKey.length > 0) alreadyAuthWarning(method)
     }
 
-    const netReq = new ApiRequest({ method, params }, options)
+    const netReq = new ApiRequest(
+      { method, params },
+      options,
+      this.invokeNetRequest)
 
+
+    const ok: any = {}
+    const request = subject(ok)
+    const obs = requestObserver(netReq, request)
+    obs.then(debug`obs`)
     netReq.options.requestID = netReq.requestID
-    this.emit('new-request', netReq)
+    // this.emit('new-request', netReq)
     dispatch(API.NEW_REQUEST({
+      netReq,
       method,
       params,
       timestamp: Date.now(),
@@ -235,7 +222,6 @@ export class ApiManager {
       err => request.error(err)
     )
     return obs
-    // this.invokeNetRequest(netReq)
   }
 
   async invokeNetRequest(netReq: ApiRequest) {
@@ -312,6 +298,26 @@ export class ApiManager {
 
     return netReq.defer.promise
   }
+}
+
+function requestObserver(netReq: ApiRequest, request: HoldSubject<any>) {
+  const obs = Observer({
+    next(data) {
+      debug`obs, next`(data)
+      return data
+    },
+    error(data) {
+      debug`obs, error`(data)
+      return request.next(data)
+    },
+    async complete(data) {
+      debug`obs, complete`(data)
+      dispatch(API.DONE_REQUEST(data, netReq.requestID))
+      return data
+    }
+  })(request)
+
+  return obs
 }
 
 const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0

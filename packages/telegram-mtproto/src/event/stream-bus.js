@@ -192,23 +192,6 @@ const createStreamBus = (ctx: MTProto) => {
 
   bus.netMessage.observe(log('new request'))
 
-  bus.newRequest.observe(async(netReq) => {
-    if (state.requests.has(netReq.requestID)) return log('request', 'repeat')(netReq)
-    ctx.state.requests.set(netReq.requestID, netReq)
-    let dc = netReq.options.dc
-    if (!dc || dc === '@@home') {
-      const fromStore = await ctx.storage.get('dc')
-      dc = fromStore
-        ? +fromStore
-        : ctx.defaultDC
-    }
-    netReq.options.dc = dc
-
-    log`request, new`(netReq)
-    await new Promise(rs => setTimeout(rs, 100))
-    ctx.api.invokeNetRequest(netReq)
-  })
-
   bus.newSession.observe(async({
     threadID,
     networkerDC,
