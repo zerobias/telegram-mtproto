@@ -39,7 +39,6 @@
 
 [libs]
 ./flow-typed
-💩 <PROJECT_ROOT>/packages/telegram-mtproto/node_modules/flow-static-land
 
 [options]
 esproposal.class_instance_fields=enable
@@ -49,13 +48,13 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_type=$FlowIssue
 unsafe.enable_getters_and_setters=true
 emoji=true
+traces=3
 esproposal.decorators=ignore
 module.use_strict=true
 esproposal.export_star_as=enable
 module.name_mapper='^array-flatten$' -> '<PROJECT_ROOT>/node_modules/array-flatten'
 module.name_mapper='^debug$' -> '<PROJECT_ROOT>/node_modules/debug'
 module.name_mapper='^memoizee$' -> '<PROJECT_ROOT>/node_modules/memoizee'
-
 module.name_mapper='^axios$' -> '<PROJECT_ROOT>/node_modules/axios'
 module.name_mapper='^ajv\(.*\)$' -> '<PROJECT_ROOT>/node_modules/ajv\1'
 module.name_mapper='^most-subject$' -> '<PROJECT_ROOT>/node_modules/most-subject'
@@ -64,13 +63,8 @@ module.name_mapper='^fs-extra$' -> '<PROJECT_ROOT>/node_modules/fs-extra'
 module.name_mapper='^chokidar$' -> '<PROJECT_ROOT>/node_modules/chokidar'
 module.name_mapper='^\(.*\)goodmind\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1goodmind\2'
 module.name_mapper='^pako\(.*\)$' -> '<PROJECT_ROOT>/node_modules/pako\1'
-module.name_mapper='^daggy$' -> '<PROJECT_ROOT>/node_modules/daggy'
 module.name_mapper='^\(.*\)redux\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1redux\2'
 module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1'
-
-💩 module.name_mapper='^flow-static-land/lib\(.*\)$' -> 'flow-static-land/src\1'
-💩 module.name_mapper='^flow-static-land/src\(.*\)$' -> 'flow-static-land/\1'
-traces=3
 module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/telegram-mtproto/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-shared/node_modules

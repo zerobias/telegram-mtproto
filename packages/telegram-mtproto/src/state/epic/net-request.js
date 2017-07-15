@@ -53,7 +53,7 @@ export const onNewRequest = (action: Stream<*>) => action
   .combine((data, uid) => ({ ...data, uid }), uid)
   .skipRepeatsWith((old, fresh) => equals(old.payload, fresh.payload))
   .map(data => data)
-  .delay(100)
+  .delay(50)
   .tap(val => val.payload.netReq.invoke())
   .filter(() => false)
 

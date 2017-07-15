@@ -1,7 +1,6 @@
 //@flow
 
 import type { EventEmitterType, EventID, Listener } from 'eventemitter2'
-// import { tagged } from 'daggy'
 import arrify from '../util/arrify'
 
 const normalizeScope = (scope: EventID) => arrify(scope)

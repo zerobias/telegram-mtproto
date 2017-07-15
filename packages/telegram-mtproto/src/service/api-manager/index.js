@@ -156,7 +156,7 @@ export class ApiManager {
   }
   async doAuth() {
     this.authBegin = true
-    this.emit('base', 'AUTH')
+    this.emit('base', 'CHECK')
     try {
       const storedBaseDc = await this.storage.get('dc')
       const baseDc = storedBaseDc || baseDcID

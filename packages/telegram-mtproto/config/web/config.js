@@ -21,7 +21,6 @@ const vendorModules = [
   'array-flatten',
   'axios',
   'bluebird',
-  'daggy',
   'detect-node',
   'eventemitter2',
   'folktale',

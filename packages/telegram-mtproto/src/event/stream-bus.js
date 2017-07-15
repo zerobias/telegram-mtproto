@@ -1,7 +1,6 @@
 //@flow
 
 import type { EventEmitterType } from 'eventemitter2'
-// import { taggedSum } from 'daggy'
 import { from, of } from 'most'
 
 import Config from '../config-provider'
@@ -21,7 +20,6 @@ import NetworkerThread from '../service/networker'
 import { NetMessage } from '../service/networker/net-message'
 import { MTError, RpcError } from '../error'
 import dcStoreKeys from '../util/dc-store-keys'
-// import { EventScope } from './scoped-emitter'
 
 import Logger from 'mtproto-logger'
 const log = Logger`stream-bus`

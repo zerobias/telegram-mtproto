@@ -24,7 +24,7 @@
     "bluebird": "^3.5.0",
     "chokidar": "^1.7.0",
     "fs-extra": "^4.0.0",
-    "mtproto-logger": "^0.1.6",
+    "mtproto-logger": "^0.1.7",
     "mtproto-shared": "^0.1.7"
   },
   "devDependencies": {
