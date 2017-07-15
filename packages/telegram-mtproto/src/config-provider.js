@@ -33,7 +33,6 @@ type Provider = {
 }
 
 type InstanceDiff = {
-  uid: string,
   timerOffset: number,
   lastMessageID: [number, number]
 }
@@ -94,31 +93,14 @@ export function getConfig(uid: string) {
   return config
 }
 
-const innerRegistrator = (config: *, uid: string) => {
+export function registerInstance(config: $Diff<InstanceConfig, InstanceDiff>) {
   const fullConfig: InstanceConfig = {
     //$FlowIssue
     ...config,
-    uid,
     timerOffset  : 0,
     lastMessageID: [0, 0]
   }
-  provider[uid] = fullConfig
-  return uid
-}
-
-export const curriedRegister = () => {
-  const uid = uuid()
-  return {
-    uid,
-    next: (config: $Diff<InstanceConfig, InstanceDiff>) => innerRegistrator(config, uid)
-  }
-}
-
-export function registerInstance(config: $Diff<InstanceConfig, InstanceDiff>) {
-  const uid = uuid()
-
-  innerRegistrator(config, uid)
-  return uid
+  provider[fullConfig.uid] = fullConfig
 }
 
 export default Config

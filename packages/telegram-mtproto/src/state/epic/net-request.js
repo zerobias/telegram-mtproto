@@ -13,7 +13,7 @@ import Config from '../../config-provider'
 import NetworkerThread from '../../service/networker/index'
 import { Serialization } from '../../tl/index'
 import { httpClient } from '../../http'
-import { homeDc, uid, active } from '../signal'
+import { homeDc, uid, whenActive } from '../signal'
 import { faucet } from '../../pull-stream'
 import jsonError from '../../util/json-error'
 
@@ -35,9 +35,6 @@ const encryptedBytes = (opts: *) =>
     authKey: opts.thread.authKeyUint8
   })
 
-const faucetC =
-  (source: Stream<*>) =>
-    faucet(source, active).stream
 type NetRequestPayload = {
   payload: {
     message: NetMessage,
@@ -51,6 +48,7 @@ type NetRequestPayload = {
 
 export const onNewRequest = (action: Stream<*>) => action
   .thru(e => API.NEW_REQUEST.stream(e))
+  .thru(whenActive)
   .combine((data, homeDc) => ({ ...data, homeDc }), homeDc)
   .combine((data, uid) => ({ ...data, uid }), uid)
   .skipRepeatsWith((old, fresh) => equals(old.payload, fresh.payload))
@@ -63,7 +61,7 @@ export const onNewRequest = (action: Stream<*>) => action
 const netRequest = (action: Stream<*>) =>
   action
     .thru(e => NET.SEND.stream(e))
-    .thru(faucetC)
+    .thru(whenActive)
     .map(({ payload }: NetRequestPayload) => payload)
     .chain((opts) =>
       zip((opts, data) => ({ ...opts, ...data }),

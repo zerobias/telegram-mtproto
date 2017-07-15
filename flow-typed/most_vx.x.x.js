@@ -63,7 +63,6 @@ declare module 'most' {
     tap<+B>(f: (a: A) => B): Stream<A>,
     chain<+B>(f: (a: A) => Stream<B>): Stream<B>,
     flatMap<+B>(f: (a: A) => Stream<B>): Stream<B>,
-    awaitPromises<+B>(): Stream<B>,
     ap<B, C>(fs: Stream<(a: A) => B>): Stream<C>,
 
     // Note: Without higher-kinded types, the types for these
@@ -205,6 +204,7 @@ declare module 'most' {
   declare interface DisposeFn {
       (): void | Promise<any>
   }
+  declare export function awaitPromises<A>(a: Stream<Promise<A>>): Stream<A>
   declare export function just<A>(a: A): Stream<A>
   declare export function of<A>(a: A): Stream<A>
   declare export function empty<+A>(): Stream<A>// should be <void>, but this breaks some things

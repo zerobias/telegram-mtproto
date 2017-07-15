@@ -1,7 +1,7 @@
 //@flow
 
 import Bluebird from 'bluebird'
-
+import { type AxiosXHR } from 'axios'
 import { has, pathEq, allPass } from 'ramda'
 
 import httpClient from '../../http'
@@ -15,8 +15,12 @@ import { Serialization, Deserialization } from '../../tl'
 const is404 = pathEq(['response', 'status'], 404)
 const notError = allPass([has('message'), has('type')])
 
+const reqOpts = {
+  responseType: 'arraybuffer'
+}
+
 const SendPlain = (uid: string) => {
-  const onlySendPlainReq = (url: string, requestBuffer: ArrayBuffer) => {
+  function onlySendPlainReq(requestBuffer: ArrayBuffer) {
     const requestLength = requestBuffer.byteLength,
           requestArray = new Int32Array(requestBuffer)
 
@@ -37,16 +41,7 @@ const SendPlain = (uid: string) => {
     resultArray.set(headerArray)
     resultArray.set(requestArray, headerArray.length)
 
-    const requestData = resultArray
-    // let reqPromise
-    // try {
-    const reqPromise = httpClient.post(url, requestData, {
-      responseType: 'arraybuffer'
-    })
-    // } catch (e) {
-    //   reqPromise = Bluebird.reject(new ErrorBadResponse(url, e))
-    // }
-    return Bluebird.props({ url, req: reqPromise })
+    return resultArray
   }
 
   const onlySendPlainErr = (err) => {
@@ -65,7 +60,7 @@ const SendPlain = (uid: string) => {
     return Bluebird.reject(error)
   }
 
-  const onlySendPlainRes = ({ url, req }: { url: string, req: * }) => {
+  const onlySendPlainRes = (url: string) => (req: AxiosXHR<ArrayBuffer>) => {
     if (!req.data || !req.data.byteLength) {
       const error = new ErrorBadResponse(url)
       Config.emit(uid)('response-raw', error)
@@ -93,10 +88,11 @@ const SendPlain = (uid: string) => {
   }
 
   const sendPlainReq = (url: string, requestBuffer: ArrayBuffer) =>
-    onlySendPlainReq(url, requestBuffer)
-      .then(
-        onlySendPlainRes,
-        onlySendPlainErr)
+    Bluebird
+      .resolve()
+      .then(() => onlySendPlainReq(requestBuffer))
+      .then((bytes) => httpClient.post(url, bytes, reqOpts))
+      .then(onlySendPlainRes(url), onlySendPlainErr)
 
   return sendPlainReq
 }

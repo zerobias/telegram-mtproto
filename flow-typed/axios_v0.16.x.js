@@ -84,14 +84,14 @@ declare module 'axios' {
   declare export type AxiosPromise<T> = Promise<AxiosXHR<T>>;
   declare class Axios {
     constructor<T>(config?: AxiosXHRConfigBase<T>): void;
-    $call: <T>(config: AxiosXHRConfig<T> | string, config?: AxiosXHRConfig<T>) => AxiosPromise<T>;
-    request<T>(config: AxiosXHRConfig<T>): AxiosPromise<T>;
-    delete<T>(url: string, config?: AxiosXHRConfigBase<T>): AxiosPromise<T>;
-    get<T>(url: string, config?: AxiosXHRConfigBase<T>): AxiosPromise<T>;
-    head<T>(url: string, config?: AxiosXHRConfigBase<T>): AxiosPromise<T>;
-    post<T>(url: string, data?: mixed, config?: AxiosXHRConfigBase<T>): AxiosPromise<T>;
-    put<T>(url: string, data?: mixed, config?: AxiosXHRConfigBase<T>): AxiosPromise<T>;
-    patch<T>(url: string, data?: mixed, config?: AxiosXHRConfigBase<T>): AxiosPromise<T>;
+    $call: <T>(config: AxiosXHRConfig<T> | string, config?: AxiosXHRConfig<T>) => Promise<AxiosXHR<T>>;
+    request<T>(config: AxiosXHRConfig<T>): Promise<AxiosXHR<T>>;
+    delete<T>(url: string, config?: AxiosXHRConfigBase<T>): Promise<AxiosXHR<T>>;
+    get<T>(url: string, config?: AxiosXHRConfigBase<T>): Promise<AxiosXHR<T>>;
+    head<T>(url: string, config?: AxiosXHRConfigBase<T>): Promise<AxiosXHR<T>>;
+    post<T>(url: string, data?: mixed, config?: AxiosXHRConfigBase<T>): Promise<AxiosXHR<T>>;
+    put<T>(url: string, data?: mixed, config?: AxiosXHRConfigBase<T>): Promise<AxiosXHR<T>>;
+    patch<T>(url: string, data?: mixed, config?: AxiosXHRConfigBase<T>): Promise<AxiosXHR<T>>;
     interceptors: {
       request: AxiosRequestInterceptor<mixed>,
       response: AxiosResponseInterceptor<mixed>,

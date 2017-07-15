@@ -6,22 +6,18 @@ import Logger from 'mtproto-logger'
 const log = Logger`receive-response`
 
 import { NET } from '../action'
-import { active } from '../signal'
-import { faucet } from '../../pull-stream'
+import { whenActive } from '../signal'
 import jsonError from '../../util/json-error'
 
 function wait<Value>(val: Promise<Value>): Stream<Value> {
   return of(val).awaitPromises()
 }
 
-const faucetC =
-  (source: Stream<*>) =>
-    faucet(source, active).stream
 
 const receiveResponse = (action: Stream<*>) =>
   action
     .thru(e => NET.RECEIVE_RESPONSE.stream(e))
-    .thru(faucetC)
+    .thru(whenActive)
     .map(val => val.payload)
     .map(async({ result, thread, message, noResponseMsgs }) => ({
       result: await thread.parseResponse(result.data),

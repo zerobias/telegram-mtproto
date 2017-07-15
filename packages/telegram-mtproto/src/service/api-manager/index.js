@@ -204,7 +204,6 @@ export class ApiManager {
       options,
       this.invokeNetRequest)
 
-
     const ok: any = {}
     const request = subject(ok)
     const obs = requestObserver(netReq, request)

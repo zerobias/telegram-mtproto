@@ -5,6 +5,7 @@ import { type State } from '../index.h'
 import { async } from 'most-subject'
 import { type Stream } from 'most'
 import Config from '../../config-provider'
+import { faucetC } from '../../pull-stream'
 
 interface Subject<T> extends Stream<T> {
   next (value: T): Subject<T>,
@@ -20,6 +21,7 @@ const isActive = root
   .skipRepeats()
 
 export { isActive as active }
+export const whenActive = faucetC(isActive)
 
 export const homeDc = root
   .map(state => state.homeDc)

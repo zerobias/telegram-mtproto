@@ -120,13 +120,10 @@ export default class PullStream<T> {
   }
 }
 
-export function faucet<T>(source: Stream<T>, controlStream: Stream<boolean>): {
-  stream: Stream<T>,
-  pull: PullStream<T>
-} {
+export function faucet<T>(source: Stream<T>, controlStream: Stream<boolean>): Stream<T> {
   const init: T = ({}: any)
   const prop = Property('', init)
-  const stream = prop.skip(1)
+  const stream = prop.skip(1).multicast()
   const consumer: Consumer<T> =
     (next: () => void, fallback: (val: T) => void) => {
       prop.observe(() => next())
@@ -135,8 +132,14 @@ export function faucet<T>(source: Stream<T>, controlStream: Stream<boolean>): {
         return () => {}
       }
     }
-  const pull = new PullStream(source, consumer, controlStream)
-  return { stream, pull }
+  new PullStream(source, consumer, controlStream)
+  return stream
+}
+
+export function faucetC(controlStream: Stream<boolean>) {
+  return function<T>(source: Stream<T>): Stream<T> {
+    return faucet(source, controlStream)
+  }
 }
 
 function noop() {}
