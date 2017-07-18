@@ -2,6 +2,7 @@ const { outputJsonSync } = require('fs-extra')
 const { join } = require('path')
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 40e3
 const { MTProto } = require('../lib')
+const { config, api } = require('./mtproto-config')
 const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
 // debug.useColors = false
@@ -23,14 +24,6 @@ const phone = {
   code: '22222'
 }
 
-const api = {
-  // invokeWithLayer: 0xda9b0d0d,
-  layer         : 57,
-  initConnection: 0x69796de9,
-  api_id        : 49631,
-  app_version   : '1.0.1',
-  lang_code     : 'en'
-}
 const server = {
   dev     : true,
   webogram: true
@@ -38,11 +31,6 @@ const server = {
 
 const app = {
   storage: new Storage('./test/storage.json')
-}
-
-const config = {
-  id  : 49631,
-  hash: 'fb050b8f6771e15bfda5df2409931569'
 }
 
 

@@ -32,9 +32,9 @@ export type ActionPair<Type, Payload, Meta = void> = Action<Type, Payload, Meta>
   type: Type,
 }
 
-export const doubleCreator =
-<Type, Payload, Meta>(tag: Type, meta?: (pl: Payload, meta: Meta) => any): ActionPair<Type, Payload, Meta> => {
-
+export function doubleCreator<Type, Payload, Meta>(
+  tag: Type, meta?: (pl: Payload, meta: Meta) => any
+): ActionPair<Type, Payload, Meta> {
   const action: ActionPair<Type, Payload> = typeof meta === 'function'
     ? createAction(tag, (x) => x, meta)
     : createAction(tag)

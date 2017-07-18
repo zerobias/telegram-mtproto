@@ -1,9 +1,6 @@
 //@flow
 
-import { createAction } from 'redux-act'
 import { type AxiosXHR } from 'axios'
-import { select } from 'redux-most'
-import { Stream } from 'most'
 
 import { NetMessage } from '../../service/networker/net-message'
 import { NetworkerThread } from '../../service/networker'
@@ -44,7 +41,6 @@ type Net = {
     result: AxiosXHR<ArrayBuffer>,
     thread: NetworkerThread
   }>,
-  INCOMING_DATA: ActionPair<'net/data', NetIncomingData>,
   NETWORK_ERROR: ActionPair<'net/error', any>,
 }
 
@@ -67,7 +63,6 @@ type NetworkerMeta = number
 export const NET: Net = {
   SEND            : doubleCreator('net/send', networkerMeta),
   RECEIVE_RESPONSE: doubleCreator('net/response'),
-  INCOMING_DATA   : doubleCreator('net/data'),
   NETWORK_ERROR   : doubleCreator('net/error'),
 }
 
@@ -120,16 +115,26 @@ export type ApiNewRequest = {
   timestamp: number,
 }
 
+export type ApiCallResult = {
+  message: NetMessage,
+  result: {
+    messageID: string,
+    response: Object,
+    seqNo: number,
+    sessionID: Uint8Array,
+  }
+}
+
 type Api = {
   NEW_REQUEST: ActionPair<'api/request new', ApiNewRequest, ApiMeta>,
   DONE_REQUEST: ActionPair<'api/request done', any, ApiMeta>,
-  CALL_TASK: ActionPair<'api/call-task new', any, ApiMeta>,
-  CALL_RESULT: ActionPair<'api/call-task done', Object, ApiMeta>,
+  CALL_TASK: ActionPair<'api/call-task new', any>,
+  CALL_RESULT: ActionPair<'api/call-task done', ApiCallResult>,
 }
 
 export const API: Api = {
   NEW_REQUEST : doubleCreator('api/request new', apiMeta),
   DONE_REQUEST: doubleCreator('api/request done', apiMeta),
-  CALL_TASK   : doubleCreator('api/call-task new', apiMeta),
-  CALL_RESULT : doubleCreator('api/call-task done', apiMeta),
+  CALL_TASK   : doubleCreator('api/call-task new'),
+  CALL_RESULT : doubleCreator('api/call-task done'),
 }

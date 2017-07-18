@@ -2,13 +2,22 @@
 
 import { combineReducers } from 'redux'
 import { createReducer } from 'redux-act'
-import { uniq, without, append } from 'ramda'
+import { uniq, without, append, assoc } from 'ramda'
 
 import { NETWORKER_STATE, AUTH, NET } from '../action'
 import List from '../../util/immutable-list'
 import { NetMessage } from '../../service/networker/net-message'
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync } from '../../bin'
 import { indexed } from '../../util/indexed-reducer'
+
+
+const requestMap = createReducer({
+  //$FlowIssue
+  [NETWORKER_STATE.SENT.ADD]: (state: {[key: string]: string}, payload: NetMessage) =>
+    typeof payload.requestID === 'string'
+      ? assoc(payload.msg_id, payload.requestID, state)
+      : state,
+}, {})
 
 const resend = createReducer({
   //$FlowIssue
@@ -105,6 +114,7 @@ const reducer = indexed('networker')({
   salt,
   session,
   sessionHistory,
+  requestMap,
 })
 
 export default reducer

@@ -40,6 +40,7 @@
     "bluebird": "^3.5.0",
     "detect-node": "^2.0.3",
     "eventemitter2": "^4.1.2",
+    "funfix": "^4.0.0",
     "fluture": "^6.2.8",
     "folktale": "^2.0.0-rc1",
     "most": "^1.5.0",

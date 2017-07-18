@@ -1,6 +1,6 @@
 //@flow
 
-import { Stream, of, zip } from 'most'
+import { Stream, of, zip, awaitPromises } from 'most'
 import { equals } from 'ramda'
 
 import Logger from 'mtproto-logger'
@@ -14,26 +14,30 @@ import NetworkerThread from '../../service/networker/index'
 import { Serialization } from '../../tl/index'
 import { httpClient } from '../../http'
 import { homeDc, uid, whenActive } from '../signal'
-import { faucet } from '../../pull-stream'
 import jsonError from '../../util/json-error'
+import ApiRequest from '../../service/main/request'
 
-function wait<Value>(val: Promise<Value>): Stream<Value> {
-  return of(val).awaitPromises()
-}
-
-const makeApiBytes = ({ message, thread }) =>
-  apiMessage({
+function makeApiBytes({ message, thread }: {
+  message: NetMessage,
+  thread: NetworkerThread }
+) {
+  return apiMessage({
     ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, thread.uid).writer,
     serverSalt: thread.serverSalt,
     sessionID : thread.sessionID,
     message
   })
+}
 
-const encryptedBytes = (opts: *) =>
-  encryptApiBytes({
+function encryptedBytes(opts: *): Promise<{|
+  encryptedBytes: ArrayBuffer,
+  msgKey: Uint8Array,
+|}> {
+  return encryptApiBytes({
     bytes  : makeApiBytes(opts),
     authKey: opts.thread.authKeyUint8
   })
+}
 
 type NetRequestPayload = {
   payload: {
@@ -46,53 +50,58 @@ type NetRequestPayload = {
 }
 
 
-export const onNewRequest = (action: Stream<*>) => action
-  .thru(e => API.NEW_REQUEST.stream(e))
+export const onNewRequest = (action: Stream<any>) => action
+  .thru(API.NEW_REQUEST.stream)
   .thru(whenActive)
   .combine((data, homeDc) => ({ ...data, homeDc }), homeDc)
   .combine((data, uid) => ({ ...data, uid }), uid)
   .skipRepeatsWith((old, fresh) => equals(old.payload, fresh.payload))
-  .map(data => data)
+  .map(API.CALL_TASK)
+
+export const onNewTask = (action: Stream<any>) => action
+  .thru(API.CALL_TASK.stream)
+  .thru(whenActive)
+  .map(({ payload }) => payload)
   .delay(50)
   .tap(val => val.payload.netReq.invoke())
   .filter(() => false)
 
+const netRequest = (action: Stream<any>) => action
+  .thru(NET.SEND.stream)
+  .thru(whenActive)
+  .map(({ payload }: NetRequestPayload) => payload)
+  .map(async({ options, ...data }) => ({
+    ...data,
+    options: {
+      responseType: 'arraybuffer',
+      ...options,
+    },
+    data: await encryptedBytes(data)
+  }))
+  .thru(awaitPromises)
+  .map(({ data, ...opts }) => ({ ...data, ...opts }))
+  .map(({ encryptedBytes, thread, msgKey, ...rest }) => {
+    const request = new Serialization({
+      startMaxLength: encryptedBytes.byteLength + 256
+    }, thread.uid).writer
 
-const netRequest = (action: Stream<*>) =>
-  action
-    .thru(e => NET.SEND.stream(e))
-    .thru(whenActive)
-    .map(({ payload }: NetRequestPayload) => payload)
-    .chain((opts) =>
-      zip((opts, data) => ({ ...opts, ...data }),
-          of(opts),
-          wait(encryptedBytes(opts))))
-    .map(({ options, ...rest }) => ({
-      ...rest,
-      options: {
-        responseType: 'arraybuffer', ...options } }))
-    .map(({ encryptedBytes, thread, msgKey, ...rest }) => {
-      const request = new Serialization({
-        startMaxLength: encryptedBytes.byteLength + 256
-      }, thread.uid).writer
-
-      const mtBytes = mtMessage({
-        ctx      : request,
-        authKeyID: thread.authKeyID,
-        msgKey,
-        encryptedBytes
-      })
-      const url = Config.dcMap(thread.uid, thread.dcID)
-      return { thread, mtBytes, url, ...rest } })
-    .map(async({ options, mtBytes, message, thread, noResponseMsgs, url }) => ({
-      message,
-      thread,
-      noResponseMsgs,
-      result: await httpClient.post(url, mtBytes, options)
-    }))
-    .chain(val => wait(val))
-    .map(NET.RECEIVE_RESPONSE)
-    .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))).delay(15))
+    const mtBytes = mtMessage({
+      ctx      : request,
+      authKeyID: thread.authKeyID,
+      msgKey,
+      encryptedBytes
+    })
+    const url = Config.dcMap(thread.uid, thread.dcID)
+    return { thread, mtBytes, url, ...rest } })
+  .map(async({ options, mtBytes, message, thread, noResponseMsgs, url }) => ({
+    message,
+    thread,
+    noResponseMsgs,
+    result: await httpClient.post(url, mtBytes, options)
+  }))
+  .thru(awaitPromises)
+  .map(NET.RECEIVE_RESPONSE)
+  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))).delay(15))
 
 
 export default netRequest

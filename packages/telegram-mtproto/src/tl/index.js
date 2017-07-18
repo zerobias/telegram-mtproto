@@ -57,7 +57,9 @@ export class Serialization {
     this.writer.reset()
     this.mtproto = mtproto
   }
-
+  getBytes: () => number[]
+  getBytes: (typed: false) => number[]
+  getBytes: (typed: true) => Uint8Array
   getBytes(typed?: boolean) {
     if (typed)
       return this.writer.getBytesTyped()

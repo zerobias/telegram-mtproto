@@ -39,8 +39,10 @@
 
 [libs]
 ./flow-typed
+./node_modules/funfix
 
 [options]
+max_header_tokens=30
 esproposal.class_instance_fields=enable
 esproposal.class_static_fields=enable
 experimental.const_params=true
@@ -60,6 +62,7 @@ module.name_mapper='^ajv\(.*\)$' -> '<PROJECT_ROOT>/node_modules/ajv\1'
 module.name_mapper='^most-subject$' -> '<PROJECT_ROOT>/node_modules/most-subject'
 module.name_mapper='^rusha$' -> '<PROJECT_ROOT>/node_modules/rusha'
 module.name_mapper='^fs-extra$' -> '<PROJECT_ROOT>/node_modules/fs-extra'
+module.name_mapper='^funfix$' -> '<PROJECT_ROOT>/node_modules/funfix'
 module.name_mapper='^chokidar$' -> '<PROJECT_ROOT>/node_modules/chokidar'
 module.name_mapper='^\(.*\)goodmind\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1goodmind\2'
 module.name_mapper='^pako\(.*\)$' -> '<PROJECT_ROOT>/node_modules/pako\1'

@@ -5,7 +5,7 @@ import { createReducer } from 'redux-act'
 import { append } from 'ramda'
 
 import { type MessageHistory } from '../index.h'
-import { MAIN, NET } from '../action'
+import { MAIN, NET, API } from '../action'
 import { type NetIncomingData } from '../action'
 
 import networker from './networker-state'
@@ -23,12 +23,15 @@ const uid = createReducer({
 
 const messageHistory = createReducer({
   //$FlowIssue
-  [NET.INCOMING_DATA]: (state: MessageHistory[], { result }: NetIncomingData) =>
+  [API.DONE_REQUEST]: (state: MessageHistory[], { result, thread, ...rest }: NetIncomingData) =>
+    (
+    console.log(result),
+    console.log(rest),
     append({
       id       : result.messageID,
       seqNo    : result.seqNo,
       data     : result.response,
-      direction: 'in' }, state),
+      direction: 'in' }, state)),
   //$FlowIssue
   [NET.SEND]: (state: MessageHistory[], payload) =>
     append({

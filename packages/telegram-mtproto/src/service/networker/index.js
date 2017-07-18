@@ -26,18 +26,15 @@ import {
   sha1BytesSync,
   bytesToHex,
   longToBytes,
-  uintToInt,
   rshift32
 } from '../../bin'
 
 import type { AsyncStorage } from '../../plugins/index.h'
 import { TypeWriter } from '../../tl'
 import { writeInt, writeBytes, writeLong } from '../../tl/writer'
-import { apiMessage, encryptApiBytes, mtMessage } from '../chain/encrypted-message'
 import type { Emit } from 'eventemitter2'
 
 import LongPoll from '../../plugins/long-poll'
-import { getRandomId } from '../../plugins/math-help'
 import { NET, NETWORKER_STATE, AUTH } from '../../state/action'
 
 import { dispatch } from '../../state/core'
@@ -200,14 +197,14 @@ export class NetworkerThread {
     logGroup`Call method, params`(params)
     logGroup.groupEnd()
     this.pushMessage(message, options)
-    this.emit('net-message', {
-      type  : 'mtp-call',
-      msg_id: message.msg_id,
-      message,
-      method,
-      params,
-      options
-    })
+    // this.emit('net-message', {
+    //   type  : 'mtp-call',
+    //   msg_id: message.msg_id,
+    //   message,
+    //   method,
+    //   params,
+    //   options
+    // })
     return message.deferred.promise
   }
 
@@ -231,17 +228,22 @@ export class NetworkerThread {
     logGroup.groupEnd()
     verifyInnerMessages(object.msg_ids)
     this.pushMessage(message, options)
-    this.emit('net-message', {
-      type  : 'mtp-message',
-      msg_id: message.msg_id,
-      message,
-      object,
-      options
-    })
+    // this.emit('net-message', {
+    //   type  : 'mtp-message',
+    //   msg_id: message.msg_id,
+    //   message,
+    //   object,
+    //   options
+    // })
     return message
   }
 
-  wrapApiCall(method: string, params: { [key: string]: mixed } = {}, options: Object): Bluebird<any> {
+  wrapApiCall(
+    method: string,
+    params: { [key: string]: mixed } = {},
+    options: Object,
+    requestID: ?string = null
+  ): Bluebird<any> {
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
@@ -271,20 +273,20 @@ export class NetworkerThread {
       serializer.getBytes(true)
     )
     message.isAPI = true
-
+    message.requestID = requestID
     log(`Api call`)(method)
     log(`|      |`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
     log(`|      |`, `params`)(params)
     log(`|      |`, `options`)(options)
     this.pushMessage(message, options)
-    this.emit('net-message', {
-      type  : 'api-call',
-      msg_id: message.msg_id,
-      message,
-      method,
-      params,
-      options
-    })
+    // this.emit('net-message', {
+    //   type  : 'api-call',
+    //   msg_id: message.msg_id,
+    //   message,
+    //   method,
+    //   params,
+    //   options
+    // })
     return message.deferred.promise
   }
 
@@ -347,45 +349,7 @@ export class NetworkerThread {
 
 
 
-  async checkConnection() {
-    /*log(`Check connection`)(event)
-    smartTimeout.cancel(this.checkConnectionPromise)
-
-    const serializer = new Serialization({ mtproto: true }, this.uid)
-    const pingID = getRandomId()
-
-    serializer.storeMethod('ping', { ping_id: pingID })
-
-    const pingMessage = new NetMessage(
-      this.uid,
-      this.generateSeqNo(true),
-      serializer.getBytes()
-    )
-    this.emit('net-message', {
-      type   : 'mtp-call',
-      msg_id : pingMessage.msg_id,
-      message: pingMessage,
-      method : 'ping',
-      params : { ping_id: pingID },
-      options: {}
-    })
-    let succ = false
-
-    try {
-      const result = await this.sendEncryptedRequest(pingMessage, { timeout: 15000 })
-      succ = true
-      this.toggleOffline(false)
-      log(`checkConnection, result`)(result)
-    } catch (err) {
-      log(`encrypted request fail`)(err)
-    }
-    if (succ) return
-    const delay = this.checkConnectionPeriod * 1e3
-    log(`checkConnection, Delay`)(delay)
-    this.checkConnectionPromise = smartTimeout(
-      this.checkConnection, delay)
-    this.checkConnectionPeriod = Math.min(60, this.checkConnectionPeriod * 1.5)*/
-  }
+  async checkConnection() { }
 
   toggleOffline(enabled: boolean) {
     // console.log('toggle ', enabled, this.dcID, this.iii)
@@ -410,7 +374,7 @@ export class NetworkerThread {
       this.emit('net.offline', this.onOnlineCb)
     } else {
       this.longPoll.pendingTime = Date.now()
-        //NOTE check long state was here
+      //NOTE check long state was here
       this.checkLongPoll().then(() => {})
       this.sheduleRequest()
 
@@ -511,14 +475,14 @@ export class NetworkerThread {
         serializer.getBytes()
       )
       this.longPoll.writePollTime()
-      this.emit('net-message', {
-        type   : 'mtp-call',
-        msg_id : netMessage.msg_id,
-        message: netMessage,
-        method : 'http_wait',
-        params,
-        options: {}
-      })
+      // this.emit('net-message', {
+      //   type   : 'mtp-call',
+      //   msg_id : netMessage.msg_id,
+      //   message: netMessage,
+      //   method : 'http_wait',
+      //   params,
+      //   options: {}
+      // })
       messages.push(netMessage)
     }
 
@@ -601,8 +565,8 @@ export class NetworkerThread {
       this.checkLongPoll() //TODO Bluebird warning here
     } catch (error) {
       console.log('Encrypted request failed', error)
-      const noRespPending = []
-      const noRespSent = []
+      const noRespPending: string[] = []
+      const noRespSent: NetMessage[] = []
       if (message instanceof NetContainer) {
         for (const msgID of message.inner) {
           this.state.setPending(msgID)
@@ -693,7 +657,7 @@ export class NetworkerThread {
   }
 
   sheduleRequest(delay: number = 0) {
-    if (this.offline) this.checkConnection('forced shedule')
+    if (this.offline) this.checkConnection()
     const nextReq = tsNow() + delay
 
     if (delay && this.nextReq && this.nextReq <= nextReq)

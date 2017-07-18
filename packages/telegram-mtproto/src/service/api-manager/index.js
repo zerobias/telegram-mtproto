@@ -257,10 +257,17 @@ export class ApiManager {
       const result = await networker.wrapApiCall(
         netReq.data.method,
         netReq.data.params,
-        netReq.options)
+        netReq.options,
+        netReq.requestID)
       netReq.defer.resolve(result)
       return result
     } catch (err) {
+      if (isRawError(err)) {
+        (err: RawErrorStruct)
+        debug`raw error`(err)
+        dispatch(API.DONE_REQUEST(err, netReq.requestID))
+        return netReq.defer.promise
+      }
       const error: MTError = err
       console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
       console.trace('Unhandled performRequest')
@@ -299,6 +306,20 @@ export class ApiManager {
   }
 }
 
+type RawErrorStruct = {
+  _: 'rpc_error',
+  error_code: number,
+  error_message: string,
+}
+
+function isRawError(val: mixed): boolean %checks {
+  return typeof val === 'object'
+    && val != null
+    && val._ === 'rpc_error'
+    && typeof val.error_code === 'number'
+    && typeof val.error_message === 'string'
+}
+
 function requestObserver(netReq: ApiRequest, request: HoldSubject<any>) {
   const obs = Observer({
     next(data) {
@@ -311,7 +332,7 @@ function requestObserver(netReq: ApiRequest, request: HoldSubject<any>) {
     },
     async complete(data) {
       debug`obs, complete`(data)
-      dispatch(API.DONE_REQUEST(data, netReq.requestID))
+      // dispatch(API.DONE_REQUEST(data, netReq.requestID))
       return data
     }
   })(request)

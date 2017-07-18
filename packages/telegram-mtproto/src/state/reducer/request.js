@@ -4,7 +4,7 @@ import { combineReducers } from 'redux'
 import { createReducer } from 'redux-act'
 
 import { API } from '../action'
-import { type ApiNewRequest, type ApiMetaPL } from '../action'
+import { type ApiNewRequest, type ApiMetaPL, type NetIncomingData } from '../action'
 import List from '../../util/immutable-list'
 import { indexed } from '../../util/indexed-reducer'
 
@@ -19,7 +19,7 @@ const api = createReducer({
   [API.NEW_REQUEST]: (state: List<ApiRequestField, string>, payload: ApiNewRequest, meta: ApiMetaPL) =>
     state.set(meta.id, { ...payload, timestamp: new Date(payload.timestamp) }),
   //$FlowIssue
-  [API.DONE_REQUEST]: (state: List<ApiRequestField, string>, payload: any, meta: ApiMetaPL) =>
+  [API.DONE_REQUEST]: (state: List<ApiRequestField, string>, payload: NetIncomingData, meta: ApiMetaPL) =>
     state.delete(meta.id)
 }, List.empty())
 

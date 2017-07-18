@@ -128,12 +128,8 @@ export class TypeWriter {
 
     return resultArray
   }
-  getBytesPlain() {
-    const bytes = []
-    for (let i = 0; i < this.offset; i++) {
-      bytes.push(this.byteView[i])
-    }
-    return bytes
+  getBytesPlain(): number[] {
+    return Array.from(this.byteView.subarray(0, this.offset))
   }
   writeInt(i: number, field: string) {
     immediate(writeIntLog, i, field)

@@ -16,6 +16,7 @@ declare module 'fluture' {
     and<T, F>(alt: Fluture<T, F>): Fluture<Resolve | T, Reject | F>,
     both<T, F>(futureB: Fluture<T, F>): Fluture<[Resolve, T], Reject | F>,
     fold<T, F>(left: (val: Reject) => F, right: (val: Resolve) => T): Fluture<T | F, void>,
+    value(): Resolve,
   }
 
   declare export function Future<Resolve, Reject>(fn: (rj: (err: Reject) => void, rs: (data: Resolve) => void) => ((() => void) | void)): Fluture<Resolve, Reject>
