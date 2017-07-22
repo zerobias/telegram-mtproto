@@ -1,6 +1,6 @@
 const { outputJsonSync } = require('fs-extra')
 const { join } = require('path')
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 40e3
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 90e3
 const { MTProto } = require('../lib')
 const { config, api } = require('./mtproto-config')
 const { Storage } = require('mtproto-storage-fs')
@@ -20,8 +20,9 @@ outputJsonSync(join(__dirname, 'storage.json'), {
 }, { spaces: 2 })
 
 const phone = {
-  num : '+9996620000',
-  code: '22222'
+  num      : '+9996620000',
+  code     : '22222',
+  wrongCode: '11111',
 }
 
 const server = {
@@ -34,7 +35,7 @@ const app = {
 }
 
 
-const telegram = MTProto({ server, api, app })
+let telegram
 
 
 /*const getHistory = async (chat) => {
@@ -76,8 +77,21 @@ const isAlreadyAuth = async() => {
 }
 
 
-const connectionTest = async() => {
-  // await telegram.storage.clear() //Just for clean test
+beforeEach(() => {
+  telegram = MTProto({ server, api, app })
+})
+
+
+afterEach(async() => {
+  app.storage.data = {
+    nearest_dc: 2,
+    dc        : 2,
+  }
+  await app.storage.save()
+  await new Promise(rs => setTimeout(rs, 2e3))
+})
+
+test(`Connection test`, async() => {
   expect.assertions(2)
   const isAuth = await isAlreadyAuth()
   let message
@@ -95,8 +109,6 @@ const connectionTest = async() => {
       phone_code  : phone.code,
     })
     console.log('signIn', res)
-    console.log('\n Logined as user')
-    // console.dir && console.dir(res.user, { colors: true })
     message = 'result is ok'
   } else {
     message = 'already authorized, skip'
@@ -105,40 +117,30 @@ const connectionTest = async() => {
   const dialogs = await telegram('messages.getDialogs', {
     limit: 100,
   })
-  // console.dir && console.dir(dialogs, { colors: true })
-  app.storage.data = {
-    nearest_dc: 2,
-    dc        : 2,
-  }
-  await app.storage.save()
-  await new Promise(rs => setTimeout(rs, 2e3))
   expect(dialogs).toBeTruthy()
-  // test(`Reuse stored auth`, reuseStoredAuth)
-}
+})
 
-/*const reuseStoredAuth = async () => {
-  // const anotherTelegram = MTProto({ server, api, app })
-  //NOTE No auth here
-  // expect.assertions(1)
-  const dialogs = await telegram('messages.getDialogs', {
-    limit: 100,
+test(`Rejection test`, async() => {
+  expect.assertions(1)
+  const { phone_code_hash } = await telegram('auth.sendCode', {
+    phone_number  : phone.num,
+    current_number: false,
+    api_id        : config.id,
+    api_hash      : config.hash
   })
-  app.storage.data = {
-    nearest_dc: 2,
-    dc        : 2,
+  try {
+    await expect(
+      telegram('auth.signIn', {
+        phone_number: phone.num,
+        phone_code_hash,
+        phone_code  : phone.wrongCode,
+      })
+    ).rejects.toMatchObject({
+      code   : 400,
+      message: 'PHONE_CODE_INVALID',
+    })
+  } catch (error) {
+    console.log('expected error', error)
   }
-  await app.storage.save()
-  // expect(dialogs).toBeTruthy()
-  // const chat1 = dialogs.chats[2]
+})
 
-  // const history = await getHistory(chat1)
-
-  // const list = history.messages
-
-  // t.ok(list, 'chat1')
-}*/
-
-// const tests = () =
-test(`Connection test`, connectionTest)
-// delayExit()
-// await app.storage.save()

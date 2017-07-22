@@ -18,6 +18,7 @@ class ApiRequest {
   data: ApiMethod
   requestID: string = uuid()
   defer: Defer
+  deferFinal: Defer
   invoke: () => void
   options: RequestOptions
   constructor(data: ApiMethod,
@@ -27,6 +28,11 @@ class ApiRequest {
     this.options = options
     // this.messageID = options.messageID
     Object.defineProperty(this, 'defer', {
+      value     : blueDefer(),
+      enumerable: false,
+      writable  : true,
+    })
+    Object.defineProperty(this, 'deferFinal', {
       value     : blueDefer(),
       enumerable: false,
       writable  : true,

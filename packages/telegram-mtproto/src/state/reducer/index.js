@@ -7,6 +7,7 @@ import { append } from 'ramda'
 import { type MessageHistory } from '../index.h'
 import { MAIN, NET, API } from '../action'
 import { type NetIncomingData } from '../action'
+import { type TaskEndData } from '../epic/task'
 
 import networker from './networker-state'
 import request from './request'
@@ -23,15 +24,15 @@ const uid = createReducer({
 
 const messageHistory = createReducer({
   //$FlowIssue
-  [API.DONE_REQUEST]: (state: MessageHistory[], { result, thread, ...rest }: NetIncomingData) =>
-    (
-    console.log(result),
-    console.log(rest),
-    append({
-      id       : result.messageID,
-      seqNo    : result.seqNo,
-      data     : result.response,
-      direction: 'in' }, state)),
+  [API.DONE_REQUEST]: (state: MessageHistory[], data: NetIncomingData & TaskEndData) => {
+    // console.log(data)
+    const { result, thread, messages, ...rest } = data
+    // console.log(result)
+    // console.log(rest)
+    return append({
+      messages,
+      direction: 'in' }, state)
+  },
   //$FlowIssue
   [NET.SEND]: (state: MessageHistory[], payload) =>
     append({

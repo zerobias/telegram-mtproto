@@ -1,6 +1,6 @@
 //@flow
 
-import { Stream, of, zip, awaitPromises } from 'most'
+import { Stream, of, awaitPromises } from 'most'
 import { equals } from 'ramda'
 
 import Logger from 'mtproto-logger'
@@ -15,7 +15,7 @@ import { Serialization } from '../../tl/index'
 import { httpClient } from '../../http'
 import { homeDc, uid, whenActive } from '../signal'
 import jsonError from '../../util/json-error'
-import ApiRequest from '../../service/main/request'
+// import ApiRequest from '../../service/main/request'
 
 function makeApiBytes({ message, thread }: {
   message: NetMessage,
@@ -48,7 +48,10 @@ type NetRequestPayload = {
   },
   type: 'net/send',
 }
-
+// process.on('unhandledRejection', val => {
+//   console.log(val)
+//   console.trace('on')
+// })
 
 export const onNewRequest = (action: Stream<any>) => action
   .thru(API.NEW_REQUEST.stream)

@@ -223,7 +223,7 @@ export class ApiManager {
     //   val => request.next(val),
     //   err => request.error(err)
     // )
-    return netReq.defer.promise
+    return netReq.deferFinal.promise
   }
 
   async invokeNetRequest(netReq: ApiRequest) {
@@ -256,54 +256,62 @@ export class ApiManager {
     //   debug('requestThunk', 'waitTime')(waitTime)
     //   return delayedCall(req.performRequest, +waitTime * 1e3)
     // }
-    try {
-      const result = await networker.wrapApiCall(
-        netReq.data.method,
-        netReq.data.params,
-        netReq.options,
-        netReq.requestID)
-      netReq.defer.resolve(result)
-      return result
-    } catch (err) {
-      if (isRawError(err)) {
-        (err: RawErrorStruct)
-        log`raw error`(err)
-        dispatch(API.DONE_REQUEST(err, netReq.requestID))
-        return netReq.defer.promise
-      }
-      const error: MTError = err
-      console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
-      console.trace('Unhandled performRequest')
-      const noAuth = error.code === 401
-      if (noAuth) {
-        log('performRequest', 'no auth')(dcID)
-        this.emit('no-auth', {
-          dc    : dcID,
-          apiReq: netReq,
-          error
-        })
-      }
-      // if (!error)
-      //   err = { type: 'ERROR_EMPTY', input: '' }
-      // else if (!is(Object, error))
-      //   err = { message: error }
-      // else err = error
-      console.warn(`[rejectPromise] Unhandled error!`, err)
 
-      if (!netReq.options.noErrorBox) {
-        //TODO weird code. `error` changed after `.reject`?
+    await networker.wrapApiCall(
+      netReq.data.method,
+      netReq.data.params,
+      netReq.options,
+      netReq.requestID)
 
-        /*err.input = method
+    // try {
+    //   const result = await networker.wrapApiCall(
+    //     netReq.data.method,
+    //     netReq.data.params,
+    //     netReq.options,
+    //     netReq.requestID)
+    //   netReq.defer.resolve(result)
+    //   return result
+    // } catch (err) {
+    //   if (isRawError(err)) {
+    //     (err: RawErrorStruct)
+    //     log`raw error`(err)
+    //     console.trace('Wrong way!')
+    //     dispatch(API.DONE_REQUEST(err, netReq.requestID))
+    //     return netReq.defer.promise
+    //   }
+    //   const error: MTError = err
+    //   console.error(dTime(), 'Error', error.code, error.type, baseDcID, dcID)
+    //   console.trace('Unhandled performRequest')
+    //   const noAuth = error.code === 401
+    //   if (noAuth) {
+    //     log('performRequest', 'no auth')(dcID)
+    //     this.emit('no-auth', {
+    //       dc    : dcID,
+    //       apiReq: netReq,
+    //       error
+    //     })
+    //   }
+    //   // if (!error)
+    //   //   err = { type: 'ERROR_EMPTY', input: '' }
+    //   // else if (!is(Object, error))
+    //   //   err = { message: error }
+    //   // else err = error
+    //   console.warn(`[rejectPromise] Unhandled error!`, err)
 
-        err.stack =
-          stack ||
-          hasPath(['originalError', 'stack'], error) ||
-          error.stack ||
-          (new Error()).stack*/
-        /*this.emit('error.invoke', error)*/
-      }
-      netReq.defer.reject(error)
-    }
+    //   if (!netReq.options.noErrorBox) {
+    //     //TODO weird code. `error` changed after `.reject`?
+
+    //     /*err.input = method
+
+    //     err.stack =
+    //       stack ||
+    //       hasPath(['originalError', 'stack'], error) ||
+    //       error.stack ||
+    //       (new Error()).stack*/
+    //     /*this.emit('error.invoke', error)*/
+    //   }
+    //   netReq.defer.reject(error)
+    // }
 
     return netReq.defer.promise
   }

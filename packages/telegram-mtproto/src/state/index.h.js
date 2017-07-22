@@ -26,6 +26,7 @@ export type State = {
     },
     salt: number[],
     session: number[],
+    requestMap: { [req: string]: string },
   }, number>
 }
 

@@ -32,12 +32,13 @@ declare module 'folktale/result' {
     Error(res: { value: Left }): B,
   }
   declare export class IResult<Right, Left> {
+    value: Right | Left,
     map<Right1>(fn: (obj: Right) => Right1): IResult<Right1, Left>,
     mapError<Left1>(fn: (obj: Left) => Left1): IResult<Right, Left1>,
     merge(): Right | Left,
     chain<Right1, Left1>(fn: (obj: Right) => IResult<Right1, Left1>): IResult<Right1, Left | Left1>,
     getOrElse(defaults: Right): Right,
-    orElse<+Right1, +Left1>(fn: (obj: Left) => IResult<Right1, Left1>): IResult<Right | Right1, Left1>,
+    orElse<Right1, Left1>(fn: (obj: Left) => IResult<Right1, Left1>): IResult<Right | Right1, Left1>,
     matchWith<A, B>(matcher: ResultMatcher<Right, Left, A, B>): A | B,
   }
   declare export class IOk<Right, Left> extends IResult<Right, Left> { }
@@ -46,9 +47,9 @@ declare module 'folktale/result' {
   declare export function fromNullable<Right>(obj: ?Right): IResult<Right, null | void>
   declare export function hasInstance(obj: mixed): boolean
 
-  declare export function of<Right>(obj: Right): IResult<Right, mixed>
+  declare export function of<Right, -Left: mixed>(obj: Right): IResult<Right, Left>
   declare export function Ok<Right>(obj: Right): IResult<Right, mixed>
-  declare export function Error<Left>(obj: Left): IResult<mixed, Left>
+  declare export function Error<-Right: mixed, L>(obj: L): IResult<Right, L>
   declare var Either: { Ok: typeof Ok, Error: typeof Error }
   declare export default typeof Either
 }

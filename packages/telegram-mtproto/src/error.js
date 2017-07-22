@@ -67,6 +67,30 @@ export class RpcError extends MTError {
   }
 }
 
+export class RpcApiError extends MTError {
+  constructor(code: number, message: string) {
+    super(code, 'RpcApiError', '')
+    this.message = message
+  }
+  static of(data: {
+    _: 'rpc_error',
+    error_code: number,
+    error_message: string,
+  }): RpcApiError {
+    return new RpcApiError(data.error_code, data.error_message)
+  }
+  toValue() {
+    return {
+      type   : 'RpcApiError',
+      code   : this.code,
+      message: this.message
+    }
+  }
+  toJSON() {
+    return this.toValue()
+  }
+}
+
 export class TypeBufferIntError extends MTError {
   static getTypeBufferMessage(ctx: TypeBuffer) {
     const offset = ctx.offset
