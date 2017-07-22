@@ -32,7 +32,7 @@ declare module 'folktale/result' {
     Error(res: { value: Left }): B,
   }
   declare export class IResult<Right, Left> {
-    map<Right1>(fn: (obj: Right) => S): IResult<Right1, Left>,
+    map<Right1>(fn: (obj: Right) => Right1): IResult<Right1, Left>,
     mapError<Left1>(fn: (obj: Left) => Left1): IResult<Right, Left1>,
     merge(): Right | Left,
     chain<Right1, Left1>(fn: (obj: Right) => IResult<Right1, Left1>): IResult<Right1, Left | Left1>,

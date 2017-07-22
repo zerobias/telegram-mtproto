@@ -1,9 +1,9 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 import Logger from 'mtproto-logger'
-const debug = Logger`api-manager`
+const log = Logger`api-manager`
 
 import Auth from '../authorizer'
 
@@ -177,7 +177,7 @@ export class ApiManager {
         // })
 
       }
-      debug(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
+      log(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
       this.authPromise.resolve()
     } catch (err) {
       this.authPromise.reject(err)
@@ -203,11 +203,14 @@ export class ApiManager {
       { method, params },
       options,
       this.invokeNetRequest)
-
-    const ok: any = {}
-    const request = subject(ok)
-    const obs = requestObserver(netReq, request)
-    obs.then(debug`obs`)
+    // const toPromise = {
+    //   Left : (val) => Bluebird.reject(val),
+    //   Right: (val) => Bluebird.resolve(val),
+    // }
+    // const ok: any = {}
+    // const request = subject(ok)
+    // const obs = requestObserver(netReq, request)
+    // obs.then(debug`obs`)
     netReq.options.requestID = netReq.requestID
     // this.emit('new-request', netReq)
     dispatch(API.NEW_REQUEST({
@@ -216,11 +219,11 @@ export class ApiManager {
       params,
       timestamp: Date.now(),
     }, netReq.requestID))
-    netReq.defer.promise.then(
-      val => request.next(val),
-      err => request.error(err)
-    )
-    return obs
+    // netReq.defer.promise.then(
+    //   val => request.next(val),
+    //   err => request.error(err)
+    // )
+    return netReq.defer.promise
   }
 
   async invokeNetRequest(netReq: ApiRequest) {
@@ -264,7 +267,7 @@ export class ApiManager {
     } catch (err) {
       if (isRawError(err)) {
         (err: RawErrorStruct)
-        debug`raw error`(err)
+        log`raw error`(err)
         dispatch(API.DONE_REQUEST(err, netReq.requestID))
         return netReq.defer.promise
       }
@@ -273,7 +276,7 @@ export class ApiManager {
       console.trace('Unhandled performRequest')
       const noAuth = error.code === 401
       if (noAuth) {
-        debug('performRequest', 'no auth')(dcID)
+        log('performRequest', 'no auth')(dcID)
         this.emit('no-auth', {
           dc    : dcID,
           apiReq: netReq,
@@ -323,15 +326,15 @@ function isRawError(val: mixed): boolean %checks {
 function requestObserver(netReq: ApiRequest, request: HoldSubject<any>) {
   const obs = Observer({
     next(data) {
-      debug`obs, next`(data)
+      log`obs, next`(data)
       return data
     },
     error(data) {
-      debug`obs, error`(data)
+      log`obs, error`(data)
       return request.next(data)
     },
     async complete(data) {
-      debug`obs, complete`(data)
+      log`obs, complete`(data)
       // dispatch(API.DONE_REQUEST(data, netReq.requestID))
       return data
     }
@@ -344,7 +347,7 @@ const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).le
 
 const netError = error => {
   console.log('Get networker error', error, error.stack)
-  return Promise.reject(error)
+  return Bluebird.reject(error)
 }
 
 const alreadyAuthWarning = (method: string) => {

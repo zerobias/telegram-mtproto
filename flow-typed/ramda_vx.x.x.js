@@ -622,9 +622,9 @@ declare module 'ramda' {
   */
 
   declare export function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, o: {[key: string]: A}): {[key: string]: B};
-  declare export function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, ...args: Array<void>): (o: {[key: string]: A}) => {[key: string]: B};
+  declare export function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B): (o: {[key: string]: A}) => {[key: string]: B};
 
-  declare export function merge<A,B>(o1: A, ...rest: Array<void>): (o2: B) => A & B;
+  declare export function merge<A,B>(o1: A): (o2: B) => A & B;
   declare export function merge<A,B>(o1: A, o2: B): A & B;
 
   declare export function mergeAll<T>(os: Array<{[k:string]:T}>): {[k:string]:T};
@@ -1017,7 +1017,7 @@ declare module 'ramda/src/map' {
 
 declare module 'ramda/src/mapObjIndexed' {
   declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, o: {[key: string]: A}): {[key: string]: B};
-  declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, ...args: Array<void>): (o: {[key: string]: A}) => {[key: string]: B};
+  declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B): (o: {[key: string]: A}) => {[key: string]: B};
   declare export default typeof mapObjIndexed;
 }
 

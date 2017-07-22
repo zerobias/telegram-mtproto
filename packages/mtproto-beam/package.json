@@ -28,9 +28,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "cross-env": "^5.0.1",
-
     "flow-copy-source": "^1.2.0",
-    "flow-typed": "^2.1.2",
     "rimraf": "^2.6.1"
   }
 }

@@ -9,6 +9,7 @@
 lib/**
 es/**
 debug.log
+lerna-debug.log
 node_modules
 npm-debug.log
 cldr
