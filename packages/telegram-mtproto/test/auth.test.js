@@ -59,10 +59,10 @@ async function connectionTest() {
   // test(`Reuse stored auth`, reuseStoredAuth)
 }
 
-test('Test config validation', () => {
+test.skip('Test config validation', () => {
   expect(phone.length).toBeGreaterThan(0)
   expect(pass.length).toBeGreaterThan(0)
 })
 
-test(`Connection test`, connectionTest)
+test.skip(`Connection test`, connectionTest)
 

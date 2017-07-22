@@ -65,7 +65,7 @@ export const onNewTask = (action: Stream<any>) => action
   .thru(API.CALL_TASK.stream)
   .thru(whenActive)
   .map(({ payload }) => payload)
-  .delay(50)
+  // .delay(50)
   .tap(val => val.payload.netReq.invoke())
   .filter(() => false)
 

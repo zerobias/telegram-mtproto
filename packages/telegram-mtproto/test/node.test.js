@@ -1,6 +1,6 @@
 const { outputJsonSync } = require('fs-extra')
 const { join } = require('path')
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 90e3
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 180e3
 const { MTProto } = require('../lib')
 const { config, api } = require('./mtproto-config')
 const { Storage } = require('mtproto-storage-fs')

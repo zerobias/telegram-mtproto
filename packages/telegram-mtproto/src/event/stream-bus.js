@@ -214,7 +214,7 @@ const createStreamBus = (ctx: MTProto) => {
           .awaitPromises()
 
     await from(ctx.state.requests.values())
-      .debounce(100)
+      .debounce(30)
       .map(repeatRequest)
       .mergeConcurrently(1)
       .observe(log`recurring requests`)
