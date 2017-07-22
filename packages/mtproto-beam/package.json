@@ -19,7 +19,7 @@
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.2.1",
     "mtproto-storage-fs": "^0.1.8",
-    "telegram-mtproto": "^3.1.1"
+    "telegram-mtproto": "^3.1.2"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
