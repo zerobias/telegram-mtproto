@@ -33,5 +33,3 @@ export interface ApiManagerInstance {
   emit: Emit,
   bus: *,
 }
-
-export type { NetworkerType } from '../networker'

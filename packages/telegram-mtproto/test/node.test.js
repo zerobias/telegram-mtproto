@@ -88,7 +88,7 @@ afterEach(async() => {
     dc        : 2,
   }
   await app.storage.save()
-  await new Promise(rs => setTimeout(rs, 2e3))
+  await new Promise(rs => setTimeout(rs, 1e3))
 })
 
 test(`Connection test`, async() => {
@@ -121,14 +121,14 @@ test(`Connection test`, async() => {
 })
 
 test(`Rejection test`, async() => {
-  expect.assertions(1)
-  const { phone_code_hash } = await telegram('auth.sendCode', {
-    phone_number  : phone.num,
-    current_number: false,
-    api_id        : config.id,
-    api_hash      : config.hash
-  })
-  try {
+  expect.assertions(2)
+  await expect((async() => {
+    const { phone_code_hash } = await telegram('auth.sendCode', {
+      phone_number  : phone.num,
+      current_number: false,
+      api_id        : config.id,
+      api_hash      : config.hash
+    })
     await expect(
       telegram('auth.signIn', {
         phone_number: phone.num,
@@ -139,8 +139,6 @@ test(`Rejection test`, async() => {
       code   : 400,
       message: 'PHONE_CODE_INVALID',
     })
-  } catch (error) {
-    console.log('expected error', error)
-  }
+  })()).resolves.toBeUndefined()
 })
 

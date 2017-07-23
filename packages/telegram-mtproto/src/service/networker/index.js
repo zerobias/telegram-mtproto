@@ -631,7 +631,8 @@ export class NetworkerThread {
       mtproto: true,
       getter : this.getMsgById
     }
-    const response = await parsedResponse({
+    //$FlowIssue
+    const response: Object = await parsedResponse({
       hashData,
       msgKey,
       reader: new Deserialization(buffer, deserializerOptions, this.uid)

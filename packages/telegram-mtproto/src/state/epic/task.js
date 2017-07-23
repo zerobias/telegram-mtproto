@@ -41,7 +41,6 @@ export const onTaskEnd = (action: Stream<any>) => action
       ? val.messages.map(detectErrors)
       : val.messages
   }))
-  // .thru(awaitPromises)
   .map(API.DONE_REQUEST)
 
 export const receiveResponse = (action: Stream<any>) => action
@@ -66,29 +65,6 @@ export const receiveResponse = (action: Stream<any>) => action
   .thru(awaitPromises)
   .map(API.CALL_RESULT)
   .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))).delay(15))
-
-
-
-// type RawErrorStruct = {
-//   _: 'rpc_error',
-//   error_code: number,
-//   error_message: string,
-// }
-
-// function isRawError(val: mixed): boolean %checks {
-//   return typeof val === 'object'
-//     && val != null
-//     && val._ === 'rpc_error'
-//     && typeof val.error_code === 'number'
-//     && typeof val.error_message === 'string'
-// }
-
-// function isContainsError(val: mixed): boolean %checks {
-//   return typeof val === 'object'
-//     && val != null
-//     && val._ === 'rpc_result'
-//     && isRawError(val.result)
-// }
 
 class MsgId {
   real: string
@@ -158,15 +134,22 @@ type UniMessage = {
   data: Object | string[] | RpcApiError,
 }
 
+type TaskResultRaw = TaskResult<SingleMessage | ContainerMessage>
+
 type ChooseType =
   (map: { [req: string]: string }) =>
-    (val: TaskResult<SingleMessage | ContainerMessage>) =>
+    (val: TaskResultRaw) =>
       UniMessage[]
 
 const chooseType: ChooseType = (map) => choose({
-  Single   : (val: TaskResult<SingleMessage | ContainerMessage>) => val.response._ === 'rpc_result',
-  Container: (val: TaskResult<SingleMessage | ContainerMessage>) => val.response._ === 'msg_container',
-  // Error    : val => val._ === 'rpc_error'
+  Single: (val: ?TaskResultRaw) =>
+    isObject(val)
+    && isObject(val.response)
+    && val.response._ === 'rpc_result',
+  Container: (val: ?TaskResultRaw) =>
+    isObject(val)
+    && isObject(val.response)
+    && val.response._ === 'msg_container',
 }, {
   Single(val: TaskResult<SingleMessage>): UniMessage[] {
     return [{
@@ -218,12 +201,9 @@ function detectErrors(message: UniMessage): Either<UniMessageR, UniMessageL> {
   }
 }
 
-// const checkResponse = (res: Object) => Future((rj, rs) => {
-//   const parsed = chooseType(res)
-//   if (isContainsError(res.response)) {
-//     const err: RawErrorStruct = res.response
-//     rj(parsed)
-//   } else {
-//     rs(parsed)
-//   }
-// })
+function isObject(obj: mixed): boolean %checks {
+  return (
+    typeof obj === 'object'
+    && obj != null
+  )
+}

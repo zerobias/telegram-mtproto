@@ -32,7 +32,7 @@ type ParsedResponse = {
 }
 
 
-export const readResponse = ({ response, reader, authKeyStored }: ReadResponse) => {
+export function readResponse({ response, reader, authKeyStored }: ReadResponse) {
   const authKeyID = reader.fetchIntBytes(64, 'auth_key_id')
   if (!bytesCmp(authKeyID, authKeyStored)) {
     throw new Error(`[MT] Invalid server auth_key_id: ${  bytesToHex(authKeyID)}`)
@@ -48,13 +48,13 @@ export const readResponse = ({ response, reader, authKeyStored }: ReadResponse) 
 }
 
 
-export const getDataWithPad = async({ authKey, msgKey, encryptedData }: GetDataWithPad) => {
+export async function getDataWithPad({ authKey, msgKey, encryptedData }: GetDataWithPad) {
   const [aesKey, aesIv] = await getMsgKeyIv(authKey, msgKey, false)
   const dataWithPadding = await CryptoWorker.aesDecrypt(encryptedData, aesKey, aesIv)
   return dataWithPadding
 }
 
-export const readHash = ({ reader, currentSession, prevSession, dataWithPadding }: ReadHash) => {
+export function readHash({ reader, currentSession, prevSession, dataWithPadding }: ReadHash) {
   reader.fetchIntBytes(64, 'salt')
   const sessionID = reader.fetchIntBytes(64, 'session_id')
   const messageID = readLong(reader.typeBuffer, 'message_id')
@@ -99,7 +99,7 @@ export const readHash = ({ reader, currentSession, prevSession, dataWithPadding 
 }
 
 
-export const parsedResponse = async({ hashData, msgKey, reader }: ParsedResponse) => {
+export async function parsedResponse({ hashData, msgKey, reader }: ParsedResponse) {
   const dataHash = await CryptoWorker.sha1Hash(hashData)
 
   if (!bytesCmp(msgKey, bytesFromArrayBuffer(dataHash).slice(-16))) {

@@ -193,11 +193,11 @@ export class ApiManager {
   }
   async mtpInvokeApi(method: string, params: Object = {}, options: LeftOptions = {}) {
 
-    const akk = `dc${this.currentDc}_auth_key`
+    /* const akk = `dc${this.currentDc}_auth_key`
     if (method === 'auth.sendCode' || method === 'auth.signIn') {
       const dcKey = await this.storage.get(akk)
       if (typeof dcKey === 'string' && dcKey.length > 0) alreadyAuthWarning(method)
-    }
+    } */
 
     const netReq = new ApiRequest(
       { method, params },
@@ -317,7 +317,7 @@ export class ApiManager {
   }
 }
 
-type RawErrorStruct = {
+/* type RawErrorStruct = {
   _: 'rpc_error',
   error_code: number,
   error_message: string,
@@ -349,7 +349,7 @@ function requestObserver(netReq: ApiRequest, request: HoldSubject<any>) {
   })(request)
 
   return obs
-}
+} */
 
 const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0
 
@@ -358,10 +358,10 @@ const netError = error => {
   return Bluebird.reject(error)
 }
 
-const alreadyAuthWarning = (method: string) => {
+/* const alreadyAuthWarning = (method: string) => {
   const message = `
 !! WARNING !!
 You call ${method} method at the time when you are already authorized.
 That will have result in unnecessary re-creation of the session`
   console.warn(message)
-}
+} */

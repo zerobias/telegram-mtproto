@@ -178,7 +178,8 @@ const createStreamBus = (ctx: MTProto) => {
       await ctx.api.invokeNetRequest(req)
     } else {
       log('rpc', 'unhandled')(data)
-      data.sentMessage.deferred.reject(error)
+      log('rpc', 'unhandled', 'error')(error)
+      // data.sentMessage.deferred.reject(error)
     }
   })
 
