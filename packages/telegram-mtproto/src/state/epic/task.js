@@ -152,11 +152,17 @@ const chooseType: ChooseType = (map) => choose({
     && val.response._ === 'msg_container',
 }, {
   Single(val: TaskResult<SingleMessage>): UniMessage[] {
+    let type = val.response._
+    let data = val.response
+    if (isObject(val.response.result)) {
+      type = val.response.result._
+      data = val.response.result
+    }
     return [{
       ids : MsgId.single(val.messageID, val.response.req_msg_id, map),
-      type: val.response.result._,
+      type,
       meta: {},
-      data: val.response.result,
+      data,
     }]
   },
   Container(val: TaskResult<ContainerMessage>): UniMessage[] {
