@@ -1,0 +1,15 @@
+{
+  "type"      : "object",
+  "required"  : ["layer", "api_id"],
+  "properties": {
+    "invokeWithLayer": { "type": "number" },
+    "layer"          : { "type": "number" },
+    "initConnection" : { "type": "number" },
+    "api_id"         : { "type": "number" },
+    "device_model"   : { "type": "string" },
+    "system_version" : { "type": "string" },
+    "app_version"    : { "type": "string" },
+    "lang_code"      : { "type": "string" }
+  },
+  "additionalProperties": false
+}

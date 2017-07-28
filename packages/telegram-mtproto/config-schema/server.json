@@ -1,0 +1,22 @@
+{
+  "type"      : "object",
+  "properties": {
+    "dev"     : { "type": "boolean" },
+    "webogram": { "type": "boolean" },
+    "dcList"  : {
+      "type"       : "array",
+      "uniqueItems": true,
+      "items"      : {
+        "type"      : "object",
+        "required"  : ["id", "host"],
+        "properties": {
+          "id"  : { "type": "number" },
+          "host": { "type": "string" },
+          "port": { "type": "number" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

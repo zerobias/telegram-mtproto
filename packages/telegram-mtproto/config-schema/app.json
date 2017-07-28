@@ -1,0 +1,25 @@
+{
+  "type"      : "object",
+  "properties": {
+    "publicKeys": {
+      "type"       : "array",
+      "uniqueItems": true
+    },
+    "storage": {
+      "type"      : "object",
+      "required"  : ["get", "set", "remove", "clear"],
+      "properties": {
+        "get"   : { "typeof": "function" },
+        "set"   : { "typeof": "function" },
+        "remove": { "typeof": "function" },
+        "clear" : { "typeof": "function" }
+      },
+      "additionalProperties": true
+    },
+    "plugins": {
+      "type"       : "array",
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}
