@@ -14,15 +14,15 @@ import Logger from 'mtproto-logger'
 const log = Logger`main`
 
 import parseServerConfig from '../../config-check/dc'
-import streamBus from '../../event/stream-bus'
+import streamBus, { type Bus } from '../../event/stream-bus'
 import { ScopedEmitter } from '../../event'
 import { type AsyncStorage } from '../../plugins/index.h'
 import { type TLSchema } from '../../tl/index.h'
 import { type ConfigType, type StrictConfig } from './index.h'
 import { type Emit, type On } from 'eventemitter2'
 import { dispatch } from '../../state/core'
-import { MAIN } from '../../state/action'
-
+import { MAIN } from 'Action/main'
+import loadStorage from './load-storage'
 
 const generateLayers = (api: TLSchema, mt: TLSchema) => ({
   apiLayer: new Layout(api),
@@ -41,10 +41,9 @@ class MTProto {
   storage: AsyncStorage
   state = new State
   defaultDC: number = 2
-  bus: *
+  bus: Bus
   constructor(config: ConfigType) {
     const uid = uuid()
-    dispatch(MAIN.INIT(uid))
     const fullConfig = configNormalization(config)
     const dcMap = parseServerConfig(config.server)
     this.config = fullConfig
@@ -67,15 +66,20 @@ class MTProto {
     })
     this.uid = uid
     this.storage = fullConfig.app.storage
-    this.api = new ApiManager(fullConfig, uid)
     this.emitter.on('*', (data, ...rest) => {
       log('event')(data)
       if (rest.length > 0)
         log('event', 'rest')(rest)
     })
+    this.api = new ApiManager(fullConfig, uid)
     this.bus = streamBus(this)
-    setTimeout(() => dispatch(MAIN.SWITCH_ON(uid)), 3e1)
-
+    dispatch(MAIN.INIT({
+      uid,
+      invoke    : this.api.mtpInvokeApi,
+      storageSet: (key: string, value: mixed) => fullConfig.app.storage.set(key, value)
+    }))
+    const load = () => loadStorage(this.storage, dcMap, this.api.networkSetter)
+    setTimeout(load, 1e3)
   }
 }
 

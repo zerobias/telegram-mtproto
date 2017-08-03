@@ -1,13 +1,12 @@
 //@flow
 
 import { createAction } from 'redux-act'
-import { type AxiosXHR } from 'axios'
 import { select } from 'redux-most'
 import { Stream } from 'most'
 
-import { NetMessage } from '../service/networker/net-message'
-import { NetworkerThread } from '../service/networker'
-import ApiRequest from '../service/main/request'
+import { faucetC } from '../pull-stream'
+import { statuses, type ModuleStatus } from '../status'
+import { afterStatus } from './signal'
 
 type ActionCreator<Type, Payload> =
   (stream: Stream<any>) =>
@@ -52,3 +51,19 @@ export function doubleCreator<Type, Payload, Meta>(
   return action
 }
 
+export function onActionAndStatus<Type, Payload, Meta>(
+  action: ActionPair<Type, Payload, Meta>,
+  status: ModuleStatus
+) {
+  const latch = faucetC(afterStatus(status))
+  return function streamCreator(stream: Stream<any>) {
+    return stream
+      .thru(action.stream)
+      .thru(latch)
+      .map(val => val.payload)
+  }
+}
+
+export function onAction<Type, Payload, Meta>(action: ActionPair<Type, Payload, Meta>) {
+  return onActionAndStatus(action, statuses.activated)
+}

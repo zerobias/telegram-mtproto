@@ -6,16 +6,17 @@ import { equals } from 'ramda'
 import Logger from 'mtproto-logger'
 const log = Logger`net-request`
 
+import { statuses } from '../../status'
 import { API, NET } from '../action'
+import { onAction, onActionAndStatus } from '../helpers'
 import { NetMessage } from '../../service/networker/net-message'
 import { apiMessage, encryptApiBytes, mtMessage } from '../../service/chain/encrypted-message'
 import Config from '../../config-provider'
-import NetworkerThread from '../../service/networker/index'
+import NetworkerThread from '../../service/networker'
 import { Serialization } from '../../tl/index'
 import { httpClient } from '../../http'
-import { homeDc, uid, whenActive } from '../signal'
-import jsonError from '../../util/json-error'
-// import ApiRequest from '../../service/main/request'
+import { homeDc, uid } from '../signal'
+import jsonError from 'Util/json-error'
 
 function makeApiBytes({ message, thread }: {
   message: NetMessage,
@@ -39,40 +40,42 @@ function encryptedBytes(opts: *): Promise<{|
   })
 }
 
-type NetRequestPayload = {
-  payload: {
-    message: NetMessage,
-    options: Object,
-    threadID: string,
-    thread: NetworkerThread,
-  },
-  type: 'net/send',
-}
-// process.on('unhandledRejection', val => {
-//   console.log(val)
-//   console.trace('on')
-// })
+process.on('unhandledRejection', val => {
+  console.log(val)
+  console.trace('on')
+})
 
-export const onNewRequest = (action: Stream<any>) => action
-  .thru(API.NEW_REQUEST.stream)
-  .thru(whenActive)
-  .combine((data, homeDc) => ({ ...data, homeDc }), homeDc)
-  .combine((data, uid) => ({ ...data, uid }), uid)
-  .skipRepeatsWith((old, fresh) => equals(old.payload, fresh.payload))
-  .map(API.CALL_TASK)
+export function onNewRequest(action: Stream<any>){
+  const getDc = action
+    .thru(onActionAndStatus(API.REQUEST.NEW, statuses.loaded))
+    .filter(data => data.method === 'help.getNearestDc')
+
+
+  const noAuth = action
+    .thru(onActionAndStatus(API.REQUEST.NEW, statuses.dcDetected))
+    .filter(data => !data.netReq.needAuth)
+    .filter(data => data.method !== 'help.getNearestDc')
+
+  const casual = action
+    .thru(onActionAndStatus(API.REQUEST.NEW, statuses.activated))
+    .filter(data => data.netReq.needAuth)
+
+  const merged = getDc.merge(noAuth, casual)
+
+  return merged
+    .combine((data, homeDc) => ({ ...data, homeDc }), homeDc)
+    .combine((data, uid) => ({ ...data, uid }), uid)
+    .skipRepeatsWith(equals)
+    .map(API.TASK.NEW)
+}
 
 export const onNewTask = (action: Stream<any>) => action
-  .thru(API.CALL_TASK.stream)
-  .thru(whenActive)
-  .map(({ payload }) => payload)
-  // .delay(50)
-  .tap(val => val.payload.netReq.invoke())
+  .thru(onAction(API.TASK.NEW))
+  .tap(val => val.netReq.invoke())
   .filter(() => false)
 
 const netRequest = (action: Stream<any>) => action
-  .thru(NET.SEND.stream)
-  .thru(whenActive)
-  .map(({ payload }: NetRequestPayload) => payload)
+  .thru(onAction(NET.SEND))
   .map(async({ options, ...data }) => ({
     ...data,
     options: {
@@ -104,7 +107,7 @@ const netRequest = (action: Stream<any>) => action
   }))
   .thru(awaitPromises)
   .map(NET.RECEIVE_RESPONSE)
-  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))).delay(15))
+  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 
 
 export default netRequest

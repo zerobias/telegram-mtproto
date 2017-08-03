@@ -2,8 +2,9 @@
 
 import * as Result from 'folktale/result'
 import { type IResult } from 'folktale/result'
+import { type Fluture } from 'fluture'
 
-export interface ResultMatcher<Right, Left, -A, -B> {
+export interface ResultMatcher<Right, Left, A, B> {
   Right(res: { value: Right }): A,
   Left(res: { value: Left }): B,
 }
@@ -86,6 +87,10 @@ export function withPred<T>(pred: $Pred<1>, val: T): Either<*, *> {
   } else {
     return Left(val)
   }
+}
+
+export function foldF<Resolve, Reject>(future: Fluture<Resolve, Reject>): Fluture<Either<Resolve, Reject>, void> {
+  return future.fold(Left, Right)
 }
 
 export default of

@@ -1,9 +1,10 @@
 //@flow
 
-import type { $AxiosXHR } from 'axios'
+import { type $AxiosXHR } from 'axios'
 
-import stackCleaner from './util/clean-stack'
+import stackCleaner from 'Util/clean-stack'
 import type { TypeBuffer } from './tl/type-buffer'
+import { type MTPᐸRpcErrorᐳ } from './mtp.h'
 
 Error.stackTraceLimit = 25
 
@@ -54,11 +55,12 @@ export class DcUrlError extends MTError {
   }
 }
 
-export type RpcErrorType = {
-  error_message?: string,
-  error_code?: number,
-}
-
+/**
+ *
+ * @deprecated Error format is changed!
+ * @class RpcError
+ * @extends {MTError}
+ */
 export class RpcError extends MTError {
   originalError: *
   constructor(code: number, type: string, message: string, originalError: *) {
@@ -67,16 +69,18 @@ export class RpcError extends MTError {
   }
 }
 
+/**
+ * Api error object
+ *
+ * @class RpcApiError
+ * @extends {MTError}
+ */
 export class RpcApiError extends MTError {
-  constructor(code: number, message: string) {
+  constructor(code: number = 999, message: string = 'no message') {
     super(code, 'RpcApiError', '')
     this.message = message
   }
-  static of(data: {
-    _: 'rpc_error',
-    error_code: number,
-    error_message: string,
-  }): RpcApiError {
+  static of(data: MTPᐸRpcErrorᐳ): RpcApiError {
     return new RpcApiError(data.error_code, data.error_message)
   }
   toValue() {

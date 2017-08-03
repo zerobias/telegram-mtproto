@@ -16,6 +16,8 @@ const waitToTime = async(poll: LongPoll): Promise<void> => {
     await new Promise(rs => setTimeout(rs, 500))
 }
 
+const WAIT = 400
+
 class LongPoll {
   thread: NetworkerThread
 
@@ -61,7 +63,7 @@ class LongPoll {
   }
 
   allowLongPoll() {
-    const result = this.requestTime + 1500 < tsNow()
+    const result = this.requestTime + WAIT < tsNow()
     log`allow long poll`(result)
     return result
   }

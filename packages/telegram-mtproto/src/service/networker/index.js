@@ -3,9 +3,9 @@
 import Bluebird from 'bluebird'
 import uuid from 'uuid/v4'
 
-import { is, contains, mapObjIndexed } from 'ramda'
+import { is, contains } from 'ramda'
 
-import { tsNow, generateID, applyServerTime } from '../time-manager'
+import { tsNow, applyServerTime } from '../time-manager'
 import random from '../secure-random'
 import { NetMessage, NetContainer } from './net-message'
 import State from './state'
@@ -36,15 +36,13 @@ import type { Emit } from 'eventemitter2'
 
 import LongPoll from '../../plugins/long-poll'
 import { NET, NETWORKER_STATE, AUTH } from '../../state/action'
+import { type ApiConfig } from '../main/index.h'
 
 import { dispatch } from '../../state/core'
 
 let updatesProcessor: *
 let iii = 0
 let akStopped = false
-
-//eslint-disable-next-line
-// const xhrSendBuffer = !isNode && !('ArrayBufferView' in window)
 
 type NetOptions = {
   fileUpload?: boolean,
@@ -58,7 +56,7 @@ type Bytes = number[]
 
 type ContextConfig = {
   storage: AsyncStorage,
-  appConfig: { [key: string]: mixed }
+  appConfig: ApiConfig,
 }
 
 const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
@@ -79,12 +77,12 @@ export class NetworkerThread {
   serverSalt: number[]
   iii: number
   authKeyID: Bytes
-  upload: boolean
+  upload: boolean = false
   pendingAcks: string[] = []
   seqNo: number
   sessionID: Bytes
   prevSessionID: Bytes
-  state = new State
+  state: State = new State
   connectionInited = false
   checkConnectionPeriod = 0
   checkConnectionPromise: Promise<mixed>
@@ -95,9 +93,12 @@ export class NetworkerThread {
   longPoll: LongPoll
   onOnlineCb: Function
   nextReq: number
-  appConfig: { [key: string]: mixed }
+  appConfig: ApiConfig
   nextReqPromise: Promise<mixed>
-  lastResendReq: Promise<mixed>
+  lastResendReq: {
+    req_msg_id: string,
+    resend_msg_ids: string[],
+  } | void
   constructor({
     appConfig,
     storage
@@ -107,34 +108,66 @@ export class NetworkerThread {
               serverSalt: number[],
               uid: string) {
     this.uid = uid
-    this.appConfig = appConfig
-    this.storage = storage
     const emitter = Config.rootEmitter(this.uid)
     this.emit = emitter.emit
     this.dcID = dc
     this.iii = iii++
 
     this.longPoll = new LongPoll(this)
-    dispatch(AUTH.SET_AUTH_KEY(authKey, this.dcID))
-    this.authKey = authKey
-    this.authKeyUint8 = convertToUint8Array(authKey)
-    this.authKeyBuffer = convertToArrayBuffer(authKey)
-    this.authKeyID = sha1BytesSync(authKey).slice(-8)
-
     //$FlowIssue
-    this.wrapApiCall = this.wrapApiCall.bind(this)
+    Object.defineProperties(this, {
+      authKey: {
+        value     : authKey,
+        enumerable: false,
+        writable  : true,
+      },
+      authKeyUint8: {
+        value     : convertToUint8Array(authKey),
+        enumerable: false,
+        writable  : true,
+      },
+      authKeyBuffer: {
+        value     : convertToArrayBuffer(authKey),
+        enumerable: false,
+        writable  : true,
+      },
+      authKeyID: {
+        value     : sha1BytesSync(authKey).slice(-8),
+        enumerable: false,
+        writable  : true,
+      },
+      wrapApiCall: {
+        value     : this.wrapApiCall.bind(this),
+        enumerable: false,
+        writable  : false,
+      },
+      performSheduledRequest: {
+        value     : this.performSheduledRequest.bind(this),
+        enumerable: false,
+        writable  : false,
+      },
+      appConfig: {
+        value     : appConfig,
+        enumerable: false,
+      },
+      storage: {
+        value     : storage,
+        enumerable: false,
+        writable  : true,
+      },
+    })
 
     // this.checkLongPollCond = this.checkLongPollCond.bind(this)
     this.serverSalt = serverSalt
+    dispatch(AUTH.SET_AUTH_KEY(authKey, this.dcID))
+    console.log('serverSalt', serverSalt)
     dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID))
-
-    this.upload = false //options.fileUpload || options.fileDownload || false
 
     emitter.emit('new-networker', this)
 
     this.updateSession()
 
-    setInterval(this.checkLongPoll, 10000) //NOTE make configurable interval
+    setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
     this.checkLongPoll()
   }
   updateSession() {
@@ -146,29 +179,33 @@ export class NetworkerThread {
   }
 
   updateSentMessage(sentMessageID: string) {
-    if (!this.state.hasSent(sentMessageID)) return false
+    if (!this.state.hasSent(sentMessageID)) {
+      console.log(`no id`, sentMessageID)
+      return false
+    }
     const sentMessage = this.state.getSent(sentMessageID)
-
+    const newInner: string[] = []
     if (sentMessage instanceof NetContainer) {
-      const newInner = []
       for (const innerID of sentMessage.inner) {
         const innerSentMessage = this.updateSentMessage(innerID)
         if (innerSentMessage)
           newInner.push(innerSentMessage.msg_id)
       }
-      sentMessage.inner = newInner
     }
+
     dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
     this.state.deleteSent(sentMessage)
-    const newId = generateID(this.uid)
-    sentMessage.msg_id = newId
-    sentMessage.seq_no = this.generateSeqNo(
-      sentMessage.notContentRelated ||
-      sentMessage.container
+    const seq_no = this.generateSeqNo(
+      sentMessage.notContentRelated
+      || sentMessage.container
     )
-    this.state.addSent(sentMessage)
-    dispatch(NETWORKER_STATE.SENT.ADD(sentMessage, this.dcID))
-    return sentMessage
+    const newMessage = sentMessage.clone(seq_no, this.dcID)
+    if (newMessage instanceof NetContainer) {
+      newMessage.inner = newInner
+    }
+    this.state.addSent(newMessage)
+    dispatch(NETWORKER_STATE.SENT.ADD([newMessage], this.dcID))
+    return newMessage
   }
 
   generateSeqNo(notContentRelated?: boolean) {
@@ -192,6 +229,7 @@ export class NetworkerThread {
       seqNo,
       serializer.getBytes(true)
     )
+    message.dc = this.dcID
     const logGroup = log.group('Wrap mtp call')
     logGroup`Call method, msg_id, seqNo`(method, message.msg_id, seqNo)
     logGroup`Call method, params`(params)
@@ -217,9 +255,10 @@ export class NetworkerThread {
     const message = new NetMessage(
       this.uid,
       seqNo,
-      serializer.getBytes(true)
+      serializer.getBytes(true),
+      'ack/resend'
     )
-
+    message.dc = this.dcID
     const logGroup = log.group('Wrap mtp message')
     const isAcks = object._ === 'msgs_ack'
     logGroup`MT message, msg_id, seqNo`(message.msg_id, seqNo)
@@ -243,7 +282,7 @@ export class NetworkerThread {
     params: { [key: string]: mixed } = {},
     options: Object,
     requestID: ?string = null
-  ): Bluebird<any> {
+  ): Promise<any> {
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
@@ -256,7 +295,11 @@ export class NetworkerThread {
       // serializer.storeString(Config.App.version, 'app_version')
       // serializer.storeString(navigator.language || 'en', 'lang_code')
       const mapper = storeIntString(serialBox)
-      mapObjIndexed(mapper, this.appConfig)
+      for (const [field, value] of Object.entries(this.appConfig)) {
+        //$FlowIssue
+        const val: number | string = value /*:: || '' */
+        mapper(val, field)
+      }
     }
 
     if (options.afterMessageID) {
@@ -270,10 +313,12 @@ export class NetworkerThread {
     const message = new NetMessage(
       this.uid,
       seqNo,
-      serializer.getBytes(true)
+      serializer.getBytes(true),
+      'api'
     )
     message.isAPI = true
     message.requestID = requestID
+    message.dc = this.dcID
     log(`Api call`)(method)
     log(`|      |`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
     log(`|      |`, `params`)(params)
@@ -290,19 +335,15 @@ export class NetworkerThread {
     return message.deferred.promise
   }
 
-  checkLongPollCond = () =>
-    this.longPoll.pendingTime > tsNow() ||
-    !!this.offline ||
-    akStopped
-
-  checkLongPollAfterDcCond = (isClean: boolean, baseDc: number) => isClean && (
-    this.dcID !== baseDc ||
-    this.upload ||
-    this.sleepAfter &&
-    this.sleepAfter < tsNow()
-  )
-
-  checkLongPoll = async() => {
+  checkLongPollCond() {
+    return this.longPoll.pendingTime > tsNow()
+    || !!this.offline
+    || akStopped
+  }
+  checkLongPollAfterDcCond(isClean: boolean, baseDc: number) {
+    return isClean && this.dcID !== baseDc
+  }
+  async checkLongPoll() {
     const isClean = this.cleanupSent()
     if (this.checkLongPollCond())
       return false
@@ -311,13 +352,16 @@ export class NetworkerThread {
     if (this.checkLongPollAfterDcCond(isClean, baseDc))
     // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
       return
-    return this.longPoll.sendLongPool()
+    const start = Date.now()
+    await this.longPoll.sendLongPool()
+    if (Date.now() - start < 50) return
+    return this.checkLongPoll()
   }
 
   pushMessage(message: NetMessage, options: NetOptions = {}) {
     message.copyOptions(options)
-    dispatch(NETWORKER_STATE.SENT.ADD(message, this.dcID))
-    dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
+    dispatch(NETWORKER_STATE.SENT.ADD([message], this.dcID))
+    // dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
     this.emit('push-message', {
       threadID: this.threadID,
       message,
@@ -339,9 +383,9 @@ export class NetworkerThread {
       for (const msg of sentMessage.inner) {
         this.state.setPending(msg, value)
       }
-      dispatch(NETWORKER_STATE.PENDING.ADD(sentMessage.inner, this.dcID))
+      // dispatch(NETWORKER_STATE.PENDING.ADD(sentMessage.inner, this.dcID))
     } else {
-      dispatch(NETWORKER_STATE.PENDING.ADD([messageID], this.dcID))
+      // dispatch(NETWORKER_STATE.PENDING.ADD([messageID], this.dcID))
       this.state.setPending(messageID, value)
     }
     this.sheduleRequest(delay)
@@ -389,15 +433,18 @@ export class NetworkerThread {
     if (this.state.hasResends()) {
       const resendMsgIDs = [...this.state.getResends()]
       const resendOpts = { noShedule: true, notContentRelated: true }
-        // console.log('resendReq messages', resendMsgIDs)
+      // console.log('resendReq messages', resendMsgIDs)
       const msg = this.wrapMtpMessage({
         _      : 'msg_resend_req',
         msg_ids: resendMsgIDs
       }, resendOpts)
-      this.lastResendReq = { req_msg_id: msg.msg_id, resend_msg_ids: resendMsgIDs }
+      this.lastResendReq = {
+        req_msg_id    : msg.msg_id,
+        resend_msg_ids: resendMsgIDs,
+      }
     }
   }
-  performSheduledRequest = () => { //TODO extract huge method
+  performSheduledRequest() { //TODO extract huge method
     // console.log(dTime(), 'sheduled', this.dcID, this.iii)
     if (this.offline || akStopped) {
       log(`Cancel sheduled`)(``)
@@ -410,14 +457,14 @@ export class NetworkerThread {
         ackMsgIDs.push(ack)
       log('acking messages')(ackMsgIDs)
       this.wrapMtpMessage({
-          _      : 'msgs_ack',
-          msg_ids: ackMsgIDs
+        _      : 'msgs_ack',
+        msg_ids: ackMsgIDs
       }, {
-          notContentRelated: true,
-          noShedule        : true
+        notContentRelated: true,
+        noShedule        : true
       }) //TODO WTF Why we make wrapped message and doesnt use it?
-        // const res = await msg.deferred.promise
-        // log(`AWAITED`, `ack`)(res)
+      // const res = await msg.deferred.promise
+      // log(`AWAITED`, `ack`)(res)
     }
 
     this.performResend()
@@ -425,7 +472,7 @@ export class NetworkerThread {
     const messages = []
     let message: NetMessage
     let messagesByteLen = 0
-      // const currentTime = tsNow()
+    // const currentTime = tsNow()
     let lengthOverflow = false
     let singlesCount = 0
     const logGroup = log.group('perform sheduled request')
@@ -440,8 +487,8 @@ export class NetworkerThread {
       logGroup('messageID, value' )(messageID, value)
       const messageByteLength = message.size() + 32
       const cond1 = !message.notContentRelated && lengthOverflow
-      const cond2 = !message.notContentRelated &&
-        messagesByteLen + messageByteLength > 655360 // 640 Kb
+      const cond2 = !message.notContentRelated
+        && messagesByteLen + messageByteLength > 655360 // 640 Kb
       if (cond1) continue
       if (cond2) {
         lengthOverflow = true
@@ -454,7 +501,7 @@ export class NetworkerThread {
       messages.push(message)
       messagesByteLen += messageByteLength
     }
-    dispatch(NETWORKER_STATE.PENDING.DEL(pendingIds, this.dcID))
+    // dispatch(NETWORKER_STATE.PENDING.DEL(pendingIds, this.dcID))
     logGroup('message, final')(message)
     logGroup('messages')(messages)
     messages.map(msg => this.emit('message-in', msg))
@@ -472,8 +519,10 @@ export class NetworkerThread {
       const netMessage = new NetMessage(
         this.uid,
         this.generateSeqNo(),
-        serializer.getBytes()
+        serializer.getBytesPlain(),
+        'polling'
       )
+      netMessage.dc = this.dcID
       this.longPoll.writePollTime()
       // this.emit('net-message', {
       //   type   : 'mtp-call',
@@ -488,7 +537,7 @@ export class NetworkerThread {
 
     if (!messages.length) {
       // console.log('no sheduled messages')
-      return Bluebird.resolve()
+      return Bluebird.resolve(false)
     }
 
     let noResponseMsgs = []
@@ -507,13 +556,19 @@ export class NetworkerThread {
         messages
       })
       noResponseMsgs = noResponseMessages
-
+      const innerApi = messages.reduce(
+        (acc: (string | boolean)[], val) => {
+          if (!val.isAPI)
+            return [...acc, false]
+          return [...acc, val.requestID /*::|| '' */]
+        }, [])
       message = new NetContainer(
         this.uid,
         this.generateSeqNo(true),
         container.getBytes(true),
-        innerMessages)
-
+        innerMessages,
+        innerApi)
+      message.dc = this.dcID
       logGroup(`Container`)(innerMessages,
                             noResponseMessages,
                             message.msg_id,
@@ -535,7 +590,7 @@ export class NetworkerThread {
       thread  : this,
       noResponseMsgs,
     }, this.dcID))
-    return
+    return Bluebird.resolve(true)
   }
 
 
@@ -572,10 +627,10 @@ export class NetworkerThread {
           this.state.setPending(msgID)
         }
         noRespSent.push(message)
-        dispatch(NETWORKER_STATE.PENDING.ADD(message.inner, this.dcID))
+        // dispatch(NETWORKER_STATE.PENDING.ADD(message.inner, this.dcID))
         this.state.deleteSent(message)
       } else {
-        dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
+        // dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
         this.state.setPending(message.msg_id)
       }
 
@@ -589,7 +644,7 @@ export class NetworkerThread {
           msg.deferred.reject()
         }
       dispatch(NETWORKER_STATE.SENT.DEL(noRespSent, this.dcID))
-      dispatch(NETWORKER_STATE.PENDING.DEL(noRespPending, this.dcID))
+      // dispatch(NETWORKER_STATE.PENDING.DEL(noRespPending, this.dcID))
       this.toggleOffline(true)
       return Bluebird.reject(error)
     }
@@ -695,7 +750,7 @@ export class NetworkerThread {
 
   cleanupSent() {
     let notEmpty = false
-      // console.log('clean start', this.dcID/*, this.state.sent*/)
+    // console.log('clean start', this.dcID/*, this.state.sent*/)
     const sentDel = []
     for (const [msgID, message] of this.state.sentIterator()) {
       let complete = true
@@ -780,9 +835,9 @@ export class NetworkerThread {
 
         if (message.error_code == 16 || message.error_code == 17) {
           if (applyServerTime(
-              this.uid,
-              rshift32(messageID)
-            )) {
+            this.uid,
+            rshift32(messageID)
+          )) {
             log(`Update session`)()
             this.updateSession()
           }
@@ -847,18 +902,15 @@ export class NetworkerThread {
       }
       case 'msgs_state_info': {
         this.ackMessage(message.answer_msg_id)
-        const spliceCond =
-          this.lastResendReq &&
-          //eslint-disable-next-line
-          this.lastResendReq.req_msg_id == message.req_msg_id;
-        if (spliceCond) {
-          const resendDel = []
-          for (const badMsgID of this.lastResendReq.resend_msg_ids) {
-            resendDel.push(badMsgID)
-            this.state.deleteResent(badMsgID)
-          }
-          dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
+        const lastResendReq = this.lastResendReq
+        if (!lastResendReq) break
+        if (lastResendReq.req_msg_id != message.req_msg_id) break
+        // const resendDel = []
+        for (const badMsgID of lastResendReq.resend_msg_ids) {
+          // resendDel.push(badMsgID)
+          this.state.deleteResent(badMsgID)
         }
+        // dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
         break
       }
       case 'rpc_result': {
@@ -869,7 +921,8 @@ export class NetworkerThread {
 
         this.processMessageAck(sentMessageID)
         if (!sentMessage) break
-
+        dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
+        this.state.deleteSent(sentMessage)
         if (message.result._ == 'rpc_error') {
           this.emit('rpc-error', {
             threadID   : this.threadID,
@@ -890,8 +943,7 @@ export class NetworkerThread {
           if (sentMessage.isAPI)
             this.connectionInited = true
         }
-        dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
-        this.state.deleteSent(sentMessage)
+
         break
       }
       default: {
@@ -927,7 +979,7 @@ export const setUpdatesProcessor = (callback: *) =>
 const verifyInnerMessages = (messages) => {
   if (messages.length !== new Set(messages).size) {
     console.log(`!!!!!!WARN!!!!!!`, 'container check failed', messages)
-      // throw new Error('Container bug')
+    // throw new Error('Container bug')
   }
 }
 

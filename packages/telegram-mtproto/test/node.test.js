@@ -1,7 +1,10 @@
-const { outputJsonSync } = require('fs-extra')
+const { outputJsonSync, readJSONSync } = require('fs-extra')
 const { join } = require('path')
+const Bluebird = require('bluebird')
+
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 180e3
 const { MTProto } = require('../lib')
+const { getStorageData } = require('./fixtures')
 const { config, api } = require('./mtproto-config')
 const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
@@ -13,11 +16,10 @@ const { Storage } = require('mtproto-storage-fs')
 //   num : '+9996610000',
 //   code: '11111'
 // }
+// const storageSnap = readJSONSync(join(__dirname, 'storage.json'))
+const storageData = () => /* storageSnap */ getStorageData(2)
 
-outputJsonSync(join(__dirname, 'storage.json'), {
-  nearest_dc: 2,
-  dc        : 2,
-}, { spaces: 2 })
+outputJsonSync(join(__dirname, 'storage.json'), storageData(), { spaces: 2 })
 
 const phone = {
   num      : '+9996620000',
@@ -54,15 +56,12 @@ let telegram
 }*/
 
 const resetStorage = async() => {
-  telegram.storage.data = {
-    nearest_dc: 2,
-    dc        : 2,
-  }
+  telegram.storage.data = storageData()
   await telegram.storage.save()
 }
 
 const isAlreadyAuth = async() => {
-  const dc = await telegram.storage.get('dc')
+  const dc = await telegram.storage.get('nearest_dc')
   if (!dc) {
     await resetStorage()
     return false
@@ -73,7 +72,6 @@ const isAlreadyAuth = async() => {
   if (!result)
     await resetStorage()
   return result
-  // dc${ this.dcID }_server_salt
 }
 
 
@@ -83,26 +81,27 @@ beforeEach(() => {
 
 
 afterEach(async() => {
-  app.storage.data = {
-    nearest_dc: 2,
-    dc        : 2,
-  }
+  app.storage.data = storageData()
   await app.storage.save()
   await new Promise(rs => setTimeout(rs, 1e3))
 })
 
-test(`Connection test`, async() => {
+test.only(`Connection test`, async() => {
   expect.assertions(2)
   const isAuth = await isAlreadyAuth()
   let message
   if (!isAuth) {
-    const { phone_code_hash } = await telegram('auth.sendCode', {
+    infoCallMethod('auth.sendCode')
+    const res1 = await telegram('auth.sendCode', {
       phone_number  : phone.num,
       current_number: false,
       api_id        : config.id,
       api_hash      : config.hash
     })
+    const { phone_code_hash } = res1
+    console.log('res1', res1)
     console.log('phone_code_hash', phone_code_hash)
+    infoCallMethod('auth.signIn')
     const res = await telegram('auth.signIn', {
       phone_number: phone.num,
       phone_code_hash,
@@ -114,6 +113,7 @@ test(`Connection test`, async() => {
     message = 'already authorized, skip'
   }
   expect(message).toBeTruthy()
+  infoCallMethod('messages.getDialogs')
   const dialogs = await telegram('messages.getDialogs', {
     limit: 100,
   })
@@ -123,12 +123,14 @@ test(`Connection test`, async() => {
 test(`Rejection test`, async() => {
   expect.assertions(2)
   await expect((async() => {
+    infoCallMethod('auth.sendCode')
     const { phone_code_hash } = await telegram('auth.sendCode', {
       phone_number  : phone.num,
       current_number: false,
       api_id        : config.id,
       api_hash      : config.hash
     })
+    infoCallMethod('auth.signIn')
     await expect(
       telegram('auth.signIn', {
         phone_number: phone.num,
@@ -142,3 +144,52 @@ test(`Rejection test`, async() => {
   })()).resolves.toBeUndefined()
 })
 
+
+test(`Parallel requests safety`, async() => {
+  const TIMES = 10
+  const TIMEOUT = 30e3
+
+  expect.assertions(2)
+  infoCallMethod('auth.sendCode')
+  const { phone_code_hash } = await telegram('auth.sendCode', {
+    phone_number  : phone.num,
+    current_number: false,
+    api_id        : config.id,
+    api_hash      : config.hash
+  })
+  infoCallMethod('auth.signIn')
+  const res = await telegram('auth.signIn', {
+    phone_number: phone.num,
+    phone_code_hash,
+    phone_code  : phone.code,
+  })
+  expect(res).toBeDefined()
+  infoCallMethod(`messages.getDialogs (x${TIMES})`)
+  const promises = []
+  for (let i = 0; i < TIMES; i++)
+    promises.push(telegram('messages.getDialogs', {
+      limit: 100,
+    }))
+
+  await expect(
+    Bluebird
+      .all(promises)
+      .timeout(TIMEOUT)
+  ).resolves.toHaveLength(10)
+})
+
+
+function infoMessage(str) {
+  const value = `
+--- INFO ---
+
+  ${str}
+
+--- --- ---
+`
+  console.log(value)
+}
+
+function infoCallMethod(str) {
+  infoMessage(`Call method ${str}`)
+}

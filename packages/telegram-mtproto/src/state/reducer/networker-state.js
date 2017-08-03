@@ -1,33 +1,76 @@
 //@flow
 
+/* eslint-disable object-shorthand */
+
 import { combineReducers } from 'redux'
 import { createReducer } from 'redux-act'
-import { uniq, without, append, assoc, dissoc } from 'ramda'
+import { uniq, without, append, dissoc, fromPairs } from 'ramda'
 
-import { NETWORKER_STATE, AUTH, NET, API } from '../action'
+import { NETWORKER_STATE, AUTH, NET, API } from 'Action'
 import { type TaskEndData } from '../epic/task'
-import List from '../../util/immutable-list'
+import List from 'Util/immutable-list'
 import { NetMessage } from '../../service/networker/net-message'
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync } from '../../bin'
-import { indexed } from '../../util/indexed-reducer'
+import { indexed } from 'Util/indexed-reducer'
 
+class BatchList {
+  deleted: string[]
+  inserted: string[]
+  constructor(list: string[], deleted: string[] = []) {
+    this.inserted = list
+    this.deleted = deleted
+  }
+  insert(list: string[]) {
+    const toInsert = without(this.deleted, list)
+    const toDeleted = without(list, this.deleted)
+    const joined = uniq([...this.inserted, ...toInsert])
+    return new BatchList(joined, toDeleted)
+  }
+  remove(list: string[]) {
+    const toInsert = without(list, this.inserted)
+    const toDeleted = without(this.inserted, list)
+    const joined = uniq([...this.deleted, ...toDeleted])
+    return new BatchList(toInsert, joined)
+  }
+  static of(list: string[]) {
+    return new BatchList(list)
+  }
+  static empty() {
+    return BatchList.of([])
+  }
+}
 
 const requestMap = createReducer({
   //$FlowIssue
-  [NETWORKER_STATE.SENT.ADD]: (state: {[key: string]: string}, payload: NetMessage) =>
-    typeof payload.requestID === 'string'
-      ? assoc(payload.msg_id, payload.requestID, state)
-      : state,
-  //$ FlowIssue
-  // [API.DONE_REQUEST]: (state: {[key: string]: string}, { messages }: TaskEndData) =>
-  //   messages.reduce((acc: {[key: string]: string}, val) => {
-  //     const id = val.merge().ids.req
-  //     const field = acc[id]
-  //     if (field != null) {
-  //       return dissoc(id, acc)
-  //     }
-  //     return acc
-  //   }, state)
+  [NETWORKER_STATE.SENT.ADD]: (state: {[key: string]: string}, payload: NetMessage[]) => {
+    const pairs: [string, NetMessage][] = payload
+      .filter(message => typeof message.requestID === 'string')
+      .map(message => [message.requestID/*:: || '' */, message])
+
+    const obj = fromPairs(pairs)
+    return { ...state, ...obj }
+  },
+  //$FlowIssue
+  [API.REQUEST.DONE]: (state: {[key: string]: string}, data: TaskEndData) => {
+    const messages = data.messages
+    if (Array.isArray(messages))
+      return messages.reduce((acc: {[key: string]: string}, val) => {
+        const id = val.merge().ids.req
+        const field = acc[id]
+        if (field != null) {
+          return dissoc(id, acc)
+        }
+        return acc
+      }, state)
+    console.log('single message', data)
+    const { val } = messages
+    const { messageID, response } = val
+    const id = response.ids.req
+    const field = state[messageID]
+    if (field != null) {
+      return dissoc(messageID, state)
+    }
+  }
 }, {})
 
 const resend = createReducer({
@@ -41,8 +84,8 @@ const resend = createReducer({
 
 const sent = createReducer({
   //$FlowIssue
-  [NETWORKER_STATE.SENT.ADD]: (state: List<NetMessage, string>, payload: NetMessage) =>
-    state.set(payload.uid, payload),
+  [NETWORKER_STATE.SENT.ADD]: (state: List<NetMessage, string>, payload: NetMessage[]) =>
+    payload.reduce((st, value) => st.set(value.uid, value), state),
   //$FlowIssue
   [NETWORKER_STATE.SENT.DEL]: (state: List<NetMessage, string>, payload: NetMessage[]) =>
     payload.reduce((acc, val) => acc.delete(val.uid), state),
@@ -50,12 +93,12 @@ const sent = createReducer({
 
 const pending = createReducer({
   //$FlowIssue
-  [NETWORKER_STATE.PENDING.ADD]: (state: string[], payload: string[]) =>
-    uniq([...state, ...payload]),
+  [NETWORKER_STATE.PENDING.ADD]: (state: BatchList, payload: string[]) =>
+    state.insert(payload),
   //$FlowIssue
-  [NETWORKER_STATE.PENDING.DEL]: (state: string[], payload: string[]) =>
-    without(payload, state),
-}, [])
+  [NETWORKER_STATE.PENDING.DEL]: (state: BatchList, payload: string[]) =>
+    state.remove(payload),
+}, BatchList.empty())
 
 const authKey = createReducer({
   //$FlowIssue

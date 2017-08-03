@@ -209,8 +209,13 @@ declare module 'ramda' {
 
   // *String
   declare var match: CurriedFunction2<RegExp,string,Array<string|void>>;
-  declare var replace: CurriedFunction3<RegExp|string,string,string,string>;
-  declare var split: CurriedFunction2<RegExp|string,string,Array<string>>
+  declare export function replace<T: RegExp|string>(t1: T, t2: string, t3: string): string
+  declare export function replace<T: RegExp|string>(t1: T, t2: string): (t3: string) => string
+  declare export function replace<T: RegExp|string>(t1: T): (t2: string) => (t3: string) => string
+
+  declare export function split<T: RegExp|string>(t1: T, t2: string): string[]
+  declare export function split<T: RegExp|string>(t1: T): (t2: string) => string[]
+
   declare var test: CurriedFunction2<RegExp,string,boolean>
   declare export function toLower(a: string): string;
   declare export function toString(a: any): string;
@@ -263,12 +268,8 @@ declare module 'ramda' {
   declare export function concat<V,T:Array<V>|string>(x: T, y: T): T;
   declare export function concat<V,T:Array<V>|string>(x: T): (y: T) => T;
 
-  declare export function contains(x: string, xs: string): boolean
-  declare export function contains(x: string, xs: string[]): boolean
   declare export function contains<E>(x: E, xs: Array<E>): boolean
-  declare export function contains(x: string, no: void): (xs: string) => boolean
-  declare export function contains(x: string, no: void): (xs: string[]) => boolean
-  declare export function contains<E>(x: E, no: void): (xs: Array<E>) => boolean
+  declare export function contains<E>(x: E): (xs: Array<E>) => boolean
 
   declare export function drop<V,T:Array<V>|string>(n: number, ...rest: Array<void>):(xs: T) => T;
   declare export function drop<V,T:Array<V>|string>(n: number, xs: T): T;
@@ -621,8 +622,8 @@ declare module 'ramda' {
   lensProp
   */
 
-  declare export function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, o: {[key: string]: A}): {[key: string]: B};
-  declare export function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B): (o: {[key: string]: A}) => {[key: string]: B};
+  declare export function mapObjIndexed<O: Object, R>(fn: (val: $Values<O>, key: $Keys<O>, o: O) => R): (o: O) => $ObjMap<O, (key: $Values<O>) => R>
+  declare export function mapObjIndexed<O: Object, R>(fn: (val: $Values<O>, key: $Keys<O>, o: O) => R, o: O): $ObjMap<O, (key: $Values<O>) => R>
 
   declare export function merge<A,B>(o1: A): (o2: B) => A & B;
   declare export function merge<A,B>(o1: A, o2: B): A & B;
@@ -758,6 +759,15 @@ declare module 'ramda' {
     x: X
   ): F
 
+
+  declare export function chain<I,V: { chain: Function } | Array<I>, O, VV: V | Array<O>>(
+    fn: (a:I) => VV,
+    x: V
+  ): VV;
+
+  declare export function chain<T,V: { chain: Function } | Array<T>, O, VV: V | Array<O>>(
+    fn: (a:T) => VV
+  ): (x: V) => VV;
 
   declare export function flip<A,B,TResult>(fn: (arg0: A, arg1: B) => TResult): CurriedFunction2<B,A,TResult>;
   declare export function flip<A,B,C,TResult>(fn: (arg0: A, arg1: B, arg2: C) => TResult): (( arg0: B, arg1: A, ...rest: Array<void>) => (arg2: C) => TResult) & (( arg0: B, arg1: A, arg2: C) => TResult);
@@ -918,8 +928,8 @@ declare module 'ramda/src/chain' {
 
 declare module 'ramda/src/contains' {
   declare function contains(x: string, xs: string|Array<string>): boolean
-  declare function contains<E>(x: E, xs: Array<E>): boolean
   declare function contains(x: string, no: void): (xs: string|Array<string>) => boolean
+  declare function contains<E>(x: E, xs: Array<E>): boolean
   declare function contains<E>(x: E, no: void): (xs: Array<E>) => boolean
 
   declare export default typeof contains;

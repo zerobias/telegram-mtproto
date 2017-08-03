@@ -1,9 +1,9 @@
 //@flow
-import { when, is, identity, has, both } from 'ramda'
+import { identity, has, both } from 'ramda'
 import isNode from 'detect-node'
 
-import blueDefer from './util/defer'
-import type { Defer } from './util/defer'
+import blueDefer from 'Util/defer'
+import type { Defer } from 'Util/defer'
 import { immediate } from 'mtproto-shared'
 import { convertToUint8Array, sha1HashSync, sha256HashSync,
   aesEncryptSync, aesDecryptSync, convertToByteArray, convertToArrayBuffer,

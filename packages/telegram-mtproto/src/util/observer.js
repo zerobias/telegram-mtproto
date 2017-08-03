@@ -8,13 +8,13 @@ import { type HoldSubject } from '../property'
 const log = Logger`observer`
 
 type Observable<T> = {
-  //$FlowIssue
+  //$ FlowIssue
   next(val: mixed): Stream<T>,
   error(err: Error): Stream<T>,
   complete(val: mixed): Promise<T>,
 }
 
-//$FlowIssue
+//$ FlowIssue
 function Observer<T>({ next, error, complete }: Observable<T>) {
   //$FlowIssue
   return (stream: HoldSubject<T>) =>
@@ -22,8 +22,8 @@ function Observer<T>({ next, error, complete }: Observable<T>) {
       const streamNext: Stream<T | Stream<T>> =
         stream
           .map(
+            //$FlowIssue
             val => Bluebird
-              //$FlowIssue
               .try(() => next(val))
               .tap(data => {
                 if (isStream(data) === false)

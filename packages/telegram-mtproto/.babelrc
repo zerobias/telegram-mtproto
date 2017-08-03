@@ -11,10 +11,16 @@
     "transform-class-properties",
     "transform-async-to-generator",
     ["transform-es2015-block-scoping", {
-      "throwIfClosureRequired": true
+      "throwIfClosureRequired": false
     }],
-    ["transform-object-rest-spread", { "useBuiltIns": true }]
-    // ,"closure-elimination"
+    ["transform-object-rest-spread", { "useBuiltIns": true }],
+    ["module-resolver", {
+      // "root": ["./src"],
+      "alias": {
+        "Action": "./src/state/action",
+        "Util": "./src/util"
+      }
+    }]
   ],
   "env": {
     "commonjs": {

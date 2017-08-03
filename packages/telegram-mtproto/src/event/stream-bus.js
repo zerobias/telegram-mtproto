@@ -1,7 +1,7 @@
 //@flow
 
 import type { EventEmitterType } from 'eventemitter2'
-import { from, of } from 'most'
+import { from, of, type Stream } from 'most'
 
 import Config from '../config-provider'
 import { makeEventStream } from './make-event-stream'
@@ -9,7 +9,6 @@ import { makeEventStream } from './make-event-stream'
 import type { MTProto } from '../service/main'
 import type { RpcRawError } from './rpc'
 import {
-  onRpcError,
   isMigrateError,
   getMigrateDc,
   isFileMigrateError,
@@ -18,8 +17,8 @@ import {
 import ApiRequest from '../service/main/request'
 import NetworkerThread from '../service/networker'
 import { NetMessage } from '../service/networker/net-message'
-import { MTError, RpcError } from '../error'
-import dcStoreKeys from '../util/dc-store-keys'
+import { MTError, RpcApiError } from '../error'
+import dcStoreKeys from 'Util/dc-store-keys'
 
 import Logger from 'mtproto-logger'
 const log = Logger`stream-bus`
@@ -81,6 +80,8 @@ const createStreamBus = (ctx: MTProto) => {
     && error.type === 'AUTH_RESTART'
 
   bus.rpcError.observe(async({ error, ...data }: OnRpcError) => {
+    if (error instanceof RpcApiError === false)
+      throw error
     if (isFileMigrateError(error)) {
       const newDc = getFileMigrateDc(error)
       if (typeof newDc !== 'number') throw error
@@ -215,7 +216,7 @@ const createStreamBus = (ctx: MTProto) => {
           .awaitPromises()
 
     await from(ctx.state.requests.values())
-      .debounce(30)
+      // .debounce(30)
       .map(repeatRequest)
       .mergeConcurrently(1)
       .observe(log`recurring requests`)
@@ -223,18 +224,18 @@ const createStreamBus = (ctx: MTProto) => {
 
   bus.untypedMessage.observe(log`untyped`)
 
-  bus.noAuth.observe(async({
-    dc,
-    apiReq,
-    error
-    }: NoAuth) => {
-    // const mainDc  = await ctx.storage.get('dc')
-    // if (dc === mainDc) {
+  // bus.noAuth.observe(async({
+  //   dc,
+  //   apiReq,
+  //   error
+  //   }: NoAuth) => {
+  //   // const mainDc  = await ctx.storage.get('dc')
+  //   // if (dc === mainDc) {
 
-    // } else {
+  //   // } else {
 
-    // }
-  })
+  //   // }
+  // })
 
   return bus
 }
@@ -247,6 +248,7 @@ const responseRawCast    : RawEvent<Object> = an
 const incomingMessageCast: IncomingMessageEvent = an
 const newNetworkerCast   : NetworkerThread = an
 const rpcResultCast      : OnRpcResult = an
+const rpcErrorCast       : OnRpcError = an
 const untypedMessageCast : OnUntypedMessage = an
 
 // const netMessageCast     : MtpCall = an
@@ -255,7 +257,7 @@ const messageInCast      : NetMessage = an
 const newSessionCast     : OnNewSession = an
 const noAuthCast         : NoAuth = an
 
-function makeStreamMap(emitter: EventEmitterType) {
+function makeStreamMap(emitter: EventEmitterType): Bus {
   const getter = makeEventStream(emitter)
 
 
@@ -263,7 +265,7 @@ function makeStreamMap(emitter: EventEmitterType) {
   const responseRaw     = getter('response-raw', responseRawCast)
   const incomingMessage = getter('incoming-message', incomingMessageCast)
   const newNetworker    = getter('new-networker', newNetworkerCast)
-  const rpcError        = getter('rpc-error', changeRpcError)
+  const rpcError        = getter('rpc-error', rpcErrorCast)
   const rpcResult       = getter('rpc-result', rpcResultCast)
   const untypedMessage  = getter('untyped-message', untypedMessageCast)
   // const netMessage      = getter('net-message', netMessageCast)
@@ -290,6 +292,20 @@ function makeStreamMap(emitter: EventEmitterType) {
   return streamMap
 }
 
+export type Bus = {
+  pushMessage: Stream<PushMessageEvent>,
+  responseRaw: Stream<RawEvent<Object>>,
+  incomingMessage: Stream<IncomingMessageEvent>,
+  newNetworker: Stream<NetworkerThread>,
+  rpcResult: Stream<OnRpcResult>,
+  rpcError: Stream<OnRpcError>,
+  untypedMessage: Stream<OnUntypedMessage>,
+  newRequest: Stream<ApiRequest>,
+  messageIn: Stream<NetMessage>,
+  newSession: Stream<OnNewSession>,
+  noAuth: Stream<NoAuth>,
+}
+
 type OnRpcResult = {
   threadID: string,
   networkerDC: number,
@@ -298,19 +314,10 @@ type OnRpcResult = {
   result: Object
 }
 
-
-type OnRpcErrorRaw = {
-  threadID: string,
-  networkerDC: number,
-  error: RpcRawError,
-  sentMessage: NetMessage,
-  message: { _: string, req_msg_id: string, [key: string]: any }
-}
-
 type OnRpcError = {
   threadID: string,
   networkerDC: number,
-  error: RpcError,
+  error: RpcApiError,
   sentMessage: NetMessage,
   message: { _: string, req_msg_id: string, [key: string]: any }
 }
@@ -338,31 +345,6 @@ type OnUntypedMessage = {
   sessionID: Uint8Array,
   result: Object,
 }
-
-function changeRpcError({ error, ...raw }: OnRpcErrorRaw): OnRpcError {
-  const changed = onRpcError(error)
-  const result = { ...raw, error: changed }
-  return result
-}
-
-/*type ApiCall = {
-  type: 'api-call',
-  msg_id: string,
-  method: string,
-  params: Object,
-  options: {
-    messageID?: string,
-    dcID?: number
-  }
-}*/
-
-// type MtpCall = {
-//   type: 'mtp-call',
-//   msg_id: string,
-//   method: string,
-//   params: Object,
-//   options: Object
-// }
 
 type PushMessageEvent = {
   threadID: string,

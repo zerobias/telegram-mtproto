@@ -1,7 +1,7 @@
 //@flow
 
 import type { EventEmitterType, EventID, Listener } from 'eventemitter2'
-import arrify from '../util/arrify'
+import arrify from 'Util/arrify'
 
 const normalizeScope = (scope: EventID) => arrify(scope)
 

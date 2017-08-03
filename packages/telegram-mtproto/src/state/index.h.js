@@ -1,7 +1,9 @@
 //@flow
 
-import List from '../util/immutable-list'
+import List from 'Util/immutable-list'
 import { NetMessage } from '../service/networker/net-message'
+import { type ModuleStatus } from '../status'
+import { type InitType } from './action'
 
 export type MessageHistory = {
   id: string,
@@ -12,6 +14,9 @@ export type MessageHistory = {
 export type State = {
   _: true,
   active: boolean,
+  invoke: $PropertyType<InitType, 'invoke'>,
+  storageSet: $PropertyType<InitType, 'storageSet'>,
+  status: ModuleStatus,
   homeDc: number,
   uid: string,
   messageHistory: MessageHistory[],

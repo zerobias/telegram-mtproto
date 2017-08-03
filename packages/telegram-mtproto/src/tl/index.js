@@ -15,7 +15,7 @@ import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-b
 import Config, { getConfig } from '../config-provider'
 import type { MsgGetter } from './index.h'
 import { NetMessage } from '../service/networker/net-message'
-// import writer from '../util/file-log'
+// import writer from 'Util/file-log'
 
 // const storeMethodLog = writer('storeMethod')
 // const fetchObjectLog = writer('fetchObject')
@@ -65,6 +65,9 @@ export class Serialization {
       return this.writer.getBytesTyped()
     else
       return this.writer.getBytesPlain()
+  }
+  getBytesPlain() {
+    return this.writer.getBytesPlain()
   }
 
   storeMethod(methodName: string, params: { [key: string]: * }) {

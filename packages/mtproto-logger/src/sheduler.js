@@ -83,7 +83,7 @@ export class Sheduler {
   }
 
   constructor(sheduleInterval: number = 50,
-              printInterval: number = 300) {
+              printInterval: number = 200) {
     setInterval(this.sheduleBuffer, sheduleInterval)
     setInterval(this.print, printInterval)
   }

@@ -6,14 +6,25 @@ import choose from 'mezza'
 import Logger from 'mtproto-logger'
 const log = Logger`epic-task`
 
+import processTask from '../../task'
 import { RpcApiError } from '../../error'
-import { NET, API } from '../action'
-import { whenActive, networker } from '../signal'
+import { API, NET } from '../action'
+import { onAction } from '../helpers'
+import { networker } from '../signal'
 import jsonError from '../../util/json-error'
 import { Left, Right, Either } from '../../util/either'
-
+import {
+  type MTP,
+  type MTPᐸRpcResultᐳ,
+  type MTPᐸContainerᐳ,
+  type MTPᐸAckᐳ,
+} from '../../mtp.h'
+import { type NetIncomingData } from '../action'
 export type TaskEndData = {
-  messages: Either<UniMessageR, UniMessageL>[]
+  messages: Either<UniMessageR, UniMessageL>[] | {
+    type: 'Other',
+    val: TaskResult<UniMessage>,
+  }
 }
 
 const requestMap = (id: number) => networker
@@ -24,9 +35,8 @@ const requestMap = (id: number) => networker
   .skipRepeats()
 
 export const onTaskEnd = (action: Stream<any>) => action
-  .thru(e => API.CALL_RESULT.stream(e))
-  .thru(whenActive)
-  .map(val => val.payload)
+  .thru(onAction(API.TASK.DONE))
+  .delay(500)
   .combine((val, map) => ({
     ...val,
     messages: (
@@ -34,19 +44,18 @@ export const onTaskEnd = (action: Stream<any>) => action
       // console.log('map', map),
       chooseType(map)(val.result))
   }), requestMap(2))
-  // .tap(val => console.log('val.messages', val.messages))
+  .tap(({ thread, ...rest }) => console.log('val', rest))
+  .tap(processTask)
   .map(val => ({
     ...val,
     messages: Array.isArray(val.messages)
       ? val.messages.map(detectErrors)
       : val.messages
   }))
-  .map(API.DONE_REQUEST)
+  .map(data => API.REQUEST.DONE(data, data.result.messageID))
 
 export const receiveResponse = (action: Stream<any>) => action
-  .thru(e => NET.RECEIVE_RESPONSE.stream(e))
-  .thru(whenActive)
-  .map(val => val.payload)
+  .thru(onAction(NET.RECEIVE_RESPONSE))
   .map(async({ result, thread, message, noResponseMsgs }) => ({
     result: await thread.parseResponse(result.data),
     noResponseMsgs,
@@ -63,8 +72,8 @@ export const receiveResponse = (action: Stream<any>) => action
     }
   })
   .thru(awaitPromises)
-  .map(API.CALL_RESULT)
-  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))).delay(15))
+  .map(API.TASK.DONE)
+  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 
 class MsgId {
   real: string
@@ -92,24 +101,7 @@ type TaskResult<Response> = {
   messageID: string,
   seqNo: number,
   response: Response,
-}
-
-type SingleMessage = {
-  _: 'rpc_result',
-  req_msg_id: string,
-  result: Object,
-}
-
-type ContainerMessage = {
-  _: 'msg_container',
-  messages: InnerMessage[]
-}
-
-type InnerMessage = {
-  _: 'message',
-  msg_id: string,
-  seqno: number,
-  body: SingleMessage | Object,
+  sessionID: Uint8Array,
 }
 
 type UniMessageL = {
@@ -129,29 +121,40 @@ type UniMessageR = {
 type UniMessage = {
   ids: MsgId,
   //$FlowIssue
-  type: 'rpc_result' | 'msg_container' | 'message' | 'rpc_error',
+  type: 'rpc_result' | 'msg_container' | 'message' | 'rpc_error' | 'msgs_ack',
   meta: {[key: string]: mixed},
   data: Object | string[] | RpcApiError,
 }
 
-type TaskResultRaw = TaskResult<SingleMessage | ContainerMessage>
+/*::
+declare var __result: NetIncomingData
+type NetResult = typeof __result.result
+*/
 
 type ChooseType =
   (map: { [req: string]: string }) =>
-    (val: TaskResultRaw) =>
+    <T: MTP>(val: TaskResult<T>) =>
       UniMessage[]
 
 const chooseType: ChooseType = (map) => choose({
-  Single: (val: ?TaskResultRaw) =>
-    isObject(val)
+  Single(val: TaskResult<MTP>): boolean {
+    return isObject(val)
     && isObject(val.response)
-    && val.response._ === 'rpc_result',
-  Container: (val: ?TaskResultRaw) =>
-    isObject(val)
+    && val.response._ === 'rpc_result'
+  },
+  Container(val: TaskResult<MTP>): boolean {
+    return isObject(val)
     && isObject(val.response)
-    && val.response._ === 'msg_container',
+    && val.response._ === 'msg_container'
+  },
+  Ack(val: TaskResult<MTP>): boolean {
+    return isObject(val)
+    && isObject(val.response)
+    && val.response._ === 'msgs_ack'
+  },
+//$FlowIssue
 }, {
-  Single(val: TaskResult<SingleMessage>): UniMessage[] {
+  Single(val: TaskResult<MTPᐸRpcResultᐳ>): UniMessage[] {
     let type = val.response._
     let data = val.response
     if (isObject(val.response.result)) {
@@ -165,7 +168,7 @@ const chooseType: ChooseType = (map) => choose({
       data,
     }]
   },
-  Container(val: TaskResult<ContainerMessage>): UniMessage[] {
+  Container(val: TaskResult<MTPᐸContainerᐳ>): UniMessage[] {
     const container = {
       ids : MsgId.container(val.messageID, map),
       type: 'msg_container',
@@ -174,13 +177,28 @@ const chooseType: ChooseType = (map) => choose({
     }
     const result: UniMessage[] = [container]
     for (const message of val.response.messages) {
-      const isSingleMessage = message.body._ === 'rpc_result'
-      const ids = isSingleMessage
-        ? MsgId.of(message.msg_id, val.messageID, message.body.req_msg_id, map)
-        : MsgId.of(message.msg_id, val.messageID, message.msg_id, map)
-      const data = isSingleMessage
-        ? message.body.result
-        : message.body
+      const { body } = message
+      let ids, data
+      if (body._ === 'rpc_result') {
+        /*::
+        declare var __body: MTPᐸRpcResultᐳ
+        const body = __body
+        */
+        ids = MsgId.of(
+          message.msg_id,
+          val.messageID, body.req_msg_id,
+          map
+        )
+        data = body.result || body
+      } else {
+        ids = MsgId.of(
+          message.msg_id,
+          val.messageID,
+          message.msg_id,
+          map
+        )
+        data = body
+      }
       result.push({
         ids,
         type: message.body._,
@@ -190,11 +208,25 @@ const chooseType: ChooseType = (map) => choose({
     }
     return result
   },
+  Ack(val: TaskResult<MTPᐸAckᐳ>): UniMessage[] {
+    return [{
+      ids: MsgId.single(
+        val.messageID,
+        val.messageID,
+        map
+      ),
+      type: val.response._,
+      meta: {},
+      data: val.response
+    }]
+  },
   _: (val) => ({ type: 'Other', val }),
 })
 
 function detectErrors(message: UniMessage): Either<UniMessageR, UniMessageL> {
-  const type = message.type
+  let type = message.type
+  if (message.data && message.data._)
+    type = message.data._
   if (type === 'rpc_error') {
     //$FlowIssue
     const data = RpcApiError.of(message.data)

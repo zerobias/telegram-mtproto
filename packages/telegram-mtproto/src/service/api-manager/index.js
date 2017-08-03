@@ -7,13 +7,11 @@ const log = Logger`api-manager`
 
 import Auth from '../authorizer'
 
-import blueDefer from '../../util/defer'
+import blueDefer from 'Util/defer'
 
-import { MTError, DcUrlError } from '../../error'
+import { DcUrlError } from '../../error'
 
 import { bytesFromHex, bytesToHex } from '../../bin'
-
-import { dTime } from 'mtproto-shared'
 
 import { type Bytes, type LeftOptions, type Cache } from './index.h'
 import { type PublicKey, type ApiConfig, type StrictConfig, type ServerConfig } from '../main/index.h'
@@ -23,10 +21,7 @@ import { type AsyncStorage } from '../../plugins'
 import Config from '../../config-provider'
 import NetworkerThread from '../networker'
 import ApiRequest from '../main/request'
-import Observer from '../../util/observer'
-import { subject } from '../../property'
-import { type HoldSubject } from '../../property'
-import { API } from '../../state/action'
+import { API } from 'Action'
 
 import { dispatch } from '../../state/core'
 
@@ -80,22 +75,24 @@ export class ApiManager {
     const emitter = Config.rootEmitter(this.uid)
     this.on = emitter.on
     this.emit = emitter.emit
-    this.auth = Auth(uid, publicKeys, this.cache.keysParsed)
 
     //$FlowIssue
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     this.invokeNetRequest = this.invokeNetRequest.bind(this)
     //$FlowIssue
     this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
+    //$FlowIssue
+    this.networkSetter = this.networkSetter.bind(this)
 
-    // this.updatesManager = UpdatesManager(apiManager, this.TL)
-    // apiManager.updates = this.updatesManager
+    this.auth = Auth(uid, publicKeys, this.cache.keysParsed)
+
+
     emitter.on('error.303', (newDc: number) => {
       this.authBegin = false
       this.currentDc = newDc
     })
   }
-  networkSetter(dc: number, authKey: Bytes, serverSalt: Bytes) {
+  networkSetter(dc: number, authKey: Bytes, serverSalt: Bytes): NetworkerThread {
     const networker = new NetworkerThread({
       appConfig: this.apiConfig,
       storage  : this.storage,
@@ -155,6 +152,8 @@ export class ApiManager {
     return this.networkSetter(dcID, authKey, serverSalt)
   }
   async doAuth() {
+    console.warn(`deprecated method doAuth`)
+    console.trace('doAuth')
     this.authBegin = true
     this.emit('base', 'CHECK')
     try {
@@ -170,7 +169,7 @@ export class ApiManager {
       const { nearest_dc, this_dc } = nearestDc
       await this.storage.set('nearest_dc', nearest_dc)
       if (storedBaseDc == null) {
-        await this.storage.set('dc', this_dc)
+        await this.storage.set('dc', nearest_dc)
         // if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
         //   dcID           : this_dc,
         //   createNetworker: true
@@ -202,7 +201,7 @@ export class ApiManager {
     const netReq = new ApiRequest(
       { method, params },
       options,
-      this.invokeNetRequest)
+      (req: ApiRequest) => this.invokeNetRequest(req))
     // const toPromise = {
     //   Left : (val) => Bluebird.reject(val),
     //   Right: (val) => Bluebird.resolve(val),
@@ -213,7 +212,7 @@ export class ApiManager {
     // obs.then(debug`obs`)
     netReq.options.requestID = netReq.requestID
     // this.emit('new-request', netReq)
-    dispatch(API.NEW_REQUEST({
+    dispatch(API.REQUEST.NEW({
       netReq,
       method,
       params,
@@ -228,34 +227,18 @@ export class ApiManager {
 
   async invokeNetRequest(netReq: ApiRequest) {
     let networker
-
-    let dcID: number
     try {
-      await this.initConnection()
+      // await this.initConnection()
+      const dcID = await getDc(netReq, this.storage)
 
-
-      if (netReq.options.dc) {
-        const reqDc = netReq.options.dc
-        if (typeof reqDc === 'number')
-          dcID = reqDc
-        else if (reqDc === '@@home')
-          dcID = await this.storage.get('dc')
-        else throw new Error(`invokeNetRequest wrong request id ${reqDc}`)
-      } else
-        dcID = await this.storage.get('dc')
-
-      networker = await this.mtpGetNetworker(dcID)
+      const cached = this.cache.downloader[dcID]
+      networker = cached == null
+        ? await this.mtpGetNetworker(dcID)
+        : cached
     } catch (e) {
       netReq.defer.reject(e)
       return netReq.defer.promise
     }
-
-
-
-    // const requestThunk = (waitTime: number): Promise<any> => {
-    //   debug('requestThunk', 'waitTime')(waitTime)
-    //   return delayedCall(req.performRequest, +waitTime * 1e3)
-    // }
 
     await networker.wrapApiCall(
       netReq.data.method,
@@ -276,7 +259,7 @@ export class ApiManager {
     //     (err: RawErrorStruct)
     //     log`raw error`(err)
     //     console.trace('Wrong way!')
-    //     dispatch(API.DONE_REQUEST(err, netReq.requestID))
+    //     dispatch(API.REQUEST.DONE(err, netReq.requestID))
     //     return netReq.defer.promise
     //   }
     //   const error: MTError = err
@@ -317,39 +300,17 @@ export class ApiManager {
   }
 }
 
-/* type RawErrorStruct = {
-  _: 'rpc_error',
-  error_code: number,
-  error_message: string,
+async function getDc(netReq: ApiRequest, storage: AsyncStorage): Promise<number> {
+  if (netReq.options.dc) {
+    const reqDc = netReq.options.dc
+    if (typeof reqDc === 'number')
+      return reqDc
+    else if (reqDc === '@@home')
+      return await storage.get('dc')
+    else throw new Error(`invokeNetRequest wrong request id ${reqDc}`)
+  } else
+    return await storage.get('dc')
 }
-
-function isRawError(val: mixed): boolean %checks {
-  return typeof val === 'object'
-    && val != null
-    && val._ === 'rpc_error'
-    && typeof val.error_code === 'number'
-    && typeof val.error_message === 'string'
-}
-
-function requestObserver(netReq: ApiRequest, request: HoldSubject<any>) {
-  const obs = Observer({
-    next(data) {
-      log`obs, next`(data)
-      return data
-    },
-    error(data) {
-      log`obs, error`(data)
-      return request.next(data)
-    },
-    async complete(data) {
-      log`obs, complete`(data)
-      // dispatch(API.DONE_REQUEST(data, netReq.requestID))
-      return data
-    }
-  })(request)
-
-  return obs
-} */
 
 const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0
 
@@ -358,10 +319,3 @@ const netError = error => {
   return Bluebird.reject(error)
 }
 
-/* const alreadyAuthWarning = (method: string) => {
-  const message = `
-!! WARNING !!
-You call ${method} method at the time when you are already authorized.
-That will have result in unnecessary re-creation of the session`
-  console.warn(message)
-} */

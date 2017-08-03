@@ -1,6 +1,6 @@
 //@flow
 
-import blueDefer from '../util/defer'
+import blueDefer from 'Util/defer'
 import Logger from 'mtproto-logger'
 const log = Logger`web-worker`
 

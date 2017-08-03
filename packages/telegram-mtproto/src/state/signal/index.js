@@ -1,11 +1,9 @@
 //@flow
 
-import store from '../core'
 import { type State } from '../index.h'
 import { async } from 'most-subject'
 import { type Stream } from 'most'
-import Config from '../../config-provider'
-import { faucetC } from '../../pull-stream'
+import Status, { statuses, type ModuleStatus } from '../../status'
 
 interface Subject<T> extends Stream<T> {
   next (value: T): Subject<T>,
@@ -16,12 +14,24 @@ interface Subject<T> extends Stream<T> {
 export const rootSignal: Subject<State> = async()
 const root: Stream<State> = rootSignal.multicast()
 
-const isActive = root
-  .map(state => state.active)
-  .skipRepeats()
+const isActive = afterStatus(statuses.activated)
 
 export { isActive as active }
-export const whenActive = faucetC(isActive)
+
+export const invoke = root
+  .map(state => state.invoke)
+  .skipRepeats()
+
+export const storageSet = root
+  .map(state => state.storageSet)
+  .skipRepeats()
+
+export function afterStatus(status: ModuleStatus) {
+  return root
+    .map(state => state.status)
+    .map(current => Status.gte(current, status))
+    .skipRepeats()
+}
 
 export const homeDc = root
   .map(state => state.homeDc)

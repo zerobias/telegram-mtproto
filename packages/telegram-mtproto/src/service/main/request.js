@@ -1,18 +1,18 @@
 //@flow
 
 import uuid from 'uuid/v4'
-import { type Defer } from '../../util/defer'
-import blueDefer from '../../util/defer'
+import { type Defer } from 'Util/defer'
+import blueDefer from 'Util/defer'
 
 export type ApiMethod = {
   method: string,
   params: { [arg: string]: * }
 }
 
-export type RequestOptions = {|
+export type RequestOptions = {
   dc: number | '@@home',
   requestID: string
-|}
+}
 
 class ApiRequest {
   data: ApiMethod
@@ -20,12 +20,14 @@ class ApiRequest {
   defer: Defer
   deferFinal: Defer
   invoke: () => void
+  needAuth: boolean
   options: RequestOptions
   constructor(data: ApiMethod,
               options: RequestOptions,
               invoke: (val: ApiRequest) => any) {
     this.data = data
     this.options = options
+    this.needAuth = !allowNoAuth(data.method)
     // this.messageID = options.messageID
     Object.defineProperty(this, 'defer', {
       value     : blueDefer(),
@@ -45,6 +47,18 @@ class ApiRequest {
   }
 }
 
-export type { ApiRequest as Request }
+const noAuthMethods = [
+  'auth.sendCode',
+  'auth.sendCall',
+  'auth.checkPhone',
+  'auth.signUp',
+  'auth.signIn',
+  'auth.importAuthorization',
+  'help.getConfig',
+  'help.getNearestDc',
+]
+
+const allowNoAuth = (method: string) =>
+  noAuthMethods.indexOf(method) > -1
 
 export default ApiRequest

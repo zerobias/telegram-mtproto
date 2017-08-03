@@ -2,7 +2,7 @@
 
 import Bluebird from 'bluebird'
 
-import blueDefer from '../../util/defer'
+import blueDefer from 'Util/defer'
 import { immediate } from 'mtproto-shared'
 import { type PublicKey } from '../main/index.h'
 import { type Cached as ApiCached } from '../api-manager/index.h'
