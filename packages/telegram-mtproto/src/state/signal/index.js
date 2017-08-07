@@ -1,18 +1,7 @@
 //@flow
 
-import { type State } from '../index.h'
-import { async } from 'most-subject'
-import { type Stream } from 'most'
 import Status, { statuses, type ModuleStatus } from '../../status'
-
-interface Subject<T> extends Stream<T> {
-  next (value: T): Subject<T>,
-  error(err: Error): Subject<T>,
-  complete (value?: T): Subject<T>,
-}
-
-export const rootSignal: Subject<State> = async()
-const root: Stream<State> = rootSignal.multicast()
+import { root } from '../core'
 
 const isActive = afterStatus(statuses.activated)
 
