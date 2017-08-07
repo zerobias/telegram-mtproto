@@ -1,37 +1,26 @@
 
 import { api } from '../mtproto-config'
+import { freezeTime } from './fixtures'
+
+let client
 
 beforeAll(() => {
   jest.mock('../../src/config-provider/provider')
   const { MTProto } = require('../../src')
-  const client = MTProto({ server: {
-    dev     : true,
-    webogram: true
-  }, api })
+  client = MTProto({
+    server: {
+      dev     : true,
+      webogram: true
+    },
+    api
+  })
   client.emit('deactivate')
 })
-
-// import fullConfig, { rawData } from './example-normalize'
 
 
 afterAll(() => {
   jest.unmock('../../src/config-provider/provider')
 })
-
-
-
-// import normalize from '../../lib/task/new-index'
-
-// import target from './example-target'
-
-
-
-
-
-// test('full test', async() => {
-//   // console.log(client.cache)
-//   await expect(normalize(rawData)).resolves.toEqual(target)
-// })
 
 test('binary parsing', async() => {
   const parser = require('../../src/service/chain').default
@@ -39,3 +28,17 @@ test('binary parsing', async() => {
   await expect(parser(binaryParseData)).resolves.toMatchSnapshot()
 })
 
+
+test('normalize', async() => {
+  const normalize = require('../../src/task/new-index').default
+  const { rawData, authKey, serverSalt, sessionID, getMsgById } = require('./example-normalize')
+  const { default: result, TIMESTAMP } = require('./example-target')
+  const unfreezeTime = freezeTime(TIMESTAMP)
+
+  const thread = client.api.networkSetter(2, authKey, serverSalt)
+  thread.sessionID = sessionID
+  thread.getMsgById = getMsgById
+  const data = { ...rawData, thread }
+  await expect(normalize(data)).resolves.toEqual(result)
+  unfreezeTime()
+})
