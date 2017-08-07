@@ -30,13 +30,6 @@
     },
     "test": {
       "plugins": [
-        ["module-resolver", {
-          "root": ["./lib"],
-          "alias": {
-            "Action": "./lib/state/action",
-            "Util": "./lib/util"
-          }
-        }],
         "transform-es2015-modules-commonjs"
       ]
     }

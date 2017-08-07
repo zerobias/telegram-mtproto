@@ -1,0 +1,19 @@
+{
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": [
+    "lcov"
+  ],
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.jsx?$": "babel-jest"
+  },
+  "moduleNameMapper": {
+    "^Action(.*)$": "<rootDir>/src/state/action$1",
+    "^Util(.*)$": "<rootDir>/src/util$1"
+  },
+  "roots" : [
+    "<rootDir>/src/",
+    "<rootDir>/test/"
+  ]
+}
