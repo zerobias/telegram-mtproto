@@ -6,6 +6,8 @@ import {
   type RawContainer,
   type RawObject,
   type MessageDraft,
+  type IncomingType,
+  type SystemMessage,
 } from './index.h'
 import { isApiObject } from './fixtures'
 import parser from '../service/chain'
@@ -19,8 +21,9 @@ async function normalize(input: RawInput) {
   }
   const ctx = { ...input, ...decrypted }
   const flattenRaw = flattenMessage(ctx, response)
-  const result = processing(ctx, flattenRaw)
-  return result
+  const processed = processing(ctx, flattenRaw)
+  handling(ctx, processed)
+  return processed
 }
 
 const decryptor = ({ thread, result: { data } }: RawInput) =>
@@ -92,6 +95,102 @@ function checkContainer(response: RawMessage) {
       data,
     }
     return result
+  }
+}
+
+
+function handling(ctx: IncomingType, messages) {
+  return messages.map(msg => singleHandler(ctx, msg))
+}
+
+function singleHandler(ctx: IncomingType, message) {
+  const { flags } = message
+  const { thread } = ctx
+  if (flags.inner) {
+    if (thread.lastServerMessages.indexOf(message.id) != -1) {
+      // console.warn('[MT] Server same messageID: ', messageID)
+      thread.ackMessage(message.id)
+    } else {
+      thread.lastServerMessages.push(message.id)
+      if (thread.lastServerMessages.length > 100) {
+        thread.lastServerMessages.shift()
+      }
+    }
+  }
+  if (!flags.api && !flags.container && flags.body) {
+    //$FlowIssue
+    const cast: typeof message & { body: SystemMessage } = message
+    const { body } = cast
+    switch (body._) {
+      case 'msgs_ack': {
+        body.msg_ids.forEach(thread.processMessageAck)
+        break
+      }
+      case 'msg_detailed_info': {
+        if (!thread.state.hasSent(body.msg_id)) {
+          thread.ackMessage(body.answer_msg_id)
+        }
+        break
+      }
+      case 'msg_new_detailed_info': {
+        const { answer_msg_id } = body
+        thread.ackMessage(answer_msg_id)
+        thread.reqResendMessage(answer_msg_id)
+        break
+      }
+      case 'msgs_state_info': {
+        const { answer_msg_id } = body
+        thread.ackMessage(answer_msg_id)
+        const lastResendReq = thread.lastResendReq
+        if (!lastResendReq) break
+        if (lastResendReq.req_msg_id != body.req_msg_id) break
+        // const resendDel = []
+        for (const badMsgID of lastResendReq.resend_msg_ids) {
+          // resendDel.push(badMsgID)
+          thread.state.deleteResent(badMsgID)
+        }
+        // dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
+        break
+      }
+      case 'new_session_created': {
+        thread.emit('new-session', {
+          threadID   : thread.threadID,
+          networkerDC: message.dc,
+          messageID  : message.id,
+          message    : body
+        })
+        break
+      }
+      case 'bad_server_salt':
+      case 'bad_msg_notification': {
+        break
+      }
+
+      // case 'bad_server_salt': {
+      //   // log(`Bad server salt`)(message)
+      //   const sentMessage = thread.state.getSent(body.bad_msg_id)
+      //   if (!sentMessage || sentMessage.seq_no != body.bad_msg_seqno) {
+      //     // log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
+      //     throw new Error('[MT] Bad server salt for invalid message')
+      //   }
+
+      //   await this.applyServerSalt(body.new_server_salt)
+      //   this.pushResend(body.bad_msg_id)
+      //   this.ackMessage(messageID)
+      //   break
+      // }
+      default: {
+        thread.ackMessage(message.id)
+        thread.emit('untyped-message', {
+          threadID   : thread.threadID,
+          networkerDC: message.dc,
+          message    : body,
+          messageID  : message.id,
+          sessionID  : message.session,
+          result     : message,
+        })
+      }
+    }
   }
 }
 

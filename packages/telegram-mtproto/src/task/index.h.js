@@ -12,6 +12,12 @@ export type RawInput = {
   thread: NetworkerThread
 }
 
+export type IncomingType = RawInput & {
+  messageID: string,
+  sessionID: Uint8Array,
+  seqNo: number
+}
+
 export type RawError = {
   +_: 'rpc_error',
   +error_code: number,

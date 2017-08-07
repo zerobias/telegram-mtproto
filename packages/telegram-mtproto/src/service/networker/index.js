@@ -774,8 +774,8 @@ export class NetworkerThread {
     })
     switch (message._) {
       case 'msg_container': {
-        for (const inner of message.messages)
-          await this.processMessage(inner, inner.msg_id, sessionID)
+        /* for (const inner of message.messages)
+          await this.processMessage(inner, inner.msg_id, sessionID) */
         break
       }
       case 'bad_server_salt': {
@@ -815,7 +815,7 @@ export class NetworkerThread {
         break
       }
       case 'message': {
-        if (this.lastServerMessages.indexOf(messageID) != -1) {
+        /* if (this.lastServerMessages.indexOf(messageID) != -1) {
           // console.warn('[MT] Server same messageID: ', messageID)
           this.ackMessage(messageID)
           return
@@ -824,7 +824,7 @@ export class NetworkerThread {
         if (this.lastServerMessages.length > 100) {
           this.lastServerMessages.shift()
         }
-        await this.processMessage(message.body, message.msg_id, sessionID)
+        await this.processMessage(message.body, message.msg_id, sessionID) */
         break
       }
       case 'new_session_created': {
@@ -833,12 +833,12 @@ export class NetworkerThread {
         // this.processMessageAck(message.first_msg_id)
         // await this.applyServerSalt(message.server_salt)
 
-        this.emit('new-session', {
+        /* this.emit('new-session', {
           threadID   : this.threadID,
           networkerDC: this.dcID,
           messageID,
           message
-        })
+        }) */
 
         // const baseDcID = await this.storage.get('dc')
         // const updateCond =
@@ -851,23 +851,23 @@ export class NetworkerThread {
         break
       }
       case 'msgs_ack': {
-        message.msg_ids.forEach(this.processMessageAck)
+        /* message.msg_ids.forEach(this.processMessageAck) */
         break
       }
       case 'msg_detailed_info': {
-        if (!this.state.hasSent(message.msg_id)) {
+        /* if (!this.state.hasSent(message.msg_id)) {
           this.ackMessage(message.answer_msg_id)
           break
-        }
+        } */
         break
       }
       case 'msg_new_detailed_info': {
-        this.ackMessage(message.answer_msg_id)
-        this.reqResendMessage(message.answer_msg_id)
+        /* this.ackMessage(message.answer_msg_id)
+        this.reqResendMessage(message.answer_msg_id) */
         break
       }
       case 'msgs_state_info': {
-        this.ackMessage(message.answer_msg_id)
+       /*  this.ackMessage(message.answer_msg_id)
         const lastResendReq = this.lastResendReq
         if (!lastResendReq) break
         if (lastResendReq.req_msg_id != message.req_msg_id) break
@@ -875,7 +875,7 @@ export class NetworkerThread {
         for (const badMsgID of lastResendReq.resend_msg_ids) {
           // resendDel.push(badMsgID)
           this.state.deleteResent(badMsgID)
-        }
+        } */
         // dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
         break
       }
@@ -913,7 +913,7 @@ export class NetworkerThread {
         break
       }
       default: {
-        this.ackMessage(messageID)
+        /* this.ackMessage(messageID)
         this.emit('untyped-message', {
           threadID   : this.threadID,
           networkerDC: this.dcID,
@@ -922,7 +922,7 @@ export class NetworkerThread {
           sessionID,
           result     : message.result
         })
-        if (updatesProcessor) updatesProcessor(message, true)
+        if (updatesProcessor) updatesProcessor(message, true) */
         break
       }
     }

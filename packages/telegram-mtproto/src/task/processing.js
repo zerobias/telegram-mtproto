@@ -1,7 +1,7 @@
 //@flow
 
 import {
-  type RawInput,
+  type IncomingType,
   type RawMessage,
   type RawContainer,
   type RawObject,
@@ -14,11 +14,7 @@ import {
 } from './index.h'
 import { initFlags, isApiObject } from './fixtures'
 
-type IncomingType = RawInput & {
-  messageID: string,
-  sessionID: Uint8Array,
-  seqNo: number
-}
+
 
 export default function processing(ctx: IncomingType, list: MessageDraft[]) {
   return list.map(msg => processSingle(ctx, msg))
@@ -70,8 +66,11 @@ const omitRaw = ({ raw, type, ...msg }) => msg
 
 function processInners(ctx: IncomingType, msg: MessageDraft, body) {
   switch (body._) {
-    case 'rpc_result':
-      return processRpc(ctx, msg, body)
+    case 'rpc_result': {
+      //$FlowIssue
+      const rpcBody: RawBody = body
+      return processRpc(ctx, msg, rpcBody)
+    }
     default: {
       const accResult: {
         +body: SystemMessage,
