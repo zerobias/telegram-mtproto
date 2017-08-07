@@ -11,8 +11,8 @@ import { NetMessage, NetContainer } from './net-message'
 import State from './state'
 import { smartTimeout, immediate } from 'mtproto-shared'
 
-import { Serialization, Deserialization } from '../../tl'
-import { readResponse, getDataWithPad, readHash, parsedResponse } from '../chain/parse-response'
+import { Serialization } from '../../tl'
+import parser from '../chain'
 import { writeInnerMessage } from '../chain/perform-request'
 import Config from '../../config-provider'
 
@@ -650,55 +650,21 @@ export class NetworkerThread {
     }
   }
 
-  async parseResponse(responseBuffer: ArrayBuffer): Promise<{
+  parseResponse(responseBuffer: ArrayBuffer): Promise<{
     response: Object,
     messageID: string,
     sessionID: Uint8Array,
     seqNo: number
   }> {
-
-    const { msgKey, encryptedData } = readResponse({
-      reader       : new Deserialization(responseBuffer, {}, this.uid),
-      response     : responseBuffer,
-      authKeyStored: this.authKeyID
+    return parser({
+      responseBuffer,
+      uid          : this.uid,
+      authKeyID    : this.authKeyID,
+      authKeyUint8 : this.authKeyUint8,
+      thisSessionID: this.sessionID,
+      prevSessionID: this.prevSessionID,
+      getMsgById   : this.getMsgById,
     })
-
-    const dataWithPadding = await getDataWithPad({
-      authKey: this.authKeyUint8,
-      msgKey,
-      encryptedData
-    })
-
-    const {
-      hashData,
-      seqNo,
-      messageID,
-      buffer,
-      sessionID
-    } = readHash({
-      reader        : new Deserialization(dataWithPadding, { mtproto: true }, this.uid),
-      currentSession: this.sessionID,
-      prevSession   : this.prevSessionID,
-      dataWithPadding
-    })
-
-    const deserializerOptions = {
-      mtproto: true,
-      getter : this.getMsgById
-    }
-    //$FlowIssue
-    const response: Object = await parsedResponse({
-      hashData,
-      msgKey,
-      reader: new Deserialization(buffer, deserializerOptions, this.uid)
-    })
-
-    return {
-      response,
-      messageID,
-      sessionID,
-      seqNo
-    }
   }
 
   getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
