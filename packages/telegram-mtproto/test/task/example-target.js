@@ -93,6 +93,7 @@ const newSession: Conformᐸincomingᐳ & Conformᐸbodyᐳ = {
     incoming    : true,
     methodResult: false,
     body        : true,
+    error       : false,
   },
   inner: {
     container: '6451324666894843905',
@@ -120,6 +121,7 @@ const sentCode: Conformᐸapiᐳ & Conformᐸbodyᐳ = {
     incoming    : true,
     methodResult: true,
     body        : true,
+    error       : false,
   },
   inner: {
     container: '6451324666894843905',
@@ -143,9 +145,9 @@ const sentCode: Conformᐸapiᐳ & Conformᐸbodyᐳ = {
       length: 5,
     },
   },
-  api: {
-    resultType: 'auth.SentCode',
-  }
+  // api: {
+  //   resultType: 'auth.SentCode',
+  // }
 }
 
 const container: Conformᐸincomingᐳ & Conformᐸcontainerᐳ = {
@@ -160,13 +162,14 @@ const container: Conformᐸincomingᐳ & Conformᐸcontainerᐳ = {
     incoming    : true,
     methodResult: false,
     body        : false,
+    error       : false,
   },
   container: {
     contains: ['6451324664439027713', '6451324664531753985'],
-    apiMap  : new Map([
-      ['6451324664439027713', false],
-      ['6451324664531753985', '76dea7e3-92f9-4932-9beb-8c1b9c9586f5']
-    ]),
+    // apiMap  : new Map([
+    //   ['6451324664439027713', false],
+    //   ['6451324664531753985', '76dea7e3-92f9-4932-9beb-8c1b9c9586f5']
+    // ]),
   },
   incoming: {
     timestamp: TIMESTAMP,

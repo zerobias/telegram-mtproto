@@ -5,34 +5,54 @@ import { type AxiosXHR } from 'axios'
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
 
-export  type RawInput = {
+export type RawInput = {
   message: NetMessage,
   noResponseMsgs: string[],
   result: AxiosXHR<ArrayBuffer>,
   thread: NetworkerThread
 }
 
-export interface RawObject {
+export type RawError = {
+  +_: 'rpc_error',
+  +error_code: number,
+  +error_message: string,
+}
+
+export type RawObject = {
   +_: string,
 }
 
-export interface RawBody extends RawObject {
-  +req_msg_id: string,
-  +result?: RawObject,
+
+export type ApiData = {
+  +_: string,
+  +flags?: number,
 }
 
-export interface RawInner extends RawObject {
-  +body: RawBody,
+export type SystemMessage = {
+  +_: 'new_session_created' | string,
+  +[field: string]: string,
+}
+
+export type RawBody = {
+  +_: 'rpc_result',
+  +req_msg_id: string,
+  +result?: RawError | ApiData,
+}
+
+export type RawInner = {
+  +_: string,
+  +body: RawBody | SystemMessage,
   +bytes: number,
   +msg_id: string,
   +seqno: number,
 }
 
-export interface RawContainer extends RawObject {
+export type RawContainer = {
+  +_: string,
   +messages: RawInner[]
 }
 
-export type  RawMessage = RawContainer | RawObject
+export type  RawMessage = RawContainer | RawBody | RawObject
 
 /*::
 opaque type Int = number
@@ -61,6 +81,7 @@ export type MessageMain = {
     +incoming: boolean,
     +methodResult: boolean,
     +body: boolean,
+    +error: boolean,
   }
 }
 
@@ -100,16 +121,25 @@ export type Conformᐸbodyᐳ = {
   }
 } & MessageMain
 
-export type Conformᐸapiᐳ = {
-  +api: {
-    +resultType: string,
+// /* {
+//   +api: {
+//     +resultType: string,
+//   }
+// } & */
+
+export type Conformᐸapiᐳ = ConformᐸmethodResultᐳ
+
+export type Conformᐸerrorᐳ = {
+  +error: {
+    +code: number,
+    +message: string,
   }
-} & ConformᐸmethodResultᐳ & MessageMain
+} & Conformᐸapiᐳ
 
 export type Conformᐸcontainerᐳ = {
   +container: {
     +contains: string[],
-    +apiMap: Map<string, (string | false)>,
+    // +apiMap: Map<string, (string | false)>,
   }
 } & MessageMain
 

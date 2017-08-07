@@ -10,10 +10,12 @@ const { NetMessage, NetContainer } = require('../../src/service/networker/net-me
 const mockNetMessage = (data, Construct = NetMessage) => {
   let msg
   if (Construct === NetMessage)
+    //$FlowIssue
     msg = new Construct(data.uid, data.seq_no, data.body, data.type)
   else
     //$FlowIssue
     msg = new Construct(data.uid, data.seq_no, data.body, data.type, data.inner, data.innerAPI)
+  //$FlowIssue
   Object.assign(msg, data)
   return msg
 }

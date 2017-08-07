@@ -7,6 +7,7 @@ export const initFlags = ({
   incoming    = true,
   methodResult= false,
   body        = false,
+  error       = false,
 }: {
   api?: boolean,
   inner?: boolean,
@@ -14,6 +15,7 @@ export const initFlags = ({
   incoming?: boolean,
   methodResult?: boolean,
   body?: boolean,
+  error?: boolean,
 }): {
   api: boolean,
   inner: boolean,
@@ -21,6 +23,7 @@ export const initFlags = ({
   incoming: boolean,
   methodResult: boolean,
   body: boolean,
+  error: boolean,
 } => ({
   api,
   inner,
@@ -28,6 +31,7 @@ export const initFlags = ({
   incoming,
   methodResult,
   body,
+  error,
 })
 
 export function isApiObject(obj: mixed): boolean %checks {
