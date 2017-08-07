@@ -1,33 +1,23 @@
 //@flow
 
-import uuid from 'uuid/v4'
 import EventEmitter from 'eventemitter2'
 
 import { ApiManager } from '../api-manager'
-import Layout from '../../layout'
-
-import configNormalization from './config-normalization'
 import { registerInstance } from '../../config-provider'
 import State from './state'
 
 import Logger from 'mtproto-logger'
 const log = Logger`main`
 
-import parseServerConfig from '../../config-check/dc'
 import streamBus, { type Bus } from '../../event/stream-bus'
 import { ScopedEmitter } from '../../event'
 import { type AsyncStorage } from '../../plugins/index.h'
-import { type TLSchema } from '../../tl/index.h'
 import { type ConfigType, type StrictConfig } from './index.h'
 import { type Emit, type On } from 'eventemitter2'
 import { dispatch } from '../../state/core'
 import { MAIN } from 'Action/main'
 import loadStorage from './load-storage'
-
-const generateLayers = (api: TLSchema, mt: TLSchema) => ({
-  apiLayer: new Layout(api),
-  mtLayer : new Layout(mt),
-})
+import { init } from './init'
 
 class MTProto {
   config: StrictConfig
@@ -43,11 +33,14 @@ class MTProto {
   defaultDC: number = 2
   bus: Bus
   constructor(config: ConfigType) {
-    const uid = uuid()
-    const fullConfig = configNormalization(config)
-    const dcMap = parseServerConfig(config.server)
+    const {
+      uid,
+      fullConfig,
+      dcMap,
+      storage,
+      layer,
+    } = init(config)
     this.config = fullConfig
-    const { apiLayer, mtLayer } = generateLayers(this.config.schema, this.config.mtSchema)
     this.uid = uid
     registerInstance({
       uid,
@@ -58,14 +51,10 @@ class MTProto {
         apiSchema: fullConfig.schema,
         mtSchema : fullConfig.mtSchema
       },
-      layer: {
-        apiLayer,
-        mtLayer
-      },
+      layer,
       dcMap
     })
-    this.uid = uid
-    this.storage = fullConfig.app.storage
+    this.storage = storage
     this.emitter.on('*', (data, ...rest) => {
       log('event')(data)
       if (rest.length > 0)
@@ -76,9 +65,9 @@ class MTProto {
     dispatch(MAIN.INIT({
       uid,
       invoke    : this.api.mtpInvokeApi,
-      storageSet: (key: string, value: mixed) => fullConfig.app.storage.set(key, value)
+      storageSet: (key: string, value: mixed) => storage.set(key, value)
     }))
-    const load = () => loadStorage(this.storage, dcMap, this.api.networkSetter)
+    const load = () => loadStorage(storage, dcMap, this.api.networkSetter)
     setTimeout(load, 1e3)
   }
 }
