@@ -7,5 +7,9 @@
   "testEnvironment": "node",
   "transform": {
     "^.+\\.jsx?$": "babel-jest"
+  },
+  "moduleNameMapper": {
+    "^Action(.*)$": "<rootDir>/packages/telegram-mtproto/lib/state/action$1",
+    "^Util(.*)$": "<rootDir>/packages/telegram-mtproto/lib/util$1"
   }
 }

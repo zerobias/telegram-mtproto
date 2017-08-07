@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`binary parsing 1`] = `
+Object {
+  "messageID": "6450609992032546817",
+  "response": Object {
+    "_": "msg_container",
+    "messages": Array [
+      Object {
+        "_": "message",
+        "body": Object {
+          "_": "new_session_created",
+          "first_msg_id": "6450609986432292820",
+          "server_salt": "16751524301008951348",
+          "unique_id": "1563096998223171911",
+        },
+        "bytes": 28,
+        "msg_id": "6450609989367164929",
+        "seqno": 1,
+      },
+      Object {
+        "_": "message",
+        "body": Object {
+          "_": "rpc_result",
+          "req_msg_id": "6450609986432292820",
+          "result": Object {
+            "_": "auth.sentCode",
+            "flags": 3,
+            "next_type": Object {
+              "_": "auth.codeTypeSms",
+            },
+            "phone_code_hash": "1f7f88db961d8ee62f",
+            "phone_registered": true,
+            "type": Object {
+              "_": "auth.sentCodeTypeApp",
+              "length": 5,
+            },
+          },
+        },
+        "bytes": 52,
+        "msg_id": "6450609989668679681",
+        "seqno": 3,
+      },
+    ],
+  },
+  "seqNo": 4,
+  "sessionID": Uint8Array [
+    89,
+    35,
+    220,
+    168,
+    231,
+    136,
+    44,
+    110,
+  ],
+}
+`;
