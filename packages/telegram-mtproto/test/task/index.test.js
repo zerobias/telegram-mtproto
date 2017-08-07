@@ -1,28 +1,21 @@
 
-// import raw from './example-raw'
-// import { parserOpts } from './example-binary'
-// jest.mock('../../lib/config-provider')
-// jest.mock('../../src/config-provider')
-// require('../../src/config-provider')
-
 import { api } from '../mtproto-config'
 
 beforeAll(() => {
-  jest.mock('../../lib/config-provider/provider')
-  const { MTProto } = require('../../lib')
-  MTProto({ server: {
+  jest.mock('../../src/config-provider/provider')
+  const { MTProto } = require('../../src')
+  const client = MTProto({ server: {
     dev     : true,
     webogram: true
   }, api })
+  client.emit('deactivate')
 })
-
-// import parser from '../../lib/service/chain'
 
 // import fullConfig, { rawData } from './example-normalize'
 
 
 afterAll(() => {
-  jest.unmock('../../lib/config-provider/provider')
+  jest.unmock('../../src/config-provider/provider')
 })
 
 
@@ -41,10 +34,8 @@ afterAll(() => {
 // })
 
 test('binary parsing', async() => {
-  // await expect(parser(parserOpts)).resolves.toMatchSnapshot()
-  const parser = require('../../lib/service/chain').default
-  const fullConfig = require('./example-normalize').default
-  console.log('a')
-  await expect(parser(fullConfig)).resolves.toMatchSnapshot()
+  const parser = require('../../src/service/chain').default
+  const binaryParseData = require('./example-normalize').default
+  await expect(parser(binaryParseData)).resolves.toMatchSnapshot()
 })
 

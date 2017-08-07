@@ -2,7 +2,7 @@
 
 exports[`binary parsing 1`] = `
 Object {
-  "messageID": "6450609992032546817",
+  "messageID": "6451324666894843905",
   "response": Object {
     "_": "msg_container",
     "messages": Array [
@@ -10,26 +10,26 @@ Object {
         "_": "message",
         "body": Object {
           "_": "new_session_created",
-          "first_msg_id": "6450609986432292820",
-          "server_salt": "16751524301008951348",
-          "unique_id": "1563096998223171911",
+          "first_msg_id": "6451324639565242596",
+          "server_salt": "10054112889999250563",
+          "unique_id": "12719723951254540931",
         },
         "bytes": 28,
-        "msg_id": "6450609989367164929",
+        "msg_id": "6451324664439027713",
         "seqno": 1,
       },
       Object {
         "_": "message",
         "body": Object {
           "_": "rpc_result",
-          "req_msg_id": "6450609986432292820",
+          "req_msg_id": "6451324639565242596",
           "result": Object {
             "_": "auth.sentCode",
             "flags": 3,
             "next_type": Object {
               "_": "auth.codeTypeSms",
             },
-            "phone_code_hash": "1f7f88db961d8ee62f",
+            "phone_code_hash": "e49a9dab2598a3db61",
             "phone_registered": true,
             "type": Object {
               "_": "auth.sentCodeTypeApp",
@@ -38,21 +38,21 @@ Object {
           },
         },
         "bytes": 52,
-        "msg_id": "6450609989668679681",
+        "msg_id": "6451324664531753985",
         "seqno": 3,
       },
     ],
   },
   "seqNo": 4,
   "sessionID": Uint8Array [
-    89,
-    35,
-    220,
-    168,
-    231,
-    136,
-    44,
-    110,
+    104,
+    253,
+    6,
+    5,
+    166,
+    213,
+    190,
+    141,
   ],
 }
 `;
