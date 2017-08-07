@@ -9,7 +9,7 @@ import {
   type ConformᐸmethodResultᐳ,
 } from '../../src/task/index.h'
 */
-const session = /* new Uint8Array( */[104, 253, 6, 5, 166, 213, 190, 141]/* ) */
+const session = new Uint8Array([104, 253, 6, 5, 166, 213, 190, 141])
 
 export const raw = {
   _       : 'msg_container',

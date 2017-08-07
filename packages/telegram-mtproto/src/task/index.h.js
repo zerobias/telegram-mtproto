@@ -5,12 +5,34 @@ import { type AxiosXHR } from 'axios'
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
 
-export type RawInput = {
+export  type RawInput = {
   message: NetMessage,
   noResponseMsgs: string[],
   result: AxiosXHR<ArrayBuffer>,
   thread: NetworkerThread
 }
+
+export interface RawObject {
+  +_: string,
+}
+
+export interface RawBody extends RawObject {
+  +req_msg_id: string,
+  +result?: RawObject,
+}
+
+export interface RawInner extends RawObject {
+  +body: RawBody,
+  +bytes: number,
+  +msg_id: string,
+  +seqno: number,
+}
+
+export interface RawContainer extends RawObject {
+  +messages: RawInner[]
+}
+
+export type  RawMessage = RawContainer | RawObject
 
 /*::
 opaque type Int = number
@@ -20,11 +42,17 @@ opaque type NonNegativeInt: Int = number
 opaque type DcInt: NonNegativeInt = number
 */
 
+export type MessageCore = {
+  +id: string,
+  +seq: number,
+  +session: Uint8Array,
+  +dc: number,
+}
 
 export type MessageMain = {
   +id: string,
   +seq: number,
-  +session: number[],
+  +session: Uint8Array,
   +dc: number,
   +flags: {
     +api: boolean,
@@ -35,6 +63,21 @@ export type MessageMain = {
     +body: boolean,
   }
 }
+
+export type MessageDraft = MessageCore & (
+  | {
+    +type: 'object',
+    +raw: RawObject,
+  }
+  | {
+    +type: 'container',
+    +raw: string[],
+  }
+  | {
+    +type: 'inner',
+    +raw: RawInner,
+  }
+)
 
 export type Conformᐸincomingᐳ = {
   +incoming: {
