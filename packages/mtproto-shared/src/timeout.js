@@ -1,12 +1,12 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 const cancelToken = Symbol('cancel token')
 
 const timeoutRefs = new WeakSet
 
-export const pause = (delay: number): Bluebird$Promise<void> => new Promise(r => setTimeout(r, delay))
+export const pause = (delay: number): Promise<void> => new Bluebird(r => setTimeout(r, delay))
 
 export const smartTimeout = <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, delay?: number = 0, ...args: Args) => {
   const newToken = Symbol('cancel id')
@@ -31,24 +31,15 @@ const cancel = promise => {
 }
 
 export const immediate = <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, ...args: Args): Promise<T> =>
-  Promise
+  Bluebird
     .resolve()
     .then(() => fn(...args))
 
-export const immediateWrap =
-  <+T, +A, +Args: Array<A>>(fn: (...args: Args) => T) =>
-    (...args: Args): Promise<T> =>
-      Promise
-        .resolve()
-        .then(() => fn(...args))
-
-export const delayedCall =
-  <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, delay?: number = 0, ...args: Args) =>
-    pause(delay)
-      .then(() => fn(...args))
+export function immediateWrap<T, A>(fn: (arg: A) => T): (arg: A) => Promise<T> {
+  return (arg: A): Promise<T> => Bluebird.resolve().then(() => fn(arg))
+}
 
 smartTimeout.immediate = immediate
-smartTimeout.promise = delayedCall
 smartTimeout.cancel = cancel
 
 export default smartTimeout

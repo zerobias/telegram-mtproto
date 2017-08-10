@@ -1,6 +1,6 @@
 {
   "name": "mtproto-shared",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Core utils for telegram-mtproto",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -13,7 +13,8 @@
     "clean": "rimraf es/ && rimraf lib/",
     "prepublish": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "types": "flow-copy-source src lib && flow-copy-source src es"
+    "types": "flow-copy-source src lib && flow-copy-source src es",
+    "watch:cjs": "npm run build:cjs -- --watch"
   },
   "files": [
     "lib",
@@ -31,7 +32,7 @@
     "babel-core": "^6.25.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "cross-env": "^5.0.1",
+    "cross-env": "^5.0.3",
 
     "flow-copy-source": "^1.2.0",
     "rimraf": "^2.6.1"

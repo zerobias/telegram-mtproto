@@ -23,8 +23,8 @@ class BrowserStorage implements AsyncStorage {
     return this.storage.getItem(key)
   }
 
-  set(key: string, val: mixed) {
-    return this.storage.setItem(key, val)
+  async set(key: string, val: mixed) {
+    await this.storage.setItem(key, val)
   }
 
   async remove(...keys: string[]) {

@@ -1,6 +1,6 @@
 {
   "name": "mtproto-storage-browser",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Save telegram-mtproto session in localStorage",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -24,8 +24,8 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "localforage": "^1.5.0",
-    "mtproto-logger": "^0.1.7",
-    "mtproto-shared": "^0.1.7"
+    "mtproto-logger": "^0.1.8",
+    "mtproto-shared": "^0.1.8"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -34,7 +34,7 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "cross-env": "^5.0.1",
+    "cross-env": "^5.0.3",
 
     "flow-copy-source": "^1.2.0",
     "rimraf": "^2.6.1"
