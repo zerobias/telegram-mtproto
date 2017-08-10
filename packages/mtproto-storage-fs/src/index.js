@@ -44,12 +44,16 @@ export class FileStorage implements AsyncStorage {
       persistent     : false,
       atomic         : true,
     })
-    watcher.on('change', async (stats: any) => {
+    watcher.on('change', async(stats: any) => {
       log('change')(stats)
       log('allowRead')(this.allowRead)
       if (this.allowRead) {
-        const result = await readJson(this.filepath)
-        this.data = result
+        try {
+          const result = await readJson(this.filepath)
+          this.data = result
+        } catch (error) {
+          log`change save failure`(error.message)
+        }
       }
     })
   }
@@ -64,7 +68,11 @@ export class FileStorage implements AsyncStorage {
 
   async save() {
     this.reReadProtect()
-    await outputJson(this.filepath, this.data, { spaces: 2 })
+    try {
+      await outputJson(this.filepath, this.data, { spaces: 2 })
+    } catch (error) {
+      log`save failure`(error.message)
+    }
     this.reReadProtect()
   }
 
