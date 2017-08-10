@@ -38,11 +38,17 @@
 ./packages/mtproto-storage-fs/src
 ./packages/telegram-mtproto/src
 
+[lints]
+all=warn
+untyped-type-import=error
+
 [libs]
 ./flow-typed
+<PROJECT_ROOT>/node_modules/apropos
 💩 ./node_modules/funfix/dist/funfix.js.flow
 
 [options]
+include_warnings=true
 max_header_tokens=30
 esproposal.class_instance_fields=enable
 esproposal.class_static_fields=enable
@@ -63,13 +69,14 @@ module.name_mapper='^ajv\(.*\)$' -> '<PROJECT_ROOT>/node_modules/ajv\1'
 module.name_mapper='^most-subject$' -> '<PROJECT_ROOT>/node_modules/most-subject'
 module.name_mapper='^rusha$' -> '<PROJECT_ROOT>/node_modules/rusha'
 module.name_mapper='^fs-extra$' -> '<PROJECT_ROOT>/node_modules/fs-extra'
+module.name_mapper='^apropos$' -> '<PROJECT_ROOT>/node_modules/apropos/src'
 💩 module.name_mapper='^funfix$' -> '<PROJECT_ROOT>/node_modules/funfix/dist/funfix.js.flow'
 module.name_mapper='^funfix\(.*\)$' -> '<PROJECT_ROOT>/node_modules/funfix/\1'
 module.name_mapper='^chokidar$' -> '<PROJECT_ROOT>/node_modules/chokidar'
 module.name_mapper='^\(.*\)goodmind\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1goodmind\2'
 module.name_mapper='^pako\(.*\)$' -> '<PROJECT_ROOT>/node_modules/pako\1'
 module.name_mapper='^\(.*\)redux\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1redux\2'
-module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1'
+module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1/src'
 module.name_mapper='^Action\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/state/action\1'
 module.name_mapper='^Util\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/util\1'
 module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules

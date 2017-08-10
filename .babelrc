@@ -13,7 +13,6 @@
       "throwIfClosureRequired": true
     }],
     ["transform-object-rest-spread", { "useBuiltIns": true }]
-    ,"closure-elimination"
   ],
   "env": {
     "commonjs": {
