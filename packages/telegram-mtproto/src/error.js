@@ -2,7 +2,7 @@
 
 import { type $AxiosXHR } from 'axios'
 
-import stackCleaner from 'Util/clean-stack'
+import stackCleaner from './util/clean-stack'
 import type { TypeBuffer } from './tl/type-buffer'
 import { type MTPᐸRpcErrorᐳ } from './mtp.h'
 

@@ -8,12 +8,17 @@ import {
   type MessageDraft,
   type IncomingType,
   type SystemMessage,
+  type MessageUnit,
 } from './index.h'
 import { isApiObject } from './fixtures'
 import parser from '../service/chain'
 import processing from './processing'
+import { dispatch } from '../state/core'
+import { MAIN } from 'Action'
 
-async function normalize(input: RawInput) {
+type PUnitList = Promise<MessageUnit[]>
+
+async function normalize(input: RawInput): PUnitList {
   const decrypted = await decryptor(input)
   const { response } = decrypted
   if (!isApiObject(response)) {
@@ -22,7 +27,7 @@ async function normalize(input: RawInput) {
   const ctx = { ...input, ...decrypted }
   const flattenRaw = flattenMessage(ctx, response)
   const processed = processing(ctx, flattenRaw)
-  handling(ctx, processed)
+    .map(msg => singleHandler(ctx, msg))
   return processed
 }
 
@@ -99,11 +104,11 @@ function checkContainer(response: RawMessage) {
 }
 
 
-function handling(ctx: IncomingType, messages) {
+function handling(ctx: IncomingType, messages: MessageUnit[]) {
   return messages.map(msg => singleHandler(ctx, msg))
 }
 
-function singleHandler(ctx: IncomingType, message) {
+function singleHandler(ctx: IncomingType, message: MessageUnit): MessageUnit {
   const { flags } = message
   const { thread } = ctx
   if (flags.inner) {
@@ -192,6 +197,36 @@ function singleHandler(ctx: IncomingType, message) {
       }
     }
   }
+  if (flags.error)
+    return handleError(ctx, message)
+  return message
+}
+
+const migrateRegexp = /^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/
+
+function handleError(ctx: IncomingType, data: MessageUnit) {
+  const err: {
+    code: number,
+    message: string,
+    handled: boolean,
+  //$FlowIssue
+  } = data.error
+  const {
+    code,
+    message,
+  } = err
+  if (migrateRegexp.test(message)) {
+    const matched = message.match(migrateRegexp)
+    if (!matched || matched.length < 2)
+      return data
+    const [ , , newDcID] = matched
+    if (!isFinite(newDcID))
+      return data
+    const newDc = parseInt(newDcID, 10)
+    dispatch(MAIN.DC_CHANGED(newDc))
+    return { ...data, error: { code, message, handled: true } }
+  }
+  return data
 }
 
 export default normalize

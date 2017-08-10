@@ -9,7 +9,11 @@
     "^.+\\.jsx?$": "babel-jest"
   },
   "moduleNameMapper": {
-    "^Action(.*)$": "<rootDir>/packages/telegram-mtproto/lib/state/action$1",
-    "^Util(.*)$": "<rootDir>/packages/telegram-mtproto/lib/util$1"
-  }
+    "^Action(.*)$": "<rootDir>/packages/telegram-mtproto/src/state/action$1",
+    "^Util(.*)$": "<rootDir>/packages/telegram-mtproto/src/util$1"
+  },
+  "roots" : [
+    "<rootDir>/packages/telegram-mtproto/src/",
+    "<rootDir>/packages/telegram-mtproto/test/"
+  ]
 }

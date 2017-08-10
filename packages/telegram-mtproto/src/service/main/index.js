@@ -32,6 +32,8 @@ class MTProto {
   state = new State
   defaultDC: number = 2
   bus: Bus
+  load: () => Promise<void>
+  activated: boolean = true
   constructor(config: ConfigType) {
     const {
       uid,
@@ -60,6 +62,9 @@ class MTProto {
       if (rest.length > 0)
         log('event', 'rest')(rest)
     })
+    this.emitter.on('deactivate', () => {
+      this.activated = false
+    })
     this.api = new ApiManager(fullConfig, uid)
     this.bus = streamBus(this)
     dispatch(MAIN.INIT({
@@ -67,7 +72,11 @@ class MTProto {
       invoke    : this.api.mtpInvokeApi,
       storageSet: (key: string, value: mixed) => storage.set(key, value)
     }))
-    const load = () => loadStorage(storage, dcMap, this.api.networkSetter)
+    const load = async() => {
+      if (this.activated)
+        await loadStorage(storage, dcMap, this.api.networkSetter)
+    }
+    this.load = load
     setTimeout(load, 1e3)
   }
 }

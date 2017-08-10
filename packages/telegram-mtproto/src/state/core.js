@@ -1,5 +1,5 @@
 //@flow
-import { type Stream } from 'most'
+import { type Stream, from } from 'most'
 import { async } from 'most-subject'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { createEpicMiddleware } from 'redux-most'
@@ -10,20 +10,21 @@ const log = Logger`redux-core`
 import { type State } from './index.h'
 import rootReducer from './reducer'
 import rootEpic from './epic'
-import { skipEmptyMiddleware, batch, normalizeActions } from './middleware'
+import { skipEmptyMiddleware, batch, normalizeActions, extendActions } from './middleware'
 
 let composeEnhancers = compose
 
 // if (isNode === false && typeof window === 'object')
 //   composeEnhancers =
 //     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-if (process.env.NODE_ENV !== 'test')
-  composeEnhancers = composeWithDevTools({
-    realtime: true,
-    hostname: 'localhost',
-    port    : 8000,
-    maxAge  : 200
-  })
+// if (process.env.NODE_ENV !== 'test')
+composeEnhancers = composeWithDevTools({
+  realtime: true,
+  hostname: 'localhost',
+  port    : 8000,
+  maxAge  : 200,
+  suppressConnectErrors: false,
+})
 
 function configureStore(rootReducer: *, initialState: *) {
   const epicMiddleware = createEpicMiddleware(rootEpic)
@@ -37,12 +38,14 @@ function configureStore(rootReducer: *, initialState: *) {
           'pending add',
         ]
       }),
-      skipEmptyMiddleware,
+      // skipEmptyMiddleware,
+      extendActions,
       // debounceMiddleware,
       epicMiddleware
     )
   )
 
+  //$FlowIssue
   const store = createStore(
     rootReducer,
     initialState,
@@ -59,12 +62,7 @@ interface Subject<T> extends Stream<T> {
   complete (value?: T): Subject<T>,
 }
 
-const rootSignal: Subject<State> = async()
-export const root: Stream<State> = rootSignal.multicast()
-
-store.subscribe(
-  () => rootSignal.next(store.getState())
-)
+export const root: Stream<State> = from(store).multicast()
 
 export default store
 

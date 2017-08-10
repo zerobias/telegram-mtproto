@@ -21,6 +21,7 @@ import { MTError, RpcApiError } from '../error'
 import dcStoreKeys from 'Util/dc-store-keys'
 
 import Logger from 'mtproto-logger'
+import { homeDc } from '../state/signal'
 const log = Logger`stream-bus`
 
 
@@ -78,6 +79,12 @@ const createStreamBus = (ctx: MTProto) => {
   const isAuthRestart = (error: MTError) =>
     error.code === 500
     && error.type === 'AUTH_RESTART'
+
+  let currentDc: number
+  homeDc.observe(num => {
+    if (isFinite(num))
+      currentDc = num
+  })
 
   bus.rpcError.observe(async({ error, ...data }: OnRpcError) => {
     if (error instanceof RpcApiError === false)
@@ -171,10 +178,11 @@ const createStreamBus = (ctx: MTProto) => {
       // thread.connectionInited = false
       ctx.api.authBegin = false
       log('on auth key unreg')('before end')
-      const nearest = await ctx.storage.get('nearest_dc')
-      await ctx.storage.set('dc', nearest)
+      // const nearest = await ctx.storage.get('nearest_dc')
+
+      await ctx.storage.set('dc', currentDc)
       // await new Promise(rs => setTimeout(rs, 1e3))
-      req.options.dc = nearest
+      req.options.dc = currentDc
       await ctx.api.doAuth()
       await ctx.api.invokeNetRequest(req)
     } else {

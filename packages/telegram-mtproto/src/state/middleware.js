@@ -1,11 +1,12 @@
 //@flow
-
+import { type Middleware } from 'redux'
 import { of } from 'most'
-import { replace, split, toPairs, chain, o, contains, trim, pipe } from 'ramda'
+import { replace, toPairs, chain, o, contains, trim, pipe } from 'ramda'
 import Logger from 'mtproto-logger'
 const log = Logger`redux-core`
 
-import warning from 'Util/warning'
+import { type State } from './index.h'
+// import warning from 'Util/warning'
 import { subject } from '../property'
 
 export const skipEmptyMiddleware = () => (next: *) => (action: *) => {
@@ -117,3 +118,36 @@ export function batch(config: BatchConfig) {
 export const normalizeActions =
   <Defaults: { [field: string]: any }>(defaults: Defaults) => () =>
     (next: *) => (action: *) => next({ ...defaults, ...action })
+
+
+let FIX_THIS = false
+
+setTimeout(() => FIX_THIS = true, 9e3)
+
+const bypassActions = type => contains(type, [
+  'main/dc changed',
+  'main/dc detected'
+])
+
+export const extendActions: Middleware<State> = ({ getState }) => (next) => (action) => {
+  const state: State = getState()
+  const { homeDc, networker } = state
+
+  const type = getActionType(action)
+  if (FIX_THIS && action.meta && action.meta._ === 'networker' && action.meta.id !== homeDc && !bypassActions(type)) {
+    console.warn(action)
+    return
+  }
+  if (type !== 'main/dc changed')
+    return next(action)
+  const newDC: number = action.payload
+  const net = networker.get(homeDc)
+  const session = net.session
+  const result = {
+    oldDC: homeDc,
+    newDC,
+    closedSession: session,
+  }
+  return next({ ...action, payload: result })
+}
+

@@ -4,14 +4,14 @@
 
 import { combineReducers } from 'redux'
 import { createReducer } from 'redux-act'
-import { uniq, without, append, dissoc, fromPairs } from 'ramda'
+import { uniq, without, append, omit, fromPairs } from 'ramda'
 
 import { NETWORKER_STATE, AUTH, NET, API } from 'Action'
-import { type TaskEndData } from '../epic/task'
 import List from 'Util/immutable-list'
 import { NetMessage } from '../../service/networker/net-message'
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync } from '../../bin'
 import { indexed } from 'Util/indexed-reducer'
+import { type OnRequestDone } from '../index.h'
 
 class BatchList {
   deleted: string[]
@@ -51,25 +51,11 @@ const requestMap = createReducer({
     return { ...state, ...obj }
   },
   //$FlowIssue
-  [API.REQUEST.DONE]: (state: {[key: string]: string}, data: TaskEndData) => {
-    const messages = data.messages
-    if (Array.isArray(messages))
-      return messages.reduce((acc: {[key: string]: string}, val) => {
-        const id = val.merge().ids.req
-        const field = acc[id]
-        if (field != null) {
-          return dissoc(id, acc)
-        }
-        return acc
-      }, state)
-    console.log('single message', data)
-    const { val } = messages
-    const { messageID, response } = val
-    const id = response.ids.req
-    const field = state[messageID]
-    if (field != null) {
-      return dissoc(messageID, state)
-    }
+  [API.REQUEST.DONE]: (state: {[key: string]: string}, { normalized }: OnRequestDone) => {
+    const ids = normalized
+      .filter(msg => msg.flags.api && msg.api.resolved)
+      .map(msg => msg.api.apiID)
+    return omit(ids, state)
   }
 }, {})
 
@@ -85,10 +71,10 @@ const resend = createReducer({
 const sent = createReducer({
   //$FlowIssue
   [NETWORKER_STATE.SENT.ADD]: (state: List<NetMessage, string>, payload: NetMessage[]) =>
-    payload.reduce((st, value) => st.set(value.uid, value), state),
+    payload.reduce((st, value) => st.set(value.msg_id, value), state),
   //$FlowIssue
   [NETWORKER_STATE.SENT.DEL]: (state: List<NetMessage, string>, payload: NetMessage[]) =>
-    payload.reduce((acc, val) => acc.delete(val.uid), state),
+    payload.reduce((acc, val) => acc.delete(val.msg_id), state),
 }, List.empty())
 
 const pending = createReducer({

@@ -24,6 +24,7 @@ import ApiRequest from '../main/request'
 import { API } from 'Action'
 
 import { dispatch } from '../../state/core'
+import { homeDc } from '../../state/signal'
 
 const baseDcID = 2
 
@@ -33,8 +34,6 @@ const Ln = (length: number, obj?: *): boolean => {
     obj.length === length
   return res
 }
-
-
 
 export class ApiManager {
   invokeNetRequest: (netReq: ApiRequest) => Promise<mixed>
@@ -86,7 +85,10 @@ export class ApiManager {
 
     this.auth = Auth(uid, publicKeys, this.cache.keysParsed)
 
-
+    homeDc.observe(newHome => {
+      if (isFinite(newHome))
+        this.currentDc = newHome
+    })
     emitter.on('error.303', (newDc: number) => {
       this.authBegin = false
       this.currentDc = newDc
@@ -157,8 +159,7 @@ export class ApiManager {
     this.authBegin = true
     this.emit('base', 'CHECK')
     try {
-      const storedBaseDc = await this.storage.get('dc')
-      const baseDc = storedBaseDc || baseDcID
+      const baseDc = this.currentDc
       const opts = {
         dc             : baseDc,
         createNetworker: true
@@ -168,14 +169,14 @@ export class ApiManager {
         'help.getNearestDc', {}, opts)
       const { nearest_dc, this_dc } = nearestDc
       await this.storage.set('nearest_dc', nearest_dc)
-      if (storedBaseDc == null) {
-        await this.storage.set('dc', nearest_dc)
-        // if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
-        //   dcID           : this_dc,
-        //   createNetworker: true
-        // })
+      // if (storedBaseDc == null) {
+      await this.storage.set('dc', nearest_dc)
+      // if (nearest_dc !== this_dc) await this.mtpGetNetworker(nearest_dc, {
+      //   dcID           : this_dc,
+      //   createNetworker: true
+      // })
 
-      }
+      // }
       log(`nearest Dc`, ` this dc`)(nearestDc, this_dc)
       this.authPromise.resolve()
     } catch (err) {
@@ -229,7 +230,7 @@ export class ApiManager {
     let networker
     try {
       // await this.initConnection()
-      const dcID = await getDc(netReq, this.storage)
+      const dcID = this.currentDc
 
       const cached = this.cache.downloader[dcID]
       networker = cached == null
@@ -300,7 +301,7 @@ export class ApiManager {
   }
 }
 
-async function getDc(netReq: ApiRequest, storage: AsyncStorage): Promise<number> {
+/* async function getDc(netReq: ApiRequest, storage: AsyncStorage): Promise<number> {
   if (netReq.options.dc) {
     const reqDc = netReq.options.dc
     if (typeof reqDc === 'number')
@@ -310,7 +311,7 @@ async function getDc(netReq: ApiRequest, storage: AsyncStorage): Promise<number>
     else throw new Error(`invokeNetRequest wrong request id ${reqDc}`)
   } else
     return await storage.get('dc')
-}
+} */
 
 const isAnyNetworker = (ctx: ApiManager) => Object.keys(ctx.cache.downloader).length > 0
 

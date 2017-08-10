@@ -11,6 +11,8 @@ const reducer = createReducer({
   //$FlowIssue
   [MAIN.DC_DETECTED]  : () => statuses.dcDetected,
   //$FlowIssue
+  [MAIN.DC_CHANGED]   : () => statuses.dcDetected,
+  //$FlowIssue
   [MAIN.ACTIVATED]    : () => statuses.activated,
 }, statuses.init)
 

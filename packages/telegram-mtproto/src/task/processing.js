@@ -11,16 +11,18 @@ import {
   type RawInner,
   type MessageDraft,
   type SystemMessage,
+  type MessageUnit,
 } from './index.h'
 import { initFlags, isApiObject } from './fixtures'
-
+import { resolveRequest } from '../state/query'
 
 
 export default function processing(ctx: IncomingType, list: MessageDraft[]) {
-  return list.map(msg => processSingle(ctx, msg))
+  return list
+    .map(msg => processSingle(ctx, msg))
 }
 
-function processSingle(ctx: IncomingType, msg: MessageDraft) {
+function processSingle(ctx: IncomingType, msg: MessageDraft): MessageUnit {
   let { flags, ...body } = getIncoming()
   flags = initFlags(flags)
   switch (msg.type) {
@@ -99,9 +101,14 @@ function processRpc(ctx: IncomingType, msg: MessageDraft, body: RawBody) {
       ...flagsResult,
       body: true,
     }
+    const apiID = resolveRequest({ dc: msg.dc, outID })
     accResult = {
       ...accResult,
       body: rslt,
+      api : {
+        resolved: !!apiID,
+        apiID   : apiID || '',
+      },
     }
     if (rslt._ === 'rpc_error') {
       flagsResult = {
@@ -113,6 +120,7 @@ function processRpc(ctx: IncomingType, msg: MessageDraft, body: RawBody) {
         error: {
           code   : rslt.error_code /*:: || 1 */,
           message: rslt.error_message /*:: || '' */,
+          handled: false,
         }
       }
     }
@@ -130,15 +138,7 @@ function hasBody(msg: RawInner): boolean %checks {
   )
 }
 
-function hasResult(msg: RawBody | RawError/*  | RawObject */): boolean %checks {
-  return (
-    msg._ === 'rpc_result'
-    && typeof msg.req_msg_id === 'string'
-    && msg.result != null
-  )
-}
-
-type ContextFn<-Ctx, -E, +R> = (ctx: Ctx, elem: E) => R
+/* type ContextFn<-Ctx, -E, +R> = (ctx: Ctx, elem: E) => R
 
 const contextMap = <Ctx, E, R>(fn: ContextFn<Ctx, E, R>) => (ctx: Ctx, list: E[]): R[] => list.map((e: E) => fn(ctx, e))
 
@@ -162,7 +162,7 @@ const mergeFragments = ({ flags: flags1, ...o1 }, { flags: flags2, ...o2 }) => (
   },
   ...o1,
   ...o2,
-})
+}) */
 
 const getIncoming = () => ({
   flags: {

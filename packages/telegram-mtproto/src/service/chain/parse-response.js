@@ -34,8 +34,10 @@ type ParsedResponse = {
 
 export function readResponse({ response, reader, authKeyStored }: ReadResponse) {
   const authKeyID = reader.fetchIntBytes(64, 'auth_key_id')
-  if (!bytesCmp(authKeyID, authKeyStored)) {
-    throw new Error(`[MT] Invalid server auth_key_id: ${  bytesToHex(authKeyID)}`)
+  if (!bytesCmp(authKeyID, authKeyStored)) { //TODO Remove auth keys from logs
+    throw new Error(
+      `[MT] Invalid server auth_key_id: ${bytesToHex(authKeyID)}, authKeyStored: ${authKeyStored.toString()}`
+    )
   }
   const msgKey = reader.fetchIntBytes(128, 'msg_key')
   const encryptedData = reader.fetchRawBytes(

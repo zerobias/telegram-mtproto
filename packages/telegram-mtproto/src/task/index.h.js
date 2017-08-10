@@ -133,12 +133,19 @@ export type Conformᐸbodyᐳ = {
 //   }
 // } & */
 
-export type Conformᐸapiᐳ = ConformᐸmethodResultᐳ
+//$FlowIssue
+export type Conformᐸapiᐳ = {
+  +api: {
+    +resolved: boolean,
+    +apiID: string,
+  }
+} & ConformᐸmethodResultᐳ
 
 export type Conformᐸerrorᐳ = {
   +error: {
     +code: number,
     +message: string,
+    +handled: boolean,
   }
 } & Conformᐸapiᐳ
 
@@ -148,6 +155,43 @@ export type Conformᐸcontainerᐳ = {
     // +apiMap: Map<string, (string | false)>,
   }
 } & MessageMain
+
+export type MessageUnit = {
+  +id: string,
+  +seq: number,
+  +session: Uint8Array,
+  +dc: number,
+  +flags: {
+    +api: boolean,
+    +inner: boolean,
+    +container: boolean,
+    +incoming: boolean,
+    +methodResult: boolean,
+    +body: boolean,
+    +error: boolean,
+  },
+  +api: {
+    +resolved: boolean,
+    +apiID: string,
+  },
+  +inner: { +container: string },
+  +container: {
+    +contains: string[],
+  },
+  +incoming: {
+    +timestamp: number,
+  },
+  +methodResult: { +outID: string },
+  +body: {
+    +_: string,
+    +[field: string]: any,
+  },
+  +error: {
+    +code: number,
+    +message: string,
+    +handled: boolean,
+  },
+}
 
 /*::
 export type DeriveSubtype<B: MessageMain> = <-C: B>(val: C, fn: B => MessageMain) => MessageMain

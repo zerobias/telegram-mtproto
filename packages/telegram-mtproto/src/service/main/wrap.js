@@ -23,6 +23,8 @@ function MTProto(config: ConfigType = {}): ApiManagerInstance {
   telegram.uid = mtproto.uid
   telegram.bus = mtproto.bus
   telegram.mtproto = mtproto
+  if (process.env.NODE_ENV === 'test')
+    telegram.api = api
   return telegram
 }
 

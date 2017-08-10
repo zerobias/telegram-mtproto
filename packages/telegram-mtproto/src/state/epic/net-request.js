@@ -1,7 +1,6 @@
 //@flow
 
 import { Stream, of, awaitPromises } from 'most'
-import { equals } from 'ramda'
 
 import Logger from 'mtproto-logger'
 const log = Logger`net-request`
@@ -40,6 +39,10 @@ function encryptedBytes(opts: *): Promise<{|
   })
 }
 
+function sideStream<A, B, C>(merge: (x: A, y: B) => C, main: Stream<A>, sub: Stream<B>) {
+  return main.sample(merge, main, sub)
+}
+
 process.on('unhandledRejection', val => {
   console.log(val)
   console.trace('on')
@@ -62,16 +65,29 @@ export function onNewRequest(action: Stream<any>){
 
   const merged = getDc.merge(noAuth, casual)
 
-  return merged
-    .combine((data, homeDc) => ({ ...data, homeDc }), homeDc)
-    .combine((data, uid) => ({ ...data, uid }), uid)
-    .skipRepeatsWith(equals)
-    .map(API.TASK.NEW)
+  const homeCombine = (data, homeDc) => ({ ...data, homeDc })
+  const uidCombine = (data, uid) => ({ ...data, uid })
+  const withHome = sideStream(
+    homeCombine,
+    merged,
+    homeDc
+  )
+  return sideStream(
+    uidCombine,
+    withHome,
+    uid
+  ).map(API.TASK.NEW)
 }
 
 export const onNewTask = (action: Stream<any>) => action
   .thru(onAction(API.TASK.NEW))
-  .tap(val => val.netReq.invoke())
+  // .delay(100)
+  .tap(val => console.warn('onNewTask', val))
+  .tap(val => {
+    Array.isArray(val)
+      ? val.map(v => v.netReq.invoke())
+      : val.netReq.invoke()
+  })
   .filter(() => false)
 
 const netRequest = (action: Stream<any>) => action

@@ -7,7 +7,7 @@ import Bluebird from 'bluebird'
 export type Defer = {
   resolve<T>(rs: T): void,
   reject<E>(rs: E): void,
-  promise: Bluebird<*>
+  promise: Promise<*>,
 }
 
 const filler: (value: *) => void = (value) => {

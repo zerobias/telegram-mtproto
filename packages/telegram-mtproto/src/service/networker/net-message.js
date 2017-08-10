@@ -1,8 +1,8 @@
 //@flow
 
 import { generateID } from '../time-manager'
-import blueDefer from 'Util/defer'
-import { type Defer } from 'Util/defer'
+import blueDefer from '../../util/defer'
+import { type Defer } from '../../util/defer'
 
 type BodyBytes = number[] | Uint8Array
 

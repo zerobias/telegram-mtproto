@@ -17,9 +17,9 @@ const { Storage } = require('mtproto-storage-fs')
 //   code: '11111'
 // }
 // const storageSnap = readJSONSync(join(__dirname, 'storage.json'))
-const storageData = () => /* storageSnap */ getStorageData(2)
+const storageData = () => /* storageSnap */ getStorageData(1)
 
-outputJsonSync(join(__dirname, 'storage.json'), storageData(), { spaces: 2 })
+// outputJsonSync(join(__dirname, 'storage.json'), storageData(), { spaces: 2 })
 
 const phone = {
   num      : '+9996620000',
@@ -76,6 +76,7 @@ const isAlreadyAuth = async() => {
 
 
 beforeEach(() => {
+  app.storage = new Storage('./test/storage.json')
   telegram = MTProto({ server, api, app })
 })
 
@@ -83,10 +84,12 @@ beforeEach(() => {
 afterEach(async() => {
   app.storage.data = storageData()
   await app.storage.save()
-  await new Promise(rs => setTimeout(rs, 1e3))
+  console.log(`----------------------TEST END----------------------`)
+  await new Promise(rs => setTimeout(rs, 3e3))
+  console.log(`----------------------PAUSE END----------------------`)
 })
 
-test.only(`Connection test`, async() => {
+test(`Connection test`, async() => {
   expect.assertions(2)
   const isAuth = await isAlreadyAuth()
   let message

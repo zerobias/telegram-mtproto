@@ -22,6 +22,10 @@ export function afterStatus(status: ModuleStatus) {
     .skipRepeats()
 }
 
+export const requestMap = root
+  .map(state => state.request)
+  .skipRepeats()
+
 export const homeDc = root
   .map(state => state.homeDc)
   .skipRepeats()

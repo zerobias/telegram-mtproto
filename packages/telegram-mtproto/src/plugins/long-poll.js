@@ -46,13 +46,13 @@ class LongPoll {
   }
   async request() {
     const result = await this.thread.wrapMtpCall('http_wait', {
-      max_delay : 1000,
-      wait_after: 500,
+      max_delay : 0,
+      wait_after: 0,
       max_wait  : this.maxWait
     }, {
-      noResponse: true,
-      longPoll  : true,
-      // notContentRelated: true
+      noResponse       : true,
+      longPoll         : true,
+      notContentRelated: true
     })
     this.thread.checkLongPoll()
     return result

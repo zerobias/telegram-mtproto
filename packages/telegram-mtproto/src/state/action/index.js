@@ -28,4 +28,4 @@ export { NETWORKER_STATE } from './networker-state'
 
 export { API } from './api'
 
-export type { ApiMetaPL, ApiNewRequest, ApiCallResult } from './api'
+export type { ApiMetaPL, ApiCallResult } from './api'

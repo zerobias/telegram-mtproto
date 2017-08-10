@@ -39,6 +39,7 @@ import { NET, NETWORKER_STATE, AUTH } from '../../state/action'
 import { type ApiConfig } from '../main/index.h'
 
 import { dispatch } from '../../state/core'
+import { homeDc } from '../../state/signal'
 
 let updatesProcessor: *
 let iii = 0
@@ -99,6 +100,7 @@ export class NetworkerThread {
     req_msg_id: string,
     resend_msg_ids: string[],
   } | void
+  isHome: boolean = false
   constructor({
     appConfig,
     storage
@@ -166,7 +168,10 @@ export class NetworkerThread {
     emitter.emit('new-networker', this)
 
     this.updateSession()
-
+    homeDc.observe(newHome => {
+      if (isFinite(newHome))
+        this.isHome = newHome === this.dcID
+    })
     setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
     this.checkLongPoll()
   }
@@ -340,16 +345,14 @@ export class NetworkerThread {
     || !!this.offline
     || akStopped
   }
-  checkLongPollAfterDcCond(isClean: boolean, baseDc: number) {
-    return isClean && this.dcID !== baseDc
+  checkLongPollAfterDcCond(isClean: boolean) {
+    return isClean && !this.isHome
   }
   async checkLongPoll() {
     const isClean = this.cleanupSent()
     if (this.checkLongPollCond())
       return false
-
-    const baseDc: number = await this.storage.get('dc')
-    if (this.checkLongPollAfterDcCond(isClean, baseDc))
+    if (this.checkLongPollAfterDcCond(isClean))
     // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
       return
     const start = Date.now()

@@ -1,10 +1,10 @@
 //@flow
 
-import Promise from 'bluebird'
+import Bluebird from 'bluebird'
 
 import { toPairs } from 'ramda'
 
-import type { AsyncStorage } from './index.h'
+import { type AsyncStorage } from 'mtproto-shared'
 
 
 /**
@@ -19,7 +19,7 @@ export class MemoryStorage implements AsyncStorage {
   store: Map<string, any> = new Map
 
 
-  constructor(data?: { [key: number]: * }) {
+  constructor(data?: { [key: string]: * }) {
     if (data != null)
       for (const [key, value] of toPairs(data))
         this.store.set(key, value)
@@ -27,23 +27,25 @@ export class MemoryStorage implements AsyncStorage {
 
 
   get(key: string) {
-    return Promise.resolve(this.store.get(key))
+    return Bluebird.resolve(this.store.get(key))
   }
 
   set(key: string, val: any) {
     this.store.set(key, val)
-    return Promise.resolve()
+    return Bluebird.resolve()
   }
 
   remove(...keys: string[]) {
-    const results = keys.map(e => this.store.delete(e))
-    return Promise.resolve(results)
+    keys.map(e => this.store.delete(e))
+    return Bluebird.resolve()
   }
 
   clear() {
     this.store.clear()
-    return Promise.resolve()
+    return Bluebird.resolve()
   }
 }
+
+
 
 export default MemoryStorage
