@@ -1,105 +1,102 @@
 //@flow
-
+import { parse, format } from 'path'
 import Bluebird from 'bluebird'
 import {
-  readJson,
   outputJson,
   ensureFileSync,
   readJsonSync,
   outputJsonSync
 } from 'fs-extra'
-import { watch } from 'chokidar'
 
-import type { AsyncStorage } from 'mtproto-shared'
+import Emitter from 'events'
+
+import { fromEvent, awaitPromises, periodic, Stream } from 'most'
+import { isEmpty, reject, isNil, complement as not, fromPairs } from 'ramda'
+
+import { type AsyncStorage } from 'mtproto-shared'
 
 import Logger from 'mtproto-logger'
-const log = Logger`reactive-storage`
+const log = Logger`json-storage`
 
-export class FileStorage implements AsyncStorage {
+const PERIOD = 3000
+
+type Data = { [key: string]: any }
+
+const clock = periodic(PERIOD).multicast()
+
+const accInit: Data = {/*::_: 0*/}
+
+const chunkedStream = (stream: Stream<Data>) => clock
+  .map(() => stream
+    .until(clock)
+    .reduce((acc, val): Data => ({ ...acc, ...val }), accInit))
+  .thru(awaitPromises)
+  .filter(not(isEmpty))
+
+const skipVoids: (x: Data) => Data = reject(isNil)
+
+export class JsonStorage implements AsyncStorage {
   filepath: string
-  data: { [key: string]: * }
-  allowRead: boolean = true
-  readInterval: number = 2e3
-  timeoutID: number = -Infinity
+  data: Data
 
-  constructor(filepath: string, data?: { [key: string]: * }) {
-    this.filepath = filepath.substr(-5) === '.json'
-      ? filepath
-      : `${filepath}.json`
+  emitter = new Emitter
+  writes = fromEvent('write', this.emitter)
+    .thru(chunkedStream)
+    .map(data => ({ ...this.data, ...data }))
+    .map(skipVoids)
+    .observe(val => save(this.filepath, val))
+
+  constructor(filepath: string, data?: Data) {
+    this.filepath = normalizePath(filepath)
     if (data != null)
       this.data = data
-
-    // process.on('beforeExit', () => {
-    //   watcher.close()
-    // })
+    Object.defineProperties(this, {
+      emitter: {
+        value: this.emitter
+      },
+      writes: {
+        value: this.writes
+      }
+    })
     this.init()
   }
   init() { //TODO make async
     const data = ensureSync(this.filepath)
     if (!this.data)
       this.data = data
-    const watcher = watch(this.filepath, {
-      useFsEvents    : false,
-      disableGlobbing: true,
-      persistent     : false,
-      atomic         : true,
-    })
-    watcher.on('change', async(stats: any) => {
-      log('change')(stats)
-      log('allowRead')(this.allowRead)
-      if (this.allowRead) {
-        try {
-          const result = await readJson(this.filepath)
-          this.data = result
-        } catch (error) {
-          log`change save failure`(error.message)
-        }
-      }
-    })
-  }
-  allowReadNow = () => {
-    this.allowRead = true
-  }
-  reReadProtect = () => {
-    this.allowRead = false
-    clearTimeout(this.timeoutID)
-    this.timeoutID = setTimeout(this.allowReadNow, this.readInterval)
   }
 
-  async save() {
-    this.reReadProtect()
-    try {
-      await outputJson(this.filepath, this.data, { spaces: 2 })
-    } catch (error) {
-      log`save failure`(error.message)
-    }
-    this.reReadProtect()
+  save() {
+    return save(this.filepath, this.data)
   }
 
-  get(key: string) {
+  get(key: string): Promise<any> {
     const data = this.data[key]
     log('get', `key ${key}`)(data)
     return Bluebird.resolve(data)
   }
-
-  async set(key: string, val: any): Promise<void> {
-    this.data[key] = val
+  sendToSave(data: Data) {
+    this.data = { ...this.data, ...data }
+    this.emitter.emit('write', data)
+  }
+  set(key: string, val: any): Promise<void> {
+    this.sendToSave({ [key]: val })
     log('set', `key ${key}`)(val)
-    await this.save()
+    return Bluebird.resolve()
   }
 
-  async remove(...keys: string[]): Promise<void> {
-    const data = this.data
-    for (const key of keys)
-      delete data[key]
-    log('remove')(keys)
-    await this.save()
+  remove(...keys: string[]): Promise<void> {
+    const saved = fromPairs(keys.map(key => [key, void 0]))
+    log`remove`(keys)
+    this.sendToSave(saved)
+    return Bluebird.resolve()
   }
 
-  async clear() {
+  clear(): Promise<void> {
     this.data = {}
-    log('clear')('ok')
-    await this.save()
+    this.sendToSave(accInit)
+    log`clear`('ok')
+    return Bluebird.resolve()
   }
 }
 
@@ -109,7 +106,7 @@ function ensureSync(filepath: string) {
   try {
     fileData = readJsonSync(filepath)
   } catch (err) {
-    log(`init`, `error`)(err)
+    log`init, error`(err)
   }
   if (fileData === null) {
     outputJsonSync(filepath, {})
@@ -118,6 +115,21 @@ function ensureSync(filepath: string) {
   return fileData
 }
 
-export { FileStorage as Storage }
+function normalizePath(filepath: string) {
+  const parsed = parse(filepath)
+  if (parsed.ext !== '.json')
+    return format({ ...parsed, ext: '.json' })
+  return filepath
+}
 
-export default FileStorage
+async function save(filepath: string, data: Data) {
+  try {
+    await outputJson(filepath, data, { spaces: 2 })
+  } catch (error) {
+    log`save failure`(error.message)
+  }
+}
+
+export { JsonStorage as Storage }
+
+export default JsonStorage
