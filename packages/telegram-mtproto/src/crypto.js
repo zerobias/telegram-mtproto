@@ -13,15 +13,12 @@ const convertIfArray = (val) => Array.isArray(val)
   ? convertToUint8Array(val)
   : val
 
+const hasWindow = typeof window !== 'undefined'
+
 let webWorker = !isNode
 let taskID = 0
 const awaiting: { [task: number]: Defer } = {}
-const webCrypto = isNode
-  ? false
-  //eslint-disable-next-line
-  : window.crypto.subtle || window.crypto.webkitSubtle
-  //eslint-disable-next-line
-  || window.msCrypto && window.msCrypto.subtle
+const webCrypto = isWebCrypto()
 const useWebCrypto = webCrypto && !!webCrypto.digest
 let useSha1Crypto = useWebCrypto
 let useSha256Crypto = useWebCrypto
@@ -33,10 +30,21 @@ const finalizeTask = (taskID: number, result) => {
   }
 }
 
+function isWebCrypto() {
+  if (isNode || !hasWindow) return false
+  //eslint-disable-next-line
+  if (window.crypto === void 0 && window.msCrypto === void 0)
+    return false
+  //eslint-disable-next-line
+  return (window.crypto && (window.crypto.subtle || window.crypto.webkitSubtle))
+  //eslint-disable-next-line
+    || window.msCrypto && window.msCrypto.subtle
+}
+
 const isCryptoTask = both(has('taskID'), has('result'))
 
 //eslint-disable-next-line
-const workerEnable = !isNode && window.Worker
+const workerEnable = !isNode && hasWindow && window.Worker
 if (workerEnable) {
   let TmpWorker
   try {
