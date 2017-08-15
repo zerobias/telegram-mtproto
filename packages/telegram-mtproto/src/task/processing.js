@@ -138,32 +138,6 @@ function hasBody(msg: RawInner): boolean %checks {
   )
 }
 
-/* type ContextFn<-Ctx, -E, +R> = (ctx: Ctx, elem: E) => R
-
-const contextMap = <Ctx, E, R>(fn: ContextFn<Ctx, E, R>) => (ctx: Ctx, list: E[]): R[] => list.map((e: E) => fn(ctx, e))
-
-
-const contextReduce = <Ctx, Src, E>(toElem: (x: Src) => E, fns: Array<((ctx: Ctx, src: Src, e: E) => E)>) =>
-  (ctx: Ctx) => (src: Src): E => {
-    let e = toElem(src)
-    for (let i = 0, ln = fns.length; i< ln; i++) {
-      const fn = fns[i]
-      const result = fn(ctx, src, e)
-      e = result
-    }
-    return e
-  }
-
-
-const mergeFragments = ({ flags: flags1, ...o1 }, { flags: flags2, ...o2 }) => ({
-  flags: {
-    ...flags1,
-    ...flags2,
-  },
-  ...o1,
-  ...o2,
-}) */
-
 const getIncoming = () => ({
   flags: {
     incoming: true,

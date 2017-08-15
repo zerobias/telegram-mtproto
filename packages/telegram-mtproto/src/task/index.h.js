@@ -4,12 +4,15 @@ import { type AxiosXHR } from 'axios'
 
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
+import { type NetState } from '../state/index.h'
 
 export type RawInput = {
   message: NetMessage,
   noResponseMsgs: string[],
   result: AxiosXHR<ArrayBuffer>,
-  thread: NetworkerThread
+  thread: NetworkerThread,
+  dc: number,
+  net: NetState,
 }
 
 export type IncomingType = RawInput & {
@@ -193,7 +196,53 @@ export type MessageUnit = {
   },
 }
 
-/*::
-export type DeriveSubtype<B: MessageMain> = <-C: B>(val: C, fn: B => MessageMain) => MessageMain
-*/
-const reduceBody: Conformᐸbodyᐳ => MessageMain = (val) => val
+export type ᐸPatchᐳMessage = { dc: number, id: string }
+
+export type ᐸPatchᐳProcessAck = ᐸPatchᐳMessage
+export type ᐸPatchᐳAck = ᐸPatchᐳMessage
+export type ᐸPatchᐳHome = number
+export type ᐸPatchᐳAuthKey = { dc: number, authKey: number[] | false }
+export type ᐸPatchᐳReqResend = ᐸPatchᐳMessage
+export type ᐸPatchᐳResend = ᐸPatchᐳMessage
+export type ᐸPatchᐳLastMesages = ᐸPatchᐳMessage
+export type ᐸPatchᐳSalt = { dc: number, salt: number[] }
+export type ᐸPatchᐳSession = {
+  dc: number,
+  session: number[],
+  seq: number,
+  first: string
+}
+
+export type ᐸPatchᐳSummary = {
+  processAck: ᐸPatchᐳProcessAck[],
+  ack: ᐸPatchᐳAck[],
+  home: ᐸPatchᐳHome[],
+  auth: ᐸPatchᐳAuthKey[],
+  reqResend: ᐸPatchᐳReqResend[],
+  resend: ᐸPatchᐳResend[],
+  lastMessages: ᐸPatchᐳLastMesages[],
+  salt: ᐸPatchᐳSalt[],
+  session: ᐸPatchᐳSession[],
+}
+
+
+type ReducedMessage = { [dc: number]: string[] }
+type MaybeKey = { [dc: number]: number[] | false }
+
+export type ᐸPatchᐳSummaryReduced = {
+  processAck: ReducedMessage,
+  ack: ReducedMessage,
+  home: ᐸPatchᐳHome[],
+  auth: MaybeKey,
+  reqResend: ReducedMessage,
+  resend: ReducedMessage,
+  lastMessages: ReducedMessage,
+  salt: MaybeKey,
+  session: { [dc: number]: ᐸPatchᐳSession | false },
+}
+
+export type DcAuth = {
+  auth: number[] | false,
+  salt: number[] | false,
+  session: ᐸPatchᐳSession | false,
+}
