@@ -2,8 +2,6 @@
 
 export { getConfig, registerInstance } from './provider'
 
-import Config, { type Common } from './facade'
-
-export type { Common }
+import Config from './facade'
 
 export default Config

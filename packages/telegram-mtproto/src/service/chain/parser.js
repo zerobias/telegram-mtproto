@@ -22,7 +22,7 @@ async function parser({
   thisSessionID,
   prevSessionID,
   getMsgById,
-  }: ParserContext): Promise<{
+}: ParserContext): Promise<{
   response: Object,
   messageID: string,
   sessionID: Uint8Array,
@@ -32,7 +32,7 @@ async function parser({
   const { msgKey, encryptedData } = readResponse({
     reader       : new Deserialization(responseBuffer, {}, uid),
     response     : responseBuffer,
-    authKeyStored: authKeyID
+    authKeyStored: [...authKeyID]
   })
 
   const dataWithPadding = await getDataWithPad({

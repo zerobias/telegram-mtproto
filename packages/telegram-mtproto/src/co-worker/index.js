@@ -2,12 +2,12 @@
 
 import Webworker from './web-worker'
 import CryptoBin from './crypto-bin'
-import type { Common } from '../config-provider'
+import cryptoCommon from './common-provider'
 import type { FactorizeFunc, ModPowFunc } from './index.h'
 
-const getCrypto = (common: Common) => {
+export default function getCrypto() {
   const cryptoWorker = CryptoBin()
-  let useWorker = common.use.webworker
+  let useWorker = cryptoCommon.use.webworker
   if (useWorker) {
     try {
       const webWorker = Webworker.of()
@@ -23,9 +23,10 @@ const getCrypto = (common: Common) => {
       useWorker = false
     }
   }
-  common.use.webworker = useWorker
+  cryptoCommon.use.webworker = useWorker
 
-  return cryptoWorker
+  return {
+    ...cryptoCommon,
+    Crypto: cryptoWorker,
+  }
 }
-
-export default getCrypto

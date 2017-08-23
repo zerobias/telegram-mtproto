@@ -32,7 +32,7 @@ type MtMessageProps = {
 }
 
 
-export const apiMessage = ({ ctx, serverSalt, sessionID, message }: ApiMessageProps) => {
+export function apiMessage({ ctx, serverSalt, sessionID, message }: ApiMessageProps) {
   writeIntBytes(ctx, serverSalt, 64)
   writeIntBytes(ctx, sessionID, 64)
   writeLong(ctx, message.msg_id, 'message_id')
@@ -46,7 +46,7 @@ export const apiMessage = ({ ctx, serverSalt, sessionID, message }: ApiMessagePr
   return apiBytes
 }
 
-export const encryptApiBytes = async({ bytes, authKey }: EncryptApiMessageProps) => {
+export async function encryptApiBytes({ bytes, authKey }: EncryptApiMessageProps) {
   const bytesHash = await CryptoWorker.sha1Hash(bytes)
   const msgKey = new Uint8Array(bytesHash).subarray(4, 20)
   const [aesKey, aesIv] = await getMsgKeyIv(authKey, msgKey, true)
@@ -55,7 +55,7 @@ export const encryptApiBytes = async({ bytes, authKey }: EncryptApiMessageProps)
   return { encryptedBytes, msgKey }
 }
 
-export const mtMessage = ({ ctx, authKeyID, msgKey, encryptedBytes }: MtMessageProps) => {
+export function mtMessage({ ctx, authKeyID, msgKey, encryptedBytes }: MtMessageProps) {
   writeIntBytes(ctx, authKeyID, 64)
   writeIntBytes(ctx, msgKey, 128)
   writeIntBytes(ctx, encryptedBytes, false)

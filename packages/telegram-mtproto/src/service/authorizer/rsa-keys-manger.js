@@ -1,65 +1,50 @@
 //@flow
 
 import { type PublicKey } from '../main/index.h'
-import { type Cached } from '../api-manager/index.h'
 import { Serialization } from '../../tl'
 
 import { writeBytes } from '../../tl/writer'
 
 import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../../bin'
+import Config from '../../config-provider'
 
 
-export function KeyManager(
+export default function KeyManager(
   uid: string,
   publisKeysHex: PublicKey[],
-  publicKeysParsed: Cached<PublicKey>
+  { get, set }: typeof Config.publicKeys
 ) {
-  let prepared = false
 
-  function mapPrepare({ modulus, exponent }: PublicKey) {
-    const RSAPublicKey = new Serialization({}, uid)
-    const rsaBox = RSAPublicKey.writer
-    writeBytes(rsaBox, bytesFromHex(modulus)/*, 'n'*/)
-    writeBytes(rsaBox, bytesFromHex(exponent)/*, 'e'*/)
+  publisKeysHex.forEach(key => mapPrepare(uid, set, key))
 
-    const buffer = rsaBox.getBuffer()
-
-    const fingerprintBytes = sha1BytesSync(buffer).slice(-8)
-    fingerprintBytes.reverse()
-    const key = bytesToHex(fingerprintBytes)
-    //$FlowIssue obj[number] === obj[stringNumber]
-    publicKeysParsed[key] = {
-      modulus,
-      exponent
-    }
-  }
-
-  function prepareRsaKeys() {
-    if (prepared) return
-    publisKeysHex.forEach(mapPrepare)
-
-    prepared = true
-  }
-
-  function selectRsaKeyByFingerPrint(fingerprints: string[]) {
-    prepareRsaKeys()
-
-    let fingerprintHex, foundKey
-    for (const fingerprint of fingerprints) {
-      fingerprintHex = strDecToHex(fingerprint)
-      //$FlowIssue obj[number] === obj[stringNumber]
-      foundKey = publicKeysParsed[fingerprintHex]
-      if (foundKey)
-        return { fingerprint, ...foundKey }
-    }
-    throw new Error('[Key manager] No public key found')
-  }
-
-  return {
-    prepare: prepareRsaKeys,
-    select : selectRsaKeyByFingerPrint
-  }
+  return (fingerprints: string[]) => selectRsaKeyByFingerPrint(uid, get, fingerprints)
 }
 
-export default KeyManager
+function selectRsaKeyByFingerPrint(uid: string, get: typeof Config.publicKeys.get, fingerprints: string[]) {
+  let fingerprintHex, foundKey
+  for (const fingerprint of fingerprints) {
+    fingerprintHex = strDecToHex(fingerprint)
+    foundKey = get(uid, fingerprintHex)
+    if (foundKey)
+      return { fingerprint, ...foundKey }
+  }
+  throw new Error('[Key manager] No public key found')
+}
+
+function mapPrepare(uid: string, set: typeof Config.publicKeys.set, { modulus, exponent }: PublicKey) {
+  const RSAPublicKey = new Serialization({}, uid)
+  const rsaBox = RSAPublicKey.writer
+  writeBytes(rsaBox, bytesFromHex(modulus))
+  writeBytes(rsaBox, bytesFromHex(exponent))
+
+  const buffer = rsaBox.getBuffer()
+
+  const fingerprintBytes = sha1BytesSync(buffer).slice(-8)
+  fingerprintBytes.reverse()
+  const key = bytesToHex(fingerprintBytes)
+  set(uid, key, {
+    modulus,
+    exponent
+  })
+}

@@ -1,10 +1,13 @@
 //@flow
 
-import { Deserialization } from '../../tl/index'
+import { Deserialization } from '../../tl'
 import { bytesCmp, bytesToHex, convertToUint8Array, bytesToArrayBuffer, bytesFromArrayBuffer } from '../../bin'
 import CryptoWorker from '../../crypto'
 import getMsgKeyIv from './msg-key'
 import { readLong } from '../../tl/reader'
+
+import { dispatch } from '../../state'
+import { AUTH } from 'Action'
 
 type ReadResponse = {
   response: ArrayBuffer | Buffer,
@@ -36,7 +39,7 @@ export function readResponse({ response, reader, authKeyStored }: ReadResponse) 
   const authKeyID = reader.fetchIntBytes(64, 'auth_key_id')
   if (!bytesCmp(authKeyID, authKeyStored)) { //TODO Remove auth keys from logs
     throw new Error(
-      `[MT] Invalid server auth_key_id: ${bytesToHex(authKeyID)}, authKeyStored: ${authKeyStored.toString()}`
+      `[MT] Invalid server auth_key_id: ${authKeyID.toString()} ${bytesToHex(authKeyID)}, authKeyStored: ${authKeyStored.toString()} ${bytesToHex(authKeyStored)}`
     )
   }
   const msgKey = reader.fetchIntBytes(128, 'msg_key')
@@ -66,7 +69,8 @@ export function readHash({ reader, currentSession, prevSession, dataWithPadding 
     || !bytesCmp(sessionID, prevSession));
   if (isInvalidSession) {
     console.warn('Sessions', sessionID, currentSession, prevSession)
-    throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) }`)
+    dispatch(AUTH.SET_SESSION_ID([...sessionID], 2))
+    // throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) } ${sessionID.toString()}  ${bytesToHex(currentSession)} ${currentSession.toString()}`)
   }
 
   const seqNo = reader.fetchInt('seq_no')

@@ -1,11 +1,8 @@
 //@flow
 
-import Bluebird from 'bluebird'
+import { cache, Fluture, encaseP, of, reject } from 'fluture'
 
-import blueDefer from 'Util/defer'
-import { immediate } from 'mtproto-shared'
-import { type PublicKey } from '../main/index.h'
-import { type Cached as ApiCached } from '../api-manager/index.h'
+import { DcUrlError } from '../../error'
 import Config from '../../config-provider'
 import { Serialization, Deserialization } from '../../tl'
 
@@ -18,33 +15,403 @@ import { bytesCmp, bytesToHex, sha1BytesSync,
 import { bpe, str2bigInt, one,
   dup, sub_, sub, greater } from '../../vendor/leemon'
 
-import type { ResPQ, Server_DH_Params, Server_DH_inner_data, Set_client_DH_params_answer } from './index.h'
-import type { PublicKeyExtended } from '../main/index.h'
+import {
+  type ResPQ,
+  type Server_DH_Params,
+  type Server_DH_inner_data,
+  type Set_client_DH_params_answer,
+} from './index.h'
+
 import primeHex from './prime-hex'
-import KeyManager from './rsa-keys-manger'
 
 import Logger from 'mtproto-logger'
 
 const log = Logger`auth`
 
-// import { ErrorBadResponse } from '../../error'
+import sendPlainReq from './send-plain-req'
 
-import SendPlainReq from './send-plain-req'
-import { TypeWriter } from '../../tl/type-buffer'
+type Bytes = number[]
 
-const concat = (e1, e2) => [...e1, ...e2]
+declare class CryptoError extends Error {  }
+declare function cryptoErr</*:: -*/F>(x: F): CryptoError
+const modPowF = encaseP(Config.common.Crypto.modPow)
+const modPowPartial = (b, dhPrime) => x => modPowF({ x, y: b, m: dhPrime })/*::.mapRej(cryptoErr)*/
 
-const tmpAesKey = (serverNonce, newNonce) => {
-  const arr1 = concat(newNonce, serverNonce)
-  const arr2 = concat(serverNonce, newNonce)
+declare class DHAnswerError extends Error {  }
+declare function dhAnswerFail</*:: -*/F>(x: F): DHAnswerError
+
+declare class AssertError extends Error {  }
+declare function assertFail</*:: -*/F>(x: F): AssertError
+
+declare class DecryptError extends Error {  }
+declare function decryptFail</*:: -*/F>(x: F): DecryptError
+
+declare class VerifyError extends Error {  }
+declare function verifyFail</*:: -*/F>(x: F): VerifyError
+
+declare class SendPqError extends Error {  }
+declare function sendPqFail</*:: -*/F>(x: F): SendPqError
+
+export default function Auth(uid: string, dc: number) {
+  const savedReq = Config.authRequest.get(uid, dc)
+  if (savedReq) {
+    const req: typeof runThread = savedReq
+    return req
+  }
+
+  const runThread = getUrl(uid, dc)
+    .chain(authFuture(uid))
+    .mapRej(failureHandler(uid, dc))
+  const future = cache(runThread)
+  Config.authRequest.set(uid, dc, future)
+  return future
+}
+
+const failureHandler = (uid: string, dc: number) => (err) => {
+  log`authChain, error`(err)
+  Config.authRequest.remove(uid, dc)
+  return err
+}
+
+const factorize = encaseP(Config.common.Crypto.factorize)
+
+const normalizeResPQ = ({ server_nonce, pq, server_public_key_fingerprints }: ResPQ) => ({
+  serverNonce : server_nonce,
+  pq,
+  bytes       : pq,
+  fingerprints: server_public_key_fingerprints,
+})
+
+const makePqBlock = (uid: string, nonce) => (ctx) => {
+  const { serverNonce, fingerprints, pq, it } = ctx
+  log`PQ factorization done`(it)
+  log`Got ResPQ`(bytesToHex(serverNonce), bytesToHex(pq), fingerprints)
+
+  try {
+    const publicKey = Config.publicKeys.select(uid, fingerprints)
+    return of({ ...ctx, publicKey, nonce })
+  } catch (err) {
+    const error: Error = err
+    return reject(error)
+  }
+}
+
+const authKeyFutureFull = (uid, url) => ctx =>
+  authKeyFuture(uid, url, ctx)
+    .map(result => ({ ...result, ...ctx }))
+
+function getUrl(uid: string, dc: number): Fluture<string, DcUrlError> {
+  const url = Config.dcMap(uid, dc)
+  if (typeof url !== 'string')
+    return reject(new DcUrlError(dc, url))
+  log`mtpAuth, dc, url`(dc, url)
+  return of(url)
+}
+
+const authFuture = (uid: string) => (url: string) =>
+  mtpSendReqPQ(uid, url)
+    .chain(mtpSendReqDhParams(uid, url))
+    .chain(authKeyFutureFull(uid, url))
+
+function mtpSendReqPQ(uid: string, url: string) {
+  const nonce = generateNonce()
+  log`Send req_pq`(bytesToHex(nonce))
+
+  const request = new Serialization({ mtproto: true }, uid)
+  const buffer = request.writer.getBuffer()
+  request.storeMethod('req_pq', { nonce })
+
+  return sendPlainReq(uid, url, buffer)
+    .map(getResPQ)
+    .chain(assertResPQ(nonce))
+    .map(normalizeResPQ)
+    .chain(factorizePQInner)
+    .chain(makePqBlock(uid, nonce))
+}
+
+const factorizePQInner = ctx =>
+  factorize(ctx)
+    .map(([ p, q, it ]) => ({ ...ctx, p, q, it }))
+    /*::.mapRej(cryptoErr)*/
+
+const assertResPQ = (nonce) => (response: ResPQ) => {
+  if (response._ !== 'resPQ') {
+    return reject(ERR.sendPQ.response(response._))/*::.mapRej(sendPqFail)*/
+  }
+  if (!bytesCmp(nonce, response.nonce)) {
+    return reject(ERR.sendPQ.nonce())/*::.mapRej(sendPqFail)*/
+  }
+
+  return of(response)/*::.mapRej(sendPqFail)*/
+}
+
+const sendRequest = (uid, url) => buffer => sendPlainReq(uid, url, buffer)
+
+function authKeyFuture(uid, url, auth) {
+  const {
+    g, gA,
+    nonce,
+    serverNonce,
+    dhPrime,
+  } = auth
+  const gBytes = bytesFromHex(g.toString(16))
+
+  const b = random(new Array(256))
+
+  const modPowFuture = modPowPartial(b, dhPrime)
+  const prepareAuthReq = prepareAuthRequest(uid, url, auth)
+  const send = sendRequest(uid, url)
+  const assertDH = assertDhParams(nonce, serverNonce)
+  const generateKey = modPowFuture(gA)
+  const choose = dhChoose(uid, url, auth)
+
+  const authKeyRequest =
+    modPowFuture(gBytes)
+      .map(prepareAuthReq)
+      .chain(send)
+      .map(getDhParam)
+      .chain(assertDH)
+      .both(generateKey)
+      .map(authKeysGen)
+      .chain(choose)
+  return authKeyRequest
+}
+
+const prepareAuthRequest = (uid, url, auth) => gB => prepareData(uid, url, auth, gB)
+
+function prepareData(uid, url, auth, gB) {
+  const {
+    g,
+    serverNonce,
+    nonce,
+    tmpAesKey,
+    tmpAesIv,
+  } = auth
+
+  const data = new Serialization({ mtproto: true }, uid)
+
+  data.storeObject({
+    _           : 'client_DH_inner_data',
+    nonce,
+    server_nonce: serverNonce,
+    retry_id    : [0, auth.retry++],
+    g_b         : gB
+  }, 'Client_DH_Inner_Data', 'client_DH')
+
+  const hash = data.getBytesPlain()
+  const dataWithHash = sha1BytesSync(data.writer.getBuffer()).concat(hash)
+
+  const encryptedData = aesEncryptSync(dataWithHash, tmpAesKey, tmpAesIv)
+
+  const request = new Serialization({ mtproto: true }, uid)
+
+  request.storeMethod('set_client_DH_params', {
+    nonce,
+    server_nonce  : serverNonce,
+    encrypted_data: encryptedData
+  })
+
+  log`onGb`('Send set_client_DH_params')
+
+  return request.writer.getBuffer()
+}
+
+type AuthBlock = {
+  authKeyID: number[],
+  authKey: number[],
+  serverSalt: number[],
+}
+
+function authKeysGen([response, authKey]) {
+  const authKeyHash = sha1BytesSync(authKey)
+  log`Got Set_client_DH_params_answer`(response._)
+  return [response, {
+    key: authKey,
+    aux: authKeyHash.slice(0, 8),
+    id : authKeyHash.slice(-8),
+  }]
+}
+
+declare function joinChain<TA, /*::-*/FA, /*::-*/TB, FB>(future: Fluture<TA, FA> | Fluture<TB, FB>): Fluture<TA, FB>
+
+const dhChoose = (uid: string, url: string, auth) => ([response, keys]) =>
+  /*::joinChain(*/dhSwitch(uid, url, auth, response, keys)/*::)*/
+
+function dhSwitch(uid: string, url: string, auth, response, keys) {
+  switch (response._) {
+    case 'dh_gen_ok': return /*::joinChain(*/dhGenOk(response, keys, auth)/*::)*/
+    case 'dh_gen_retry': return /*::joinChain(*/dhGenRetry(uid, url, response, keys, auth)/*::)*/
+    case 'dh_gen_fail': return /*::joinChain(*/dhGenFail(response, keys, auth)/*::)*/
+    default: return reject(new Error('Unknown case'))/*::.mapRej(dhAnswerFail)*/
+  }
+}
+
+function dhGenOk(response, { key, id, aux }, { newNonce, serverNonce }) {
+  const newNonceHash1 = sha1BytesSync(newNonce.concat([1], aux)).slice(-16)
+
+  if (!bytesCmp(newNonceHash1, response.new_nonce_hash1)) {
+    const err = reject(ERR.dh.nonce.hash1())/*::.mapRej(dhAnswerFail)*/
+    return err
+  }
+
+  const serverSalt = bytesXor(newNonce.slice(0, 8), serverNonce.slice(0, 8))
+  // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
+  const authBlock = {
+    authKeyID: id,
+    authKey  : key,
+    serverSalt,
+  }
+
+  const result: Fluture<AuthBlock, *> = of(authBlock)
+  return result
+}
+
+function dhGenRetry(uid, url, response, { aux }, auth) {
+  const { newNonce } = auth
+  const newNonceHash2 = sha1BytesSync(newNonce.concat([2], aux)).slice(-16)
+  if (!bytesCmp(newNonceHash2, response.new_nonce_hash2)) {
+    const err: Fluture<AuthBlock, *> = reject(ERR.dh.nonce.hash2())/*::.mapRej(dhAnswerFail)*/
+    return err
+  }
+
+  return authKeyFuture(uid, url, auth)
+}
+
+function dhGenFail(response, { aux }, { newNonce }) {
+  const newNonceHash3 = sha1BytesSync(newNonce.concat([3], aux)).slice(-16)
+  if (!bytesCmp(newNonceHash3, response.new_nonce_hash3)) {
+    const err: Fluture<AuthBlock, *> = reject(ERR.dh.nonce.hash3())/*::.mapRej(dhAnswerFail)*/
+    return err
+  }
+  const result = reject(ERR.dh.paramsFail())/*::.mapRej(dhAnswerFail)*/
+  return result
+}
+
+const getDhParam = (deserializer: Deserialization): Set_client_DH_params_answer =>
+  //$off
+  deserializer.fetchObject('Set_client_DH_params_answer', 'client_dh')
+
+//$off
+const getResPQ = (deserializer: Deserialization): ResPQ => deserializer.fetchObject('ResPQ', 'ResPQ')
+
+
+//$off
+const getServerDhParam = (deserializer: Deserialization): Server_DH_Params =>
+  deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
+
+const mtpSendReqDhParams =
+  (uid: string, url: string) => auth => mtpSendReqDh(uid, url, auth)
+
+function mtpSendReqDh(uid: string, url: string, auth) {
+  const {
+    nonce,
+    serverNonce,
+    pq,
+    p, q,
+    publicKey,
+  } = auth
+
+  const newNonce = random(new Array(32))
+
+  const data = new Serialization({ mtproto: true }, uid)
+  const dataBox = data.writer
+  data.storeObject({
+    _           : 'p_q_inner_data',
+    pq,
+    p,
+    q,
+    nonce,
+    server_nonce: serverNonce,
+    new_nonce   : newNonce
+  }, 'P_Q_inner_data', 'DECRYPTED_DATA')
+
+
+  const hash = data.getBytesPlain()
+  const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(hash)
+
+  const request = new Serialization({ mtproto: true }, uid)
+  request.storeMethod('req_DH_params', {
+    nonce,
+    server_nonce          : serverNonce,
+    p,
+    q,
+    public_key_fingerprint: publicKey.fingerprint,
+    encrypted_data        : rsaEncrypt(publicKey, dataWithHash)
+  })
+
+
+  log`afterReqDH`('Send req_DH_params')
+
+  return sendPlainReq(uid, url, request.writer.getBuffer())
+    .map(getServerDhParam)
+    .chain(assertDhResponse(auth, newNonce))
+    .chain(decryptServerDH(uid, serverNonce, newNonce, nonce))
+    .map(ctx => ({ ...auth, ...ctx }))
+}
+
+const decryptServerDH = (uid: string, serverNonce, newNonce, nonce) => ctx =>
+  decryptServerDHPlain(uid, serverNonce, newNonce, nonce, ctx)
+
+function decryptServerDHPlain(uid: string, serverNonce, newNonce, nonce, { encrypted_answer: encryptedAnswer }) {
+  const tmpAesKey = aesKey(serverNonce, newNonce)
+  const tmpAesIv = aesIv(serverNonce, newNonce)
+
+  const checkDecryption = assertDecryption(nonce, serverNonce)
+
+  const answerWithHash = aesDecryptSync(
+    encryptedAnswer,
+    tmpAesKey,
+    tmpAesIv)
+
+  const hash = answerWithHash.slice(0, 20)
+  const answerWithPadding = answerWithHash.slice(20)
+
+  const deserializer = new Deserialization(bytesToArrayBuffer(answerWithPadding), { mtproto: true }, uid)
+
+  //$FlowIssue
+  const responseA: Server_DH_inner_data = deserializer.fetchObject('Server_DH_inner_data', 'server_dh')
+
+  return checkDecryption(responseA)
+    .chain(mtpVerifyDhParams(deserializer, hash, answerWithPadding))
+    .map(response => ({ uid, response, tmpAesKey, tmpAesIv, newNonce }))
+    .map(afterServerDhDecrypt)
+}
+
+function afterServerDhDecrypt({ uid, response, tmpAesKey, tmpAesIv, newNonce }) {
+  log`DecryptServerDhDataAnswer`('Done decrypting answer')
+  const {
+    g,
+    dh_prime: dhPrime,
+    g_a: gA,
+    server_time: serverTime,
+
+  } = response
+
+  const localTime = tsNow()
+  applyServerTime(uid, serverTime, localTime)
+
+  const authBlock = {
+    g, gA,
+    dhPrime,
+    retry: 0,
+    newNonce,
+    tmpAesIv,
+    tmpAesKey,
+  }
+  return authBlock
+}
+
+function aesKey(serverNonce, newNonce) {
+  const arr1 = [...newNonce, ...serverNonce]
+  const arr2 = [...serverNonce, ...newNonce]
   const key1 = sha1BytesSync(arr1)
   const key2 = sha1BytesSync(arr2).slice(0, 12)
   return key1.concat(key2)
 }
 
-const tmpAesIv = (serverNonce, newNonce: Bytes) => {
-  const arr1 = concat(serverNonce, newNonce)
-  const arr2 = concat(newNonce, newNonce)
+function aesIv(serverNonce, newNonce: Bytes) {
+  const arr1 = [...serverNonce, ...newNonce]
+  const arr2 = [...newNonce, ...newNonce]
   const arr3 = newNonce.slice(0, 4)
   const key1 = sha1BytesSync(arr1)
   const key2 = sha1BytesSync(arr2)
@@ -52,450 +419,160 @@ const tmpAesIv = (serverNonce, newNonce: Bytes) => {
   return res
 }
 
-type Defer = {
-  resolve: (res: any) => void,
-  reject: (res: any) => void,
-  promise: Bluebird$Promise<any>
-}
-
-type Cached = {[id: number]: Defer}
-
-type Bytes = number[]
-
-type AuthBasic = {
-  dcID: number,
-  dcUrl: string,
-  nonce: Bytes,
-  deferred: Defer,
-  serverNonce: Uint8Array,
-  pq: Uint8Array,
-  fingerprints: string[],
-  p: Bytes,
-  q: Bytes,
-  publicKey: PublicKeyExtended,
-  newNonce: Bytes,
-  b: Bytes,
-  g: number,
-  gA: any,
-  retry: number,
-  dhPrime: Uint8Array,
-  serverTime: number,
-  localTime: number,
-  tmpAesKey: Bytes,
-  tmpAesIv: Bytes,
-  authKeyID: Bytes,
-  authKey: Bytes,
-  serverSalt: Bytes
-}
-
 const minSize = Math.ceil(64 / bpe) + 1
 
-const getTwoPow = () => { //Dirty cheat to count 2^(2048 - 64)
-                          //This number contains 496 zeroes in hex
-  const arr = Array(496)
+const leemonTwoPow = (() => { //Dirty cheat to count 2^(2048 - 64)
+  const arr = Array(496)      //This number contains 496 zeroes in hex
     .fill('0')
   arr.unshift('1')
   const hex = arr.join('')
   const res = str2bigInt(hex, 16, minSize)
   return res
+})()
+
+// const forget = </*:: +*/F>(): Fluture<void, F> => of(void 0)
+
+const innerLog = log`VerifyDhParams`
+
+const mtpVerifyDhParams = (deserializer, hash, answerWithPadding) => (
+  response: Server_DH_inner_data
+)/*:: : Fluture<Server_DH_inner_data, *> */ => {
+
+  const {
+    g,
+    dh_prime: dhPrime,
+    g_a: gA,
+  } = response
+  innerLog('begin')
+  const dhPrimeHex = bytesToHex(dhPrime)
+  if (g !== 3 || dhPrimeHex !== primeHex)
+    // The verified value is from https://core.telegram.org/mtproto/security_guidelines
+    return reject(ERR.verify.unknownDhPrime())/*::.mapRej(verifyFail)*/
+  innerLog('dhPrime cmp OK')
+
+  const dhPrimeLeemon = str2bigInt(dhPrimeHex, 16, minSize)
+  const gALeemon = str2bigInt(bytesToHex(gA), 16, minSize)
+  const dhDec = dup(dhPrimeLeemon)
+  sub_(dhDec, one)
+  const case1 = !greater(gALeemon, one)
+  const case2 = !greater(dhDec, gALeemon)
+  if (case1)
+    return reject(ERR.verify.case1())/*::.mapRej(verifyFail)*/
+
+  if (case2)
+    return reject(ERR.verify.case2())/*::.mapRej(verifyFail)*/
+  const case3 = !!greater(leemonTwoPow, gALeemon)
+  const dhSubPow = dup(dhPrimeLeemon)
+  sub(dhSubPow, leemonTwoPow)
+  const case4 = !greater(dhSubPow, gALeemon)
+  if (case3)
+    return reject(ERR.verify.case3())/*::.mapRej(verifyFail)*/
+  if (case4)
+    return reject(ERR.verify.case4())/*::.mapRej(verifyFail)*/
+  innerLog('2^{2048-64} < gA < dhPrime-2^{2048-64} OK')
+
+  const offset = deserializer.getOffset()
+  if (!bytesCmp(hash, sha1BytesSync(answerWithPadding.slice(0, offset))))
+    return reject(ERR.decrypt.sha1())/*::.mapRej(decryptFail)*/
+
+  return of(response)/*::.mapRej(verifyFail)*/
 }
 
-const leemonTwoPow = getTwoPow()
+const assertDecryption = (nonce, serverNonce) => (
+  response: Server_DH_inner_data
+)/*:: : Fluture<Server_DH_inner_data, *> */ => {
+  if (response._ !== 'server_DH_inner_data')
+    return reject(ERR.decrypt.response())/*::.mapRej(decryptFail)*/
 
-const reqPqRequest =
-async(prepare: () => void, dcUrl: string, reqBox: TypeWriter, sendPlainReq: *): Promise<ResPQ> => {
-  prepare()
-  const deserializer = await sendPlainReq(dcUrl, reqBox.getBuffer())
-  //$FlowIssue
-  const response: ResPQ = deserializer.fetchObject('ResPQ', 'ResPQ')
-  return response
+  if (!bytesCmp(nonce, response.nonce))
+    return reject(ERR.decrypt.nonce())/*::.mapRej(decryptFail)*/
+
+  if (!bytesCmp(serverNonce, response.server_nonce))
+    return reject(ERR.decrypt.serverNonce())/*::.mapRej(decryptFail)*/
+  return of(response)/*::.mapRej(decryptFail)*/
 }
 
-export function Auth(
-  uid: string,
-  publisKeysHex: PublicKey[],
-  publicKeysParsed: ApiCached<PublicKey>
-) {
-  const sendPlainReq = SendPlainReq(uid)
-  const { prepare, select } = KeyManager(uid, publisKeysHex, publicKeysParsed)
-
-  async function mtpSendReqPQ(auth: AuthBasic) {
-    const deferred = auth.deferred
-    log('Send req_pq')(bytesToHex(auth.nonce))
-
-    const request = new Serialization({ mtproto: true }, uid)
-    const reqBox = request.writer
-    request.storeMethod('req_pq', { nonce: auth.nonce })
-
-
-    /*let deserializer
-    try {
-      await prepare()
-      deserializer = await sendPlainReq(auth.dcUrl, reqBox.getBuffer())
-    } catch (err) {
-      console.error(dTime(), 'req_pq error', err.message)
-      deferred.reject(err)
-      throw err
-    }*/
-    try {
-      const response: ResPQ = await reqPqRequest(prepare, auth.dcUrl, reqBox, sendPlainReq)
-
-      if (response._ !== 'resPQ') {
-        const error = new Error(`[MT] resPQ response invalid: ${response._}`)
-        deferred.reject(error)
-        return Bluebird.reject(error)
-      }
-      if (!bytesCmp(auth.nonce, response.nonce)) {
-        const error = new Error('[MT] resPQ nonce mismatch')
-        deferred.reject(error)
-        return Bluebird.reject(error)
-      }
-      auth.serverNonce = response.server_nonce
-      auth.pq = response.pq
-      auth.fingerprints = response.server_public_key_fingerprints
-
-      log('Got ResPQ')(bytesToHex(auth.serverNonce), bytesToHex(auth.pq), auth.fingerprints)
-
-      const key = select(auth.fingerprints)
-      auth.publicKey = key
-
-      log('PQ factorization start')(auth.pq)
-      const [ p, q, it ] = await Config.common.Crypto.factorize({ bytes: auth.pq })
-
-      auth.p = p
-      auth.q = q
-      log('PQ factorization done')(it)
-    } catch (error) {
-      log('Worker error')(error, error.stack)
-      deferred.reject(error)
-      throw error
-    }
-
-
-    return auth
+const assertDhParams = (nonce, serverNonce) => (
+  response: Set_client_DH_params_answer
+)/*::: Fluture<Set_client_DH_params_answer, *> */=> {
+  if (checkDhGen(response._)) {
+    return reject(ERR.dh.responseInvalid(response._))/*::.mapRej(assertFail)*/
+  } else if (!bytesCmp(nonce, response.nonce)) {
+    return reject(ERR.dh.nonce.mismatch())/*::.mapRej(assertFail)*/
+  } else if (!bytesCmp(serverNonce, response.server_nonce)) {
+    return reject(ERR.dh.nonce.server())/*::.mapRej(assertFail)*/
   }
-
-  async function mtpSendReqDhParams(auth: AuthBasic) {
-    const deferred = auth.deferred
-
-    auth.newNonce = new Array(32)
-    random(auth.newNonce)
-
-    const data = new Serialization({ mtproto: true }, uid)
-    const dataBox = data.writer
-    data.storeObject({
-      _           : 'p_q_inner_data',
-      pq          : auth.pq,
-      p           : auth.p,
-      q           : auth.q,
-      nonce       : auth.nonce,
-      server_nonce: auth.serverNonce,
-      new_nonce   : auth.newNonce
-    }, 'P_Q_inner_data', 'DECRYPTED_DATA')
-
-    //$FlowIssue
-    const hash: Bytes = data.getBytes()
-    const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(hash)
-
-    const request = new Serialization({ mtproto: true }, uid)
-    const reqBox = request.writer
-    request.storeMethod('req_DH_params', {
-      nonce                 : auth.nonce,
-      server_nonce          : auth.serverNonce,
-      p                     : auth.p,
-      q                     : auth.q,
-      public_key_fingerprint: auth.publicKey.fingerprint,
-      encrypted_data        : rsaEncrypt(auth.publicKey, dataWithHash)
-    })
-
-
-    log('afterReqDH')('Send req_DH_params')
-
-    let deserializer
-    try {
-      deserializer = await sendPlainReq(auth.dcUrl, reqBox.getBuffer())
-    } catch (error) {
-      deferred.reject(error)
-      throw error
-    }
-
-    //$FlowIssue
-    const response: Server_DH_Params = deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
-
-    if (response._ !== 'server_DH_params_fail' && response._ !== 'server_DH_params_ok') {
-      const error = new Error(`[MT] Server_DH_Params response invalid: ${  response._}`)
-      deferred.reject(error)
-      throw error
-    }
-
-    if (!bytesCmp(auth.nonce, response.nonce)) {
-      const error = new Error('[MT] Server_DH_Params nonce mismatch')
-      deferred.reject(error)
-      throw error
-    }
-
-    if (!bytesCmp(auth.serverNonce, response.server_nonce)) {
-      const error = new Error('[MT] Server_DH_Params server_nonce mismatch')
-      deferred.reject(error)
-      throw error
-    }
-
-    if (response._ === 'server_DH_params_fail') {
-      const newNonceHash = sha1BytesSync(auth.newNonce).slice(-16)
-      if (!bytesCmp(newNonceHash, response.new_nonce_hash)) {
-        const error = new Error('[MT] server_DH_params_fail new_nonce_hash mismatch')
-        deferred.reject(error)
-        throw error
-      }
-      const error = new Error('[MT] server_DH_params_fail')
-      deferred.reject(error)
-      throw error
-    }
-
-    // try {
-    mtpDecryptServerDhDataAnswer(auth, response.encrypted_answer)
-    // } catch (e) {
-    //   deferred.reject(e)
-    //   return false
-    // }
-
-    return auth
-  }
-
-  function mtpDecryptServerDhDataAnswer(auth: AuthBasic, encryptedAnswer) {
-    auth.tmpAesKey = tmpAesKey(auth.serverNonce, auth.newNonce)
-    auth.tmpAesIv = tmpAesIv(auth.serverNonce, auth.newNonce)
-
-    const answerWithHash = aesDecryptSync(
-      encryptedAnswer,
-      auth.tmpAesKey,
-      auth.tmpAesIv)
-
-    const hash = answerWithHash.slice(0, 20)
-    const answerWithPadding = answerWithHash.slice(20)
-    const buffer = bytesToArrayBuffer(answerWithPadding)
-
-    const deserializer = new Deserialization(buffer, { mtproto: true }, uid)
-
-    //$FlowIssue
-    const response: Server_DH_inner_data = deserializer.fetchObject('Server_DH_inner_data', 'server_dh')
-
-    if (response._ !== 'server_DH_inner_data')
-      throw new Error(`[MT] server_DH_inner_data response invalid`)
-
-    if (!bytesCmp(auth.nonce, response.nonce))
-      throw new Error('[MT] server_DH_inner_data nonce mismatch')
-
-    if (!bytesCmp(auth.serverNonce, response.server_nonce))
-      throw new Error('[MT] server_DH_inner_data serverNonce mismatch')
-
-    log('DecryptServerDhDataAnswer')('Done decrypting answer')
-    auth.g = response.g
-    auth.dhPrime = response.dh_prime
-    auth.gA = response.g_a
-    auth.serverTime = response.server_time
-    auth.retry = 0
-
-    mtpVerifyDhParams(auth.g, auth.dhPrime, auth.gA)
-
-    const offset = deserializer.getOffset()
-
-    if (!bytesCmp(hash, sha1BytesSync(answerWithPadding.slice(0, offset))))
-      throw new Error('[MT] server_DH_inner_data SHA1-hash mismatch')
-
-    auth.localTime = tsNow()
-    applyServerTime(uid, auth.serverTime, auth.localTime)
-  }
-
-  const innerLog = log('VerifyDhParams')
-
-  function mtpVerifyDhParams(g, dhPrime, gA) {
-    innerLog('begin')
-    const dhPrimeHex = bytesToHex(dhPrime)
-    if (g !== 3 || dhPrimeHex !== primeHex)
-      // The verified value is from https://core.telegram.org/mtproto/security_guidelines
-      throw new Error('[MT] DH params are not verified: unknown dhPrime')
-    innerLog('dhPrime cmp OK')
-
-    const dhPrimeLeemon = str2bigInt(dhPrimeHex, 16, minSize)
-    const gALeemon = str2bigInt(bytesToHex(gA), 16, minSize)
-    const dhDec = dup(dhPrimeLeemon)
-    sub_(dhDec, one)
-    const case1 = !greater(gALeemon, one)
-    const case2 = !greater(dhDec, gALeemon)
-    if (case1)
-      throw new Error('[MT] DH params are not verified: gA <= 1')
-
-    if (case2)
-      throw new Error('[MT] DH params are not verified: gA >= dhPrime - 1')
-    const case3 = !!greater(leemonTwoPow, gALeemon)
-    const dhSubPow = dup(dhPrimeLeemon)
-    sub(dhSubPow, leemonTwoPow)
-    const case4 = !greater(dhSubPow, gALeemon)
-    if (case3)
-      throw new Error('[MT] DH params are not verified: gA < 2^{2048-64}')
-    if (case4)
-      throw new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}')
-    innerLog('2^{2048-64} < gA < dhPrime-2^{2048-64} OK')
-
-    return true
-  }
-
-  async function mtpSendSetClientDhParams(auth: AuthBasic) {
-    const deferred = auth.deferred
-    const gBytes = bytesFromHex(auth.g.toString(16))
-
-    auth.b = new Array(256)
-    random(auth.b)
-
-    const gB = await Config.common.Crypto.modPow({
-      x: gBytes,
-      y: auth.b,
-      m: auth.dhPrime
-    })
-    const data = new Serialization({ mtproto: true }, uid)
-
-    data.storeObject({
-      _           : 'client_DH_inner_data',
-      nonce       : auth.nonce,
-      server_nonce: auth.serverNonce,
-      retry_id    : [0, auth.retry++],
-      g_b         : gB
-    }, 'Client_DH_Inner_Data', 'client_DH')
-
-    //$FlowIssue
-    const hash: Bytes = data.getBytes()
-    const dataWithHash = sha1BytesSync(data.writer.getBuffer()).concat(hash)
-
-    const encryptedData = aesEncryptSync(dataWithHash, auth.tmpAesKey, auth.tmpAesIv)
-
-    const request = new Serialization({ mtproto: true }, uid)
-
-    request.storeMethod('set_client_DH_params', {
-      nonce         : auth.nonce,
-      server_nonce  : auth.serverNonce,
-      encrypted_data: encryptedData
-    })
-
-    log('onGb')('Send set_client_DH_params')
-
-    const deserializer = await sendPlainReq(auth.dcUrl, request.writer.getBuffer())
-
-    //$FlowIssue
-    const response: Set_client_DH_params_answer = deserializer.fetchObject('Set_client_DH_params_answer', 'client_dh')
-
-    if (response._ != 'dh_gen_ok' && response._ != 'dh_gen_retry' && response._ != 'dh_gen_fail') {
-      const error = new Error(`[MT] Set_client_DH_params_answer response invalid: ${  response._}`)
-      deferred.reject(error)
-      throw error
-    }
-
-    if (!bytesCmp(auth.nonce, response.nonce)) {
-      const error = new Error('[MT] Set_client_DH_params_answer nonce mismatch')
-      deferred.reject(error)
-      throw error
-    }
-
-    if (!bytesCmp(auth.serverNonce, response.server_nonce)) {
-      const error = new Error('[MT] Set_client_DH_params_answer server_nonce mismatch')
-      deferred.reject(error)
-      throw error
-    }
-
-    const authKey = await Config.common.Crypto.modPow({
-      x: auth.gA,
-      y: auth.b,
-      m: auth.dhPrime
-    })
-
-    const authKeyHash = sha1BytesSync(authKey),
-          authKeyAux = authKeyHash.slice(0, 8),
-          authKeyID = authKeyHash.slice(-8)
-
-    log('Got Set_client_DH_params_answer')(response._)
-    switch (response._) {
-      case 'dh_gen_ok': {
-        const newNonceHash1 = sha1BytesSync(auth.newNonce.concat([1], authKeyAux)).slice(-16)
-
-        if (!bytesCmp(newNonceHash1, response.new_nonce_hash1)) {
-          deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'))
-          return false
-        }
-
-        const serverSalt = bytesXor(auth.newNonce.slice(0, 8), auth.serverNonce.slice(0, 8))
-        // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
-
-        auth.authKeyID = authKeyID
-        auth.authKey = authKey
-        auth.serverSalt = serverSalt
-
-        deferred.resolve(auth)
-        break
-      }
-      case 'dh_gen_retry': {
-        const newNonceHash2 = sha1BytesSync(auth.newNonce.concat([2], authKeyAux)).slice(-16)
-        if (!bytesCmp(newNonceHash2, response.new_nonce_hash2)) {
-          deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'))
-          return false
-        }
-
-        return mtpSendSetClientDhParams(auth)
-      }
-      case 'dh_gen_fail': {
-        const newNonceHash3 = sha1BytesSync(auth.newNonce.concat([3], authKeyAux)).slice(-16)
-        if (!bytesCmp(newNonceHash3, response.new_nonce_hash3)) {
-          deferred.reject(new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'))
-          return false
-        }
-
-        deferred.reject(new Error('[MT] Set_client_DH_params_answer fail'))
-        return false
-      }
-    }
-  }
-
-  const authChain = (auth: AuthBasic) =>
-    mtpSendReqPQ(auth)
-      .then(mtpSendReqDhParams)
-      .then(mtpSendSetClientDhParams)
-
-  function mtpAuth(dcID: number, cached: Cached, dcUrl: string) {
-    if (cached[dcID])
-      return cached[dcID].promise
-    log('mtpAuth', 'dcID', 'dcUrl')(dcID, dcUrl)
-    const nonce = generateNonce()
-
-    if (!dcUrl)
-      return Bluebird.reject(
-        new Error(`[MT] No server found for dc ${dcID} url ${dcUrl}`))
-
-    const auth: any = {
-      dcID,
-      dcUrl,
-      nonce,
-      deferred: blueDefer()
-    }
-
-    const onFail = (err: Error) => {
-      log('authChain', 'error')(err)
-      cached[dcID].reject(err)
-      delete cached[dcID]
-      return Bluebird.reject(err)
-    }
-
-    try {
-      immediate(authChain, auth)
-    } catch (err) {
-      return onFail(err)
-    }
-
-    cached[dcID] = auth.deferred
-
-    cached[dcID].promise.catch(onFail)
-
-    return cached[dcID].promise
-  }
-
-  return mtpAuth
+  return of(response)/*::.mapRej(assertFail)*/
 }
-export default Auth
+
+function checkDhGen(_): boolean %checks {
+  return (
+    _ !== 'dh_gen_ok'
+    && _ !== 'dh_gen_retry'
+    && _ !== 'dh_gen_fail'
+  )
+}
+
+const assertDhResponse = ({ nonce, serverNonce }, newNonce) => (
+  response: Server_DH_Params
+)/*:: : Fluture<*, *> */ => {
+  if (response._ === 'server_DH_params_fail') {
+    const newNonceHash = sha1BytesSync(newNonce).slice(-16)
+    if (!bytesCmp(newNonceHash, response.new_nonce_hash)) {
+      return reject(ERR.sendDH.hash())/*::.mapRej(assertFail)*/
+    }
+    return reject(ERR.sendDH.fail())/*::.mapRej(assertFail)*/
+  }
+  if (response._ !== 'server_DH_params_ok') {
+    return reject(ERR.sendDH.invalid(response._))/*::.mapRej(assertFail)*/
+  }
+
+  if (!bytesCmp(nonce, response.nonce)) {
+    return reject(ERR.sendDH.nonce())/*::.mapRej(assertFail)*/
+  }
+
+  if (!bytesCmp(serverNonce, response.server_nonce)) {
+    return reject(ERR.sendDH.serverNonce())/*::.mapRej(assertFail)*/
+  }
+  return of(response)/*::.mapRej(assertFail)*/
+}
+
+
+
+const ERR = {
+  dh: {
+    paramsFail: () => new Error('[MT] Set_client_DH_params_answer fail'),
+    nonce     : {
+      mismatch: () => new Error('[MT] Set_client_DH_params_answer nonce mismatch'),
+      server  : () => new Error('[MT] Set_client_DH_params_answer server_nonce mismatch'),
+      hash1   : () => new Error('[MT] Set_client_DH_params_answer new_nonce_hash1 mismatch'),
+      hash2   : () => new Error('[MT] Set_client_DH_params_answer new_nonce_hash2 mismatch'),
+      hash3   : () => new Error('[MT] Set_client_DH_params_answer new_nonce_hash3 mismatch'),
+    },
+    responseInvalid: (_: string) => new Error(`[MT] Set_client_DH_params_answer response invalid: ${_}`)
+  },
+  verify: {
+    unknownDhPrime: () => new Error('[MT] DH params are not verified: unknown dhPrime'),
+    case1         : () => new Error('[MT] DH params are not verified: gA <= 1'),
+    case2         : () => new Error('[MT] DH params are not verified: gA >= dhPrime - 1'),
+    case3         : () => new Error('[MT] DH params are not verified: gA < 2^{2048-64}'),
+    case4         : () => new Error('[MT] DH params are not verified: gA > dhPrime - 2^{2048-64}'),
+  },
+  decrypt: {
+    response   : () => new Error(`[MT] server_DH_inner_data response invalid`),
+    nonce      : () => new Error('[MT] server_DH_inner_data nonce mismatch'),
+    serverNonce: () => new Error('[MT] server_DH_inner_data serverNonce mismatch'),
+    sha1       : () => new Error('[MT] server_DH_inner_data SHA1-hash mismatch'),
+  },
+  sendDH: {
+    invalid    : (_: string) => new Error(`[MT] Server_DH_Params response invalid: ${_}`),
+    nonce      : () => new Error('[MT] Server_DH_Params nonce mismatch'),
+    serverNonce: () => new Error('[MT] Server_DH_Params server_nonce mismatch'),
+    hash       : () => new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'),
+    fail       : () => new Error('[MT] server_DH_params_fail'),
+  },
+  sendPQ: {
+    response: (_: string) => new Error(`[MT] resPQ response invalid: ${_}`),
+    nonce   : () => new Error('[MT] resPQ nonce mismatch'),
+  },
+}
