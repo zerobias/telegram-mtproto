@@ -2,16 +2,15 @@
 import { parse, format } from 'path'
 import Bluebird from 'bluebird'
 import {
-  outputJson,
   ensureFileSync,
   readJsonSync,
   outputJsonSync
 } from 'fs-extra'
 
-import Emitter from 'events'
+import writeJson from 'write-json-file'
 
-import { fromEvent, awaitPromises, periodic, Stream } from 'most'
-import { isEmpty, reject, isNil, complement as not, fromPairs } from 'ramda'
+import { periodic } from 'most'
+import { isEmpty, reject, isNil, fromPairs } from 'ramda'
 
 import { type AsyncStorage } from 'mtproto-shared'
 
@@ -20,54 +19,57 @@ const log = Logger`json-storage`
 
 const PERIOD = 3000
 
+const jsonOpts = { indent: 2 }
+
 type Data = { [key: string]: any }
 
 const clock = periodic(PERIOD).multicast()
 
-const accInit: Data = {/*::_: 0*/}
-
-const chunkedStream = (stream: Stream<Data>) => clock
-  .map(() => stream
-    .until(clock)
-    .reduce((acc, val): Data => ({ ...acc, ...val }), accInit))
-  .thru(awaitPromises)
-  .filter(not(isEmpty))
-
 const skipVoids: (x: Data) => Data = reject(isNil)
+
 
 export class JsonStorage implements AsyncStorage {
   filepath: string
   data: Data
-
-  emitter = new Emitter
-  writes = fromEvent('write', this.emitter)
-    .thru(chunkedStream)
-    .map(data => ({ ...this.data, ...data }))
-    .map(skipVoids)
-    .observe(val => save(this.filepath, val))
+  hasUpdate: boolean = false
+  writes = clock
+    .filter(() => this.hasUpdate)
+  stopWatch: () => void
 
   constructor(filepath: string, data?: Data) {
-    this.filepath = normalizePath(filepath)
-    if (data != null)
+    const fileName = normalizePath(filepath)
+    this.filepath = fileName
+    if (data)
       this.data = data
     Object.defineProperties(this, {
-      emitter: {
-        value: this.emitter
-      },
       writes: {
         value: this.writes
+      },
+    })
+    const loaded = ensureSync(fileName)
+    if (!this.data)
+      this.data = loaded
+    this.startWatch()
+  }
+  startWatch() {
+    const { unsubscribe } = this.writes.subscribe({
+      next: () => { this.save() },
+      error(err) { log`error`(err.message) },
+      complete() {
+        log`stop`('JsonStorage watcher inactive')
       }
     })
-    this.init()
-  }
-  init() { //TODO make async
-    const data = ensureSync(this.filepath)
-    if (!this.data)
-      this.data = data
+    this.stopWatch = unsubscribe
   }
 
-  save() {
-    return save(this.filepath, this.data)
+  async save() {
+    try {
+      await writeJson(this.filepath, this.data, jsonOpts)
+      this.hasUpdate = false
+    } catch (error) {
+      this.hasUpdate = true
+      log`save failure`(error.message)
+    }
   }
 
   get(key: string): Promise<any> {
@@ -75,30 +77,34 @@ export class JsonStorage implements AsyncStorage {
     log('get', `key ${key}`)(data)
     return Bluebird.resolve(data)
   }
-  sendToSave(data: Data) {
-    this.data = { ...this.data, ...data }
-    this.emitter.emit('write', data)
+  setData(data: Data) {
+    if (isEmpty(data)) return
+    this.hasUpdate = true
+    this.data = skipVoids({ ...this.data, ...data })
   }
   set(key: string, val: any): Promise<void> {
-    this.sendToSave({ [key]: val })
-    log('set', `key ${key}`)(val)
+    this.setData({ [key]: val })
+    log`set key`(key)
     return Bluebird.resolve()
   }
 
   remove(...keys: string[]): Promise<void> {
-    const saved = fromPairs(keys.map(key => [key, void 0]))
+    const saved = omitKeys(keys)
     log`remove`(keys)
-    this.sendToSave(saved)
+    this.setData(saved)
     return Bluebird.resolve()
   }
 
   clear(): Promise<void> {
     this.data = {}
-    this.sendToSave(accInit)
+    this.hasUpdate = true
     log`clear`('ok')
     return Bluebird.resolve()
   }
 }
+
+const omitKey = (key: string) => [key, void 0]
+const omitKeys = (keys: string[]) => fromPairs(keys.map(omitKey))
 
 function ensureSync(filepath: string) {
   ensureFileSync(filepath)
@@ -120,14 +126,6 @@ function normalizePath(filepath: string) {
   if (parsed.ext !== '.json')
     return format({ ...parsed, ext: '.json' })
   return filepath
-}
-
-async function save(filepath: string, data: Data) {
-  try {
-    await outputJson(filepath, data, { spaces: 2 })
-  } catch (error) {
-    log`save failure`(error.message)
-  }
 }
 
 export { JsonStorage as Storage }
