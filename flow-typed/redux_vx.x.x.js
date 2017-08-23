@@ -9,24 +9,24 @@ declare module 'redux' {
   // declare export type DispatchAPI<A> = (action: A) => A
   declare export type Dispatch = (value: any) => void
 
-  declare export type MiddlewareAPI<S> = {
+  declare export type MiddlewareAPI<+S> = {
     dispatch: Dispatch;
     getState(): S;
   };
 
-  declare export type Store<S> = {
+  declare export type Store<+S> = {
     // rewrite MiddlewareAPI members in order to get nicer error messages (intersections produce long messages)
     dispatch: Dispatch,
     getState(): S,
     subscribe(listener: () => void): () => void,
-    replaceReducer<-A>(nextReducer: Reducer<S>): void,
+    // replaceReducer<-A>(nextReducer: Reducer<S>): void,
   };
 
   declare export type Reducer<S> = <-A>(state: S, action: A) => S
 
   declare export type CombinedReducer<S> = <-A>(state: $Shape<S> & {} | void, action: A) => S;
 
-  declare export type Middleware<S> =
+  declare export type Middleware<-S> =
     (api: MiddlewareAPI<S>) =>
       (next: any) => any;
 

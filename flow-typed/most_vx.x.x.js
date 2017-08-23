@@ -177,7 +177,7 @@ declare module 'most' {
       d: Stream<D>,
       noe: void
     ): Stream<A | B | C | D>,
-    merge<B, C, D>(
+    merge<B, C, D, E>(
       b: Stream<B>,
       c: Stream<C>,
       d: Stream<D>,

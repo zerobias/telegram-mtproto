@@ -60,10 +60,6 @@ declare type Curry = & (<T1, T2, TResult>(fn: (a: T1, b: T2) => TResult) => Curr
   & (<T1, T2, T3, T4, T5, T6, TResult>(fn: (a: T1, b: T2, c: T3, d: T4, e: T5, f: T6) => TResult) => CurriedFunction6<T1,T2, T3, T4, T5, T6, TResult>)
   & ((fn: Function) => Function)
 
-declare type Filter =
-  & (<K,V,T:Array<V>|{[key:K]:V}>(fn: UnaryPredicateFn<V>, xs:T) => T)
-  & (<K,V,T:Array<V>|{[key:K]:V}>(fn: UnaryPredicateFn<V>) => (xs:T) => T)
-
 
 declare class Monad<T> {
   chain: Function
@@ -203,9 +199,11 @@ declare module 'ramda' {
   declare var subtract: CurriedFunction2<number,number,number>;
   declare var sum: UnaryFn<Array<number>,number>;
 
-  // Filter
-  declare var filter: Filter;
-  declare var reject: Filter;
+  declare export function filter<V, T: V[] | {[key: string]: V}>(pred: (x: T) => boolean, no: void): (data: T) => T
+  declare export function filter<V, T: V[] | {[key: string]: V}>(pred: (x: T) => boolean, data: T): T
+
+  declare export function reject<V, T: V[] | {[key: string]: V}>(pred: (x: T) => boolean, no: void): (data: T) => T
+  declare export function reject<V, T: V[] | {[key: string]: V}>(pred: (x: T) => boolean, data: T): T
 
   // *String
   declare var match: CurriedFunction2<RegExp,string,Array<string|void>>;
@@ -415,6 +413,24 @@ declare module 'ramda' {
   declare export function update<T>(index: number, elem: T, ...rest: Array<void>): (src: Array<T>) => Array<T>
   declare export function update<T>(index: number, elem: T, src: Array<T>): Array<T>
 
+  declare export function innerJoin<T, V>(
+    fn: (record: T, id: V) => boolean,
+    list: T[],
+    ids: V[]
+  ): T[]
+  declare export function innerJoin<T, V>(
+    fn: (record: T, id: V) => boolean,
+    list: T[],
+    ids: void
+  ): (ids: V[]) => T[]
+  declare export function innerJoin<T, V>(
+    fn: (record: T, id: V) => boolean,
+    list: void,
+    ids: void
+  ): (
+    | (list: T[], ids: void) => (ids: V[]) => T[]
+    | (list: T[], ids: V[]) => T[]
+  )
   // TODO `without` as a transducer
   declare export function without<T>(xs: Array<T>): (src: Array<T>) => Array<T>
   declare export function without<T>(xs: Array<T>, src: Array<T>): Array<T>
@@ -622,6 +638,56 @@ declare module 'ramda' {
   lensProp
   */
 
+  declare export class Lens<S, T> {  }
+
+  declare export function lens<S, T>(
+    getter: (state: S) => T,
+    n: void
+  ): (setter: (updated: T) => (state: S) => S) => Lens<S, T>
+  declare export function lens<S, T>(
+    getter: (state: S) => T,
+    setter: (updated: T) => (state: S) => S
+  ): Lens<S, T>
+
+  declare export function view<S, T>(
+    lens: Lens<S, T>,
+    n: void
+  ): (obj: S) => T
+  declare export function view<S, T>(lens: Lens<S, T>, obj: S): T
+
+  declare export function lensPath(path: string[]): Lens<Object, mixed>
+
+  declare export function over<S, T>(
+    lens: Lens<S, T>,
+    n: void,
+    n1: void
+  ): (
+    | ((value: (x: T) => T, nn: void) => (obj: S) => S)
+    | ((value: (x: T) => T, obj: S) => S)
+  )
+  declare export function over<S, T>(
+    lens: Lens<S, T>,
+    fn: (x: T) => T,
+    n: void
+  ): (obj: S, nn: void) => S
+  declare export function over<S, T>(lens: Lens<S, T>, fn: (x: T) => T, obj: S): S
+
+
+  declare export function set<S, T>(
+    lens: Lens<S, T>,
+    n: void,
+    n1: void
+  ): (
+    | ((value: T, nn: void) => (obj: S) => S)
+    | ((value: T, obj: S) => S)
+  )
+  declare export function set<S, T>(
+    lens: Lens<S, T>,
+    value: T,
+    n: void
+  ): (obj: S, nn: void) => S
+  declare export function set<S, T>(lens: Lens<S, T>, value: T, obj: S): S
+
   declare export function mapObjIndexed<O: Object, R>(fn: (val: $Values<O>, key: $Keys<O>, o: O) => R): (o: O) => $ObjMap<O, (key: $Values<O>) => R>
   declare export function mapObjIndexed<O: Object, R>(fn: (val: $Values<O>, key: $Keys<O>, o: O) => R, o: O): $ObjMap<O, (key: $Values<O>) => R>
 
@@ -683,8 +749,6 @@ declare module 'ramda' {
   declare export function props<T,O:{[k:string]:T}>(keys: Array<$Keys<O>>, ...rest: Array<void>): (o: O) => Array<?T>;
   declare export function props<T,O:{[k:string]:T}>(keys: Array<$Keys<O>>, o: O): Array<?T>;
 
-  // TODO set
-
   declare export function toPairs<T,O:{[k:string]:T}>(o: O): Array<[$Keys<O>, T]>;
 
   declare export function toPairsIn<T,O:{[k:string]:T}>(o: O): Array<[string, T]>;
@@ -699,8 +763,6 @@ declare module 'ramda' {
 
   declare export function whereEq<T,S,O:{[k:string]:T},Q:{[k:string]:S}>(predObj: O, ...rest: Array<void>): (o: $Shape<O&Q>) => boolean;
   declare export function whereEq<T,S,O:{[k:string]:T},Q:{[k:string]:S}>(predObj: O, o: $Shape<O&Q>): boolean;
-
-  // TODO view
 
   // *Function
   declare var __: *;
