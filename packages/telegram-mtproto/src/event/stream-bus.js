@@ -30,18 +30,8 @@ const createStreamBus = (ctx: MTProto) => {
   const bus = makeStreamMap(emitter)
 
   bus.responseRaw.observe(log('raw response'))
-  // bus.responseRaw.onError(log('raw error'))
-
-  bus.incomingMessage.observe(log('incoming message'))
 
   const state = ctx.state
-
-  bus.incomingMessage.observe((val) => {
-    // ctx.state.messages.delete(val.message.msg_id)
-    const networker = state.threads.get(val.threadID)
-    if (networker == null) return
-    log('observer', 'type')(val.message._, networker.dcID)
-  })
 
   bus.newNetworker.observe((networker) => {
     log('new networker')(networker)
@@ -60,7 +50,7 @@ const createStreamBus = (ctx: MTProto) => {
     ctx.state.messages.set(val.msg_id, val)
   })
 
-  bus.rpcResult.observe(async(data: OnRpcResult) => {
+  /* bus.rpcResult.observe(async(data: OnRpcResult) => {
     log('rpc result')(data)
     data.sentMessage.deferred.resolve(data.result)
     ctx.state.messages.delete(data.sentMessage.msg_id)
@@ -72,7 +62,7 @@ const createStreamBus = (ctx: MTProto) => {
       req.defer.resolve(data.result)
       ctx.state.requests.delete(requestID)
     }
-  })
+  }) */
 
   bus.rpcError.observe(log('rpc error'))
 
@@ -80,13 +70,7 @@ const createStreamBus = (ctx: MTProto) => {
     error.code === 500
     && error.type === 'AUTH_RESTART'
 
-  let currentDc: number
-  homeDc.observe(num => {
-    if (isFinite(num))
-      currentDc = num
-  })
-
-  bus.rpcError.observe(async({ error, ...data }: OnRpcError) => {
+  /* bus.rpcError.observe(async({ error, ...data }: OnRpcError) => {
     if (error instanceof RpcApiError === false)
       throw error
     if (isFileMigrateError(error)) {
@@ -151,7 +135,7 @@ const createStreamBus = (ctx: MTProto) => {
       log('on auth restart')(authKey, saltKey)
       await ctx.storage.remove(authKey, saltKey)
       log('on auth restart')('before end')
-      await ctx.api.doAuth()
+      // await ctx.api.doAuth()
       await ctx.api.invokeNetRequest(req)
     } else if (error.code === 401) {
 
@@ -175,7 +159,6 @@ const createStreamBus = (ctx: MTProto) => {
         data.sentMessage.deferred.reject(error)
         return log('error', 'on auth key unreg')('no thread', dc, data.threadID)
       }
-      // thread.connectionInited = false
       ctx.api.authBegin = false
       log('on auth key unreg')('before end')
       // const nearest = await ctx.storage.get('nearest_dc')
@@ -183,14 +166,14 @@ const createStreamBus = (ctx: MTProto) => {
       await ctx.storage.set('dc', currentDc)
       // await new Promise(rs => setTimeout(rs, 1e3))
       req.options.dc = currentDc
-      await ctx.api.doAuth()
+      // await ctx.api.doAuth()
       await ctx.api.invokeNetRequest(req)
     } else {
       log('rpc', 'unhandled')(data)
       log('rpc', 'unhandled', 'error')(error)
       // data.sentMessage.deferred.reject(error)
     }
-  })
+  }) */
 
   // bus.netMessage.observe((message) => {
   //   log('net message')(message)
@@ -200,7 +183,7 @@ const createStreamBus = (ctx: MTProto) => {
 
   // bus.netMessage.observe(log('new request'))
 
-  bus.newSession.observe(async({
+  /* bus.newSession.observe(async({
     threadID,
     networkerDC,
     message,
@@ -211,9 +194,9 @@ const createStreamBus = (ctx: MTProto) => {
       log`new session, error, no thread`(threadID, messageID)
       return
     }
-    await thread.applyServerSalt(message.server_salt)
-    thread.ackMessage(messageID)
-    thread.processMessageAck(message.first_msg_id)
+    // await thread.applyServerSalt(message.server_salt)
+    // thread.ackMessage(messageID)
+    // thread.processMessageAck(message.first_msg_id)
 
     log`new session, handled`(messageID, networkerDC)
 
@@ -228,7 +211,7 @@ const createStreamBus = (ctx: MTProto) => {
       .map(repeatRequest)
       .mergeConcurrently(1)
       .observe(log`recurring requests`)
-  })
+  }) */
 
   bus.untypedMessage.observe(log`untyped`)
 
@@ -251,15 +234,11 @@ const createStreamBus = (ctx: MTProto) => {
 
 const an: any = {}
 
-const pushMessageCast    : PushMessageEvent = an
 const responseRawCast    : RawEvent<Object> = an
-const incomingMessageCast: IncomingMessageEvent = an
 const newNetworkerCast   : NetworkerThread = an
 const rpcResultCast      : OnRpcResult = an
 const rpcErrorCast       : OnRpcError = an
 const untypedMessageCast : OnUntypedMessage = an
-
-// const netMessageCast     : MtpCall = an
 const newRequestCast     : ApiRequest = an
 const messageInCast      : NetMessage = an
 const newSessionCast     : OnNewSession = an
@@ -268,28 +247,21 @@ const noAuthCast         : NoAuth = an
 function makeStreamMap(emitter: EventEmitterType): Bus {
   const getter = makeEventStream(emitter)
 
-
-  const pushMessage     = getter('push-message', pushMessageCast)
   const responseRaw     = getter('response-raw', responseRawCast)
-  const incomingMessage = getter('incoming-message', incomingMessageCast)
   const newNetworker    = getter('new-networker', newNetworkerCast)
   const rpcError        = getter('rpc-error', rpcErrorCast)
   const rpcResult       = getter('rpc-result', rpcResultCast)
   const untypedMessage  = getter('untyped-message', untypedMessageCast)
-  // const netMessage      = getter('net-message', netMessageCast)
   const newRequest      = getter('new-request', newRequestCast)
   const messageIn       = getter('message-in', messageInCast)
   const newSession      = getter('new-session', newSessionCast)
   const noAuth          = getter('no-auth', noAuthCast)
 
   const streamMap = {
-    pushMessage,
     responseRaw,
-    incomingMessage,
     newNetworker,
     rpcError,
     untypedMessage,
-    // netMessage,
     newRequest,
     messageIn,
     rpcResult,
@@ -301,9 +273,7 @@ function makeStreamMap(emitter: EventEmitterType): Bus {
 }
 
 export type Bus = {
-  pushMessage: Stream<PushMessageEvent>,
   responseRaw: Stream<RawEvent<Object>>,
-  incomingMessage: Stream<IncomingMessageEvent>,
   newNetworker: Stream<NetworkerThread>,
   rpcResult: Stream<OnRpcResult>,
   rpcError: Stream<OnRpcError>,
@@ -352,18 +322,6 @@ type OnUntypedMessage = {
   messageID: string,
   sessionID: Uint8Array,
   result: Object,
-}
-
-type PushMessageEvent = {
-  threadID: string,
-  message: NetMessage
-}
-
-type IncomingMessageEvent = {
-  threadID: string,
-  message: Object,
-  messageID: string,
-  sessionID: Uint8Array
 }
 
 type RawEvent<T> = {

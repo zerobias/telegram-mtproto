@@ -1,9 +1,9 @@
 //@flow
 
+
 import { type Emit, type On } from 'eventemitter2'
 import { type AsyncStorage } from '../../plugins'
-import { type PublicKey } from '../main/index.h'
-import { type NetworkerType } from '../networker'
+import NetworkerThread from '../networker'
 
 export type Bytes = number[]
 
@@ -16,13 +16,7 @@ export type Cached<Model> = {
   [id: number]: Model
 }
 
-export type Cache = {
-  uploader: Cached<NetworkerType>,
-  downloader: Cached<NetworkerType>,
-  auth: Cached<*>,
-  servers: Cached<string | false>,
-  keysParsed: Cached<PublicKey>,
-}
+export type Cache = Cached<NetworkerThread>
 
 export interface ApiManagerInstance {
   (method: string): Promise<any>,
