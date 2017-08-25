@@ -8,7 +8,11 @@ const timeoutRefs = new WeakSet
 
 export const pause = (delay: number): Promise<void> => new Bluebird(r => setTimeout(r, delay))
 
-export const smartTimeout = <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, delay?: number = 0, ...args: Args) => {
+export function smartTimeout<T, /*::+*/A, /*::+*/Args: Array<A>>(
+  fn: (...args: Args) => T,
+  delay?: number = 0,
+  ...args: Args
+) {
   const newToken = Symbol('cancel id')
   const checkRun = () => {
     if (timeoutRefs.has(newToken)) {
@@ -30,16 +34,39 @@ const cancel = promise => {
     : false
 }
 
-export const immediate = <T, +A, +Args: Array<A>>(fn: (...args: Args) => T, ...args: Args): Promise<T> =>
-  Bluebird
-    .resolve()
-    .then(() => fn(...args))
+const immediateRun = (function() {
+  if (typeof setImmediate === 'function')
+    return setImmediate
+  return function(escaped, arg1) {
+    setTimeout(escaped, 0, arg1)
+  }
+})()
 
-export function immediateWrap<T, A>(fn: (arg: A) => T): (arg: A) => Promise<T> {
-  return (arg: A): Promise<T> => Bluebird.resolve().then(() => fn(arg))
+function runner({ rs, rj, fn, args }) {
+  const result = fn.apply(fn, args)
+  if (result != null && typeof result.then === 'function')
+    result.then(rs, rj)
+  else
+    rs(result)
 }
 
-smartTimeout.immediate = immediate
+function resolveTick(fn, args) {
+  return function resolveInner(rs, rj){
+    immediateRun(runner, { rs, rj, fn, args })
+  }
+}
+
+export function immediate<O>(
+  fn: (...args: Array<any>) => O,
+  ...args: Array<any>
+): Promise<O> {
+  return new Bluebird(resolveTick(fn, args))
+}
+
+export function immediateWrap<T, A>(fn: (arg: A) => T): (arg: A) => Promise<T> {
+  return (arg: A): Promise<T> => new Bluebird(resolveTick(fn, [arg]))
+}
+
 smartTimeout.cancel = cancel
 
 export default smartTimeout
