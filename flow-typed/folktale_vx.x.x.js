@@ -1,29 +1,21 @@
 declare module 'folktale/maybe' {
-  declare interface MaybeMatcher<T, +A, +B> {
+  declare export type MaybeMatcher<T, /*::+*/A, /*::+*/B> = {
     Just(res: { value: T }): A,
     Nothing(): B,
   }
-  declare export class IMaybe<T> {
+  declare export class Maybe<T> {
     getOrElse(onElse: T): T,
     orElse(onElse: T): T,
-    map<S>(fn: (obj: T) => S): IMaybe<S>,
-    chain<S>(fn: (obj: T) => IMaybe<S>): IMaybe<S>,
-    matchWith<+A, +B>(matcher: MaybeMatcher<T, A, B>): A | B
+    map<S>(fn: (obj: T) => S): Maybe<S>,
+    chain<S>(fn: (obj: T) => Maybe<S>): Maybe<S>,
+    matchWith<A, B>(matcher: MaybeMatcher<T, A, B>): A | B
   }
-  declare export class IJust<T> extends IMaybe<T> { }
-  declare export class INothing<T> extends IMaybe<T> { }
-  declare export interface Maybe<T> {
-    getOrElse(onElse: T): T,
-    orElse(onElse: T): T,
-    map<S>(fn: (obj: T) => S): IMaybe<S>,
-    chain<S>(fn: (obj: T) => IMaybe<S>): IMaybe<S>,
-    matchWith<+A, +B>(matcher: MaybeMatcher<T, A, B>): A | B
-  }
-  declare export function Just<T>(obj: T): IMaybe<T>
-  declare export function Nothing<T>(): IMaybe<T>
-  declare export function of<T>(obj: T): IMaybe<T>
-  declare export function fromNullable<T>(obj: ?T): IMaybe<T>
-  declare export function hasInstance(obj: mixed): boolean
+  declare export function Just<T>(obj: T): Maybe<T>
+  declare export function of<T>(obj: T): Maybe<T>
+  declare export function Nothing</*::+*/T>(): Maybe<T>
+  declare export function empty</*::+*/T>(): Maybe<T>
+  declare export function fromNullable<T>(obj: ?T): Maybe<T>
+  declare export function hasInstance(obj: any): boolean
 }
 
 declare module 'folktale/result' {
@@ -73,18 +65,18 @@ declare module 'folktale/validation' {
   }
   declare export function Success<T>(obj: T): ISuccess<T, mixed>
   declare export function Failure<Err>(obj: Err): IFailure<mixed, Err>
-  declare export function collect<+T, +Err>(list: IValidation<T, Err>[]): IFailure<T, Err>
+  declare export function collect<T, Err>(list: IValidation<T, Err>[]): IFailure<T, Err>
 }
 
 declare module 'folktale/conversions' {
-  import type { IMaybe } from 'folktale/maybe'
+  import type { Maybe } from 'folktale/maybe'
   import type { IResult } from 'folktale/result'
 
-  declare export function maybeToResult<T, Err>(aMaybe: IMaybe<T>, IFailureValue: Err): IResult<T, Err>
+  declare export function maybeToResult<T, Err>(aMaybe: Maybe<T>, IFailureValue: Err): IResult<T, Err>
 
-  declare export function resultToMaybe<T, +Err>(aResult: IResult<T, Err>): IMaybe<T>
+  declare export function resultToMaybe<T, Err>(aResult: IResult<T, Err>): Maybe<T>
 
-  declare export function nullableToMaybe<T>(obj: ?T): IMaybe<T>
+  declare export function nullableToMaybe<T>(obj: ?T): Maybe<T>
   declare export function nullableToResult<T>(obj: ?T): IResult<T, null | void>
 }
 
