@@ -51,5 +51,5 @@ done
 echo 'DEBUG='$debugVar
 export DEBUG=$debugVar
 export NODE_ENV=development
-
-nodemon -q --watch lib --delay 1 -x "clear && jest test/node.test.js --runInBand"
+export MTPROTO_ENV=development
+nodemon -q --watch lib --delay 1 -x "clear && jest test/node.test.js"

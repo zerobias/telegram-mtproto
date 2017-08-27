@@ -3,8 +3,9 @@ const { join } = require('path')
 const Bluebird = require('bluebird')
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 180e3
+
 const { MTProto } = require('../lib')
-const { getStorageData } = require('./fixtures')
+const { getStorageData, delay, consoleHR, infoCallMethod } = require('./fixtures')
 const { config, api } = require('./mtproto-config')
 const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
@@ -17,7 +18,7 @@ const { Storage } = require('mtproto-storage-fs')
 //   code: '11111'
 // }
 // const storageSnap = readJSONSync(join(__dirname, 'storage.json'))
-const storageData = () => /* storageSnap */ getStorageData(1)
+const storageData = () => /* storageSnap */ getStorageData(2)
 
 // outputJsonSync(join(__dirname, 'storage.json'), storageData(), { spaces: 2 })
 
@@ -32,13 +33,11 @@ const server = {
   webogram: true
 }
 
+
+let telegram
 const app = {
   storage: new Storage('./test/storage.json')
 }
-
-
-let telegram
-
 
 /*const getHistory = async (chat) => {
   const peer = {
@@ -56,37 +55,39 @@ let telegram
 }*/
 
 const resetStorage = async() => {
+  consoleHR(`RESET STORAGE`)
   telegram.storage.data = storageData()
   await telegram.storage.save()
+  await delay(4000)
+  consoleHR(`RESET DONE`)
 }
 
 const isAlreadyAuth = async() => {
   const dc = await telegram.storage.get('nearest_dc')
   if (!dc) {
-    await resetStorage()
+    // await resetStorage()
     return false
   }
   const authKey = await telegram.storage.get(`dc${dc}_auth_key`)
   const salt = await telegram.storage.get(`dc${dc}_server_salt`)
   const result = !!authKey && !!salt
-  if (!result)
-    await resetStorage()
+  if (!result) {
+    // await resetStorage()
+  }
   return result
 }
 
 
-beforeEach(() => {
-  app.storage = new Storage('./test/storage.json')
+beforeEach(async() => {
   telegram = MTProto({ server, api, app })
+  await resetStorage()
 })
 
 
 afterEach(async() => {
-  app.storage.data = storageData()
-  await app.storage.save()
-  console.log(`----------------------TEST END----------------------`)
-  await new Promise(rs => setTimeout(rs, 3e3))
-  console.log(`----------------------PAUSE END----------------------`)
+  consoleHR(`TEST END`)
+  await delay(4e3)
+  consoleHR(`PAUSE END`)
 })
 
 test(`Connection test`, async() => {
@@ -148,7 +149,7 @@ test(`Rejection test`, async() => {
 })
 
 
-test(`Parallel requests safety`, async() => {
+test.skip(`Parallel requests safety`, async() => {
   const TIMES = 10
   const TIMEOUT = 30e3
 
@@ -182,17 +183,4 @@ test(`Parallel requests safety`, async() => {
 })
 
 
-function infoMessage(str) {
-  const value = `
---- INFO ---
 
-  ${str}
-
---- --- ---
-`
-  console.log(value)
-}
-
-function infoCallMethod(str) {
-  infoMessage(`Call method ${str}`)
-}

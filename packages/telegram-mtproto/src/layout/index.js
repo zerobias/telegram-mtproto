@@ -180,10 +180,13 @@ export class Layout {
     this.makeLayout(schema)
   }
 }
-const hasEmpty = contains('Empty')
-const hasQuestion = contains('?')
-const hasVector = contains('<')
-const hasBare = contains('%')
+
+//$off
+type Contains = (name: string) => boolean
+const hasEmpty: Contains = contains('Empty')
+const hasQuestion: Contains = contains('?')
+const hasVector: Contains = contains('<')
+const hasBare: Contains = contains('%')
 
 export const getTypeProps = (rawType: string) => {
   const result = {
@@ -212,6 +215,7 @@ export const getTypeProps = (rawType: string) => {
 }
 
 export const isSimpleType: (type: string) => boolean =
+  //$off
   flip(contains)(
     ['int', /*'long',*/ 'string', /*'double', */'true', /*'bytes'*/])
 

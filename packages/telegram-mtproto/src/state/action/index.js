@@ -1,7 +1,7 @@
 //@flow
 
-import { NetMessage } from '../../service/networker/net-message'
-import { NetworkerThread } from '../../service/networker'
+/*:: import { NetMessage } from '../../service/networker/net-message' */
+/*:: import { NetworkerThread } from '../../service/networker' */
 import { type MTP } from '../../mtp.h'
 
 export type NetIncomingData = {
@@ -18,7 +18,6 @@ export type NetIncomingData = {
 
 
 export { MAIN } from './main'
-export type { InitType } from './main'
 
 export { NET } from './net'
 
@@ -28,4 +27,4 @@ export { NETWORKER_STATE } from './networker-state'
 
 export { API } from './api'
 
-export type { ApiMetaPL, ApiCallResult } from './api'
+export type { ApiMetaPL } from './api'

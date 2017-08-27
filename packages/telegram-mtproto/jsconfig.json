@@ -1,16 +1,24 @@
 {
 	"compilerOptions": {
 		"target": "es2015",
-    "module": "es2015",
+    "module": "es6",
     "experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
 		"paths": {
       "Action": "./src/state/action/index",
       "Action/*": "./src/state/action/*",
-      "Util/*": "./src/util/*"
+      "Util/*": "./src/util/*",
+      "NetStatus": "./src/net-status",
+      "Mtp": "./src/mtp.h.js",
+      "ConfigProvider": "./src/config-provider",
+      "State": "./src/state"
     },
-		"baseUrl": "./src"
-	},
+    "baseUrl": "./src",
+    "skipLibCheck": true,
+    "noLib": true,
+    "skipDefaultLibCheck": true
+  },
+  "extends": "./../../jsconfig.json",
 	"exclude": [
     "node_modules",
     "lib",

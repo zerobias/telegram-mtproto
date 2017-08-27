@@ -1,5 +1,6 @@
 //@flow
-
+import { join } from 'path'
+import { outputJsonSync } from 'fs-extra'
 
 import { mergeWith, concat, append, groupBy, pipe, map, last, filter, fromPairs, contains } from 'ramda'
 
@@ -15,19 +16,31 @@ import {
 
   type DcAuth
 } from './index.h'
-import { queryNetworker } from '../state/query'
+import {
+  queryNetworker,
+  queryAuthID,
+  querySalt,
+  queryAuthKey,
+} from '../state/query'
 
 import singleHandler from './single-handler'
 
 import Logger from 'mtproto-logger'
-import Status, { netStatuses } from '../net-status'
+import Status, { netStatuses, type NetStatus } from '../net-status'
 const log = Logger`merge-patch`
 
+const testID = String((Math.random() * 1e5) | 0)
+
+const eventId = () => String((Math.random() * 1e5) | 0)
+
+const LOG_PATH = [process.cwd(), 'logs', testID]
 
 export default function mergePatch(ctx: *, processed: MessageUnit[]) {
   const { message, summary } = processed
     .reduce((acc, msg) => {
       const { message, summary } = singleHandler(ctx, msg)
+      const file = join(...LOG_PATH, eventId() + '.json')
+      outputJsonSync(file, { message, summary }, { spaces: 2 })
       return {
         message: append(message, acc.message),
         summary: append(summary, acc.summary),
@@ -48,10 +61,13 @@ export default function mergePatch(ctx: *, processed: MessageUnit[]) {
   // log`mergedSummary`(mergedSummary)
   log`regrouped`(withNewSalt)
   log`joinedAuth`(joinedAuth)
-  log`detectStatus`(map(detectStatus, joinedAuth))
+  //$off
+  const statuses: { [dc: number]: NetStatus } = map(detectStatus, joinedAuth)
+  log`detectStatus`(statuses)
   return {
     normalized: message,
     summary   : withNewSalt,
+    statuses,
   }
 }
 
@@ -149,6 +165,7 @@ function joinDcAuth(summary) {
   const usedDcs = [...new Set([...authKeys, ...saltKeys, ...sessionKeys])]
   const emptyDcAuth: DcAuth = /*::(*/{}/*:: : any)*/
   let result: {
+    //$off
     [dc: number]: DcAuth
   } = fromPairs(usedDcs.map(e => [e, emptyDcAuth]))
   for (const dc of usedDcs) {
@@ -172,17 +189,19 @@ const emptyDcAuth: DcAuth = {
 }
 
 function detectStatus(dc: number, dcAuth: DcAuth) {
-  const net = queryNetworker(dc).fold(() => false, x => x)
+
   let initialData = dcAuth
-  if (net) {
-    const auth: number[] | false = net.authKey && net.authKey.length > 0
-      ? net.authKey
-      : false
-    const salt: number[] | false = net.salt && net.salt.length > 0
-      ? net.salt
-      : false
-    initialData = { auth, salt, ...initialData }
+  const fromState = {
+    auth: queryAuthKey(dc),
+    salt: querySalt(dc),
   }
+  const auth: number[] | false = fromState.auth && fromState.auth.length > 0
+    ? fromState.auth
+    : false
+  const salt: number[] | false = fromState.salt && fromState.salt.length > 0
+    ? fromState.salt
+    : false
+  initialData = { auth, salt, ...initialData }
   initialData = { ...emptyDcAuth, ...initialData }
   if (!initialData.auth || !initialData.salt)
     return netStatuses.load

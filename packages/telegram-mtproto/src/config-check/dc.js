@@ -1,12 +1,17 @@
 //@flow
 
+import {
+  type DCNumber,
+  toDCNumber,
+} from '../state/index.h'
+
 type DcSettings = {
   dev: boolean,
   webogram: boolean,
 }
 
 const defaults: DcSettings = {
-  dev: false,
+  dev     : false,
   webogram: false,
 }
 
@@ -97,7 +102,7 @@ const getDcConfig = ({ dev = false, webogram = false }: DcSettings) => {
 }
 
 const getFlatDcMap = ({ dcList, ...opts }: DcConfig) => {
-  const dcMap: Map<number, string> = new Map()
+  const dcMap: Map<DCNumber, string> = new Map()
   const protocol = `${opts.protocol}://`
   const port = opts.port
     ? `:${opts.port}`
@@ -105,16 +110,14 @@ const getFlatDcMap = ({ dcList, ...opts }: DcConfig) => {
   const path = `/${opts.path}`
   for (const { id, host } of dcList) {
     const fullUrl = [protocol, host, port, path].join('')
-    dcMap.set(id, fullUrl)
+    dcMap.set(/*::toDCNumber(*/id/*::)*/, fullUrl)
   }
   return dcMap
 }
 
-const parseServerConfig = (config: { dev?: boolean, webogram?: boolean } = {}) => {
+export default function parseServerConfig(config: { dev?: boolean, webogram?: boolean } = {}) {
   const withDefaults = { ...defaults, ...config }
   const cfg = getDcConfig(withDefaults)
   const dcMap = getFlatDcMap(cfg)
   return dcMap
 }
-
-export default parseServerConfig

@@ -25,7 +25,8 @@ type ReadHash = {
   reader: Deserialization,
   currentSession: number[],
   prevSession: number[],
-  dataWithPadding: ArrayBuffer
+  dataWithPadding: ArrayBuffer,
+  uid: string,
 }
 
 type ParsedResponse = {
@@ -59,7 +60,7 @@ export async function getDataWithPad({ authKey, msgKey, encryptedData }: GetData
   return dataWithPadding
 }
 
-export function readHash({ reader, currentSession, prevSession, dataWithPadding }: ReadHash) {
+export function readHash({ reader, currentSession, prevSession, dataWithPadding, uid }: ReadHash) {
   reader.fetchIntBytes(64, 'salt')
   const sessionID = reader.fetchIntBytes(64, 'session_id')
   const messageID = readLong(reader.typeBuffer, 'message_id')
@@ -69,7 +70,7 @@ export function readHash({ reader, currentSession, prevSession, dataWithPadding 
     || !bytesCmp(sessionID, prevSession));
   if (isInvalidSession) {
     console.warn('Sessions', sessionID, currentSession, prevSession)
-    dispatch(AUTH.SET_SESSION_ID([...sessionID], 2))
+    dispatch(AUTH.SET_SESSION_ID([...sessionID], 2), uid)
     // throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) } ${sessionID.toString()}  ${bytesToHex(currentSession)} ${currentSession.toString()}`)
   }
 

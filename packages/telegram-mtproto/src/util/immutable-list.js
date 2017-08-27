@@ -4,9 +4,9 @@ import { dissoc, without, equals } from 'ramda'
 
 //$FlowIssue
 interface ImmuList<T, Id: string | number> {
-  ids: Id[],
+  +ids: Id[],
   $SymbolIterator: Iterator<[Id, T]>,
-  [id: Id]: T,
+  +[id: Id]: T,
 }
 
 export default class List<T, Id: string | number> implements ImmuList<T, Id> {

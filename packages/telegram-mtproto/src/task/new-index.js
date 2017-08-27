@@ -1,8 +1,11 @@
 //@flow
 
-import { mergeWith, concat, append, groupBy, pipe, map, last, filter, fromPairs } from 'ramda'
+import { pipe, map } from 'ramda'
+import { encaseP, of, reject } from 'fluture'
 
 import {
+  type PUnitList,
+
   type RawInput,
   type RawMessage,
   type RawContainer,
@@ -19,52 +22,81 @@ import parser from '../service/chain'
 import processing from './processing'
 import { dispatch } from '../state'
 import { MAIN } from 'Action'
-import { queryNetworker } from '../state/query'
+import { queryAuthKey, queryAuthID } from '../state/query'
+import Config from '../config-provider'
 
 import mergePatch from './merge-patch'
 
 import Logger from 'mtproto-logger'
+import { convertToUint8Array } from '../bin'
 const log = Logger`task-index`
 
-type PUnitList = Promise<{
-  normalized: MessageUnit[],
-  summary: ᐸPatchᐳSummaryReduced,
-}>
-
-// type PUnitList = Promise<MessageUnit[]>
-
-export default async function normalize(input: RawInput): PUnitList {
-  const ctx = await decrypt(input)
+export default async function normalize(input: RawInput): Promise<PUnitList> {
+  const ctx = await decrypt(input).promise()
   const flattenRaw = flattenMessage(ctx)
   const processed = processing(ctx, flattenRaw)
-  return mergePatch(ctx, processed)
+  return { ...mergePatch(ctx, processed), ctx }
 }
 
 
 
-async function decrypt(input: RawInput) {
-  const net = await queryNetworker(input.dc).promise()
-  const decrypted = await decryptor(input, net)
-  const { response } = decrypted
-  if (!isApiObject(response)) {
-    throw new TypeError(`Invalid decrypted response`)
-  }
-  return { net, ...input, ...decrypted }
+function decrypt(input: RawInput) {
+  console.warn(queryAuthID(input.dc))
+  return of(input)
+    .chain(decryptorF)
+    .chain(validateDecrypt)
+    .map(decrypted => ({ ...input, ...decrypted }))
 }
 
-const decryptor = ({ thread, result: { data } }: RawInput, net) =>
+const decryptor = ({ thread, result: { data }, dc }: RawInput) =>
   parser({
     responseBuffer: data,
     uid           : thread.uid,
-    authKeyID     : net.authSubKey.authKeyID,
-    authKeyUint8  : net.authSubKey.authKeyUint8,
-    thisSessionID : thread.sessionID,
+    authKeyID     : queryAuthID(dc) || [],
+    authKeyUint8  : convertToUint8Array(queryAuthKey(dc) || []),
+    thisSessionID : Config.session.get(thread.uid, dc),
     prevSessionID : thread.prevSessionID,
     getMsgById    : thread.getMsgById,
   })
 
+const decryptorF = encaseP(decryptor)
+
+function validateDecrypt(decrypted) {
+  const { response } = decrypted
+  if (!isApiObject(response)) {
+    return reject(new TypeError(`Invalid decrypted response`))
+  }
+  return of(decrypted)//{ ...input, ...decrypted }
+}
+
+let sess: string
+const sessList: string[] = []
+
 function flattenMessage(input): MessageDraft[] {
-  const { messageID, seqNo, sessionID, message, response } = input
+  const { messageID, seqNo, sessionID, message, response, net } = input
+  // console.warn(sessList)
+  // let token = String([...sessionID])
+  // if (!sess) {
+  //   sess = token
+  //   sessList.push(token)
+  // }
+  // console.warn(token, sess)
+  // if (sessList.includes(token) && sess && sess !== token)
+  //   return []
+  // if (!sessList.includes(token)) {
+  //   sess = token
+  //   sessList.push(token)
+  // }
+  // if (net.session) {
+  //   token = String([...net.session])
+  //   console.warn(token, sess)
+  //   if (sessList.includes(token) && sess !== token)
+  //     return []
+  //   if (!sessList.includes(token)) {
+  //     sess = token
+  //     sessList.push(token)
+  //   }
+  // }
   const result = checkContainer(response)
   if (result.isContainer) return flattenContainer(input, result.data)
   else return [{
@@ -105,22 +137,24 @@ function checkContainer(response: RawMessage) {
 function flattenContainer(input, container: RawContainer): MessageDraft[] {
   const { messages } = container
   const ids = messages.map(({ msg_id }) => msg_id)
-
+  const session = Config.session.get(input.thread.uid, input.dc)
+  console.log(`input.sessionID`, input.sessionID)
+  console.log(`real session`, session)
   const cont: MessageDraft = {
-    type   : 'container',
-    id     : input.messageID,
-    seq    : input.seqNo,
-    session: input.sessionID,
-    dc     : input.message.dc,
-    raw    : ids,
+    type: 'container',
+    id  : input.messageID,
+    seq : input.seqNo,
+    session,
+    dc  : input.message.dc,
+    raw : ids,
   }
   const normalizedMsgs: MessageDraft[] = messages.map(msg => ({
-    type   : 'inner',
-    id     : msg.msg_id,
-    seq    : msg.seqno,
-    session: input.sessionID,
-    dc     : input.message.dc,
-    raw    : msg,
+    type: 'inner',
+    id  : msg.msg_id,
+    seq : msg.seqno,
+    session,
+    dc  : input.message.dc,
+    raw : msg,
   }))
   return [...normalizedMsgs, cont]
 }

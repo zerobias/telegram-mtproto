@@ -16,6 +16,8 @@
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/*.json
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/jss/*
 <PROJECT_ROOT>/packages/telegram-mtproto/node_modules/mezzanine/*
+<PROJECT_ROOT>/packages/telegram-mtproto/src/fp/*
+<PROJECT_ROOT>/packages/telegram-mtproto/src/util/profunctor/*
 <PROJECT_ROOT>/node_modules/mezzanine/*
 <PROJECT_ROOT>/node_modules/config-chain/*
 <PROJECT_ROOT>/node_modules/conventional-changelog-core/*
@@ -23,6 +25,7 @@
 <PROJECT_ROOT>/node_modules/jss/*
 <PROJECT_ROOT>/node_modules/fbjs/*
 <PROJECT_ROOT>/node_modules/funfix/index.js.flow
+<PROJECT_ROOT>/flow/*
 .*/dist/.*
 .*/logs/.*
 .*/examples/.*
@@ -44,7 +47,7 @@ untyped-type-import=error
 
 [libs]
 ./flow-typed
-<PROJECT_ROOT>/node_modules/apropos
+💩 <PROJECT_ROOT>/node_modules/apropos
 💩 ./node_modules/funfix/dist/funfix.js.flow
 
 [options]
@@ -54,7 +57,9 @@ esproposal.class_instance_fields=enable
 esproposal.class_static_fields=enable
 experimental.const_params=true
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
+suppress_comment=\\(.\\|\n\\)*\\$off
 suppress_type=$FlowIssue
+suppress_type=$off
 unsafe.enable_getters_and_setters=true
 emoji=true
 traces=3
@@ -69,19 +74,21 @@ module.name_mapper='^ajv\(.*\)$' -> '<PROJECT_ROOT>/node_modules/ajv\1'
 module.name_mapper='^most-subject$' -> '<PROJECT_ROOT>/node_modules/most-subject'
 module.name_mapper='^rusha$' -> '<PROJECT_ROOT>/node_modules/rusha'
 module.name_mapper='^fs-extra$' -> '<PROJECT_ROOT>/node_modules/fs-extra'
-module.name_mapper='^apropos$' -> '<PROJECT_ROOT>/node_modules/apropos/src'
-💩 module.name_mapper='^funfix$' -> '<PROJECT_ROOT>/node_modules/funfix/dist/funfix.js.flow'
-module.name_mapper='^funfix\(.*\)$' -> '<PROJECT_ROOT>/node_modules/funfix/\1'
+module.name_mapper='^load-json-file$' -> '<PROJECT_ROOT>/node_modules/load-json-file'
+module.name_mapper='^write-json-file$' -> '<PROJECT_ROOT>/node_modules/write-json-file'
 module.name_mapper='^chokidar$' -> '<PROJECT_ROOT>/node_modules/chokidar'
 module.name_mapper='^\(.*\)goodmind\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1goodmind\2'
 module.name_mapper='^pako\(.*\)$' -> '<PROJECT_ROOT>/node_modules/pako\1'
 module.name_mapper='^\(.*\)redux\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1redux\2'
 module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1/src'
 module.name_mapper='^Action\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/state/action\1'
+module.name_mapper='^State$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/state'
+module.name_mapper='^ConfigProvider$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/config-provider'
 module.name_mapper='^Util\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/util\1'
+module.name_mapper='^NetStatus$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/net-status'
+module.name_mapper='^Mtp$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/mtp.h.js'
 module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/telegram-mtproto/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-shared/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-storage-fs/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-logger/node_modules
-

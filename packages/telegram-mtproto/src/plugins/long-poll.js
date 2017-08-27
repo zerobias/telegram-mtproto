@@ -3,8 +3,8 @@
 import Bluebird from 'bluebird'
 
 import { tsNow } from '../service/time-manager'
-import { NetworkerThread } from '../service/networker/index'
-import { active } from '../state/signal'
+/*:: import { NetworkerThread } from '../service/networker' */
+import active from '../state/signal/active'
 
 import Logger from 'mtproto-logger'
 const log = Logger`long-poll`
@@ -24,7 +24,7 @@ class LongPoll {
   maxWait = 25e3
   pendingTime = Date.now()
   requestTime = Date.now()
-  isActive = false
+  isActive = true
   alreadyWaitPending: boolean = false
   pending: Promise<any>
   constructor(thread: NetworkerThread) {

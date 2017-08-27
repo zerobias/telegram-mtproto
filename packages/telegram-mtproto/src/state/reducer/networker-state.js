@@ -6,12 +6,13 @@ import { combineReducers } from 'redux'
 import { createReducer } from 'redux-act'
 import { uniq, without, append, omit, fromPairs } from 'ramda'
 
-import { NETWORKER_STATE, AUTH, NET, API } from 'Action'
+import { NETWORKER_STATE, AUTH, NET, API, MAIN } from 'Action'
 import List from 'Util/immutable-list'
 import { NetMessage } from '../../service/networker/net-message'
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync } from '../../bin'
-import { indexed } from 'Util/indexed-reducer'
+import { indexed } from '../../util/indexed-reducer'
 import { type OnRequestDone } from '../index.h'
+import Status, { statuses, type ModuleStatus } from '../../status'
 
 class BatchList {
   deleted: string[]
@@ -40,6 +41,15 @@ class BatchList {
   }
 }
 
+const status = createReducer({
+  //$off
+  [NETWORKER_STATE.SET_STATUS]: (state: ModuleStatus, payload: ModuleStatus) => payload,
+  //$off
+  [MAIN.DC_DETECTED]          : (state: ModuleStatus) => Status.max(state, statuses.loaded),
+  //$off
+  [MAIN.AUTH_UNREG]           : () => statuses.init,
+}, statuses.init)
+
 const requestMap = createReducer({
   //$FlowIssue
   [NETWORKER_STATE.SENT.ADD]: (state: {[key: string]: string}, payload: NetMessage[]) => {
@@ -51,7 +61,7 @@ const requestMap = createReducer({
     return { ...state, ...obj }
   },
   //$FlowIssue
-  [API.REQUEST.DONE]: (state: {[key: string]: string}, { normalized }: OnRequestDone) => {
+  [API.REQUEST.DONE]: (state: {[key: string]: string}, normalized: OnRequestDone) => {
     const ids = normalized
       .filter(msg => msg.flags.api && msg.api.resolved)
       .map(msg => msg.api.apiID)
@@ -133,20 +143,10 @@ const dc = createReducer({
     payload.thread.threadID
 }, '')
 
-
-const connectionInited = createReducer({
-
-}, false)
-
-const seq = createReducer({
-
-}, 1)
-
 const reducer = indexed('networker')({
-  seq,
-  connectionInited,
   dc,
   resend,
+  status,
   sent,
   pending,
   authKey,

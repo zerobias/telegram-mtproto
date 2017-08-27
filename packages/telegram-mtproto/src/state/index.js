@@ -1,6 +1,3 @@
 //@flow
 
-
-import store from './core'
-export default store
-
+export { rootStream, dispatch, getState } from './portal'

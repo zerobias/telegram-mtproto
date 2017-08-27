@@ -22,6 +22,7 @@ export default function processing(ctx: IncomingType, list: MessageDraft[]) {
     .map(msg => processSingle(ctx, msg))
 }
 
+//$off
 function processSingle(ctx: IncomingType, msg: MessageDraft): MessageUnit {
   let { flags, ...body } = getIncoming()
   flags = initFlags(flags)

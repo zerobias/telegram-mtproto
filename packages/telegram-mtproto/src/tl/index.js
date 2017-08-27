@@ -264,7 +264,7 @@ const emitter = new EventEmitter({ wildcard: true })
 
 export class Deserialization {
   typeBuffer: TypeBuffer
-  override: *
+  /*:: override: * */
   mtproto: boolean
   uid: string
   emitter: EventEmitter
@@ -324,10 +324,16 @@ export class Deserialization {
       }
     }
   }
-  fetchIntBytes(bits: number, field: string = ''): Uint8Array {
-    if (bits % 32)
+  fetchIntBytes(bitss: number, field: string = ''): Uint8Array {
+    let bits = bitss
+    if (Array.isArray(bits)) {
+      console.trace()
+      bits = bitss[0]
+    }
+    if (bits % 32) {
+      console.error(bits, typeof bits, Array.isArray(bits))
       throw new Error(`Invalid bits: ${bits}`)
-
+    }
     const len = bits / 8
 
     const bytes = this.typeBuffer.next(len)

@@ -1,18 +1,16 @@
 //@flow
 
+import { Just, Nothing, fromNullable, Maybe } from 'folktale/maybe'
+
 import { type PublicKey } from '../service/main/index.h'
+import { type DCNumber } from '../state/index.h'
 import getCrypto from '../co-worker'
 import { getConfig } from './provider'
 import random from '../service/secure-random'
 import KeyManager from '../service/authorizer/rsa-keys-manger'
+import NetworkerThread from '../service/networker'
 
 const Config = {
-  signIn: {
-    get: (uid: string) => getConfig(uid).signIn,
-    set(uid: string, value: boolean) {
-      getConfig(uid).signIn = value
-    }
-  },
   seq: {
     get(uid: string, dc: number) {
       const seq = getConfig(uid).seq[dc]
@@ -25,6 +23,33 @@ const Config = {
     set(uid: string, dc: number, newSeq: number) {
       getConfig(uid).seq[dc] = newSeq
     }
+  },
+  apiConfig: {
+    get(uid: string) {
+      return getConfig(uid).apiConfig
+    }
+  },
+  thread: {
+    set(uid: string, dc: DCNumber, thread: NetworkerThread) {
+      getConfig(uid).thread[dc] = thread
+    },
+    get(uid: string, dc: DCNumber) {
+      return fromNullable(getConfig(uid).thread[dc])
+    },
+  },
+  storage: {
+    get(uid: string, key: string): Promise<mixed> {
+      return getConfig(uid).storage.get(key)
+    },
+    set(uid: string, key: string, value: any): Promise<void> {
+      return getConfig(uid).storage.set(key, value)
+    },
+    has(uid: string, key: string): Promise<boolean> {
+      return getConfig(uid).storage.has(key)
+    },
+    remove(uid: string, ...keys: string[]): Promise<void> {
+      return getConfig(uid).storage.remove(...keys)
+    },
   },
   publicKeys: {
     get(uid: string, keyHex: string): PublicKey | false {
@@ -88,7 +113,7 @@ const Config = {
       getConfig(uid).lastMessageID = value
     }
   },
-  dcMap(uid: string, id: number) {
+  dcMap(uid: string, id: DCNumber) {
     const dc = getConfig(uid).dcMap.get(id)
     if (typeof dc !== 'string')
       throw new Error(`Wrong dc id! ${id}`)

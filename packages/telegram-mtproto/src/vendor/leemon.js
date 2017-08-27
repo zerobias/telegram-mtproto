@@ -189,7 +189,7 @@ var mask=0;        //AND this with an array element to chop it down to bpe bits
 var radix=mask+1;  //equals 2^bpe.  A single 1 bit to the left of the last bit of mask.
 
 //the digits for converting to different bases
-var digitsStr='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_=!@#$%^&*()[]{}|;:,.<>/?`~ \\\'\"+-';
+var digitsStr='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_=!@#$%^&*()[]{}|;:,.<>/?`~ \\\'"+-';
 
 //initialize the global variables
 for (bpe=0; (1<<(bpe+1)) > (1<<bpe); bpe++);  //bpe=number of bits in the mantissa on this platform
@@ -295,6 +295,7 @@ function millerRabin(x: Bytes, b: Bytes) {
 
   if (!equalsInt(mr_a, 1) && !equals(mr_a, mr_x1)) {
     j=1;
+    //$off
     while (j<=s-1 && !equals(mr_a, mr_x1)) {
       squareMod_(mr_a, x);
       if (equalsInt(mr_a, 1)) {
@@ -749,11 +750,13 @@ function inverseModInt(x: number, n: number): number {
     if (x==1) return a;
     if (x==0) return 0;
     b-=a*Math.floor(n/x);
+    //$off
     n%=x;
 
     if (n==1) return b; //to avoid negatives, change this b to n-b, and each -= to +=
     if (n==0) return 0;
     a-=b*Math.floor(x/n);
+    //$off
     x%=n;
   }
   //eslint-disable-next-line
@@ -1002,11 +1005,14 @@ export function str2bigInt(s: string, base: number, minSize?: number): Bytes {
       d=s.indexOf(',', 0);
       if (d<1)
         break;
+      //$off
       s=s.substring(d+1);
       if (s.length==0)
         break;
     }
+    //$off
     if (x.length<minSize) {
+      //$off
       y=new Array(minSize);
       copy_(y, x);
       return y;
@@ -1027,11 +1033,16 @@ export function str2bigInt(s: string, base: number, minSize?: number): Bytes {
   }
 
   for (k=x.length; k>0 && !x[k-1]; k--); //strip off leading zeros
+  //$off
   k=minSize>k+1 ? minSize : k+1;
+  //$off
   y=new Array(k);
+  //$off
   kk=k<x.length ? k : x.length;
+  //$off
   for (i=0; i<kk; i++)
     y[i]=x[i];
+  //$off
   for (;i<k; i++)
     y[i]=0;
   return y;
@@ -1161,6 +1172,7 @@ export function rightShift_(x: Bytes, n: number) {
       x[i]=x[i+k];
     for (;i<x.length; i++)
       x[i]=0;
+    //$off
     n%=bpe;
   }
   for (i=0; i<x.length-1; i++) {
@@ -1187,6 +1199,7 @@ export function leftShift_(x: Bytes, n: number) {
       x[i]=x[i-k];
     for (;i>=0; i--)
       x[i]=0;
+    //$off
     n%=bpe;
   }
   if (!n)
@@ -1436,7 +1449,7 @@ function powMod_(x: Bytes, y: Bytes, n: Bytes) {
     s3=dup(x);
   else
     copy_(s3, x);
-
+  //$off
   for (k1=y.length-1; k1>0 & !y[k1]; k1--);  //k1=first nonzero element of y
   if (y[k1]==0) {  //anything to the 0th power is 1
     copyInt_(x, 1);

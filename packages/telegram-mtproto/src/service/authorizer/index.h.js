@@ -2,24 +2,24 @@
 
 export type ResPQ = {
   _: 'resPQ',
-  nonce: Uint8Array,
-  server_nonce: Uint8Array,
-  pq: Uint8Array,
+  nonce: number[],
+  server_nonce: number[],
+  pq: number[],
   server_public_key_fingerprints: string[]
 }
 
 type ServerDHfail = {
-  _: 'server_DH_params_fail',
-  nonce: Uint8Array,
-  server_nonce: Uint8Array,
-  new_nonce_hash: Uint8Array,
+  _: 'server_DH_params_fail' & string,
+  nonce: number[],
+  server_nonce: number[],
+  new_nonce_hash: number[],
 }
 
 type ServerDHok = {
   _: 'server_DH_params_ok',
-  nonce: Uint8Array,
-  server_nonce: Uint8Array,
-  encrypted_answer: Uint8Array,
+  nonce: number[],
+  server_nonce: number[],
+  encrypted_answer: number[],
 }
 
 export type Server_DH_Params = ServerDHfail | ServerDHok

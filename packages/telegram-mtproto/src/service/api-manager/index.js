@@ -1,38 +1,42 @@
 //@flow
 
-import Logger from 'mtproto-logger'
-const log = Logger`api-manager`
+import { type Emit, type On } from 'eventemitter2'
+import { type AsyncStorage } from 'mtproto-shared'
+import { Right, Left, Apropos, of } from 'apropos'
+import { append, identity } from 'ramda'
+import { Fluture, resolve } from 'fluture'
+import { Maybe, Just, Nothing } from 'folktale/maybe'
 
 import Auth from '../authorizer'
 
-import { type Bytes, type LeftOptions, type Cache } from './index.h'
+import { type Bytes, type LeftOptions } from './index.h'
 import { type PublicKey, type ApiConfig, type StrictConfig, type ServerConfig } from '../main/index.h'
-import { type Emit, type On } from 'eventemitter2'
-import { type AsyncStorage } from '../../plugins'
 
-import Config from '../../config-provider'
-import NetworkerThread from '../networker'
+import NetworkerThread, { createThread } from '../networker'
+import Logger from 'mtproto-logger'
+const log = Logger`api-manager`
+import Config from 'ConfigProvider'
 import ApiRequest from '../main/request'
 import { API } from 'Action'
 
-import { dispatch } from '../../state'
-import { homeDc } from '../../state/signal'
+import { dispatch } from 'State'
+import { type DCNumber } from '../../state/index.h'
 import {
   querySalt,
-  queryAuthID,
   queryAuthKey,
   queryHomeDc,
 } from '../../state/query'
+import { MaybeT, EitherT, FutureT } from 'Util/monad-t'
+
+// const x = createThread(3, [], [], '')
 
 export class ApiManager {
-  invokeNetRequest: (netReq: ApiRequest) => Promise<mixed>
-  cache: Cache = {}
+  // invokeNetRequest: (netReq: ApiRequest) => Promise<mixed>
   uid: string
   apiConfig: ApiConfig
   publicKeys: PublicKey[]
   storage: AsyncStorage
   serverConfig: ServerConfig
-  networkFabric: *
   on: On
   emit: Emit
   online: boolean = false
@@ -54,37 +58,36 @@ export class ApiManager {
     this.on = emitter.on
     this.emit = emitter.emit
 
+    Config.publicKeys.init(uid, publicKeys)
     //$FlowIssue
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
+    //$off
     this.invokeNetRequest = this.invokeNetRequest.bind(this)
-    //$FlowIssue
-    this.mtpGetNetworker = this.mtpGetNetworker.bind(this)
-    //$FlowIssue
-    this.networkSetter = this.networkSetter.bind(this)
-
-    Config.publicKeys.init(uid, publicKeys)
   }
-  networkSetter(dc: number, authKey: Bytes, serverSalt: Bytes): NetworkerThread {
-    const networker = new NetworkerThread({
-      appConfig: this.apiConfig,
-      storage  : this.storage,
-    }, dc, authKey, serverSalt, this.uid)
-    this.cache[dc] = networker
-    return networker
-  }
-  async mtpGetNetworker(dc: number) {
+  mtpGetNetworker() {
+    // const uid = this.uid
+    // return MaybeT
+    //   .toFuture(
+    //     ERR.noDC,
+    //     queryHomeDc(uid)
+    //   )
+    //   .chain(dc => getThread(uid, dc))
 
+    // return FutureT.futureEither(checkedDC)
+
+    /*
     const cache = this.cache
-    if (!dc) throw new Error('get Networker without dcID')
-
     if (cache[dc]) return cache[dc]
 
     const qAuthKey = queryAuthKey(dc)
     const qSalt = querySalt(dc)
     if (Array.isArray(qAuthKey) && Array.isArray(qSalt)) {
-      return this.networkSetter(dc, qAuthKey, qSalt)
-    }
-    console.trace()
+      return new Thread(
+        dc, authKey, serverSalt, uid
+      )
+    } */
+
+
     // const authKeyHex: string = await this.storage.get(akk)
     // let serverSaltHex: string = await this.storage.get(ssk)
 
@@ -101,17 +104,13 @@ export class ApiManager {
     //   return this.networkSetter(dc, authKey, serverSalt)
     // }
 
-    let auth
-    try {
-      auth = await Auth(this.uid, dc).promise()
-    } catch (error) {
-      console.log('Get networker error', error.message, error.stack)
-      throw error
-    }
+    /* const auth = await authRequest(uid, dc).promise()
 
     const { authKey, serverSalt } = auth
 
-    return this.networkSetter(dc, authKey, serverSalt)
+    return new Thread(
+      dc, authKey, serverSalt, uid
+    ) */
   }
 
   mtpInvokeApi(method: string, params: Object = {}, options: LeftOptions = {}): Promise<any> {
@@ -127,31 +126,71 @@ export class ApiManager {
       method,
       params,
       timestamp: Date.now(),
-    }, netReq.requestID))
+    }, netReq.requestID), this.uid)
     return netReq.deferFinal.promise
   }
 
   async invokeNetRequest(netReq: ApiRequest) {
-    let networker
     try {
-      const dcID = queryHomeDc()
-
-      const cached = this.cache[dcID]
-      networker = cached == null
-        ? await this.mtpGetNetworker(dcID)
-        : cached
+      const networker = await getThread(this.uid).promise()
+      const netMessage = networker.wrapApiCall(
+        netReq.data.method,
+        netReq.data.params,
+        netReq.options,
+        netReq.requestID)
+      await netMessage.deferred.promise
     } catch (e) {
       netReq.defer.reject(e)
+    } finally {
       return netReq.defer.promise
     }
-
-    await networker.wrapApiCall(
-      netReq.data.method,
-      netReq.data.params,
-      netReq.options,
-      netReq.requestID)
-
-    return netReq.defer.promise
   }
 }
 
+const getThread = (uid) => MaybeT
+  .toFuture(
+    ERR.noDC,
+    queryHomeDc(uid)
+  )
+  .chain(dc => MaybeT
+    .toFutureR(queryKeys(uid)(dc))
+    .chainRej(() => authRequest(uid, dc))
+    .map(({ auth, dc, salt }) => MaybeT.fold(
+      () => createThread( dc, auth, salt, uid ),
+      Config
+        .thread
+        .get(uid, dc)
+  )))
+
+const queryKeys = (() => {
+  const queryKeys = (uid, dc) => MaybeT.both(
+    queryAuthKey(uid, dc),
+    querySalt(uid, dc)
+  )
+  const toKeyPair = dc => ([auth, salt]) => ({ auth, salt, dc })
+  return (uid) => (dc) => queryKeys(uid, dc).map(toKeyPair(dc))
+})()
+
+const authRequest = (uid: string, dc) => Auth(uid, dc)
+  .bimap(
+    error => {
+      console.error('Auth error', error.message, error.stack)
+      return error
+    },
+    ({ authKey, authKeyID, serverSalt, dc }) => ({
+      auth: authKey,
+      salt: serverSalt,
+      // authKeyID,
+      dc
+    })
+  )
+
+declare class NoDCError extends Error {  }
+declare class NoThreadError extends Error {  }
+declare var typedError: <E, /*:: -*/F>(ErrorClass: Class<E>, x: F) => E
+
+const ERR = {
+  noDC: () => /*:: typedError(NoDCError,*/
+    new Error('get Networker without dcID') /*::) */,
+  isNothing() { throw new Error(`UnsafeMaybeValue recieve nothing`) }
+}

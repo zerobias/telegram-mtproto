@@ -54,3 +54,31 @@ export type MTP =
   | MTPᐸAckᐳ
   | MTPᐸContainerᐳ
   | MTPᐸRpcErrorᐳ
+
+export type ᐸMTᐳNewSessionCreated = {
+  +_: string & 'new_session_created',
+  +first_msg_id: string,
+  +unique_id: string,
+  +server_salt: string,
+}
+
+export type ᐸMTᐳBadSalt = {
+  +_: string & 'bad_server_salt',
+  +bad_msg_id: string,
+  +bad_msg_seqno: number,
+  +error_code: number,
+  +new_server_salt: string,
+}
+
+export type ᐸMTᐳBadNotification = {
+  +_: string & 'bad_msg_notification',
+  +bad_msg_id: string,
+  +bad_msg_seqno: number,
+  +error_code: number,
+}
+
+export type ᐸMTᐳRpcResult = {
+  +_: string & 'rpc_result',
+  +req_msg_id: string,
+  +result?: APIObject
+}

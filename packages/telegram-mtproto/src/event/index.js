@@ -1,3 +1,3 @@
 //@flow
 
-export { default as ScopedEmitter } from './scoped-emitter'
+export { scopedEmitter } from './scoped-emitter'

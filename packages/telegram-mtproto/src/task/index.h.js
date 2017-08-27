@@ -5,6 +5,7 @@ import { type AxiosXHR } from 'axios'
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
 import { type NetState } from '../state/index.h'
+import { type NetStatus } from '../net-status'
 
 export type RawInput = {
   message: NetMessage,
@@ -74,7 +75,7 @@ opaque type DcInt: NonNegativeInt = number
 export type MessageCore = {
   +id: string,
   +seq: number,
-  +session: Uint8Array,
+  +session: number[],
   +dc: number,
 }
 
@@ -245,4 +246,10 @@ export type DcAuth = {
   auth: number[] | false,
   salt: number[] | false,
   session: ᐸPatchᐳSession | false,
+}
+
+export type PUnitList = {
+  normalized: MessageUnit[],
+  summary: ᐸPatchᐳSummaryReduced,
+  statuses: { [dc: number]: NetStatus },
 }

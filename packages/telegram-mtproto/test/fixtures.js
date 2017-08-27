@@ -1,3 +1,5 @@
+
+//$off
 const prompt = require('prompt')
 
 const delayExit = () => setTimeout(() => process.exit(0), 4e3)
@@ -14,13 +16,36 @@ const inputField/*:(field: string) => Promise<string>*/ = (field/*:string*/)/*:P
   input([{ name: field, required: true }])
     .then(res => res[field])
 
-const getStorageData = (id) => ({
+const getStorageData = (id/*:: : number*/) => ({
   nearest_dc: id,
   dc        : id,
 })
 
-prompt.start()
+// prompt.start()
+
+const delay = (time/*:: : number*/) => new Promise(rs => setTimeout(rs, time))
+
+const consoleHR = (text) => console.log(`----------------------${text}----------------------`)
+
+function infoMessage(str) {
+  const value = `
+--- INFO ---
+
+  ${str}
+
+--- --- ---
+`
+  console.log(value)
+}
+
+function infoCallMethod(str) {
+  infoMessage(`Call method ${str}`)
+}
+
 
 exports.getStorageData = getStorageData
 exports.inputField = inputField
 exports.delayExit = delayExit
+exports.delay = delay
+exports.consoleHR = consoleHR
+exports.infoCallMethod = infoCallMethod

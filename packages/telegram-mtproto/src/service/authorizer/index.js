@@ -10,10 +10,15 @@ import random from '../secure-random'
 import { applyServerTime, tsNow } from '../time-manager'
 
 import { bytesCmp, bytesToHex, sha1BytesSync,
-  aesEncryptSync, rsaEncrypt, aesDecryptSync, bytesToArrayBuffer,
+  aesEncryptSync, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor, generateNonce } from '../../bin'
 import { bpe, str2bigInt, one,
   dup, sub_, sub, greater } from '../../vendor/leemon'
+import {
+  type DCNumber,
+  toCryptoKey,
+  type CryptoKey,
+} from '../../state/index.h'
 
 import {
   type ResPQ,
@@ -22,37 +27,23 @@ import {
   type Set_client_DH_params_answer,
 } from './index.h'
 
+import {
+  fetchDHInner,
+  fetchDhParam,
+  fetchResPQ,
+  fetchServerDh,
+  writeReqPQ,
+  writeReqDH,
+  writeInnerDH,
+} from './fetch-object'
 import primeHex from './prime-hex'
+import sendPlainReq from './send-plain-req'
 
 import Logger from 'mtproto-logger'
 
 const log = Logger`auth`
 
-import sendPlainReq from './send-plain-req'
-
-type Bytes = number[]
-
-declare class CryptoError extends Error {  }
-declare function cryptoErr</*:: -*/F>(x: F): CryptoError
-const modPowF = encaseP(Config.common.Crypto.modPow)
-const modPowPartial = (b, dhPrime) => x => modPowF({ x, y: b, m: dhPrime })/*::.mapRej(cryptoErr)*/
-
-declare class DHAnswerError extends Error {  }
-declare function dhAnswerFail</*:: -*/F>(x: F): DHAnswerError
-
-declare class AssertError extends Error {  }
-declare function assertFail</*:: -*/F>(x: F): AssertError
-
-declare class DecryptError extends Error {  }
-declare function decryptFail</*:: -*/F>(x: F): DecryptError
-
-declare class VerifyError extends Error {  }
-declare function verifyFail</*:: -*/F>(x: F): VerifyError
-
-declare class SendPqError extends Error {  }
-declare function sendPqFail</*:: -*/F>(x: F): SendPqError
-
-export default function Auth(uid: string, dc: number) {
+export default function Auth(uid: string, dc: DCNumber) {
   const savedReq = Config.authRequest.get(uid, dc)
   if (savedReq) {
     const req: typeof runThread = savedReq
@@ -60,8 +51,7 @@ export default function Auth(uid: string, dc: number) {
   }
 
   const runThread = getUrl(uid, dc)
-    .chain(authFuture(uid))
-    .mapRej(failureHandler(uid, dc))
+    .chain(url => authFuture(uid, dc, url))
   const future = cache(runThread)
   Config.authRequest.set(uid, dc, future)
   return future
@@ -73,34 +63,34 @@ const failureHandler = (uid: string, dc: number) => (err) => {
   return err
 }
 
+const modPowF = encaseP(Config.common.Crypto.modPow)
+const modPowPartial = (b, dhPrime) => x => modPowF({ x, y: b, m: dhPrime })/*::.mapRej(cryptoErr)*/
+
 const factorize = encaseP(Config.common.Crypto.factorize)
 
-const normalizeResPQ = ({ server_nonce, pq, server_public_key_fingerprints }: ResPQ) => ({
-  serverNonce : server_nonce,
-  pq,
-  bytes       : pq,
-  fingerprints: server_public_key_fingerprints,
+const normalizeResPQ = (res: ResPQ) => ({
+  serverNonce : res.server_nonce,
+  pq          : res.pq,
+  fingerprints: res.server_public_key_fingerprints,
+  ...res
 })
 
-const makePqBlock = (uid: string, nonce) => (ctx) => {
+const makePqBlock = (uid: string) => (ctx) => {
   const { serverNonce, fingerprints, pq, it } = ctx
   log`PQ factorization done`(it)
   log`Got ResPQ`(bytesToHex(serverNonce), bytesToHex(pq), fingerprints)
 
   try {
     const publicKey = Config.publicKeys.select(uid, fingerprints)
-    return of({ ...ctx, publicKey, nonce })
+    return of({ ...ctx, publicKey })
   } catch (err) {
+    console.trace('select')
     const error: Error = err
     return reject(error)
   }
 }
 
-const authKeyFutureFull = (uid, url) => ctx =>
-  authKeyFuture(uid, url, ctx)
-    .map(result => ({ ...result, ...ctx }))
-
-function getUrl(uid: string, dc: number): Fluture<string, DcUrlError> {
+function getUrl(uid: string, dc: DCNumber): Fluture<string, DcUrlError> {
   const url = Config.dcMap(uid, dc)
   if (typeof url !== 'string')
     return reject(new DcUrlError(dc, url))
@@ -108,29 +98,37 @@ function getUrl(uid: string, dc: number): Fluture<string, DcUrlError> {
   return of(url)
 }
 
-const authFuture = (uid: string) => (url: string) =>
-  mtpSendReqPQ(uid, url)
-    .chain(mtpSendReqDhParams(uid, url))
-    .chain(authKeyFutureFull(uid, url))
+function authFuture(uid: string, dc: DCNumber, url: string) {
+  const nonce = newNonce()
 
-function mtpSendReqPQ(uid: string, url: string) {
-  const nonce = generateNonce()
-  log`Send req_pq`(bytesToHex(nonce))
-
-  const request = new Serialization({ mtproto: true }, uid)
-  const buffer = request.writer.getBuffer()
-  request.storeMethod('req_pq', { nonce })
-
-  return sendPlainReq(uid, url, buffer)
-    .map(getResPQ)
+  return of(writeReqPQ(uid, nonce))
+    .chain(sendPlainReq(uid, url))
+    .map(fetchResPQ)
     .chain(assertResPQ(nonce))
     .map(normalizeResPQ)
     .chain(factorizePQInner)
-    .chain(makePqBlock(uid, nonce))
+    .chain(makePqBlock(uid))
+    .map(oneMoreNonce)
+    .chain(mtpSendReqDh(uid, url))
+    .chain(authKeyFuture(uid, url))
+    .map(data => ({ ...data, dc }))
+    .mapRej(failureHandler(uid, dc))
+}
+
+function newNonce() {
+  const nonce = generateNonce()
+  log`Send req_pq`(bytesToHex(nonce))
+  return nonce
+}
+
+function oneMoreNonce(auth) {
+  const newNonce = random(new Array(32))
+  log`afterReqDH`('Send req_DH_params')
+  return { ...auth, newNonce }
 }
 
 const factorizePQInner = ctx =>
-  factorize(ctx)
+  factorize({ bytes: ctx.pq })
     .map(([ p, q, it ]) => ({ ...ctx, p, q, it }))
     /*::.mapRej(cryptoErr)*/
 
@@ -145,9 +143,7 @@ const assertResPQ = (nonce) => (response: ResPQ) => {
   return of(response)/*::.mapRej(sendPqFail)*/
 }
 
-const sendRequest = (uid, url) => buffer => sendPlainReq(uid, url, buffer)
-
-function authKeyFuture(uid, url, auth) {
+const authKeyFuture = (uid, url) => (auth) => {
   const {
     g, gA,
     nonce,
@@ -159,27 +155,20 @@ function authKeyFuture(uid, url, auth) {
   const b = random(new Array(256))
 
   const modPowFuture = modPowPartial(b, dhPrime)
-  const prepareAuthReq = prepareAuthRequest(uid, url, auth)
-  const send = sendRequest(uid, url)
-  const assertDH = assertDhParams(nonce, serverNonce)
-  const generateKey = modPowFuture(gA)
-  const choose = dhChoose(uid, url, auth)
 
-  const authKeyRequest =
-    modPowFuture(gBytes)
-      .map(prepareAuthReq)
-      .chain(send)
-      .map(getDhParam)
-      .chain(assertDH)
-      .both(generateKey)
-      .map(authKeysGen)
-      .chain(choose)
-  return authKeyRequest
+  return modPowFuture(gBytes)
+    .map(gB => writeInnerDH(uid, auth, gB))
+    .map(prepareData(uid, url, auth))
+    .chain(sendPlainReq(uid, url))
+    .map(fetchDhParam)
+    .chain(assertDhParams(nonce, serverNonce))
+    .both(modPowFuture(gA))
+    .map(authKeysGen)
+    .chain(dhChoose(uid, url, auth))
+    .map(result => ({ ...result, ...auth }))
 }
 
-const prepareAuthRequest = (uid, url, auth) => gB => prepareData(uid, url, auth, gB)
-
-function prepareData(uid, url, auth, gB) {
+const prepareData = (uid, url, auth) => (dataWithHash) => {
   const {
     g,
     serverNonce,
@@ -188,38 +177,25 @@ function prepareData(uid, url, auth, gB) {
     tmpAesIv,
   } = auth
 
-  const data = new Serialization({ mtproto: true }, uid)
-
-  data.storeObject({
-    _           : 'client_DH_inner_data',
-    nonce,
-    server_nonce: serverNonce,
-    retry_id    : [0, auth.retry++],
-    g_b         : gB
-  }, 'Client_DH_Inner_Data', 'client_DH')
-
-  const hash = data.getBytesPlain()
-  const dataWithHash = sha1BytesSync(data.writer.getBuffer()).concat(hash)
-
   const encryptedData = aesEncryptSync(dataWithHash, tmpAesKey, tmpAesIv)
 
   const request = new Serialization({ mtproto: true }, uid)
 
+  log`onGb`('Send set_client_DH_params')
   request.storeMethod('set_client_DH_params', {
     nonce,
     server_nonce  : serverNonce,
     encrypted_data: encryptedData
   })
 
-  log`onGb`('Send set_client_DH_params')
 
   return request.writer.getBuffer()
 }
 
 type AuthBlock = {
-  authKeyID: number[],
-  authKey: number[],
-  serverSalt: number[],
+  authKeyID: CryptoKey,
+  authKey: CryptoKey,
+  serverSalt: CryptoKey,
 }
 
 function authKeysGen([response, authKey]) {
@@ -257,9 +233,9 @@ function dhGenOk(response, { key, id, aux }, { newNonce, serverNonce }) {
   const serverSalt = bytesXor(newNonce.slice(0, 8), serverNonce.slice(0, 8))
   // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
   const authBlock = {
-    authKeyID: id,
-    authKey  : key,
-    serverSalt,
+    authKeyID: /*:: toCryptoKey(*/ id /*::)*/,
+    authKey  : /*:: toCryptoKey(*/ key /*::)*/,
+    serverSalt: /*:: toCryptoKey(*/ serverSalt /*::)*/,
   }
 
   const result: Fluture<AuthBlock, *> = of(authBlock)
@@ -274,7 +250,7 @@ function dhGenRetry(uid, url, response, { aux }, auth) {
     return err
   }
 
-  return authKeyFuture(uid, url, auth)
+  return authKeyFuture(uid, url)(auth)
 }
 
 function dhGenFail(response, { aux }, { newNonce }) {
@@ -287,76 +263,27 @@ function dhGenFail(response, { aux }, { newNonce }) {
   return result
 }
 
-const getDhParam = (deserializer: Deserialization): Set_client_DH_params_answer =>
-  //$off
-  deserializer.fetchObject('Set_client_DH_params_answer', 'client_dh')
+const mtpSendReqDh = (uid: string, url: string) =>  (auth) =>
+  of(writeReqDH(uid, auth))
+    .chain(sendPlainReq(uid, url))
+    .map(fetchServerDh)
+    .chain(assertDhResponse(auth))
+    .chain(decryptServerDH(uid, auth))
 
-//$off
-const getResPQ = (deserializer: Deserialization): ResPQ => deserializer.fetchObject('ResPQ', 'ResPQ')
+const decryptServerDH = (uid: string, auth) => ctx =>
+  decryptServerDHPlain(uid, makeAesKeys(auth), ctx)
 
-
-//$off
-const getServerDhParam = (deserializer: Deserialization): Server_DH_Params =>
-  deserializer.fetchObject('Server_DH_Params', 'RESPONSE')
-
-const mtpSendReqDhParams =
-  (uid: string, url: string) => auth => mtpSendReqDh(uid, url, auth)
-
-function mtpSendReqDh(uid: string, url: string, auth) {
-  const {
-    nonce,
-    serverNonce,
-    pq,
-    p, q,
-    publicKey,
-  } = auth
-
-  const newNonce = random(new Array(32))
-
-  const data = new Serialization({ mtproto: true }, uid)
-  const dataBox = data.writer
-  data.storeObject({
-    _           : 'p_q_inner_data',
-    pq,
-    p,
-    q,
-    nonce,
-    server_nonce: serverNonce,
-    new_nonce   : newNonce
-  }, 'P_Q_inner_data', 'DECRYPTED_DATA')
-
-
-  const hash = data.getBytesPlain()
-  const dataWithHash = sha1BytesSync(dataBox.getBuffer()).concat(hash)
-
-  const request = new Serialization({ mtproto: true }, uid)
-  request.storeMethod('req_DH_params', {
-    nonce,
-    server_nonce          : serverNonce,
-    p,
-    q,
-    public_key_fingerprint: publicKey.fingerprint,
-    encrypted_data        : rsaEncrypt(publicKey, dataWithHash)
-  })
-
-
-  log`afterReqDH`('Send req_DH_params')
-
-  return sendPlainReq(uid, url, request.writer.getBuffer())
-    .map(getServerDhParam)
-    .chain(assertDhResponse(auth, newNonce))
-    .chain(decryptServerDH(uid, serverNonce, newNonce, nonce))
-    .map(ctx => ({ ...auth, ...ctx }))
-}
-
-const decryptServerDH = (uid: string, serverNonce, newNonce, nonce) => ctx =>
-  decryptServerDHPlain(uid, serverNonce, newNonce, nonce, ctx)
-
-function decryptServerDHPlain(uid: string, serverNonce, newNonce, nonce, { encrypted_answer: encryptedAnswer }) {
+function makeAesKeys(auth) {
+  const { serverNonce, newNonce } = auth
   const tmpAesKey = aesKey(serverNonce, newNonce)
   const tmpAesIv = aesIv(serverNonce, newNonce)
 
-  const checkDecryption = assertDecryption(nonce, serverNonce)
+  return { ...auth, tmpAesKey, tmpAesIv }
+}
+
+function decryptServerDHPlain(uid: string, auth, response) {
+  const { encrypted_answer: encryptedAnswer } = response
+  const { serverNonce, nonce, tmpAesKey, tmpAesIv } = auth
 
   const answerWithHash = aesDecryptSync(
     encryptedAnswer,
@@ -368,38 +295,31 @@ function decryptServerDHPlain(uid: string, serverNonce, newNonce, nonce, { encry
 
   const deserializer = new Deserialization(bytesToArrayBuffer(answerWithPadding), { mtproto: true }, uid)
 
-  //$FlowIssue
-  const responseA: Server_DH_inner_data = deserializer.fetchObject('Server_DH_inner_data', 'server_dh')
-
-  return checkDecryption(responseA)
+  return of(deserializer)
+    .map(fetchDHInner)
+    .chain(assertDecryption(nonce, serverNonce))
     .chain(mtpVerifyDhParams(deserializer, hash, answerWithPadding))
-    .map(response => ({ uid, response, tmpAesKey, tmpAesIv, newNonce }))
-    .map(afterServerDhDecrypt)
+    .map(afterServerDhDecrypt(uid, auth))
 }
 
-function afterServerDhDecrypt({ uid, response, tmpAesKey, tmpAesIv, newNonce }) {
+const afterServerDhDecrypt = (uid: string, auth) => (response) => {
   log`DecryptServerDhDataAnswer`('Done decrypting answer')
   const {
     g,
     dh_prime: dhPrime,
     g_a: gA,
     server_time: serverTime,
-
   } = response
-
   const localTime = tsNow()
   applyServerTime(uid, serverTime, localTime)
-
-  const authBlock = {
+  return {
+    ...auth,
     g, gA,
     dhPrime,
     retry: 0,
-    newNonce,
-    tmpAesIv,
-    tmpAesKey,
   }
-  return authBlock
 }
+
 
 function aesKey(serverNonce, newNonce) {
   const arr1 = [...newNonce, ...serverNonce]
@@ -409,7 +329,7 @@ function aesKey(serverNonce, newNonce) {
   return key1.concat(key2)
 }
 
-function aesIv(serverNonce, newNonce: Bytes) {
+function aesIv(serverNonce, newNonce) {
   const arr1 = [...serverNonce, ...newNonce]
   const arr2 = [...newNonce, ...newNonce]
   const arr3 = newNonce.slice(0, 4)
@@ -429,8 +349,6 @@ const leemonTwoPow = (() => { //Dirty cheat to count 2^(2048 - 64)
   const res = str2bigInt(hex, 16, minSize)
   return res
 })()
-
-// const forget = </*:: +*/F>(): Fluture<void, F> => of(void 0)
 
 const innerLog = log`VerifyDhParams`
 
@@ -513,7 +431,7 @@ function checkDhGen(_): boolean %checks {
   )
 }
 
-const assertDhResponse = ({ nonce, serverNonce }, newNonce) => (
+const assertDhResponse = ({ nonce, serverNonce, newNonce }) => (
   response: Server_DH_Params
 )/*:: : Fluture<*, *> */ => {
   if (response._ === 'server_DH_params_fail') {
@@ -537,6 +455,24 @@ const assertDhResponse = ({ nonce, serverNonce }, newNonce) => (
   return of(response)/*::.mapRej(assertFail)*/
 }
 
+
+declare class CryptoError extends Error {  }
+declare function cryptoErr</*:: -*/F>(x: F): CryptoError
+
+declare class DHAnswerError extends Error {  }
+declare function dhAnswerFail</*:: -*/F>(x: F): DHAnswerError
+
+declare class AssertError extends Error {  }
+declare function assertFail</*:: -*/F>(x: F): AssertError
+
+declare class DecryptError extends Error {  }
+declare function decryptFail</*:: -*/F>(x: F): DecryptError
+
+declare class VerifyError extends Error {  }
+declare function verifyFail</*:: -*/F>(x: F): VerifyError
+
+declare class SendPqError extends Error {  }
+declare function sendPqFail</*:: -*/F>(x: F): SendPqError
 
 
 const ERR = {

@@ -4,8 +4,13 @@ import { type AxiosXHR } from 'axios'
 
 import { NetMessage } from '../../service/networker/net-message'
 import { NetworkerThread } from '../../service/networker'
-import { type ActionPair } from '../helpers'
-import { doubleCreator } from '../helpers'
+
+import { doubleCreator, type ActionPair } from '../helpers'
+import {
+  type OnSetStatus,
+  type OnSeqSet,
+  type OnAckAdd,
+} from '../index.h'
 
 type Net = {
   SEND: ActionPair<'net/send', {
@@ -22,6 +27,10 @@ type Net = {
     thread: NetworkerThread
   }>,
   NETWORK_ERROR: ActionPair<'net/error', any>,
+  STATUS_SET: ActionPair<'net/status set', OnSetStatus>,
+  SEQ_SET: ActionPair<'net/seq set', OnSeqSet>,
+  ACK_ADD: ActionPair<'net/ack add', OnAckAdd>,
+  ACK_DELETE: ActionPair<'net/ack delete', OnAckAdd>,
 }
 
 type NetworkerMeta = number
@@ -32,6 +41,8 @@ export const NET: Net = {
   SEND            : doubleCreator('net/send', networkerMeta),
   RECEIVE_RESPONSE: doubleCreator('net/response'),
   NETWORK_ERROR   : doubleCreator('net/error'),
+  STATUS_SET      : doubleCreator('net/status set'),
+  SEQ_SET         : doubleCreator('net/seq set'),
+  ACK_ADD         : doubleCreator('net/ack add'),
+  ACK_DELETE      : doubleCreator('net/ack delete'),
 }
-
-

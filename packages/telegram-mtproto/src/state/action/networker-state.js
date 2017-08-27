@@ -1,8 +1,7 @@
 //@flow
 
-import { NetMessage } from '../../service/networker/net-message'
-import { type ActionPair } from '../helpers'
-import { doubleCreator } from '../helpers'
+/*::import { NetMessage } from '../../service/networker/net-message'*/
+import { doubleCreator, type ActionPair } from '../helpers'
 
 type NetworkerMeta = number
 

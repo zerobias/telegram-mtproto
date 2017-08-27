@@ -16,13 +16,13 @@ import { type AsyncStorage } from 'mtproto-shared'
  * @implements {AsyncStorage}
  */
 export class MemoryStorage implements AsyncStorage {
-  store: Map<string, any> = new Map
+  store: Map<string, any>
 
-
-  constructor(data?: { [key: string]: * }) {
+  constructor(data?: { [key: string]: any }) {
     if (data != null)
-      for (const [key, value] of toPairs(data))
-        this.store.set(key, value)
+      this.store = new Map(toPairs(data))
+    else
+      this.store = new Map
   }
 
 
@@ -35,11 +35,19 @@ export class MemoryStorage implements AsyncStorage {
     return Bluebird.resolve()
   }
 
+  has(key: string) {
+    return Bluebird.resolve(this.store.has(key))
+  }
+
   remove(...keys: string[]) {
     keys.map(e => this.store.delete(e))
     return Bluebird.resolve()
   }
 
+
+  /**
+   * @deprecated
+   */
   clear() {
     this.store.clear()
     return Bluebird.resolve()

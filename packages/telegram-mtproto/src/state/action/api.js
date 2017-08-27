@@ -2,13 +2,12 @@
 
 import { NetMessage } from '../../service/networker/net-message'
 import { NetworkerThread } from '../../service/networker'
-import { type ActionPair } from '../helpers'
-import { doubleCreator } from '../helpers'
+import { doubleCreator, type ActionPair } from '../helpers'
 import { type MTP } from '../../mtp.h'
 import { type MessageUnit } from '../../task/index.h'
 import { type OnRequestDone, type ApiNewRequest } from '../index.h'
 
-export type ApiCallResult = {
+/*export type ApiCallResult = MessageUnit[]  {
   message: NetMessage,
   thread: NetworkerThread,
   result: {
@@ -19,7 +18,7 @@ export type ApiCallResult = {
     sessionID: Uint8Array,
   },
   normalized: MessageUnit[]
-}
+} */
 
 type ApiMeta = string
 
@@ -30,7 +29,7 @@ type Api = {
   },
   TASK: {
     NEW: ActionPair<'api/task new', any>,
-    DONE: ActionPair<'api/task done', ApiCallResult>,
+    DONE: ActionPair<'api/task done', MessageUnit[]>,
   },
 }
 

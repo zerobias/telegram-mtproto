@@ -53,17 +53,17 @@ class Webworker {
     const onmessage = ({ data }: TaskResult) => {
       if (typeof data === 'string') {
         data === 'ready'
-          ? log('CW ready')
-          : log('Unknown worker message', data)
+          ? log`init`('CW ready')
+          : log`init`('Unknown worker message', data)
       } else if (!isCryptoTask(data)) {
-        log('Not crypto task', data)
+        log`init`('Not crypto task', data)
       } else {
         this.resolveTask(data.taskID, data.result)
       }
     }
 
     const onerror = (err: Error) => {
-      log('error')(err)
+      log`error`(err)
     }
 
     this.worker.onmessage = onmessage
@@ -73,7 +73,7 @@ class Webworker {
   resolveTask(taskID: number, result: *) {
     const defer = this.awaiting[taskID]
     if (!defer) {
-      log('resolve task', 'error')(`No stored task ${taskID} found`)
+      log`resolve task, error`(`No stored task ${taskID} found`)
       return
     }
     delete this.awaiting[taskID]

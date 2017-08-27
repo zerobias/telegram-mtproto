@@ -12,6 +12,16 @@
     ["transform-es2015-block-scoping", {
       "throwIfClosureRequired": true
     }],
+    ["module-resolver", {
+      "alias": {
+        "Action": "./packages/telegram-mtproto/src/state/action",
+        "Util": "./packages/telegram-mtproto/src/util",
+        "NetStatus": "./packages/telegram-mtproto/src/net-status",
+        "Mtp": "./packages/telegram-mtproto/src/mtp.h.js",
+        "ConfigProvider": "./packages/telegram-mtproto/src/config-provider",
+        "State": "./packages/telegram-mtproto/src/state"
+      }
+    }],
     ["transform-object-rest-spread", { "useBuiltIns": true }]
   ],
   "env": {

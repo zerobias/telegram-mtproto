@@ -4,7 +4,7 @@ import './bluebird-config'
 
 import MTProto from './service/main/wrap'
 
-import store from './state'
+import './state/core'
 
 export { CryptoWorker } from './crypto'
 export { setLogger } from 'mtproto-logger'

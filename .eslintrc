@@ -48,6 +48,8 @@
     "no-unneeded-ternary"  : "warn",
     "no-underscore-dangle" : "warn",
     "prefer-const"         : "warn",
+    "no-unused-labels"     : "off",
+
 
     //On test
     "no-extra-bind"        : "error",

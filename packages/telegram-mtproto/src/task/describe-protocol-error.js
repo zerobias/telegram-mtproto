@@ -1,5 +1,7 @@
 //@flow
 
+/* eslint-disable max-len */
+
 import { ProtocolError } from '../error'
 
 export default function describeProtocolError(code: number) {
@@ -23,6 +25,7 @@ function getShortDescription(code: number) {
     case 35: return `even seq`
     case 48: return `incorrect server salt`
     case 64: return `invalid container`
+    default: return `unknown`
   }
 }
 
@@ -39,5 +42,6 @@ function getFullDescription(code: number) {
     case 35: return `odd msg_seqno expected (relevant message), but even received`
     case 48: return `In this case, the bad_server_salt response is received with the correct salt, and the message is to be re-sent with it`
     case 64: return `invalid container`
+    default: return `unknown error`
   }
 }

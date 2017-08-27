@@ -88,6 +88,10 @@ export class JsonStorage implements AsyncStorage {
     return Bluebird.resolve()
   }
 
+  has(key: string): Promise<boolean> {
+    return Bluebird.resolve(this.data[key] != null)
+  }
+
   remove(...keys: string[]): Promise<void> {
     const saved = omitKeys(keys)
     log`remove`(keys)
@@ -95,6 +99,12 @@ export class JsonStorage implements AsyncStorage {
     return Bluebird.resolve()
   }
 
+  /**
+   *
+   * @deprecated Removed from mtpro release
+   * @returns {Promise<void>}
+   * @memberof JsonStorage
+   */
   clear(): Promise<void> {
     this.data = {}
     this.hasUpdate = true

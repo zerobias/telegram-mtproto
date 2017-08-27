@@ -5,7 +5,7 @@ import isNode from 'detect-node'
 import Logger from 'mtproto-logger'
 const log = Logger('tl', 'type-buffer')
 
-import { immediate } from 'mtproto-shared'
+// import { immediate } from 'mtproto-shared'
 import { TypeBufferIntError } from '../error'
 
 // import { bigint, uintToInt, intToUint, bytesToHex,
@@ -62,12 +62,12 @@ const countNewLength = (maxLength: number, need: number, offset: number) => {
   return rounded
 }
 
-const writeIntLogger = log('writeInt')
+// const writeIntLogger = log('writeInt')
 
-const writeIntLog = (i: number, field: string) => {
-  const hex = i && i.toString(16) || 'UNDEF'
-  writeIntLogger(hex, i, field)
-}
+// const writeIntLog = (i: number, field: string) => {
+//   const hex = i && i.toString(16) || 'UNDEF'
+//   writeIntLogger(hex, i, field)
+// }
 
 export class TypeWriter {
   offset: number = 0 // in bytes
@@ -132,7 +132,7 @@ export class TypeWriter {
     return Array.from(this.byteView.subarray(0, this.offset))
   }
   writeInt(i: number, field: string) {
-    immediate(writeIntLog, i, field)
+    // immediate(writeIntLog, i, field)
 
     this.checkLength(4)
     this.intView[this.offset / 4] = i
@@ -189,7 +189,7 @@ export class TypeBuffer {
   }
 }
 
-const toUint32 = (buf: Buffer | ArrayBuffer) => {
+function toUint32(buf: Buffer | ArrayBuffer) {
   let ln, res
   if (!isNode) //TODO browser behavior not equals, why?
     return new Uint32Array( buf )

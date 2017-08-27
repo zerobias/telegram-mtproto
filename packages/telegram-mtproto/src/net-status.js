@@ -5,76 +5,72 @@ import { Stream, type Sink } from 'most'
 
 import { emitter } from './state/portal'
 
-export type ModuleStatus =
-  | 'init'
-  | 'import storage'
-  | 'loaded'
-  | 'dc detected'
-  | 'activated'
+export type NetStatus =
+  | 'halt'
+  | 'load'
+  | 'guest'
+  | 'active'
 
-/*::
-opaque type EmptyStatus: ModuleStatus = 'init'
-*/
-
-export const statuses: {
-  init: 'init',
-  importStorage: 'import storage',
-  loaded: 'loaded',
-  dcDetected: 'dc detected',
-  activated: 'activated'
+export const netStatuses: {
+  halt: 'halt',
+  load: 'load',
+  guest: 'guest',
+  active: 'active'
 } = {
-  init         : 'init',
-  importStorage: 'import storage',
-  loaded       : 'loaded',
-  dcDetected   : 'dc detected',
-  activated    : 'activated',
+  halt  : 'halt',
+  load  : 'load',
+  guest : 'guest',
+  active: 'active',
 }
 
-const statusList: ModuleStatus[] = [
-  'init',
-  'import storage',
-  'loaded',
-  'dc detected',
-  'activated'
+const statusList: NetStatus[] = [
+  'halt',
+  'load',
+  'guest',
+  'active'
 ]
 
 const iso = {
-  from(status: ModuleStatus) {
+  from(status: NetStatus) {
     const index = statusList.indexOf(status)
     if (index === -1) return 0
     return index
   },
-  to(index: number): ModuleStatus {
+  to(index: number): NetStatus {
     if (index < 0 || index > statusList.length - 1)
       return Status.empty()
     return statusList[index]
   },
-  pro(fn: (index: number) => number): (status: ModuleStatus) => ModuleStatus {
-    return (status: ModuleStatus) => iso.to(fn(iso.from(status)))
+  pro(fn: (index: number) => number): (status: NetStatus) => NetStatus {
+    return (status: NetStatus) => iso.to(fn(iso.from(status)))
   }
 }
 
 const Status = {
-  empty: (): ModuleStatus => statuses.init,
+  empty: (): NetStatus => netStatuses.halt,
+  top  : (): NetStatus => netStatuses.active,
   next : iso.pro(n => n + 1),
   back : iso.pro(n => n - 1),
-  eq   : (s1: ModuleStatus, s2: ModuleStatus) => s1 === s2,
-  gt(s1: ModuleStatus, s2: ModuleStatus): boolean {
+  eq   : (s1: NetStatus, s2: NetStatus) => s1 === s2,
+  gt(s1: NetStatus, s2: NetStatus): boolean {
     return iso.from(s1) > iso.from(s2)
   },
-  gte: (s1: ModuleStatus, s2: ModuleStatus) =>
+  gte: (s1: NetStatus, s2: NetStatus) =>
     Status.eq(s1, s2) || Status.gt(s1, s2),
-  max: (s1: ModuleStatus, s2: ModuleStatus) =>
+  max: (s1: NetStatus, s2: NetStatus) =>
     Status.gt(s1, s2)
       ? s1
       : s2,
-  ensure(obj: mixed): ModuleStatus {
+  min: (s1: NetStatus, s2: NetStatus) =>
+    Status.gt(s1, s2)
+      ? s2
+      : s1,
+  ensure(obj: mixed): NetStatus {
     switch (obj) {
-      case 'init': return 'init'
-      case 'import storage': return 'import storage'
-      case 'loaded': return 'loaded'
-      case 'dc detected': return 'dc detected'
-      case 'activated': return 'activated'
+      case 'halt': return 'halt'
+      case 'load': return 'load'
+      case 'guest': return 'guest'
+      case 'active': return 'active'
       default: return Status.empty()
     }
   },
@@ -82,14 +78,13 @@ const Status = {
 }
 
 function isStatus(obj: mixed): boolean %checks {
-  return statuses.init === obj
-    || statuses.importStorage === obj
-    || statuses.loaded === obj
-    || statuses.dcDetected === obj
-    || statuses.activated === obj
+  return netStatuses.halt === obj
+    || netStatuses.load === obj
+    || netStatuses.guest === obj
+    || netStatuses.active === obj
 }
 
-export default Status
+
 
 
 declare class Subj<+T> extends Stream<T> {
@@ -111,7 +106,7 @@ function pushList<T>(list: T[], subj: Subj<T>) {
     subj.next(list[i])
 }
 
-export function statusGuard<T>(minStatus: ModuleStatus, guard: Stream<ModuleStatus>, source: Stream<T>): Stream<T> {
+export function netStatusGuard<T>(minStatus: NetStatus, guard: Stream<NetStatus>, source: Stream<T>): Stream<T> {
   const result = async()
   let buffer: T[] = []
   let active = false
@@ -144,3 +139,5 @@ export function statusGuard<T>(minStatus: ModuleStatus, guard: Stream<ModuleStat
     })
   return result
 }
+
+export default Status

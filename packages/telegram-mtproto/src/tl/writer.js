@@ -92,6 +92,8 @@ export function writeIntBytes(ctx: TypeWriter,
 
   if (bits) {
     if (bits % 32 || length * 8 != bits) {
+      console.warn(bits)
+      console.trace()
       throw new Error(`Invalid bits: ${  bits  }, ${length}`)
     }
   }

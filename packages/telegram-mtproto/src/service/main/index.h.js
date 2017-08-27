@@ -1,7 +1,7 @@
 //@flow
 
 import { type TLSchema } from '../../tl/index.h'
-import { type AsyncStorage } from '../../plugins'
+import { type AsyncStorage } from 'mtproto-shared'
 import type { MTProto } from './index'
 
 export type ApiConfig = {

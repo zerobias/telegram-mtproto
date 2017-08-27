@@ -10,7 +10,11 @@ import { type State } from './index.h'
 import { subject } from '../property'
 
 export const skipEmptyMiddleware = () => (next: *) => (action: *) => {
-  if (Array.isArray(action.payload) && action.payload.length === 0)
+  if (
+    getActionType(action) === 'networker/sent delete'
+    && Array.isArray(action.payload)
+    && action.payload.length === 0
+  ) //TODO Remove hardcode
     log`skip empty`(action.type)
   else
     return next(action)

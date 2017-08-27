@@ -1,12 +1,13 @@
 //@flow
 
+import { type Stream } from 'most'
 import { createAction } from 'redux-act'
 import { select } from 'redux-most'
-import { Stream } from 'most'
 
-import { faucetC } from '../pull-stream'
-import { statuses, type ModuleStatus } from '../status'
-import { afterStatus } from './signal'
+import Status, { type ModuleStatus } from '../status'
+import { rootStream } from './portal'
+
+
 
 type ActionCreator<Type, Payload> =
   (stream: Stream<any>) =>
@@ -16,6 +17,7 @@ declare class Act<Tag = 'action'> { toString(): Tag }
 
 type Action<Tag = 'action', Payload = {}, Meta = void> = {
   (payload: Payload, meta: Meta): Action<Tag, Payload>,
+  // call$(payload: Payload, meta: Meta): Action<Tag, Payload>,
   // (payload: Payload): Action<Tag, Payload>,
   getType(): Tag,
   type: Tag,
@@ -51,19 +53,22 @@ export function doubleCreator<Type, Payload, Meta>(
   return action
 }
 
-export function onActionAndStatus<Type, Payload, Meta>(
-  action: ActionPair<Type, Payload, Meta>,
-  status: ModuleStatus
-) {
-  const latch = faucetC(afterStatus(status))
-  return function streamCreator(stream: Stream<any>) {
-    return stream
-      .thru(action.stream)
-      .thru(latch)
-      .map(val => val.payload)
-  }
+export function afterStatus(status: ModuleStatus) {
+  return rootStream
+    .map(state => state.status)
+    .map(current => Status.gte(current, status))
+    .skipRepeats()
 }
 
-export function onAction<Type, Payload, Meta>(action: ActionPair<Type, Payload, Meta>) {
-  return onActionAndStatus(action, statuses.activated)
+
+export const guardedReducer = <S, -P>(
+  guards: ((state: S, payload: P) => boolean)[],
+  reducer: (state: S, payload: P) => S,
+) => (state: S, payload: P) => {
+  for (let i = 0, ln = guards.length; i < ln; i++) {
+    const guard = guards[i]
+    if (!guard(state, payload))
+      return state
+  }
+  return reducer(state, payload)
 }

@@ -18,14 +18,16 @@ function MTProto(config: ConfigType = {}): ApiManagerInstance {
 
   telegram.on = api.on
   telegram.emit = api.emit
-  telegram.cache = api.cache
   telegram.storage = api.storage
   telegram.uid = mtproto.uid
   telegram.bus = mtproto.bus
   telegram.mtproto = mtproto
-  if (process.env.NODE_ENV === 'test')
+  if (__DEV__)
     telegram.api = api
   return telegram
 }
+
+declare var __DEV__: boolean
+
 
 export default MTProto

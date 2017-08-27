@@ -1,6 +1,7 @@
 //@flow
 
-import EventEmitter from 'eventemitter2'
+import EventEmitter, { type EventEmitterType } from 'eventemitter2'
+import { type AsyncStorage } from 'mtproto-shared'
 
 import { ApiManager } from '../api-manager'
 import { registerInstance } from '../../config-provider'
@@ -10,11 +11,11 @@ import Logger from 'mtproto-logger'
 const log = Logger`main`
 
 import streamBus, { type Bus } from '../../event/stream-bus'
-import { ScopedEmitter } from '../../event'
-import { type AsyncStorage } from '../../plugins/index.h'
+import { scopedEmitter } from '../../event'
 import { type ConfigType, type StrictConfig } from './index.h'
 import { type Emit, type On } from 'eventemitter2'
-import { dispatch } from '../../state/core'
+import { dispatch } from '../../state'
+import { emitter } from '../../state/portal'
 import { MAIN } from 'Action/main'
 import loadStorage from './load-storage'
 import { init } from './init'
@@ -22,7 +23,7 @@ import { init } from './init'
 class MTProto {
   config: StrictConfig
   uid: string
-  emitter: EventEmitter = new EventEmitter({
+  emitter: EventEmitterType & EventEmitter = new EventEmitter({
     wildcard: true
   })
   api: ApiManager
@@ -35,6 +36,7 @@ class MTProto {
   load: () => Promise<void>
   activated: boolean = true
   constructor(config: ConfigType) {
+    emitter.emit('cleanup')
     const {
       uid,
       fullConfig,
@@ -46,13 +48,14 @@ class MTProto {
     this.uid = uid
     registerInstance({
       uid,
-      signIn     : false,
       emit       : this.emit,
-      rootEmitter: new ScopedEmitter(uid, this.emitter),
+      rootEmitter: scopedEmitter(uid, this.emitter),
       schema     : {
         apiSchema: fullConfig.schema,
         mtSchema : fullConfig.mtSchema
       },
+      apiConfig: fullConfig.api,
+      storage,
       layer,
       dcMap
     })
@@ -69,12 +72,13 @@ class MTProto {
     this.bus = streamBus(this)
     dispatch(MAIN.INIT({
       uid,
-      invoke    : this.api.mtpInvokeApi,
-      storageSet: (key: string, value: mixed) => storage.set(key, value)
-    }))
+      invoke       : this.api.mtpInvokeApi,
+      storageSet   : (key: string, value: mixed) => storage.set(key, value),
+      storageRemove: (...key: string[]) => storage.remove(...key),
+    }), uid)
     const load = async() => {
-      if (this.activated)
-        await loadStorage(storage, dcMap, this.api.networkSetter)
+      // if (this.activated)
+        await loadStorage(storage, dcMap, uid)
     }
     this.load = load
     setTimeout(load, 1e3)

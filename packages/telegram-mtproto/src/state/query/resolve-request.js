@@ -70,7 +70,7 @@ const chain = (state, { getWorker, find }) =>
     .map(find)
     .logic(checkIndex)
     .map(getReqID)
-    .fold(id, supressErrors)
+    .fold(supressErrors, id)
 
 const query = (state: State) => (args: Args) => chain(state, context(args))
 

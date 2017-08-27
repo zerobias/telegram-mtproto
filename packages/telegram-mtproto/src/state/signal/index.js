@@ -1,47 +1,52 @@
 //@flow
 
-import Status, { statuses, type ModuleStatus } from '../../status'
-import { root } from '../core'
+import { rootStream } from '../portal'
+import NetStatus, { netStatuses as stats, type NetStatus as Status } from '../../net-status'
+import { faucetC } from '../../pull-stream'
 
-const isActive = afterStatus(statuses.activated)
+const netStatuses = rootStream
+  .map(state => state.netStatus)
+  // .skipRepeats()
+  .multicast()
 
-export { isActive as active }
-
-export const invoke = root
-  .map(state => state.invoke)
-  .skipRepeats()
-
-export const storageSet = root
-  .map(state => state.storageSet)
-  .skipRepeats()
-
-export function afterStatus(status: ModuleStatus) {
-  return root
-    .map(state => state.status)
-    .map(current => Status.gte(current, status))
+export const netStatus = (dc: number) =>
+  netStatuses
+    .map(obj => NetStatus.ensure(obj[dc]))
     .skipRepeats()
-}
 
-export const requestMap = root
-  .map(state => state.request)
-  .skipRepeats()
+export const moduleStatus = rootStream
+  .map(state => state.status)
+  // .skipRepeats()
+  .multicast()
 
-export const homeDc = root
+export const homeDc = rootStream
   .map(state => state.homeDc)
   .skipRepeats()
 
-export const uid = root
+export const homeStatus = netStatuses
+  .combine((obj, dc) => NetStatus.ensure(obj[dc]), homeDc)
+  .skipRepeats()
+
+export const onHomeStatus = (status: Status) => faucetC(
+  homeStatus
+    .map(e => NetStatus.gte(e, status))
+    .skipRepeats()
+)
+
+export const guestStatus = onHomeStatus(stats.halt)
+
+export const invoke = rootStream
+  .map(state => state.invoke)
+  .skipRepeats()
+
+export const requestMap = rootStream
+  .map(state => state.request)
+  .skipRepeats()
+
+export const uid = rootStream
   .map(state => state.uid)
   .skipRepeats()
 
-export const networker = root
+export const networker = rootStream
   .map(state => state.networker)
 
-const stateModel = {
-  active: isActive,
-  homeDc,
-  uid,
-  networker,
-}
-
-export default stateModel

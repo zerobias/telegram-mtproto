@@ -2,7 +2,6 @@
   "presets": [
   ],
   "plugins": [
-    // "runtyper",
     "transform-flow-strip-types",
     "transform-exponentiation-operator",
     ["transform-es2015-for-of", {
@@ -10,16 +9,29 @@
     }],
     "transform-class-properties",
     "transform-async-to-generator",
-    ["transform-es2015-block-scoping", {
-      "throwIfClosureRequired": false
-    }],
+
     ["transform-object-rest-spread", { "useBuiltIns": true }],
+    ["transform-define", {
+      "__DEV__": true
+    }],
     ["module-resolver", {
       // "root": ["./src"],
       "alias": {
         "Action": "./src/state/action",
-        "Util": "./src/util"
+        "Util": "./src/util",
+        "NetStatus": "./src/net-status",
+        "Mtp": "./src/mtp.h.js",
+        "ConfigProvider": "./src/config-provider",
+        "State": "./src/state"
       }
+    }],
+    ["minify-dead-code-elimination", {
+      "keepFnName": true,
+      "keepFnArgs": true,
+      "keepClassName": true
+    }],
+    ["transform-es2015-block-scoping", {
+      "throwIfClosureRequired": false
     }]
   ],
   "env": {

@@ -7,7 +7,7 @@ import { writeBytes } from '../../tl/writer'
 
 import { bytesToHex, sha1BytesSync,
   bytesFromHex, strDecToHex } from '../../bin'
-import Config from '../../config-provider'
+import Config from 'ConfigProvider'
 
 
 export default function KeyManager(

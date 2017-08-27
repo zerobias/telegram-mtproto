@@ -35,7 +35,7 @@ test('normalize', async() => {
   const { default: result, TIMESTAMP } = require('./example-target')
   const unfreezeTime = freezeTime(TIMESTAMP)
 
-  const thread = client.api.networkSetter(2, authKey, serverSalt)
+  const thread = client.api.networkSetter(2, authKey, serverSalt) //TODO networkSetter was removed!
   thread.sessionID = sessionID
   thread.getMsgById = getMsgById
   const data = { ...rawData, thread }

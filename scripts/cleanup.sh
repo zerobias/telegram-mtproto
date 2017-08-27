@@ -1,5 +1,4 @@
 rimraf ./package-lock.json
-rimraf ./packages/mtproto-inspect
 rimraf ./packages/mtproto-beam/package-lock.json
 rimraf ./packages/mtproto-logger/package-lock.json
 rimraf ./packages/mtproto-shared/package-lock.json

@@ -1,7 +1,7 @@
 // const { test } = require('tap')
 // jasmine.DEFAULT_TIMEOUT_INTERVAL = 40e3
 const { MTProto } = require('../lib')
-const { Storage } = require('mtproto-storage-fs')
+// const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
 // debug.useColors = false
 
@@ -27,11 +27,11 @@ const api = {
 }
 const server = {
   dev     : true,
-  webogram: true
+  webogram: false
 }
 
 const app = {
-  storage: new Storage('./test/storage.json')
+  // storage: new Storage('./test/storage.json')
 }
 
 const config = {
@@ -63,7 +63,7 @@ const resetStorage = async() => {
     nearest_dc: 2,
     dc        : 2,
   }
-  await telegram.storage.save()
+  // await telegram.storage.save()
 }
 
 const isAlreadyAuth = async() => {

@@ -2,46 +2,36 @@
 
 import Bluebird from 'bluebird'
 import uuid from 'uuid/v4'
+import { contains, toPairs } from 'ramda'
+import { type Emit } from 'eventemitter2'
 
-import { is, contains } from 'ramda'
-
-import { tsNow, applyServerTime } from '../time-manager'
-import random from '../secure-random'
+import { tsNow } from '../time-manager'
 import { NetMessage, NetContainer } from './net-message'
 import State from './state'
 import { smartTimeout, immediate } from 'mtproto-shared'
 
 import { Serialization } from '../../tl'
-import parser from '../chain'
 import { writeInnerMessage } from '../chain/perform-request'
-import Config from '../../config-provider'
+import Config from 'ConfigProvider'
+import { requestNextSeq } from '../../state/reaction'
+import { queryAck } from '../../state/query'
 
 import Logger from 'mtproto-logger'
 
 const log = Logger`networker`
 
-import {
-  convertToUint8Array,
-  convertToArrayBuffer,
-  sha1BytesSync,
-  bytesToHex,
-  longToBytes,
-  rshift32
-} from '../../bin'
-
-import type { AsyncStorage } from '../../plugins/index.h'
 import { TypeWriter } from '../../tl'
 import { writeInt, writeBytes, writeLong } from '../../tl/writer'
-import type { Emit } from 'eventemitter2'
 
 import LongPoll from '../../plugins/long-poll'
 import { NET, NETWORKER_STATE, AUTH } from '../../state/action'
 import { type ApiConfig } from '../main/index.h'
 
-import { dispatch } from '../../state/core'
+import { type DCNumber } from '../../state/index.h'
+import { dispatch } from '../../state'
 import { homeDc } from '../../state/signal'
+import { type ACFlags, makeCarrierAction } from '../../state/carrier'
 
-let updatesProcessor: *
 let iii = 0
 let akStopped = false
 
@@ -55,12 +45,7 @@ type NetOptions = {
 }
 type Bytes = number[]
 
-type ContextConfig = {
-  storage: AsyncStorage,
-  appConfig: ApiConfig,
-}
-
-const storeIntString = (writer: TypeWriter) => (value: number | string, field: string) => {
+const storeIntString = (writer: TypeWriter) => ([field, value]: [string, number | string]) => {
   switch (typeof value) {
     case 'string': return writeBytes(writer, value)
     case 'number': return writeInt(writer, value, field)
@@ -68,31 +53,36 @@ const storeIntString = (writer: TypeWriter) => (value: number | string, field: s
   }
 }
 
+function addInitialMessage(serialBox: TypeWriter, appConfig: ApiConfig) {
+  const mapper = storeIntString(serialBox)
+  //$off
+  const pairs: [string, string | number][] = toPairs(appConfig)
+  pairs.forEach(mapper)
+}
+
+function addAfterMessage(serialBox: TypeWriter, id: string) {
+  writeInt(serialBox, 0xcb9f372d, 'invokeAfterMsg')
+  writeLong(serialBox, id, 'msg_id')
+}
+
 export class NetworkerThread {
   threadID: string = uuid()
   uid: string
-  dcID: number
-  authKey: Bytes
-  authKeyUint8: Uint8Array
+  dcID: DCNumber
   authKeyBuffer: ArrayBuffer
   serverSalt: number[]
   iii: number
-  authKeyID: Bytes
   upload: boolean = false
-  pendingAcks: string[] = []
-  seqNo: number
   sessionID: Bytes
   prevSessionID: Bytes
-  state: State = new State
+  state: State = new State()
   connectionInited = false
   checkConnectionPeriod = 0
   checkConnectionPromise: Promise<mixed>
   emit: Emit
   lastServerMessages: string[] = []
   offline: boolean
-  storage: AsyncStorage
   longPoll: LongPoll
-  onOnlineCb: Function
   nextReq: number
   appConfig: ApiConfig
   nextReqPromise: Promise<mixed>
@@ -100,74 +90,45 @@ export class NetworkerThread {
     req_msg_id: string,
     resend_msg_ids: string[],
   } | void
-  isHome: boolean = false
-  constructor({
-    appConfig,
-    storage
-    }: ContextConfig,
-              dc: number,
-              authKey: Bytes,
-              serverSalt: number[],
-              uid: string) {
+  isHome = false
+
+  constructor(dc: number,authKey: number[],serverSalt: number[], uid: string) {
     this.uid = uid
     const emitter = Config.rootEmitter(this.uid)
     this.emit = emitter.emit
+    //$off
     this.dcID = dc
     this.iii = iii++
 
-    this.longPoll = new LongPoll(this)
     //$FlowIssue
     Object.defineProperties(this, {
-      authKey: {
-        value     : authKey,
-        enumerable: false,
-        writable  : true,
-      },
-      authKeyUint8: {
-        value     : convertToUint8Array(authKey),
-        enumerable: false,
-        writable  : true,
-      },
-      authKeyBuffer: {
-        value     : convertToArrayBuffer(authKey),
-        enumerable: false,
-        writable  : true,
-      },
-      authKeyID: {
-        value     : sha1BytesSync(authKey).slice(-8),
-        enumerable: false,
-        writable  : true,
-      },
-      wrapApiCall: {
-        value     : this.wrapApiCall.bind(this),
-        enumerable: false,
-        writable  : false,
-      },
       performSheduledRequest: {
         value     : this.performSheduledRequest.bind(this),
         enumerable: false,
         writable  : false,
       },
       appConfig: {
-        value     : appConfig,
+        value     : Config.apiConfig.get(uid),
         enumerable: false,
-      },
-      storage: {
-        value     : storage,
-        enumerable: false,
-        writable  : true,
       },
     })
-
-    // this.checkLongPollCond = this.checkLongPollCond.bind(this)
-    this.serverSalt = serverSalt
-    dispatch(AUTH.SET_AUTH_KEY(authKey, this.dcID))
-    console.log('serverSalt', serverSalt)
-    dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID))
+    Config.thread.set(uid, this.dcID, this)
+    this.longPoll = new LongPoll(this)
+    // // this.checkLongPollCond = this.checkLongPollCond.bind(this)
+    // this.serverSalt = serverSalt
+    // Bluebird.all([
+    //   storage.set(keyNames.authKey, bytesToHex(authKey)),
+    //   storage.set(keyNames.saltKey, bytesToHex(serverSalt))
+    // ]).then(() => {
+    console.warn('authKey', authKey)
+    dispatch(AUTH.SET_AUTH_KEY(authKey, dc), uid)
+    console.warn('serverSalt', serverSalt)
+    dispatch(AUTH.SET_SERVER_SALT(serverSalt, dc), uid)
+    // })
 
     emitter.emit('new-networker', this)
 
-    this.updateSession()
+    // this.updateSession()
     homeDc.observe(newHome => {
       if (isFinite(newHome))
         this.isHome = newHome === this.dcID
@@ -175,13 +136,12 @@ export class NetworkerThread {
     setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
     this.checkLongPoll()
   }
-  updateSession() {
-    this.seqNo = 0
-    this.prevSessionID = this.sessionID
-    this.sessionID = new Array(8)
-    random(this.sessionID)
-    dispatch(AUTH.SET_SESSION_ID(this.sessionID, this.dcID))
-  }
+  // updateSession() {
+  //   this.prevSessionID = this.sessionID
+  //   this.sessionID = new Array(8)
+  //   random(this.sessionID)
+  //   // dispatch(AUTH.SET_SESSION_ID(this.sessionID, this.dcID))
+  // }
 
   updateSentMessage(sentMessageID: string) {
     if (!this.state.hasSent(sentMessageID)) {
@@ -197,10 +157,17 @@ export class NetworkerThread {
           newInner.push(innerSentMessage.msg_id)
       }
     }
-
-    dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
+    const flags: ACFlags = {
+      networker: false,
+      auth     : false,
+      homeDC   : false,
+      net      : true,
+    }
+    // dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
     this.state.deleteSent(sentMessage)
-    const seq_no = this.generateSeqNo(
+    const seq_no = requestNextSeq(
+      this.uid,
+      this.dcID,
       sentMessage.notContentRelated
       || sentMessage.container
     )
@@ -209,26 +176,26 @@ export class NetworkerThread {
       newMessage.inner = newInner
     }
     this.state.addSent(newMessage)
-    dispatch(NETWORKER_STATE.SENT.ADD([newMessage], this.dcID))
+    dispatch(makeCarrierAction({
+      flags,
+      net: {
+        flags: {
+          add: true,
+          delete: true,
+        },
+        add: [newMessage],
+        delete: [sentMessage]
+      }
+    }), this.uid)
+    // dispatch(NETWORKER_STATE.SENT.ADD([newMessage], this.dcID))
     return newMessage
-  }
-
-  generateSeqNo(notContentRelated?: boolean) {
-    let seqNo = this.seqNo * 2
-
-    if (!notContentRelated) {
-      seqNo++
-      this.seqNo++
-    }
-
-    return seqNo
   }
 
   wrapMtpCall(method: string, params: Object, options: NetOptions) {
     const serializer = new Serialization({ mtproto: true }, this.uid)
 
     serializer.storeMethod(method, params)
-    const seqNo = this.generateSeqNo()
+    const seqNo = requestNextSeq(this.uid, this.dcID)
     const message = new NetMessage(
       this.uid,
       seqNo,
@@ -256,7 +223,7 @@ export class NetworkerThread {
     const serializer = new Serialization({ mtproto: true }, this.uid)
     serializer.storeObject(object, 'Object', 'wrap_message')
 
-    const seqNo = this.generateSeqNo(options.notContentRelated)
+    const seqNo = requestNextSeq(this.uid, this.dcID, options.notContentRelated)
     const message = new NetMessage(
       this.uid,
       seqNo,
@@ -272,13 +239,6 @@ export class NetworkerThread {
     logGroup.groupEnd()
     verifyInnerMessages(object.msg_ids)
     this.pushMessage(message, options)
-    // this.emit('net-message', {
-    //   type  : 'mtp-message',
-    //   msg_id: message.msg_id,
-    //   message,
-    //   object,
-    //   options
-    // })
     return message
   }
 
@@ -287,34 +247,18 @@ export class NetworkerThread {
     params: { [key: string]: mixed } = {},
     options: Object,
     requestID: ?string = null
-  ): Promise<any> {
+  ): NetMessage {
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
-    if (!this.connectionInited) {
-      // serializer.storeInt(0xda9b0d0d, 'invokeWithLayer')
-      // serializer.storeInt(Config.Schema.API.layer, 'layer')
-      // serializer.storeInt(0x69796de9, 'initConnection')
-      // serializer.storeInt(Config.App.id, 'api_id')
-      // serializer.storeString(navigator.userAgent || 'Unknown UserAgent', 'device_model')
-      // serializer.storeString(navigator.platform || 'Unknown Platform', 'system_version')
-      // serializer.storeString(Config.App.version, 'app_version')
-      // serializer.storeString(navigator.language || 'en', 'lang_code')
-      const mapper = storeIntString(serialBox)
-      for (const [field, value] of Object.entries(this.appConfig)) {
-        //$FlowIssue
-        const val: number | string = value /*:: || '' */
-        mapper(val, field)
-      }
-    }
+    if (!this.connectionInited)
+      addInitialMessage(serialBox, this.appConfig)
 
-    if (options.afterMessageID) {
-      writeInt(serialBox, 0xcb9f372d, 'invokeAfterMsg')
-      writeLong(serialBox, options.afterMessageID, 'msg_id')
-    }
+    if (typeof options.afterMessageID === 'string')
+      addAfterMessage(serialBox, options.afterMessageID)
 
     options.resultType = serializer.storeMethod(method, params)
 
-    const seqNo = this.generateSeqNo()
+    const seqNo = requestNextSeq(this.uid, this.dcID)
     const message = new NetMessage(
       this.uid,
       seqNo,
@@ -329,15 +273,7 @@ export class NetworkerThread {
     log(`|      |`, `params`)(params)
     log(`|      |`, `options`)(options)
     this.pushMessage(message, options)
-    // this.emit('net-message', {
-    //   type  : 'api-call',
-    //   msg_id: message.msg_id,
-    //   message,
-    //   method,
-    //   params,
-    //   options
-    // })
-    return message.deferred.promise
+    return message
   }
 
   checkLongPollCond() {
@@ -363,20 +299,15 @@ export class NetworkerThread {
 
   pushMessage(message: NetMessage, options: NetOptions = {}) {
     message.copyOptions(options)
-    dispatch(NETWORKER_STATE.SENT.ADD([message], this.dcID))
+    dispatch(NETWORKER_STATE.SENT.ADD([message], this.dcID), this.uid)
     // dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
-    this.emit('push-message', {
-      threadID: this.threadID,
-      message,
-      options
-    })
+
     this.state.addSent(message)
     this.state.setPending(message.msg_id)
 
     if (!options.noShedule)
       this.sheduleRequest()
-    if (is(Object, options))
-      options.messageID = message.msg_id
+    options.messageID = message.msg_id //TODO remove mutable operation
   }
 
   pushResend(messageID: string, delay: number = 0) {
@@ -417,16 +348,16 @@ export class NetworkerThread {
         this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
       this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5)
 
-      this.onOnlineCb = this.checkConnection
-      this.emit('net.offline', this.onOnlineCb)
+      // this.onOnlineCb = this.checkConnection
+      // this.emit('net.offline', this.onOnlineCb)
     } else {
       this.longPoll.pendingTime = Date.now()
       //NOTE check long state was here
       this.checkLongPoll().then(() => {})
       this.sheduleRequest()
 
-      if (this.onOnlineCb)
-        this.emit('net.online', this.onOnlineCb)
+      // if (this.onOnlineCb)
+      //   this.emit('net.online', this.onOnlineCb)
 
       smartTimeout.cancel(this.checkConnectionPromise)
 
@@ -450,15 +381,13 @@ export class NetworkerThread {
   performSheduledRequest() { //TODO extract huge method
     // console.log(dTime(), 'sheduled', this.dcID, this.iii)
     if (this.offline || akStopped) {
-      log(`Cancel sheduled`)(``)
+      log`Cancel sheduled`(``)
       return Bluebird.resolve(false)
     }
     delete this.nextReq
-    if (this.pendingAcks.length) {
-      const ackMsgIDs = []
-      for (const ack of this.pendingAcks)
-        ackMsgIDs.push(ack)
-      log('acking messages')(ackMsgIDs)
+    const ackMsgIDs = queryAck(this.dcID)
+    if (ackMsgIDs.length > 0) {
+      log`acking messages`(ackMsgIDs)
       this.wrapMtpMessage({
         _      : 'msgs_ack',
         msg_ids: ackMsgIDs
@@ -468,16 +397,17 @@ export class NetworkerThread {
       }) //TODO WTF Why we make wrapped message and doesnt use it?
       // const res = await msg.deferred.promise
       // log(`AWAITED`, `ack`)(res)
+      dispatch(NET.ACK_DELETE({ dc: this.dcID, ack: ackMsgIDs }), this.uid)
     }
 
     this.performResend()
 
     const messages = []
+    //$off
     let message: NetMessage
     let messagesByteLen = 0
     // const currentTime = tsNow()
     let lengthOverflow = false
-    let singlesCount = 0
     const logGroup = log.group('perform sheduled request')
     const pendingIds = []
     for (const [messageID, value] of this.state.pendingIterator()) {
@@ -497,10 +427,6 @@ export class NetworkerThread {
         lengthOverflow = true
         continue
       }
-      if (message.singleInRequest) {
-        singlesCount++
-        if (singlesCount > 1) continue
-      }
       messages.push(message)
       messagesByteLen += messageByteLength
     }
@@ -514,14 +440,14 @@ export class NetworkerThread {
     if (message.isAPI && !message.longPoll) {
       const serializer = new Serialization({ mtproto: true }, this.uid)
       const params = {
-        max_delay : 1000,
-        wait_after: 550,
-        max_wait  : 3000
+        max_delay : 200,
+        wait_after: 200,
+        max_wait  : 8000
       }
       serializer.storeMethod('http_wait', params)
       const netMessage = new NetMessage(
         this.uid,
-        this.generateSeqNo(),
+        requestNextSeq(this.uid, this.dcID),
         serializer.getBytesPlain(),
         'polling'
       )
@@ -567,7 +493,7 @@ export class NetworkerThread {
         }, [])
       message = new NetContainer(
         this.uid,
-        this.generateSeqNo(true),
+        requestNextSeq(this.uid, this.dcID, true),
         container.getBytes(true),
         innerMessages,
         innerApi)
@@ -584,102 +510,27 @@ export class NetworkerThread {
     logGroup.groupEnd()
     this.state.addSent(message)
 
-    this.pendingAcks = [] //TODO WTF,he just clear and forget them at all?!?
-    if (lengthOverflow || singlesCount > 1) this.sheduleRequest()
+    if (lengthOverflow) this.sheduleRequest()
     dispatch(NET.SEND({
       message,
       options : {},
       threadID: this.threadID,
       thread  : this,
       noResponseMsgs,
-    }, this.dcID))
+    }, this.dcID), this.uid)
     return Bluebird.resolve(true)
-  }
-
-
-  async requestPerformer(message: NetMessage, noResponseMsgs: string[], response: *) {
-    try {
-      this.toggleOffline(false)
-      // const response = await this.parseResponse(result.data)
-      log(`Server response`, `dc${this.dcID}`)(response)
-      log(`message`)(message)
-
-      await this.processMessage(
-        response.response,
-        response.messageID,
-        response.sessionID)
-      const sentDel = []
-      for (const msgID of noResponseMsgs)
-        if (this.state.hasSent(msgID)) {
-          const msg = this.state.getSent(msgID)
-          sentDel.push(msg)
-          this.state.deleteSent(msg)
-          msg.deferred.resolve()
-        }
-      dispatch(NETWORKER_STATE.SENT.DEL(sentDel, this.dcID))
-      this.checkConnectionPeriod = Math.max(1.1, Math.sqrt(this.checkConnectionPeriod))
-
-      //return
-      this.checkLongPoll() //TODO Bluebird warning here
-    } catch (error) {
-      console.log('Encrypted request failed', error)
-      const noRespPending: string[] = []
-      const noRespSent: NetMessage[] = []
-      if (message instanceof NetContainer) {
-        for (const msgID of message.inner) {
-          this.state.setPending(msgID)
-        }
-        noRespSent.push(message)
-        // dispatch(NETWORKER_STATE.PENDING.ADD(message.inner, this.dcID))
-        this.state.deleteSent(message)
-      } else {
-        // dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
-        this.state.setPending(message.msg_id)
-      }
-
-      for (const msgID of noResponseMsgs)
-        if (this.state.hasSent(msgID)) {
-          const msg = this.state.getSent(msgID)
-          noRespPending.push(msgID)
-          noRespSent.push(msg)
-          this.state.deleteSent(msg)
-          this.state.deletePending(msgID)
-          msg.deferred.reject()
-        }
-      dispatch(NETWORKER_STATE.SENT.DEL(noRespSent, this.dcID))
-      // dispatch(NETWORKER_STATE.PENDING.DEL(noRespPending, this.dcID))
-      this.toggleOffline(true)
-      return Bluebird.reject(error)
-    }
-  }
-
-  parseResponse(responseBuffer: ArrayBuffer): Promise<{
-    response: Object,
-    messageID: string,
-    sessionID: Uint8Array,
-    seqNo: number
-  }> {
-    return parser({
-      responseBuffer,
-      uid          : this.uid,
-      authKeyID    : this.authKeyID,
-      authKeyUint8 : this.authKeyUint8,
-      thisSessionID: this.sessionID,
-      prevSessionID: this.prevSessionID,
-      getMsgById   : this.getMsgById,
-    })
   }
 
   getMsgById = ({ req_msg_id }: { req_msg_id: string }) => this.state.getSent(req_msg_id)
 
-  async applyServerSalt(newServerSalt: string) {
+  /* async applyServerSalt(newServerSalt: string) {
     const serverSalt = longToBytes(newServerSalt)
     await this.storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
 
-    dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID))
-    this.serverSalt = serverSalt
+    dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID), this.uid)
+    // this.serverSalt = serverSalt
     return true
-  }
+  } */
 
   sheduleRequest(delay: number = 0) {
     if (this.offline) this.checkConnection()
@@ -701,13 +552,9 @@ export class NetworkerThread {
   }
 
   ackMessage(msgID: string) {
-    /*console.trace(msgID)
-    if (this.pendingAcks.includes(msgID)) {
-      debugger
-    }*/
-    // console.log('ack message', msgID)
-    if (contains(msgID, this.pendingAcks)) return
-    this.pendingAcks.push(msgID)
+    const ackMsgIDs = queryAck(this.dcID)
+    if (contains(msgID, ackMsgIDs)) return
+    dispatch(NET.ACK_ADD({ dc: this.dcID, ack: [msgID] }), this.uid)
     this.sheduleRequest(30000)
   }
 
@@ -746,7 +593,7 @@ export class NetworkerThread {
       } else
         notEmpty = true
     }
-    dispatch(NETWORKER_STATE.SENT.DEL(sentDel, this.dcID))
+    dispatch(NETWORKER_STATE.SENT.DEL(sentDel, this.dcID), this.uid)
     return !notEmpty
   }
 
@@ -769,12 +616,6 @@ export class NetworkerThread {
       console.warn('[MT] Server even message id: ', messageID, message)
       return
     }
-    this.emit('incoming-message', {
-      threadID: this.threadID,
-      message,
-      messageID,
-      sessionID
-    })
     switch (message._) {
       case 'msg_container': {
         /* for (const inner of message.messages)
@@ -782,20 +623,20 @@ export class NetworkerThread {
         break
       }
       case 'bad_server_salt': {
-        log(`Bad server salt`)(message)
-        const sentMessage = this.state.getSent(message.bad_msg_id)
-        if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
-          log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
-          throw new Error('[MT] Bad server salt for invalid message')
-        }
+        // log(`Bad server salt`)(message)
+        // const sentMessage = this.state.getSent(message.bad_msg_id)
+        // if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
+        //   log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
+        //   throw new Error('[MT] Bad server salt for invalid message')
+        // }
 
-        await this.applyServerSalt(message.new_server_salt)
-        this.pushResend(message.bad_msg_id)
-        this.ackMessage(messageID)
+        // await this.applyServerSalt(message.new_server_salt)
+        // this.pushResend(message.bad_msg_id)
+        // this.ackMessage(messageID)
         break
       }
       case 'bad_msg_notification': {
-        log(`Bad msg notification`)(message)
+        /* log(`Bad msg notification`)(message)
         const sentMessage = this.state.getSent(message.bad_msg_id)
         if (!sentMessage || sentMessage.seq_no != message.bad_msg_seqno) {
           log(`invalid message`)(message.bad_msg_id, message.bad_msg_seqno)
@@ -814,7 +655,7 @@ export class NetworkerThread {
           if (badMessage instanceof NetMessage)
             this.pushResend(badMessage.msg_id)
           this.ackMessage(messageID)
-        }
+        } */
         break
       }
       case 'message': {
@@ -870,7 +711,7 @@ export class NetworkerThread {
         break
       }
       case 'msgs_state_info': {
-       /*  this.ackMessage(message.answer_msg_id)
+      /*  this.ackMessage(message.answer_msg_id)
         const lastResendReq = this.lastResendReq
         if (!lastResendReq) break
         if (lastResendReq.req_msg_id != message.req_msg_id) break
@@ -888,9 +729,9 @@ export class NetworkerThread {
         const sentMessageID = message.req_msg_id
         const sentMessage = this.state.getSent(sentMessageID)
 
-        this.processMessageAck(sentMessageID)
+        // this.processMessageAck(sentMessageID)
         if (!sentMessage) break
-        dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
+        // dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
         this.state.deleteSent(sentMessage)
         if (message.result._ == 'rpc_error') {
           this.emit('rpc-error', {
@@ -932,18 +773,6 @@ export class NetworkerThread {
   }
 }
 
-export const startAll = () => {
-  if (akStopped) {
-    akStopped = false
-    updatesProcessor({ _: 'new_session_created' }, true)
-  }
-}
-
-export const stopAll = () => akStopped = true
-
-export const setUpdatesProcessor = (callback: *) =>
-  updatesProcessor = callback
-
 
 const verifyInnerMessages = (messages) => {
   if (messages.length !== new Set(messages).size) {
@@ -952,6 +781,13 @@ const verifyInnerMessages = (messages) => {
   }
 }
 
-export default NetworkerThread
+export function createThread(
+  dc: number,
+  authKey: number[],
+  serverSalt: number[],
+  uid: string
+): NetworkerThread {
+  return new NetworkerThread(dc, authKey, serverSalt, uid)
+}
 
-export type { NetworkerThread as NetworkerType }
+export default NetworkerThread

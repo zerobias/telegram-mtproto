@@ -6,7 +6,7 @@ import blueDefer from '../../util/defer'
 
 export type ApiMethod = {
   method: string,
-  params: { [arg: string]: * }
+  params: { [arg: string]: any }
 }
 
 export type RequestOptions = {

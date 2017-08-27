@@ -95,6 +95,13 @@ export class RpcApiError extends MTError {
   }
 }
 
+export class ProtocolError extends MTError {
+  constructor(code: number, shortMessage: string, fullDescription: string) {
+    super(code, 'ProtocolError', shortMessage)
+    this.description = fullDescription
+  }
+}
+
 export class TypeBufferIntError extends MTError {
   static getTypeBufferMessage(ctx: TypeBuffer) {
     const offset = ctx.offset

@@ -51,7 +51,8 @@ async function parser({
     reader        : new Deserialization(dataWithPadding, { mtproto: true }, uid),
     currentSession: thisSessionID,
     prevSession   : prevSessionID,
-    dataWithPadding
+    dataWithPadding,
+    uid,
   })
 
   const deserializerOptions = {

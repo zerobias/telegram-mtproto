@@ -28,16 +28,21 @@ import {
 import { dispatch } from '../state'
 import describeProtocolError from './describe-protocol-error'
 import { MAIN } from 'Action'
-import { longToBytes } from '../bin'
+import { longToBytes, rshift32 } from '../bin'
 import guard from '../util/match-spec'
 import random from '../service/secure-random'
 import {
   type ᐸMTᐳNewSessionCreated,
   type ᐸMTᐳBadSalt,
+  type ᐸMTᐳBadNotification,
+  type ᐸMTᐳRpcResult,
 } from 'Mtp'
 import Status, { netStatuses, type NetStatus } from '../net-status'
 
 import Logger from 'mtproto-logger'
+import { applyServerTime } from '../service/time-manager'
+import { NetMessage } from '../service/networker/net-message'
+import Config from '../config-provider'
 const log = Logger`single-handler`
 
 /*::
@@ -194,7 +199,7 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
   //$off
   const cast: typeof message & { body: SystemMessage } = message
   const { body } = cast
-  const { dc } = cast
+  const { dc, id } = cast
 
   switch (body._) {
     case 'msgs_ack': {
@@ -214,7 +219,7 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     }
     case 'msg_detailed_info': {
       if (!thread.state.hasSent(body.msg_id)) {
-        thread.ackMessage(body.answer_msg_id)
+        // thread.ackMessage(body.answer_msg_id)
         const id: string = body.answer_msg_id
         return {
           flags: {
@@ -232,8 +237,8 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     }
     case 'msg_new_detailed_info': {
       const { answer_msg_id: id } = body
-      thread.ackMessage(id)
-      thread.reqResendMessage(id)
+      // thread.ackMessage(id)
+      // thread.reqResendMessage(id)
       return {
         flags: {
           net      : true,
@@ -251,7 +256,7 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     }
     case 'msgs_state_info': {
       const { answer_msg_id } = body
-      thread.ackMessage(answer_msg_id)
+      // thread.ackMessage(answer_msg_id)
       const lastResendReq = thread.lastResendReq
       if (!lastResendReq) break
       if (lastResendReq.req_msg_id != body.req_msg_id) break
@@ -274,30 +279,33 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
       }
       // dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
     }
+    case 'rpc_result': {
+      return handleRpcResult(ctx, message)
+    }
     case 'new_session_created': {
-      thread.emit('new-session', {
-        threadID   : thread.threadID,
-        networkerDC: message.dc,
-        messageID  : message.id,
-        message    : body
-      })
+      // thread.emit('new-session', {
+      //   threadID   : thread.threadID,
+      //   networkerDC: message.dc,
+      //   messageID  : message.id,
+      //   message    : body
+      // })
       return handleNewSession(ctx, message)
     }
     case 'bad_server_salt': {
       return handleBadSalt(ctx, message)
     }
     case 'bad_msg_notification': {
-      return emptyPatch()
+      return handleBadNotify(ctx, message)
     }
     default: {
       const { id } = message
-      thread.ackMessage(message.id)
+      // thread.ackMessage(message.id)
       thread.emit('untyped-message', {
         threadID   : thread.threadID,
         networkerDC: message.dc,
         message    : body,
         messageID  : message.id,
-        sessionID  : message.session,
+        sessionID  : Config.session.get(ctx.thread.uid, message.dc),
         result     : message,
       })
       return {
@@ -320,7 +328,7 @@ function handleInner(ctx: IncomingType, message: MessageUnit) {
   const { id, dc } = message
   if (thread.lastServerMessages.indexOf(id) != -1) {
     // console.warn('[MT] Server same messageID: ', messageID)
-    thread.ackMessage(id)
+    // thread.ackMessage(id)
     return {
       flags: {
         net: true,
@@ -384,7 +392,7 @@ function handleMigrateError(message, data, code) {
   if (!isFinite(newDcID))
     return { info: data, patch: emptyPatch() }
   const newDc = parseInt(newDcID, 10)
-  dispatch(MAIN.DC_CHANGED(newDc))
+  // dispatch(MAIN.DC_CHANGED(newDc))
   const patch = {
     flags: {
       net : true,
@@ -412,7 +420,7 @@ function handleMigrateError(message, data, code) {
 
 function handleAuthRestart(message, data, code) {
   const { dc } = data
-  dispatch(MAIN.AUTH_UNREG(dc))
+  // dispatch(MAIN.AUTH_UNREG(dc))
   const patch = {
     flags: {
       net    : true,
@@ -440,7 +448,7 @@ function handleAuthRestart(message, data, code) {
 
 function handleAuthUnreg(message, data, code) {
   const { dc } = data
-  dispatch(MAIN.AUTH_UNREG(dc))
+  // dispatch(MAIN.AUTH_UNREG(dc))
   const patch = {
     flags: {
       net    : true,
@@ -477,12 +485,13 @@ function handleNewSession(ctx: IncomingType, message: MessageUnit) {
   const { first_msg_id, server_salt } = body
   const salt = longToBytes(server_salt)
   const { dc, id } = message
-  const session = new Array(8)
-  random(session)
+  // const session = new Array(8)
+  // random(session)
+  // Config.seq.set(ctx.thread.uid, dc, 0)
   return {
     flags: {
       net       : true,
-      session   : true,
+      // session   : true,
       salt      : true,
       ack       : true,
       processAck: true,
@@ -490,22 +499,86 @@ function handleNewSession(ctx: IncomingType, message: MessageUnit) {
     net: [{
       dc,
       salt,
-      session,
+      // session,
       seq  : 0,
       first: first_msg_id, // Refers to outcoming api message
     }],
-    session: [{
-      dc,
-      session,
-      seq  : 0,
-      first: first_msg_id,
-    }],
+    // session: [{
+    //   dc,
+    //   session,
+    //   seq  : 0,
+    //   first: first_msg_id,
+    // }],
     salt: [{
       dc,
       salt
     }],
     ack       : [{ dc, id }],
     processAck: [{ dc, id: first_msg_id }],
+  }
+}
+
+function handleBadNotify(ctx: IncomingType, message: MessageUnit) {
+  const body: ᐸMTᐳBadNotification = message.body
+  log`Bad msg notification`(message)
+  const {
+    bad_msg_id: badMsg,
+    bad_msg_seqno: seq,
+    error_code: code,
+  } = body
+  const sentMessage = ctx.thread.state.getSent(badMsg)
+  const error = describeProtocolError(code || 0)
+  errorPrint: {
+    log`protocol error, code`(error.code)
+    log`protocol error, message`(error.message)
+    log`protocol error, description`(error.description)
+  }
+  if (!sentMessage || sentMessage.seq_no != seq) {
+    log`Bad msg notification, seq`(badMsg, seq)
+    // throw error
+  }
+  const { dc, id } = message
+
+  let flags = { /*:: ack: true */ }
+
+  let data = {}
+
+  if (code === 16 || code === 17) {
+    if (applyServerTime(
+      ctx.thread.uid,
+      rshift32(id)
+    )) {
+
+      const session = new Array(8)
+      random(session)
+      flags = { ...flags, session: true }
+      data = {
+        ...data,
+        session: [{
+          dc,
+          session,
+          seq  : 0,
+          first: badMsg,
+        }],
+      }
+      const badMessage = ctx.thread.updateSentMessage(badMsg)
+      if (badMessage instanceof NetMessage) {
+        flags = { ...flags, resend: true }
+        data = {
+          ...data,
+          resend: [{ dc, id: badMsg }]
+        }
+      }
+      flags = { ...flags, ack: true }
+      data = {
+        ...data,
+        ck: [{ dc, id }],
+      }
+    }
+  }
+  return {
+    ...data,
+    flags,
   }
 }
 
@@ -519,18 +592,22 @@ function handleBadSalt(ctx: IncomingType, message: MessageUnit) {
     new_server_salt: newSalt,
   } = body
   const sentMessage = ctx.thread.state.getSent(badMsg)
-  const error = describeProtocolError(code)
-  log`protocol error`(error)
+  const error = describeProtocolError(code || 0)
+  errorPrint: {
+    log`protocol error, code`(error.code)
+    log`protocol error, message`(error.message)
+    log`protocol error, description`(error.description)
+  }
   if (!sentMessage || sentMessage.seq_no != seq) {
     log`invalid message, seq`(badMsg, seq)
-    throw error
+    // throw error
   }
   const salt = longToBytes(newSalt)
   const { dc, id } = message
   const session = new Array(8)
   random(session)
 
-  // this.pushResend(message.bad_msg_id)
+  ctx.thread.pushResend(badMsg)
   return {
     flags: {
       net    : true,
@@ -559,4 +636,47 @@ function handleBadSalt(ctx: IncomingType, message: MessageUnit) {
     ack   : [{ dc, id }],
     resend: [{ dc, id: badMsg }]
   }
+}
+
+function handleRpcResult(ctx: IncomingType, message: MessageUnit) {
+  const { thread } = ctx
+  const { dc, id } = message
+  const body: ᐸMTᐳRpcResult = message.body
+  thread.ackMessage(id)
+
+  const sentMessageID = body.req_msg_id
+  const sentMessage = thread.state.getSent(sentMessageID)
+
+  thread.processMessageAck(sentMessageID)
+  if (!sentMessage) {
+    console.warn('No sent message!', sentMessageID, message)
+    return emptyPatch()
+  }
+  // dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], thread.dcID))
+  thread.state.deleteSent(sentMessage)
+  if (body.result) {
+    if (body.result._ == 'rpc_error') {
+      thread.emit('rpc-error', {
+        threadID   : thread.threadID,
+        networkerDC: dc,
+        error      : body.result,
+        sentMessage,
+        message
+      })
+
+    } else {
+      thread.emit('rpc-result', {
+        threadID   : thread.threadID,
+        networkerDC: dc,
+        message,
+        sentMessage,
+        result     : body.result
+      })
+    }
+  } else {
+    console.warn('No result!', sentMessageID, message)
+  }
+  if (sentMessage.isAPI)
+    thread.connectionInited = true
+  return emptyPatch()
 }

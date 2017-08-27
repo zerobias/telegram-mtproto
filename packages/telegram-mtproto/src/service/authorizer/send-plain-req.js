@@ -10,17 +10,25 @@ import { writeLong, writeLongP, writeInt } from '../../tl/writer'
 import Config from '../../config-provider'
 import { Serialization, Deserialization } from '../../tl'
 
-export default function SendPlain(
+export default function sendPlain(
   uid: string,
-  url: string,
-  requestBuffer: ArrayBuffer
+  url: string
 ) {
-  const requestBytes = onlySendPlainReq(uid, requestBuffer)
-  const onRes = onlySendPlainRes(uid, url)
-  return send(url, requestBytes)
-    .mapRej(onlySendPlainErr)
-    .chain(onRes)
+  const dataFrom = generateData(uid)
+  const sendData = send(url)
+  const onRes = plainRequest(uid, url)
+
+  return (buffer: ArrayBuffer) =>
+    dataFrom(buffer)
+      .chain(sendData)
+      .mapRej(onlySendPlainErr)
+      .chain(onRes)
 }
+
+const plainRequest = (uid, url) => req =>
+  onlySendPlain(uid, url, req)
+
+const generateData = uid => buffer => onlySendPlainReq(uid, buffer)
 
 function onlySendPlainReq(uid: string, requestBuffer: ArrayBuffer) {
   const requestLength = requestBuffer.byteLength,
@@ -43,15 +51,13 @@ function onlySendPlainReq(uid: string, requestBuffer: ArrayBuffer) {
   resultArray.set(headerArray)
   resultArray.set(requestArray, headerArray.length)
 
-  return resultArray
+  return of(resultArray)
 }
 
 function onlySendPlainErr(err) {
   if (err.response.status === 404) return new ErrorNotFound(err)
   return err
 }
-
-const onlySendPlainRes = (uid, url) => req => onlySendPlain(uid, url, req)
 
 function onlySendPlain(
   uid: string,
