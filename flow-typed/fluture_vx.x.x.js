@@ -167,8 +167,8 @@ declare module 'folktale/maybe' {
 declare module 'fluture' {
   declare export type Cancel = () => void
 
-  declare export class Fluture<Resolve, Reject> {
-    map<T>(fn: (data: Resolve) => T): Fluture<T, Reject>,
+  declare export class Fluture</*::+*/Resolve, /*::+*/Reject> {
+    map<-T>(fn: (data: Resolve) => T): Fluture<T, Reject>,
     bimap<T, F>(left: (err: Reject) => F, right: (data: Resolve) => T): Fluture<T, F>,
     chain<T, F>(fn:
       (data: Resolve) => Fluture<T, F>
@@ -197,6 +197,12 @@ declare module 'fluture' {
     right: (val: IR) => OR,
     future: Fluture<IR, IL>
   ): Fluture<OR & OL, void>
+
+  declare export function chain<IR, OR, OL>(
+    fn: (x: IR) => Fluture<OR, OL>
+  ): (
+    <IL>(future: Fluture<IR, IL>) => Fluture<OR, IL | OL>
+  )
 
   declare export function Future<Resolve, Reject>(fn: (rj: (err: Reject) => void, rs: (data: Resolve) => void) => ((() => void) | void)): Fluture<Resolve, Reject>
   declare export function encaseP3<A, B, C, Resolve>(fn:(a: A, b: B, c: C) => Promise<Resolve>): (a: A, b: B, c: C) => Fluture<Resolve, mixed>

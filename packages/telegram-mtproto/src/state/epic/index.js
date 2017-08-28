@@ -6,7 +6,7 @@ import { Stream, awaitPromises, of, from } from 'most'
 import { MAIN, NET } from 'Action'
 import netRequest, { onNewRequest, onNewTask } from './net-request'
 import { onTaskEnd, receiveResponse } from './task'
-import { storageSet, storageRemove, moduleStatus } from '../signal'
+import { moduleStatus } from '../signal'
 import Status, { netStatuses } from 'NetStatus'
 import { statusGuard, statuses } from '../../status'
 import { queryHomeDc, queryInvoke, queryStatus } from '../query'
@@ -16,17 +16,12 @@ const initialize = (action: Stream<{ type: string, payload: any }>) =>
     .thru(MAIN.DC_DETECTED.stream)
     .map(val => val.payload)
     .thru(e => statusGuard(statuses.importStorage, moduleStatus, e))
-    .thru(stream => stream
-      .sample(
-        (dc, set) => ({ dc, set }),
-        stream,
-        storageSet
-      ))
-    .map(async({ dc, set }): Promise<void> => {
-      await set('nearest_dc', dc)
-      await set('dc', dc)
-    })
-    .thru(awaitPromises)
+    // .map(async(dc): Promise<void> => {
+    //   const set = Config.storage.set
+    //   await set('nearest_dc', dc)
+    //   await set('dc', dc)
+    // })
+    // .thru(awaitPromises)
     .delay(1000)
     .map(() => MAIN.ACTIVATED())
 
@@ -39,25 +34,19 @@ const afterStorageImport = (action: Stream<{ type: string, payload: any }>) => a
 const noAuth = (action: Stream<{ type: string, payload: any }>) => action
   .thru(MAIN.AUTH_UNREG.stream)
   .map(val => val.payload)
-  .thru(stream => stream
-    .sample(
-      (dc, remove) => ({ dc, remove }),
-      stream,
-      storageRemove
-    ))
-  .map(({ dc, remove }) =>
-    remove(`dc${dc}_auth_key`).then(() => dc))
-  .thru(awaitPromises)
-  .map(dc => dc === queryHomeDc()
-    ? [
-      MAIN.MODULE_LOADED(),
-      NET.STATUS_SET([{
-        dc,
-        status: netStatuses.load,
-      }]),
-    ]
-    : [MAIN.MODULE_LOADED()])
-  .chain(from)
+  // .map((dc) =>
+  //   remove(`dc${dc}_auth_key`).then(() => dc))
+  // .thru(awaitPromises)
+  // .map(dc => dc === queryHomeDc()
+  //   ? [
+  //     MAIN.MODULE_LOADED(),
+  //     NET.STATUS_SET([{
+  //       dc,
+  //       status: netStatuses.load,
+  //     }]),
+  //   ]
+  //   : [MAIN.MODULE_LOADED()])
+  // .chain(from)
 
 const reactivate = (action: Stream<{ type: string, payload: any }>) =>
   action
@@ -97,21 +86,21 @@ const dcRecieved = (action: Stream<{ type: string, payload: any }>) =>
 const afterCarrier = (action: Stream<{ type: string, payload: any }>) =>
   action
     .filter(({ type }) => type === '[01] action carrier')
-    .map(() => queryStatus(queryHomeDc()))
-    .tap(e => console.warn(e))
-    .filter(e => !Status.eq(e, netStatuses.active))
-    .map(() => MAIN.MODULE_LOADED())
+    // .map(() => queryStatus(queryHomeDc()))
+    // .tap(e => console.warn(e))
+    // .filter(e => !Status.eq(e, netStatuses.active))
+    // .map(() => MAIN.MODULE_LOADED())
 
 const rootEpic = combineEpics([
   initialize,
-  noAuth,
+  // noAuth,
   afterStorageImport,
   reactivate,
   dcRecieved,
   onNewRequest,
   netRequest,
   receiveResponse,
-  afterCarrier,
+  // afterCarrier,
   onNewTask,
   onTaskEnd,
 ])

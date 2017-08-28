@@ -1,14 +1,13 @@
 //@flow
 
-// import Promise from 'bluebird'
 
-import { NetMessage } from './net-message'
+import { NetMessage } from './service/networker/net-message'
 
 type MessageMap = Map<string, NetMessage>
 type PendingMap = Map<string, number>
 type ResendSet = Set<string>
 
-class Pool {
+export default class L1Cache {
   sent: MessageMap = new Map()
   pending: PendingMap = new Map()
   resend: ResendSet = new Set()
@@ -55,6 +54,8 @@ class Pool {
   pendingIterator() {
     return this.pending.entries()
   }
-}
 
-export default Pool
+  static of() {
+    return new L1Cache
+  }
+}

@@ -135,23 +135,21 @@ const bypassActions = type => contains(type, [
 
 export const extendActions: Middleware<State> = ({ getState }) => (next) => (action) => {
   const state: State = getState()
-  const { homeDc, networker } = state
+  const { homeDc } = state
 
   const type = getActionType(action)
   if (FIX_THIS && action.meta && action.meta._ === 'networker' && action.meta.id !== homeDc && !bypassActions(type)) {
     console.warn(action)
     return
   }
-  if (type !== 'main/dc changed')
-    return next(action)
-  const newDC: number = action.payload
-  const net = networker.get(homeDc)
-  const session = net.session
-  const result = {
-    oldDC: homeDc,
-    newDC,
-    closedSession: session,
-  }
-  return next({ ...action, payload: result })
+  // if (type !== 'main/dc changed')
+  return next(action)
+  // const newDC: number = action.payload
+  // const session = net.session
+  // const result = {
+  //   oldDC: homeDc,
+  //   newDC,
+  //   closedSession: session,
+  // }
+  // return next({ ...action, payload: result })
 }
-

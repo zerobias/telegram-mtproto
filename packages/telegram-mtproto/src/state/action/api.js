@@ -5,7 +5,10 @@ import { NetworkerThread } from '../../service/networker'
 import { doubleCreator, type ActionPair } from '../helpers'
 import { type MTP } from '../../mtp.h'
 import { type MessageUnit } from '../../task/index.h'
-import { type OnRequestDone, type ApiNewRequest } from '../index.h'
+import {
+  type OnRequestDone,
+  type ApiNewRequest
+} from '../index.h'
 
 /*export type ApiCallResult = MessageUnit[]  {
   message: NetMessage,

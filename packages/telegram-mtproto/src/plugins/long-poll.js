@@ -1,7 +1,7 @@
 //@flow
 
 import Bluebird from 'bluebird'
-
+import { encaseP2, cache } from 'fluture'
 import { tsNow } from '../service/time-manager'
 /*:: import { NetworkerThread } from '../service/networker' */
 import active from '../state/signal/active'
@@ -11,6 +11,24 @@ const log = Logger`long-poll`
 
 // let inited = false
 
+function longPollRequest(thread: NetworkerThread, maxWait: number) {
+  return thread.wrapMtpCall('http_wait', {
+    max_delay : 0,
+    wait_after: 0,
+    max_wait  : maxWait
+  }, requestOpts)
+}
+
+const futureRequest = (thread, maxWait) => encaseP2(
+  longPollRequest, thread, maxWait
+)
+
+/*::
+declare var fakeThread: NetworkerThread
+const future = futureRequest(fakeThread, 25e3)
+type FutureRequest = typeof future
+*/
+
 const waitToTime = async(poll: LongPoll): Promise<void> => {
   while (!poll.allowLongPoll())
     await new Promise(rs => setTimeout(rs, 500))
@@ -18,9 +36,10 @@ const waitToTime = async(poll: LongPoll): Promise<void> => {
 
 const WAIT = 400
 
-class LongPoll {
+export default class LongPoll {
   thread: NetworkerThread
-
+  currentRequest: FutureRequest | void
+  futureRequest: FutureRequest
   maxWait = 25e3
   pendingTime = Date.now()
   requestTime = Date.now()
@@ -37,6 +56,17 @@ class LongPoll {
     //   this.request = () => Bluebird.resolve()
     // }
     // inited = true
+
+  }
+  get pending() {
+    if(!this.currentRequest)
+      this.currentRequest = cache(futureRequest(this.thread, this.maxWait)
+        .map(x => {
+          delete this.currentRequest
+          this.thread.checkLongPoll()
+          this.pending
+        }))
+    return this.currentRequest.promise()
   }
 
   setPendingTime() {
@@ -44,18 +74,9 @@ class LongPoll {
     this.requestTime = now
     this.pendingTime = now + this.maxWait
   }
+
   async request() {
-    const result = await this.thread.wrapMtpCall('http_wait', {
-      max_delay : 0,
-      wait_after: 0,
-      max_wait  : this.maxWait
-    }, {
-      noResponse       : true,
-      longPoll         : true,
-      notContentRelated: true
-    })
-    this.thread.checkLongPoll()
-    return result
+    await this.pending
   }
 
   writePollTime() {
@@ -63,28 +84,39 @@ class LongPoll {
   }
 
   allowLongPoll() {
-    const result = this.requestTime + WAIT < tsNow()
-    log`allow long poll`(result)
-    return result
+    return true
+    // const result = this.requestTime + WAIT < tsNow()
+    // log`allow long poll`(result)
+    // return result
   }
-  async sending() {
-    this.alreadyWaitPending = true
-    await waitToTime(this)
-    this.alreadyWaitPending = false
-    this.setPendingTime()
-    const result = await this.request()
-    return result
-  }
-  async sendLongPool(): Promise<any> {
+  // async sending() {
+  //   this.alreadyWaitPending = true
+  //   await waitToTime(this)
+  //   this.alreadyWaitPending = false
+  //   this.setPendingTime()
+  //   const result = await this.request()
+  //   return result
+  // }
+  sendLongPool(): Promise<any> {
     //TODO add base dc check
-    if (!this.isActive) return false
-    if (this.allowLongPoll()) {
-      this.pending = this.sending()
-    }
-
-    const result = await this.pending
-    return result
+    if (!this.isActive) return Bluebird.resolve(false)
+    return cache(futureRequest(this.thread, this.maxWait)
+      .map(x => {
+        // delete this.currentRequest
+        this.thread.checkLongPoll()
+        // this.pending
+      })).promise()
+    // if (this.allowLongPoll()) {
+    //   this.pending = this.sending()
+    // }
+    //
+    // const result = await this.pending
+    // return result
   }
 }
 
-export default LongPoll
+const requestOpts = {
+  noResponse       : true,
+  longPoll         : true,
+  notContentRelated: true
+}

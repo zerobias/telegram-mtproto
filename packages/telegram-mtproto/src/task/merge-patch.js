@@ -17,10 +17,10 @@ import {
   type DcAuth
 } from './index.h'
 import {
-  queryNetworker,
   queryAuthID,
   querySalt,
   queryAuthKey,
+  queryKeys,
 } from '../state/query'
 
 import singleHandler from './single-handler'
@@ -29,9 +29,10 @@ import Logger from 'mtproto-logger'
 import Status, { netStatuses, type NetStatus } from '../net-status'
 const log = Logger`merge-patch`
 
-const testID = String((Math.random() * 1e5) | 0)
+const testID = String((Date.now() - ((Date.now() / 1e8) | 0) * 1e8) / 1e3 | 0)
 
-const eventId = () => String((Math.random() * 1e5) | 0)
+let event = 0
+const eventId = () => String( ++event )
 
 const LOG_PATH = [process.cwd(), 'logs', testID]
 
@@ -46,6 +47,7 @@ export default function mergePatch(ctx: *, processed: MessageUnit[]) {
         summary: append(summary, acc.summary),
       }
     }, { message: [], summary: [] })
+  const uid: string = ctx.uid
   const mergedSummary = summary.reduce(mergeSummary, emptySummary())
   const regrouped = regroupSummary(mergedSummary)
   const noAuth = dcWithoutAuth(regrouped.auth)
@@ -61,8 +63,9 @@ export default function mergePatch(ctx: *, processed: MessageUnit[]) {
   // log`mergedSummary`(mergedSummary)
   log`regrouped`(withNewSalt)
   log`joinedAuth`(joinedAuth)
+  const statuses: { [dc: number]: NetStatus } =
   //$off
-  const statuses: { [dc: number]: NetStatus } = map(detectStatus, joinedAuth)
+    map(detectStatus(uid), joinedAuth)
   log`detectStatus`(statuses)
   return {
     normalized: message,
@@ -185,16 +188,18 @@ function joinDcAuth(summary) {
 const emptyDcAuth: DcAuth = {
   auth   : false,
   salt   : false,
-  session: false,
 }
 
-function detectStatus(dc: number, dcAuth: DcAuth) {
+const detectStatus = (uid: string) => (dc, dcAuth: DcAuth) => {
 
   let initialData = dcAuth
-  const fromState = {
+  const fromState = queryKeys(uid, dc).orElse(() => ({
+    uid, dc, ...emptyDcAuth
+  }))
+  /*{
     auth: queryAuthKey(dc),
     salt: querySalt(dc),
-  }
+  }*/
   const auth: number[] | false = fromState.auth && fromState.auth.length > 0
     ? fromState.auth
     : false

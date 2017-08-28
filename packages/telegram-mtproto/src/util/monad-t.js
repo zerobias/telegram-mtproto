@@ -2,8 +2,8 @@
 
 import { Right, Left, of, ofL, type Apropos } from 'apropos'
 import { append } from 'ramda'
-import { Fluture, resolve, reject, Future } from 'fluture'
-import { Maybe, Just, Nothing } from 'folktale/maybe'
+import { Fluture, of as resolve, reject, Future } from 'fluture'
+import { Maybe, Just, Nothing, fromNullable } from 'folktale/maybe'
 
 
 export function maybeAp<I, O>(fn: Maybe<((x: I) => O)>, val: Maybe<I>): Maybe<O> {
@@ -205,6 +205,85 @@ export class MaybeT extends OnlyStatic {
     })*/)
   }
 
+}
+
+const futureValue = x => resolve(x).mapRej(a => void 0)
+
+function* monadicChain() {
+  type X = 'x'
+  const x: X = 'x'
+  declare var out1: Apropos<void, 'x'>
+  declare var out2: Fluture<{ b: 'abc' }, TypeError>
+  const res2 = yield out2
+  const res3 = yield out2
+  const res4 = yield out2
+  return out1
+}
+
+export async function go<-L, -R, LO, RO>(
+  gen: Generator<Fluture<R, L>, Apropos<LO, RO>, Apropos<L, R>>
+): Promise<Apropos<LO, RO>> {
+  // const { value, done } = gen.next(val)
+  declare var fake: Apropos<L, R>
+  declare var fakeRes: { done: false, value: Fluture<R, L> }
+  declare var fakeOut: Apropos<LO, RO>
+  let next
+  let iteration: {
+    done: false,
+    value: Fluture<R, L>,
+  } | {
+    done: true,
+    value?: Apropos<LO, RO>,
+  }
+  while (true) {
+    iteration = gen.next(next)
+    if (iteration.done === true) {
+      const { value = (next/*::, fakeOut */) } = iteration
+      return value
+    }
+    const { value } = iteration
+    const wrapped = futureEitherWrap(value)
+    const result = await wrapped.promise()
+    next = result
+  }
+  return fakeOut
+}
+
+export async function co() {
+
+}
+
+function* Gen1(input) { console.log(input); const x = yield 'out'; return x }
+
+function* Gen(input) {
+  const r1 = yield 1
+  const r2 = yield* Gen1('gen 1')
+  const r3 = yield [input, r1, r2]
+  return r3
+}
+
+function* NextGen(input) {
+  const r1 = yield 'a'
+  const r2 = yield Gen1('gen 1 yield')
+  const r3 = yield 'b'
+  const r4 = yield * Gen('Gen')
+  const r5 = yield [r1, r2, r3, r4]
+  return r5
+}
+
+
+async function goo() {
+  const x = monadicChain()
+  // declare var dull: Apropos<*, *>
+  declare var data1: Apropos<void, 'x'>
+  declare var data2: Apropos<TypeError, { b: 'abc' }>
+  // const fromGen = x.next(dull)
+  // const first = await go(x, dull)
+  // const a = await go(x, data1)
+  const b = await go(x)
+  // const b = x.next({ c: 3 }).value
+  const xx = x
+  return b
 }
 
 const isJustMatcher = {

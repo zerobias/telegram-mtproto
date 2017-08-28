@@ -4,7 +4,7 @@ import { type AxiosXHR } from 'axios'
 
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
-import { type NetState } from '../state/index.h'
+import { type NetState, type DCNumber } from '../state/index.h'
 import { type NetStatus } from '../net-status'
 
 export type RawInput = {
@@ -12,8 +12,8 @@ export type RawInput = {
   noResponseMsgs: string[],
   result: AxiosXHR<ArrayBuffer>,
   thread: NetworkerThread,
-  dc: number,
-  net: NetState,
+  dc: DCNumber,
+  uid: string,
 }
 
 export type IncomingType = RawInput & {

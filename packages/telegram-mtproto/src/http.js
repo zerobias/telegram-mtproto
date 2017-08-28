@@ -14,7 +14,7 @@ const requestOptions = { responseType: 'arraybuffer' }
 const request = (url: string, data: Int32Array) => httpClient.post(url, data, requestOptions)
 
 export type Send = Encased2<string, Int32Array, AxiosXHR<ArrayBuffer>, AxiosError<ArrayBuffer>>
-export const send = encaseP2(request)
+export const send: Send = encaseP2(request)
 
 // export function unwrapPromise<L, R>(
 //   either: Apropos<L, Promise<R>>

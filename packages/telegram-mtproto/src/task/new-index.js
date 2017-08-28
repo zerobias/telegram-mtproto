@@ -22,8 +22,9 @@ import parser from '../service/chain'
 import processing from './processing'
 import { dispatch } from '../state'
 import { MAIN } from 'Action'
-import { queryAuthKey, queryAuthID } from '../state/query'
-import Config from '../config-provider'
+import { queryAuthKey, queryAuthID, querySalt, queryKeys } from '../state/query'
+import { MaybeT } from 'Util/monad-t'
+import Config from 'ConfigProvider'
 
 import mergePatch from './merge-patch'
 
@@ -31,40 +32,51 @@ import Logger from 'mtproto-logger'
 import { convertToUint8Array } from '../bin'
 const log = Logger`task-index`
 
-export default async function normalize(input: RawInput): Promise<PUnitList> {
-  const ctx = await decrypt(input).promise()
+/*::
+declare var inp: RawInput
+declare function wait<T>(data: Promise<T>): T
+const decryptedData = wait(decrypt(inp).promise())
+
+type NormalizeInput = typeof decryptedData
+*/
+
+export default function normalize(ctx: NormalizeInput) {
   const flattenRaw = flattenMessage(ctx)
   const processed = processing(ctx, flattenRaw)
-  return { ...mergePatch(ctx, processed), ctx }
+  return { ...mergePatch(ctx, processed), ...ctx }
 }
 
 
 
-function decrypt(input: RawInput) {
-  console.warn(queryAuthID(input.dc))
-  return of(input)
-    .chain(decryptorF)
+export function decrypt({ result: { data }, dc, uid, ...input }: RawInput) {
+  const session = Config.session.get(uid, dc)
+  const keys = MaybeT.toFuture(
+    ERR.noKeys,
+    queryKeys(uid, dc)
+  )
+  return keys
+    .map(keys => ({ ...input, data, dc, uid, ...keys, session }))
+    .chain(decryptor)
     .chain(validateDecrypt)
-    .map(decrypted => ({ ...input, ...decrypted }))
+    .map(decrypted => ({ ...input, dc, uid, ...decrypted }))
 }
 
-const decryptor = ({ thread, result: { data }, dc }: RawInput) =>
-  parser({
+const decryptor = ({ thread, data, uid, dc, authID, auth, session, ...rest }) =>
+  encaseP(parser, {
     responseBuffer: data,
-    uid           : thread.uid,
-    authKeyID     : queryAuthID(dc) || [],
-    authKeyUint8  : convertToUint8Array(queryAuthKey(dc) || []),
-    thisSessionID : Config.session.get(thread.uid, dc),
+    uid,
+    authKeyID     : authID,
+    authKeyUint8  : convertToUint8Array(auth),
+    thisSessionID : session,
     prevSessionID : thread.prevSessionID,
     getMsgById    : thread.getMsgById,
   })
-
-const decryptorF = encaseP(decryptor)
+  .map(result => ({ ...result, thread, uid, dc, authID, auth, session, ...rest }))
 
 function validateDecrypt(decrypted) {
   const { response } = decrypted
   if (!isApiObject(response)) {
-    return reject(new TypeError(`Invalid decrypted response`))
+    return reject(ERR.invalidResponse())
   }
   return of(decrypted)//{ ...input, ...decrypted }
 }
@@ -73,7 +85,7 @@ let sess: string
 const sessList: string[] = []
 
 function flattenMessage(input): MessageDraft[] {
-  const { messageID, seqNo, sessionID, message, response, net } = input
+  const { messageID, seqNo, sessionID, message, response, net, thread: { uid } } = input
   // console.warn(sessList)
   // let token = String([...sessionID])
   // if (!sess) {
@@ -101,6 +113,7 @@ function flattenMessage(input): MessageDraft[] {
   if (result.isContainer) return flattenContainer(input, result.data)
   else return [{
     type   : 'object',
+    uid,
     id     : messageID,
     seq    : seqNo,
     session: sessionID,
@@ -157,4 +170,11 @@ function flattenContainer(input, container: RawContainer): MessageDraft[] {
     raw : msg,
   }))
   return [...normalizedMsgs, cont]
+}
+
+class NoSessionKeys extends Error {  }
+class InvalidResponse extends Error {  }
+const ERR = {
+  noKeys: () => new NoSessionKeys('No session keys'),
+  invalidResponse: () => new InvalidResponse('Invalid decrypted response'),
 }

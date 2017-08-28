@@ -9,13 +9,12 @@ const log = Logger`epic-task`
 // import snippet from 'Util/stream-snippet.draft'
 
 import { API, NET } from '../action'
-import normalize from '../../task/new-index'
+import normalize, { decrypt } from '../../task/new-index'
 import { type MessageUnit } from '../../task/index.h'
 import { requestMap, homeStatus } from '../signal'
 import jsonError from '../../util/json-error'
 import parser from '../../service/chain'
 import {
-  queryNetworker,
   queryAuthID,
   queryAuthKey,
   queryAck,
@@ -39,17 +38,8 @@ const isHandled = (unit: MessageUnit) =>
 
 const notHandled = complement(isHandled)
 
-const clockFast = periodic(300)
-  .take(10)
-  // .thru(guestStatus)
-  .thru(e => netStatusGuard(netStatuses.halt, homeStatus, e))
-  // .sample(e => e, homeStatus)
-  // .scan(x => x + 1, 0)
 homeStatus.observe(e => console.log(`\n homeStatus \n`, e))
 
-// clockFast.observe(e => console.log(`\n clockFast \n`, e))
-// netStatusGuard(netStatuses.guest, homeStatus, clockFast)
-//   .observe(e => console.log(`\n netStatus \n`, e))
 
 export const onTaskEnd =
 (action: Stream<any>) => action
@@ -117,10 +107,20 @@ export const receiveResponse = (action: Stream<any>) => action
   .thru(NET.RECEIVE_RESPONSE.stream)
   .map(e => e.payload)
   // .thru(e => netStatusGuard(netStatuses.guest, guards, e))
+  .map(data => decrypt(data).promise())
+  .thru(awaitPromises)
+  .map(normalize)
   .map(async(data) => {
-    const { thread } = data
-    const uid = thread.uid
-    const { normalized, summary, statuses, ctx } = await normalize({ ...data, dc: thread.dcID })
+    const {
+      normalized,
+      summary,
+      statuses,
+      dc,
+      uid,
+      salt: saltKey,
+      auth: authKey,
+      thread,
+    } = data
     const { salt, auth } = summary
     const saltPairs = toPairs(salt)
     const authPairs = toPairs(auth)
@@ -140,15 +140,15 @@ export const receiveResponse = (action: Stream<any>) => action
     }
 
     for (const id of flatPairs(summary.processAck)) {
-      processMessageAck(id, thread)
+      processMessageAck(uid, dc, id)
     }
     for (const id of flatPairs(summary.ack)) {
-      ackMessage(id, thread)
+      ackMessage(uid, dc, id, thread)
     }
     for (const id of flatPairs(summary.reqResend)) {
-      pushResend(id, thread)
+      pushResend(uid, dc, id, thread)
     }
-    performResend(thread)
+    performResend(uid, dc, thread)
 
     dispatch({
       type   : '[01] action carrier',
@@ -158,7 +158,8 @@ export const receiveResponse = (action: Stream<any>) => action
     }, uid)
     return {
       ...data,
-      ctx,
+      uid,
+      dc,
       normalized,
       summary,
       statuses,
@@ -167,33 +168,34 @@ export const receiveResponse = (action: Stream<any>) => action
   .thru(awaitPromises)
   .tap(({ normalized, summary, statuses }) => normalized.map(
     msg => console.log('normalized, summary', msg, `\n`, summary, `\n`, statuses)))
-  .map(({ result, thread, ctx, noResponseMsgs, normalized }) => {
-    const dc = thread.dcID
-    // let parsingResult
-    // try {
-    //   parsingResult = await parser({
-    //     responseBuffer: result.data,
-    //     uid           : thread.uid,
-    //     authKeyID     : queryAuthID(dc) || [],
-    //     authKeyUint8  : convertToUint8Array(queryAuthKey(dc) || []),
-    //     threadSessionID : querySession(dc) || [],
-    //     prevSessionID : thread.prevSessionID,
-    //     getMsgById    : thread.getMsgById,
-    //   })
-    // } catch (error) {
-    //   console.log(error)
-    //   parsingResult = false
-    // }
-    return {
-      result: ctx,
-      noResponseMsgs,
-      thread,
-      normalized,
-    }
-  })
-  // .thru(awaitPromises)
-  .map(async({ result, thread, noResponseMsgs, normalized }) => {
+  // .map(({ uid, dc, result, thread, ctx, noResponseMsgs, normalized }) => {
+  //   // let parsingResult
+  //   // try {
+  //   //   parsingResult = await parser({
+  //   //     responseBuffer: result.data,
+  //   //     uid           : thread.uid,
+  //   //     authKeyID     : queryAuthID(dc) || [],
+  //   //     authKeyUint8  : convertToUint8Array(queryAuthKey(dc) || []),
+  //   //     threadSessionID : querySession(dc) || [],
+  //   //     prevSessionID : thread.prevSessionID,
+  //   //     getMsgById    : thread.getMsgById,
+  //   //   })
+  //   // } catch (error) {
+  //   //   console.log(error)
+  //   //   parsingResult = false
+  //   // }
+  //   return {
+  //     result: ctx,
+  //     uid, dc,
+  //     noResponseMsgs,
+  //     thread,
+  //     normalized,
+  //   }
+  // })
+  // // .thru(awaitPromises)
+  .map(({ uid, dc, thread, noResponseMsgs, normalized }) => {
     // await thread.requestPerformer(message, noResponseMsgs, result)
+    const cache = Config.fastCache.get(uid, dc)
     thread.toggleOffline(false)
     // const response = await thread.parseResponse(result.data)
     // log(`Server response`, `dc${thread.dcID}`)(result)
@@ -205,10 +207,10 @@ export const receiveResponse = (action: Stream<any>) => action
     //     result.sessionID)
     const sentDel = []
     for (const msgID of noResponseMsgs)
-      if (thread.state.hasSent(msgID)) {
-        const msg = thread.state.getSent(msgID)
+      if (cache.hasSent(msgID)) {
+        const msg = cache.getSent(msgID)
         sentDel.push(msg)
-        thread.state.deleteSent(msg)
+        cache.deleteSent(msg)
         msg.deferred.resolve()
       }
     // dispatch(NETWORKER_STATE.SENT.DEL(sentDel, thread.dcID))
@@ -216,44 +218,46 @@ export const receiveResponse = (action: Stream<any>) => action
     thread.checkLongPoll()
     return normalized
   })
-  .thru(awaitPromises)
   .map(API.TASK.DONE)
   .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 //)
 
-function processMessageAck(msg: string, thread: NetworkerThread) {
-  const sentMessage = thread.state.getSent(msg)
-  if (sentMessage && !sentMessage.acked) {
+function processMessageAck(uid, dc, msg: string) {
+  const cache = Config.fastCache.get(uid, dc)
+  const sentMessage = cache.getSent(msg)
+  if (sentMessage && !sentMessage.acked) { //TODO Warning, mutable changes!
     delete sentMessage.body
     sentMessage.acked = true
   }
 }
 
-function ackMessage(msg: string, thread: NetworkerThread) {
-  const dc = thread.dcID
-  const ackMsgIDs = queryAck(dc)
+function ackMessage(uid, dc, msg: string, thread: NetworkerThread) {
+  const cache = Config.fastCache.get(uid, dc)
+  const ackMsgIDs = queryAck(uid, dc)
   if (contains(msg, ackMsgIDs)) return
-  dispatch(NET.ACK_ADD({ dc, ack: [msg] }), thread.uid)
+  cache
+  dispatch(NET.ACK_ADD({ dc, ack: [msg] }), uid)
   thread.sheduleRequest(30000)
 }
 
-function pushResend(msg: string, thread: NetworkerThread) {
-  tsNow
+function pushResend(uid, dc, msg: string, thread: NetworkerThread) {
+  const cache = Config.fastCache.get(uid, dc)
   const value = tsNow()
-  const sentMessage = thread.state.getSent(msg)
+  const sentMessage = cache.getSent(msg)
   if (sentMessage instanceof NetContainer) {
     for (const msg of sentMessage.inner) {
-      thread.state.setPending(msg, value)
+      cache.setPending(msg, value)
     }
   } else {
-    thread.state.setPending(msg, value)
+    cache.setPending(msg, value)
   }
   thread.sheduleRequest(0)
 }
 
-function performResend(thread: NetworkerThread) {
-  if (thread.state.hasResends()) {
-    const resendMsgIDs = [...thread.state.getResends()]
+function performResend(uid, dc, thread: NetworkerThread) {
+  const cache = Config.fastCache.get(uid, dc)
+  if (cache.hasResends()) {
+    const resendMsgIDs = [...cache.getResends()]
     const resendOpts = { noShedule: true, notContentRelated: true }
     // console.log('resendReq messages', resendMsgIDs)
     const msg = thread.wrapMtpMessage({

@@ -3,11 +3,11 @@
 import Bluebird from 'bluebird'
 import uuid from 'uuid/v4'
 import { contains, toPairs } from 'ramda'
-import { type Emit } from 'eventemitter2'
+import { fromEvent } from 'most'
+import Emitter, { type Emit } from 'eventemitter2'
 
 import { tsNow } from '../time-manager'
 import { NetMessage, NetContainer } from './net-message'
-import State from './state'
 import { smartTimeout, immediate } from 'mtproto-shared'
 
 import { Serialization } from '../../tl'
@@ -31,6 +31,7 @@ import { type DCNumber } from '../../state/index.h'
 import { dispatch } from '../../state'
 import { homeDc } from '../../state/signal'
 import { type ACFlags, makeCarrierAction } from '../../state/carrier'
+import L1Cache from '../../l1-cache'
 
 let iii = 0
 let akStopped = false
@@ -75,7 +76,6 @@ export class NetworkerThread {
   upload: boolean = false
   sessionID: Bytes
   prevSessionID: Bytes
-  state: State = new State()
   connectionInited = false
   checkConnectionPeriod = 0
   checkConnectionPromise: Promise<mixed>
@@ -111,7 +111,12 @@ export class NetworkerThread {
         value     : Config.apiConfig.get(uid),
         enumerable: false,
       },
+      wrapMtpCall: {
+        value: this.wrapMtpCall.bind(this),
+        enumerable: false,
+      }
     })
+    Config.fastCache.init(uid, this.dcID)
     Config.thread.set(uid, this.dcID, this)
     this.longPoll = new LongPoll(this)
     // // this.checkLongPollCond = this.checkLongPollCond.bind(this)
@@ -135,6 +140,9 @@ export class NetworkerThread {
     })
     setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
     this.checkLongPoll()
+  }
+  get state(): L1Cache {
+    return Config.fastCache.get(this.uid, this.dcID)
   }
   // updateSession() {
   //   this.prevSessionID = this.sessionID
@@ -284,30 +292,40 @@ export class NetworkerThread {
   checkLongPollAfterDcCond(isClean: boolean) {
     return isClean && !this.isHome
   }
-  async checkLongPoll() {
-    const isClean = this.cleanupSent()
-    if (this.checkLongPollCond())
-      return false
-    if (this.checkLongPollAfterDcCond(isClean))
-    // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
-      return
-    const start = Date.now()
+  pollEvents = (() => {
+    const emitter = new Emitter()
+    return emitter
+  })()
+  runLongPoll = async() => {
     await this.longPoll.sendLongPool()
-    if (Date.now() - start < 50) return
-    return this.checkLongPoll()
+    this.checkLongPoll()
+  }
+
+  poll = fromEvent('poll', this.pollEvents)
+    .throttle(200)
+    .observe(this.runLongPoll)
+  checkLongPoll() {
+    const isClean = this.cleanupSent()
+    // if (this.checkLongPollCond())
+    //   return false
+    // if (this.checkLongPollAfterDcCond(isClean))
+    // // console.warn(dTime(), 'Send long-poll for DC is delayed', this.dcID, this.sleepAfter)
+    //   return
+    this.pollEvents.emit('poll')
+
   }
 
   pushMessage(message: NetMessage, options: NetOptions = {}) {
     message.copyOptions(options)
     dispatch(NETWORKER_STATE.SENT.ADD([message], this.dcID), this.uid)
     // dispatch(NETWORKER_STATE.PENDING.ADD([message.msg_id], this.dcID))
-
+    options.messageID = message.msg_id //TODO remove mutable operation
     this.state.addSent(message)
     this.state.setPending(message.msg_id)
 
     if (!options.noShedule)
       this.sheduleRequest()
-    options.messageID = message.msg_id //TODO remove mutable operation
+
   }
 
   pushResend(messageID: string, delay: number = 0) {
@@ -353,7 +371,7 @@ export class NetworkerThread {
     } else {
       this.longPoll.pendingTime = Date.now()
       //NOTE check long state was here
-      this.checkLongPoll().then(() => {})
+      this.checkLongPoll()
       this.sheduleRequest()
 
       // if (this.onOnlineCb)
@@ -385,7 +403,7 @@ export class NetworkerThread {
       return Bluebird.resolve(false)
     }
     delete this.nextReq
-    const ackMsgIDs = queryAck(this.dcID)
+    const ackMsgIDs = queryAck(this.uid, this.dcID)
     if (ackMsgIDs.length > 0) {
       log`acking messages`(ackMsgIDs)
       this.wrapMtpMessage({
@@ -552,7 +570,7 @@ export class NetworkerThread {
   }
 
   ackMessage(msgID: string) {
-    const ackMsgIDs = queryAck(this.dcID)
+    const ackMsgIDs = queryAck(this.uid, this.dcID)
     if (contains(msgID, ackMsgIDs)) return
     dispatch(NET.ACK_ADD({ dc: this.dcID, ack: [msgID] }), this.uid)
     this.sheduleRequest(30000)

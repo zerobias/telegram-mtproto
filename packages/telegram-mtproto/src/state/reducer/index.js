@@ -11,6 +11,7 @@ import {
   dissoc,
   assoc,
   without,
+  fromPairs,
   filter,
   map,
   lens,
@@ -32,15 +33,17 @@ import {
   type OnSeqSet,
   type OnAckAdd,
   type OnStorageImported,
+  type CommandList,
+  type UID,
 } from '../index.h'
 import {
   type Carrier,
 } from '../carrier'
-import { MAIN, NET, API, AUTH } from 'Action'
+import { MAIN, NET, API, AUTH, NETWORKER_STATE } from 'Action'
 import keyStorage, { KeyStorage } from '../../util/key-storage'
 import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync, bytesToHex } from '../../bin'
-
-import { guardedReducer } from '../helpers'
+import { NetMessage } from '../../service/networker/net-message'
+import { guardedReducer, trimType } from '../helpers'
 // import networker from './networker-state'
 import request from './request'
 import status from './status'
@@ -120,13 +123,13 @@ const pendingAck = createReducer({
   [NET.ACK_ADD]: (state: AckMap, { dc, ack }: OnAckAdd): AckMap => {
     const dcAcks = state[dc] || []
     const updated = [...new Set([...dcAcks, ...ack])]
-    return { ...state, [dc]: updated }
+    return { ...state, [dc | 0]: updated }
   },
   //$off
   [NET.ACK_DELETE]: (state: AckMap, { dc, ack }: OnAckAdd): AckMap => {
     const dcAcks = state[dc] || []
     const updated = without(ack, dcAcks)
-    return { ...state, [dc]: updated }
+    return { ...state, [dc | 0]: updated }
   },
 }, ackDefault)
 
@@ -222,13 +225,51 @@ const lastMessages = (state: string[], payload: PUnitList) => {
   return takeLast(100, newMsgs)
 }
 
+const commandListInit: CommandList = {
+  msgs: [],
+  commands: [],
+  byMsg: {},
+  byCommand: {},
+}
+const command: Reducer<CommandList> =
+(state: CommandList = commandListInit, action: any): CommandList => {
+  const {
+    type,
+    uid,
+    payload
+  }: {
+    type: string,
+    uid: UID,
+    payload: any,
+  } = action
+  const typeName = trimType(type)
+  if (typeName !== 'networker/sent add') return state;
+  (payload: NetMessage[])
+  const apiRequests: [string, string][] = payload
+    .filter(msg => msg.isAPI)
+    .map(({ msg_id, requestID }) => [msg_id, requestID])
+  const flipped = apiRequests.map(([msg, id]) => [id, msg])
+  const commands: string[] = apiRequests.map(([_, id]) => id)
+  const msgs: string[] = apiRequests.map(([msg]) => msg)
+  const byMsg = { ...state.byMsg, ...fromPairs(apiRequests) }
+  const byCommand = { ...state.byCommand, ...fromPairs(flipped) }
+  return {
+    msgs: state.msgs.concat(msgs),
+    commands: state.commands.concat(commands),
+    byMsg,
+    byCommand,
+  }
+}
+
 const client: Reducer<Client> = combineReducers({
   uid,
   homeDc,
+  command,
   seq,
   salt,
   auth,
   authID,
+  pendingAck,
 })
 
 const clientReducer: Reducer<ClientList> = (state: ClientList = { ids: [] }, action: any) => {
@@ -240,9 +281,7 @@ const clientReducer: Reducer<ClientList> = (state: ClientList = { ids: [] }, act
   return {
     ...state,
     [uid]: newValue,
-    ids  : contains(uid, state.ids)
-      ? state.ids
-      : append(uid, state.ids)
+    ids  : idsReducer(state.ids, uid)
   }
 }
 
@@ -250,7 +289,6 @@ const mainReducer: Reducer<State> = combineReducers({
   client      : clientReducer,
   status,
   netStatus,
-  pendingAck,
   invoke,
   storageSet,
   storageRemove,
@@ -264,115 +302,122 @@ const mainReducer: Reducer<State> = combineReducers({
   }, [])
 })
 
-const fullStateReducer: Reducer<State> = createReducer({
-  '[00] action carrier': (state: State, payload: Carrier) => {
-    // const either = of({ state, payload })
-    //   .logic({
-    //     cond: ({ payload: { flags } }) => flags.networker && flags.auth,
-    //     pass: x => x,
-    //     fail: ({ state }) => state,
-    //   })
-    //   .mapL((st) => st ? st : state)
-    //   .logic({
-    //     cond: ({ payload: { flags } }) => flags.networker && flags.auth,
-    //     pass: ({ payload, state: { networker } }) => ({ payload, newState: networker }),
-    //     fail: ({ state }) => state,
-    //   })
-    if (!payload.flags.networker || !payload.flags.auth) return state
-    let newState = state.networker
-    for (const id of payload.networker.ids) {
-      const keys = payload.networker[id]
-      if (newState.has(id)) {
-        let net = newState.get(id)
-        if (!isEmpty(keys.authKey))
-          net = {
-            ...net,
-            authKey   : keys.authKey,
-            authSubKey: {
-              authKeyUint8 : convertToUint8Array(keys.authKey),
-              authKeyBuffer: convertToArrayBuffer(keys.authKey),
-              authKeyID    : sha1BytesSync(keys.authKey).slice(-8),
-            },
-          }
-        else
-          net = {
-            ...net,
-            status    : statuses.init,
-            authKey   : [],
-            authSubKey: {
-              authKeyUint8 : new Uint8Array([]),
-              authKeyBuffer: new Uint8Array([]).buffer,
-              authKeyID    : []
-            }
-          }
-        if (!isEmpty(keys.salt))
-          net = { ...net, salt: keys.salt }
-        else
-          net = {
-            ...net,
-            status    : statuses.init,
-            authKey   : [],
-            authSubKey: {
-              authKeyUint8 : new Uint8Array([]),
-              authKeyBuffer: new Uint8Array([]).buffer,
-              authKeyID    : []
-            }
-          }
-        if (!isEmpty(keys.session))
-          net = { ...net, session: keys.session }
-        newState = newState.set(id, net)
-      }
-    }
-    return { ...state, networker: newState }
-  },
-  //$off
-  [MAIN.AUTH_UNREG]: (state: State, payload: number) => {
-    const { networker, netStatus, auth } = state
-    const newState = {
-      ...state,
-      auth     : auth.remove(payload),
-      netStatus: { ...netStatus, [payload]: netStatuses.load }
-    }
-    if (!networker.has(payload)) return newState
-    const net = networker.get(payload)
-    const updated = {
-      ...net,
-      status: statuses.init,
-    }
-    return {
-      ...newState,
-      networker: networker.set(payload, updated)
-    }
-  }
-}, {})
-
-function statusWatcher(state: State) {
-  const dcList = [...new Set([].concat(
-    state.auth.ids,
-    state.salt.ids,
-    // state.session.ids,
-  ))].map(dc => ({
-    dc,
-    auth: state.auth.get(dc),
-    salt: state.salt.get(dc),
-    // session: state.session.get(dc),
-  }))
-  let statuses = state.netStatus
-  for (const data of dcList) {
-    if (!data.auth || !data.salt/*  || !data.session */) {
-      statuses = { ...statuses, [data.dc]: netStatuses.load }
-    } else
-      statuses = { ...statuses, [data.dc]: netStatuses.active }
-  }
-  return { ...state, netStatus: statuses }
+function idsReducer(state: string[], uid: string): string[] {
+  return contains(uid, state)
+    ? state
+    : append(uid, state)
 }
 
-const reducer: Reducer<State> = (state, payload: any) =>
-  statusWatcher(
-    fullStateReducer(
-      mainReducer(state, payload),
-      payload
-    )
-  )
+// const fullStateReducer: Reducer<State> = createReducer({
+//   '[00] action carrier': (state: State, payload: Carrier) => {
+//     // const either = of({ state, payload })
+//     //   .logic({
+//     //     cond: ({ payload: { flags } }) => flags.networker && flags.auth,
+//     //     pass: x => x,
+//     //     fail: ({ state }) => state,
+//     //   })
+//     //   .mapL((st) => st ? st : state)
+//     //   .logic({
+//     //     cond: ({ payload: { flags } }) => flags.networker && flags.auth,
+//     //     pass: ({ payload, state: { networker } }) => ({ payload, newState: networker }),
+//     //     fail: ({ state }) => state,
+//     //   })
+//     if (!payload.flags.networker || !payload.flags.auth) return state
+//     let newState = state.networker
+//     for (const id of payload.networker.ids) {
+//       const keys = payload.networker[id]
+//       if (newState.has(id)) {
+//         let net = newState.get(id)
+//         if (!isEmpty(keys.authKey))
+//           net = {
+//             ...net,
+//             authKey   : keys.authKey,
+//             authSubKey: {
+//               authKeyUint8 : convertToUint8Array(keys.authKey),
+//               authKeyBuffer: convertToArrayBuffer(keys.authKey),
+//               authKeyID    : sha1BytesSync(keys.authKey).slice(-8),
+//             },
+//           }
+//         else
+//           net = {
+//             ...net,
+//             status    : statuses.init,
+//             authKey   : [],
+//             authSubKey: {
+//               authKeyUint8 : new Uint8Array([]),
+//               authKeyBuffer: new Uint8Array([]).buffer,
+//               authKeyID    : []
+//             }
+//           }
+//         if (!isEmpty(keys.salt))
+//           net = { ...net, salt: keys.salt }
+//         else
+//           net = {
+//             ...net,
+//             status    : statuses.init,
+//             authKey   : [],
+//             authSubKey: {
+//               authKeyUint8 : new Uint8Array([]),
+//               authKeyBuffer: new Uint8Array([]).buffer,
+//               authKeyID    : []
+//             }
+//           }
+//         if (!isEmpty(keys.session))
+//           net = { ...net, session: keys.session }
+//         newState = newState.set(id, net)
+//       }
+//     }
+//     return { ...state, networker: newState }
+//   },
+//   //$ off
+//   [MAIN.AUTH_UNREG]: (state: State, payload: number) => {
+//     const { networker, netStatus, auth } = state
+//     const newState = {
+//       ...state,
+//       auth     : auth.remove(payload),
+//       netStatus: { ...netStatus, [payload]: netStatuses.load }
+//     }
+//     if (!networker.has(payload)) return newState
+//     const net = networker.get(payload)
+//     const updated = {
+//       ...net,
+//       status: statuses.init,
+//     }
+//     return {
+//       ...newState,
+//       networker: networker.set(payload, updated)
+//     }
+//   }
+// }, {})
 
-export default reducer
+function statusWatcher(state: State) {
+  // const dcList = [...new Set([].concat(
+  //   state.auth.ids,
+  //   state.salt.ids,
+  //   // state.session.ids,
+  // ))].map(dc => ({
+  //   dc,
+  //   auth: state.auth.get(dc),
+  //   salt: state.salt.get(dc),
+  //   // session: state.session.get(dc),
+  // }))
+  // let statuses = state.netStatus
+  // for (const data of dcList) {
+  //   if (!data.auth || !data.salt/*  || !data.session */) {
+  //     statuses = { ...statuses, [data.dc]: netStatuses.load }
+  //   } else
+  //     statuses = { ...statuses, [data.dc]: netStatuses.active }
+  // }
+  // return { ...state, netStatus: statuses }
+  return state
+}
+
+// const reducer: Reducer<State> = (state, payload: any) =>
+//   statusWatcher(
+//     fullStateReducer(
+//       mainReducer(state, payload),
+//       payload
+//     )
+//   )
+
+export default mainReducer

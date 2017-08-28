@@ -1,5 +1,7 @@
 //@flow
 
+import { type AxiosXHR } from 'axios'
+
 /*:: import List from '../util/immutable-list'
 import ApiRequest from '../service/main/request'
 import { NetMessage } from '../service/networker/net-message'
@@ -22,6 +24,9 @@ declare export function toCryptoKey(x: number[]): CryptoKey
 
 export opaque type DCNumber: number = number
 declare export function toDCNumber(x: number): DCNumber
+
+export opaque type UID: string = string
+declare export function toUID(x: string): UID
 */
 
 
@@ -54,12 +59,21 @@ export type NetState = {
   requestMap: { [req: string]: NetMessage },
 }
 
+export type CommandList = {
+  commands: string[],
+  msgs: string[],
+  byMsg: { [msg: string]: string },
+  byCommand: { [command: string]: string },
+}
+
 export type Client = {
   uid: string,
   homeDc: number,
   seq: {
     [dc: number]: number,
   },
+  command: CommandList,
+  pendingAck: { [dc: number]: string[] },
   salt: KeyStorage,
   auth: KeyStorage,
   authID: KeyStorage,
@@ -73,7 +87,6 @@ export type ClientList = {
 export type State = {
   active: boolean,
   client: ClientList,
-  pendingAck: { [dc: number]: string[] },
   netStatus: { [dc: number]: NetStatus },
   invoke: (method: string, options: Object, opts: any) => Promise<any>,
   storageSet: (key: string, value: any) => Promise<void>,
@@ -98,7 +111,7 @@ export type OnSeqSet = {
 }
 
 export type OnAckAdd = {
-  dc: number,
+  dc: DCNumber,
   ack: string[]
 }
 
@@ -119,4 +132,20 @@ export type OnStorageImported = {
   +salt: { [dc: number]: number[] },
   +session: { [dc: number]: number[] },
   +home: number,
+}
+
+export type OnReceiveResponse = {
+  message: NetMessage,
+  noResponseMsgs: string[],
+  result: AxiosXHR<ArrayBuffer>,
+  thread: NetworkerThread,
+  dc: DCNumber,
+  uid: UID,
+}
+
+export type OnNetSend = {
+  message: NetMessage,
+  threadID: string,
+  thread: NetworkerThread,
+  noResponseMsgs: string[],
 }

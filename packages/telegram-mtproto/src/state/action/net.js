@@ -1,31 +1,17 @@
 //@flow
 
-import { type AxiosXHR } from 'axios'
-
-import { NetMessage } from '../../service/networker/net-message'
-import { NetworkerThread } from '../../service/networker'
-
 import { doubleCreator, type ActionPair } from '../helpers'
 import {
   type OnSetStatus,
   type OnSeqSet,
   type OnAckAdd,
+  type OnReceiveResponse,
+  type OnNetSend,
 } from '../index.h'
 
 type Net = {
-  SEND: ActionPair<'net/send', {
-    message: NetMessage,
-    options: Object,
-    threadID: string,
-    thread: NetworkerThread,
-    noResponseMsgs: string[],
-  }, NetworkerMeta>,
-  RECEIVE_RESPONSE: ActionPair<'net/response', {
-    message: NetMessage,
-    noResponseMsgs: string[],
-    result: AxiosXHR<ArrayBuffer>,
-    thread: NetworkerThread
-  }>,
+  SEND: ActionPair<'net/send', OnNetSend, NetworkerMeta>,
+  RECEIVE_RESPONSE: ActionPair<'net/response', OnReceiveResponse>,
   NETWORK_ERROR: ActionPair<'net/error', any>,
   STATUS_SET: ActionPair<'net/status set', OnSetStatus>,
   SEQ_SET: ActionPair<'net/seq set', OnSeqSet>,

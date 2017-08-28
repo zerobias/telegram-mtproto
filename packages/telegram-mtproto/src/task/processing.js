@@ -15,6 +15,7 @@ import {
 } from './index.h'
 import { initFlags, isApiObject } from './fixtures'
 import { resolveRequest } from '../state/query'
+import { MaybeT } from 'Util/monad-t'
 
 
 export default function processing(ctx: IncomingType, list: MessageDraft[]) {
@@ -88,6 +89,7 @@ function processInners(ctx: IncomingType, msg: MessageDraft, body) {
 
 function processRpc(ctx: IncomingType, msg: MessageDraft, body: RawBody) {
   const outID: string = body.req_msg_id
+  const { uid, dc } = ctx
   let flagsResult = {
     body        : false,
     methodResult: true,
@@ -102,13 +104,19 @@ function processRpc(ctx: IncomingType, msg: MessageDraft, body: RawBody) {
       ...flagsResult,
       body: true,
     }
-    const apiID = resolveRequest({ dc: msg.dc, outID })
+    const maybeApiID = resolveRequest(uid, dc, outID)
+    let apiID: string = '',
+        resolved = false
+    if (MaybeT.isJust(maybeApiID)) {
+      apiID = MaybeT.unsafeGet(maybeApiID)
+      resolved = true
+    }
     accResult = {
       ...accResult,
       body: rslt,
       api : {
-        resolved: !!apiID,
-        apiID   : apiID || '',
+        resolved,
+        apiID,
       },
     }
     if (rslt._ === 'rpc_error') {

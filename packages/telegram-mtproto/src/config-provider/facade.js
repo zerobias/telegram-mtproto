@@ -9,6 +9,7 @@ import { getConfig } from './provider'
 import random from '../service/secure-random'
 import KeyManager from '../service/authorizer/rsa-keys-manger'
 import NetworkerThread from '../service/networker'
+import L1Cache from '../l1-cache'
 
 const Config = {
   seq: {
@@ -50,6 +51,14 @@ const Config = {
     remove(uid: string, ...keys: string[]): Promise<void> {
       return getConfig(uid).storage.remove(...keys)
     },
+  },
+  fastCache: {
+    get(uid: string, dc: DCNumber) {
+      return getConfig(uid).fastCache[dc | 0]
+    },
+    init(uid: string, dc: DCNumber) {
+      getConfig(uid).fastCache[dc | 0] = L1Cache.of()
+    }
   },
   publicKeys: {
     get(uid: string, keyHex: string): PublicKey | false {

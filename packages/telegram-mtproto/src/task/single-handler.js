@@ -25,11 +25,11 @@ import {
 
   type ᐸPatchᐳSummary,
 } from './index.h'
-import { dispatch } from '../state'
+import { dispatch } from 'State'
 import describeProtocolError from './describe-protocol-error'
-import { MAIN } from 'Action'
+import { MAIN, NETWORKER_STATE } from 'Action'
 import { longToBytes, rshift32 } from '../bin'
-import guard from '../util/match-spec'
+import guard from 'Util/match-spec'
 import random from '../service/secure-random'
 import {
   type ᐸMTᐳNewSessionCreated,
@@ -42,7 +42,7 @@ import Status, { netStatuses, type NetStatus } from '../net-status'
 import Logger from 'mtproto-logger'
 import { applyServerTime } from '../service/time-manager'
 import { NetMessage } from '../service/networker/net-message'
-import Config from '../config-provider'
+import Config from 'ConfigProvider'
 const log = Logger`single-handler`
 
 /*::
@@ -118,9 +118,7 @@ export default function singleHandler(
 
   // collected.forEach(e => log`patches`(e))
   const summary = makeSummary(collected)
-  // listLog`ack list`(ackList)
-  // listLog`auth keys`(withAuthKey)
-  // listLog`sessions`(sessionList)
+  //$off
   log`summary`(noEmpty(summary))
   return {
     message: result,
@@ -195,11 +193,11 @@ function makeSummary(collected): ᐸPatchᐳSummary {
 }
 
 function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
-  const { thread } = ctx
+  const { thread, uid, dc } = ctx
   //$off
   const cast: typeof message & { body: SystemMessage } = message
   const { body } = cast
-  const { dc, id } = cast
+  const { id } = cast
 
   switch (body._) {
     case 'msgs_ack': {
@@ -218,8 +216,8 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
       }
     }
     case 'msg_detailed_info': {
-      if (!thread.state.hasSent(body.msg_id)) {
-        // thread.ackMessage(body.answer_msg_id)
+      if (!Config.fastCache.get(uid, dc).hasSent(body.msg_id)) {
+        thread.ackMessage(body.answer_msg_id)
         const id: string = body.answer_msg_id
         return {
           flags: {
@@ -263,7 +261,7 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
       // const resendDel = []
       for (const badMsgID of lastResendReq.resend_msg_ids) {
         // resendDel.push(badMsgID)
-        thread.state.deleteResent(badMsgID)
+        Config.fastCache.get(uid, dc).deleteResent(badMsgID)
       }
       const aId: string = answer_msg_id
       return {
@@ -520,13 +518,14 @@ function handleNewSession(ctx: IncomingType, message: MessageUnit) {
 
 function handleBadNotify(ctx: IncomingType, message: MessageUnit) {
   const body: ᐸMTᐳBadNotification = message.body
+  const { dc, uid } = ctx
   log`Bad msg notification`(message)
   const {
     bad_msg_id: badMsg,
     bad_msg_seqno: seq,
     error_code: code,
   } = body
-  const sentMessage = ctx.thread.state.getSent(badMsg)
+  const sentMessage = Config.fastCache.get(uid, dc).getSent(badMsg)
   const error = describeProtocolError(code || 0)
   errorPrint: {
     log`protocol error, code`(error.code)
@@ -537,7 +536,7 @@ function handleBadNotify(ctx: IncomingType, message: MessageUnit) {
     log`Bad msg notification, seq`(badMsg, seq)
     // throw error
   }
-  const { dc, id } = message
+  const { id } = message
 
   let flags = { /*:: ack: true */ }
 
@@ -591,7 +590,8 @@ function handleBadSalt(ctx: IncomingType, message: MessageUnit) {
     error_code: code,
     new_server_salt: newSalt,
   } = body
-  const sentMessage = ctx.thread.state.getSent(badMsg)
+  const { dc, uid } = ctx
+  const sentMessage = Config.fastCache.get(uid, dc).getSent(badMsg)
   const error = describeProtocolError(code || 0)
   errorPrint: {
     log`protocol error, code`(error.code)
@@ -603,7 +603,7 @@ function handleBadSalt(ctx: IncomingType, message: MessageUnit) {
     // throw error
   }
   const salt = longToBytes(newSalt)
-  const { dc, id } = message
+  const { id } = message
   const session = new Array(8)
   random(session)
 
@@ -639,21 +639,21 @@ function handleBadSalt(ctx: IncomingType, message: MessageUnit) {
 }
 
 function handleRpcResult(ctx: IncomingType, message: MessageUnit) {
-  const { thread } = ctx
-  const { dc, id } = message
+  const { thread, dc, uid } = ctx
+  const { id } = message
   const body: ᐸMTᐳRpcResult = message.body
   thread.ackMessage(id)
 
   const sentMessageID = body.req_msg_id
-  const sentMessage = thread.state.getSent(sentMessageID)
+  const sentMessage = Config.fastCache.get(uid, dc).getSent(sentMessageID)
 
-  thread.processMessageAck(sentMessageID)
+  // thread.processMessageAck(sentMessageID)
   if (!sentMessage) {
     console.warn('No sent message!', sentMessageID, message)
     return emptyPatch()
   }
-  // dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], thread.dcID))
-  thread.state.deleteSent(sentMessage)
+  dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], dc), uid)
+  Config.fastCache.get(uid, dc).deleteSent(sentMessage)
   if (body.result) {
     if (body.result._ == 'rpc_error') {
       thread.emit('rpc-error', {

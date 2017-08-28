@@ -27,7 +27,7 @@ if (__DEV__) {
     realtime             : true,
     hostname             : 'localhost',
     port                 : 8000,
-    maxAge               : 200,
+    maxAge               : 600,
     suppressConnectErrors: true,
   })
 

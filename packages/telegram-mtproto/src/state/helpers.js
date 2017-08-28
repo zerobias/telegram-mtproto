@@ -1,6 +1,7 @@
 //@flow
 
-import { type Stream } from 'most'
+import { Stream } from 'most'
+import { replace } from 'ramda'
 import { createAction } from 'redux-act'
 import { select } from 'redux-most'
 
@@ -72,3 +73,6 @@ export const guardedReducer = <S, -P>(
   }
   return reducer(state, payload)
 }
+
+export const trimType: (type: string) => string =
+  replace(/\[\d+\]\s*/, '')
