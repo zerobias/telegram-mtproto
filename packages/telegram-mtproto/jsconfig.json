@@ -11,7 +11,10 @@
       "NetStatus": "./src/net-status",
       "Mtp": "./src/mtp.h.js",
       "ConfigProvider": "./src/config-provider",
-      "State": "./src/state"
+			"State": "./src/state",
+			"Newtype": "./src/newtype.h",
+      "Bin": "./src/bin",
+			"Monad": "./src/util/monad-t"
     },
     "baseUrl": "./src",
     "skipLibCheck": true,

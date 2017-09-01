@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "_": "api",
+    "id": "6448432711212090369"
+  },
+  "type": "[18] api/request done",
+  "payload": {
+    "result": {
+      "response": {
+        "_": "msgs_ack",
+        "msg_ids": []
+      },
+      "messageID": "6448432711212090369",
+      "sessionID": {
+        "0": 215,
+        "1": 218,
+        "2": 231,
+        "3": 47,
+        "4": 220,
+        "5": 132,
+        "6": 68,
+        "7": 103
+      },
+      "seqNo": 6
+    },
+    "thread": {
+      "threadID": "fc3ab027-38d7-45c2-9f47-31743755ef9e",
+      "upload": false,
+      "pendingAcks": [],
+      "state": {
+        "sent": {},
+        "pending": {},
+        "resend": {}
+      },
+      "connectionInited": true,
+      "checkConnectionPeriod": 1.1,
+      "lastServerMessages": [
+        "6448431413826475009",
+        "6448431414094237697"
+      ],
+      "uid": "5a26dd3e-f7d8-4060-a711-59d51422d685",
+      "dcID": 2,
+      "iii": 0,
+      "longPoll": {
+        "maxWait": 25000,
+        "pendingTime": 1501392805497,
+        "requestTime": 1501392780497,
+        "isActive": true,
+        "alreadyWaitPending": false,
+        "pending": {}
+      },
+      "serverSalt": [
+        102,
+        146,
+        147,
+        216,
+        203,
+        244,
+        102,
+        253
+      ],
+      "seqNo": 26,
+      "sessionID": [
+        215,
+        218,
+        231,
+        47,
+        220,
+        132,
+        68,
+        103
+      ],
+      "offline": false,
+      "nextReqPromise": {
+        "isFulfilled": true,
+        "isRejected": false,
+        "fulfillmentValue": false
+      }
+    },
+    "message": {
+      "acked": false,
+      "container": false,
+      "notContentRelated": false,
+      "createNetworker": false,
+      "longPoll": true,
+      "type": "other",
+      "uid": "5a26dd3e-f7d8-4060-a711-59d51422d685",
+      "msg_id": "6448432601228204156",
+      "seq_no": 31,
+      "dc": 2,
+      "noResponse": true
+    },
+    "messages": {
+      "type": "Other",
+      "val": {
+        "response": {
+          "_": "msgs_ack",
+          "msg_ids": []
+        },
+        "messageID": "6448432711212090369",
+        "sessionID": {
+          "0": 215,
+          "1": 218,
+          "2": 231,
+          "3": 47,
+          "4": 220,
+          "5": 132,
+          "6": 68,
+          "7": 103
+        },
+        "seqNo": 6
+      }
+    }
+  }
+}

@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "bluebird": "^3.5.0",
-    "most": "^1.6.2",
+    "most": "^1.7.0",
     "ramda": "^0.24.1",
     "fs-extra": "^4.0.1",
     "mtproto-logger": "^0.1.8",
@@ -41,7 +41,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "cross-env": "^5.0.5",
 
-    "flow-copy-source": "^1.2.0",
+    "flow-copy-source": "^1.2.1",
     "rimraf": "^2.6.1"
   },
   "author": "Zero Bias",

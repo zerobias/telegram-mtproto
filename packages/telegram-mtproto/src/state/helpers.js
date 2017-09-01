@@ -5,9 +5,6 @@ import { replace } from 'ramda'
 import { createAction } from 'redux-act'
 import { select } from 'redux-most'
 
-import Status, { type ModuleStatus } from '../status'
-import { rootStream } from './portal'
-
 
 
 type ActionCreator<Type, Payload> =
@@ -53,14 +50,6 @@ export function doubleCreator<Type, Payload, Meta>(
   })
   return action
 }
-
-export function afterStatus(status: ModuleStatus) {
-  return rootStream
-    .map(state => state.status)
-    .map(current => Status.gte(current, status))
-    .skipRepeats()
-}
-
 
 export const guardedReducer = <S, -P>(
   guards: ((state: S, payload: P) => boolean)[],

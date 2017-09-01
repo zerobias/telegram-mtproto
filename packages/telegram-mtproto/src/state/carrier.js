@@ -1,8 +1,5 @@
 //@flow
-
-import { of, Right, Left, type Apropos } from 'apropos'
-
-import { type ModuleStatus, statuses } from '../status'
+import { type ModuleStatus } from '../status'
 
 /*::
 import { NetMessage } from '../service/networker/net-message'
@@ -72,54 +69,3 @@ export type ACNet = {
     delete: NetMessage[],
   }
 }
-
-const onFail = (): false => false
-
-const queryAuthKey = (dc: DCInt, obj: ACNetworker) =>
-  of(obj)
-    .mapL(onFail)
-    .logic({
-      cond: obj => obj.ids.indexOf(dc) > -1,
-      pass: obj => obj[dc].authKey,
-      fail: onFail,
-    })
-
-const querySalt = (dc: DCInt, obj: ACNetworker) =>
-  of(obj)
-    .mapL(onFail)
-    .logic({
-      cond: obj => obj.ids.indexOf(dc) > -1,
-      pass: obj => obj[dc].salt,
-      fail: onFail,
-    })
-
-function handleCarrier(carrier: Carrier) {
-  const e = of(carrier)
-  const authE = e
-    .mapL(onFail)
-    .logic({
-      cond: (carr) => carr.flags.auth,
-      pass: (carr) => carr.auth,
-      fail: onFail,
-    })
-  const homeDCE = e
-    .mapL(onFail)
-    .logic({
-      cond: (carr) => carr.flags.homeDC,
-      pass: (carr) => carr.homeDC,
-      fail: (): false => false,
-    })
-  const netE = e
-    .mapL(onFail)
-    .logic({
-      cond: (carr) => carr.flags.networker,
-      pass: (carr) => carr.networker,
-      fail: (): false => false,
-    })
-  const EitherCarrier = {
-    auth     : authE,
-    homeDC   : homeDCE,
-    networker: netE,
-  }
-}
-

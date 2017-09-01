@@ -1,6 +1,6 @@
 //@flow
 
-import uuid from 'uuid/v4'
+import uuid from 'Util/uuid'
 
 import { type ConfigType } from './index.h'
 import configNormalization from './config-normalization'

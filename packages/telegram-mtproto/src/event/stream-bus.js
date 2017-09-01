@@ -1,27 +1,18 @@
 //@flow
 
 import type { EventEmitterType } from 'eventemitter2'
-import { from, of, type Stream } from 'most'
+import { Stream } from 'most'
 
-import Config from '../config-provider'
+import Config from 'ConfigProvider'
 import { makeEventStream } from './make-event-stream'
 
-import type { MTProto } from '../service/main'
-import type { RpcRawError } from './rpc'
-import {
-  isMigrateError,
-  getMigrateDc,
-  isFileMigrateError,
-  getFileMigrateDc
-} from './rpc'
+import { MTProto } from '../service/main'
 import ApiRequest from '../service/main/request'
 import NetworkerThread from '../service/networker'
 import { NetMessage } from '../service/networker/net-message'
 import { MTError, RpcApiError } from '../error'
-import dcStoreKeys from 'Util/dc-store-keys'
 
 import Logger from 'mtproto-logger'
-import { homeDc } from '../state/signal'
 const log = Logger`stream-bus`
 
 
@@ -31,23 +22,16 @@ const createStreamBus = (ctx: MTProto) => {
 
   bus.responseRaw.observe(log('raw response'))
 
-  const state = ctx.state
-
-  bus.newNetworker.observe((networker) => {
-    log('new networker')(networker)
-    state.threads.set(networker.threadID, networker)
-  })
-
   bus.messageIn.observe(log('message in'))
 
   const apiOnly = bus.messageIn.filter(value => value.isAPI)
   const mtOnly = bus.messageIn.filter(value => !value.isAPI)
 
   apiOnly.observe((val) => {
-    ctx.state.messages.set(val.msg_id, val)
+    Config.fastCache.get(ctx.uid, val.dc).messages.set(val.msg_id, val)
   })
   mtOnly.observe((val) => {
-    ctx.state.messages.set(val.msg_id, val)
+    Config.fastCache.get(ctx.uid, val.dc).messages.set(val.msg_id, val)
   })
 
   /* bus.rpcResult.observe(async(data: OnRpcResult) => {

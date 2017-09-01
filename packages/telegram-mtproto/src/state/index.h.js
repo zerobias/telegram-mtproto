@@ -2,15 +2,24 @@
 
 import { type AxiosXHR } from 'axios'
 
-/*:: import List from '../util/immutable-list'
+/*:: import List from 'Util/immutable-list'
 import ApiRequest from '../service/main/request'
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker' */
 import { type ModuleStatus } from '../status'
-import { type NetStatus } from '../net-status'
+import { type NetStatus } from 'NetStatus'
 import { type MTP } from '../mtp.h'
 import { type MessageUnit } from '../task/index.h'
-import { KeyStorage } from '../util/key-storage'
+import { KeyStorage } from 'Util/key-storage'
+import { KeyValue } from 'Monad'
+import {
+  type CryptoKey,
+  toCryptoKey,
+  type DCNumber,
+  toDCNumber,
+  type UID,
+  toUID,
+} from 'Newtype'
 export type MessageHistory = {
   id: string,
   seq: number,
@@ -18,17 +27,10 @@ export type MessageHistory = {
   message: MessageUnit
 }
 
-/*::
-export opaque type CryptoKey: number[] = number[]
-declare export function toCryptoKey(x: number[]): CryptoKey
-
-export opaque type DCNumber: number = number
-declare export function toDCNumber(x: number): DCNumber
-
-export opaque type UID: string = string
-declare export function toUID(x: string): UID
-*/
-
+export type OnRecovery = {
+  halt: DCNumber,
+  recovery: DCNumber,
+}
 
 export type InitType = {
   uid: string,
@@ -69,10 +71,9 @@ export type CommandList = {
 export type Client = {
   uid: string,
   homeDc: number,
-  seq: {
-    [dc: number]: number,
-  },
-  command: CommandList,
+  dcDetected: boolean,
+  command: KeyValue<string, string>,
+  request: KeyValue<UID, ApiNewRequest>,
   pendingAck: { [dc: number]: string[] },
   salt: KeyStorage,
   auth: KeyStorage,
@@ -81,20 +82,11 @@ export type Client = {
 
 export type ClientList = {
   ids: string[],
-  [uid: string]: Client,
+  [uid: string]: Client & { status: KeyValue<DCNumber, boolean> },
 }
 
 export type State = {
-  active: boolean,
   client: ClientList,
-  netStatus: { [dc: number]: NetStatus },
-  invoke: (method: string, options: Object, opts: any) => Promise<any>,
-  storageSet: (key: string, value: any) => Promise<void>,
-  storageRemove: (...key: string[]) => Promise<void>,
-  status: ModuleStatus,
-  homeDc: number,
-  uid: string,
-  messageHistory: MessageHistory[],
   request: {
     api: List<ApiNewRequest, string>
   },
@@ -131,7 +123,8 @@ export type OnStorageImported = {
   +auth: { [dc: number]: number[] },
   +salt: { [dc: number]: number[] },
   +session: { [dc: number]: number[] },
-  +home: number,
+  +home: DCNumber,
+  +uid: UID,
 }
 
 export type OnReceiveResponse = {
@@ -148,4 +141,17 @@ export type OnNetSend = {
   threadID: string,
   thread: NetworkerThread,
   noResponseMsgs: string[],
+}
+
+export type OnDcDetected = {
+  dc: DCNumber,
+  uid: UID,
+}
+
+export type OnAuthResolve = {
+  dc: DCNumber,
+  uid: UID,
+  authKey: CryptoKey,
+  authKeyID: CryptoKey,
+  serverSalt: CryptoKey,
 }

@@ -10,7 +10,7 @@ const log = Logger`redux-core`
 import { type State } from './index.h'
 import rootReducer from './reducer'
 import rootEpic from './epic'
-import { skipEmptyMiddleware, normalizeActions, extendActions } from './middleware'
+import { skipEmptyMiddleware, normalizeActions, tryAddUid } from './middleware'
 import { emitState, onDispatch } from './portal'
 
 let composeEnhancers = compose
@@ -49,10 +49,11 @@ function configureStore(rootReducer: *, initialState: *) {
       //     'pending add',
       //   ]
       // }),
+      tryAddUid,
       skipEmptyMiddleware,
-      extendActions,
+      // extendActions,
       // debounceMiddleware,
-      epicMiddleware
+      epicMiddleware,
     )
   )
 
@@ -74,5 +75,3 @@ const rootStream: Stream<State> = from(store).multicast()
 rootStream.observe(emitState)
 
 export default store
-
-declare var __DEV__: boolean

@@ -20,16 +20,15 @@ import {
 import { isApiObject } from './fixtures'
 import parser from '../service/chain'
 import processing from './processing'
-import { dispatch } from '../state'
-import { MAIN } from 'Action'
-import { queryAuthKey, queryAuthID, querySalt, queryKeys } from '../state/query'
-import { MaybeT } from 'Util/monad-t'
+// import { dispatch } from 'State'
+// import { MAIN } from 'Action'
+import { queryKeys } from '../state/query'
+import { MaybeT } from 'Monad'
 import Config from 'ConfigProvider'
 
 import mergePatch from './merge-patch'
 
 import Logger from 'mtproto-logger'
-import { convertToUint8Array } from '../bin'
 const log = Logger`task-index`
 
 /*::
@@ -65,8 +64,9 @@ const decryptor = ({ thread, data, uid, dc, authID, auth, session, ...rest }) =>
   encaseP(parser, {
     responseBuffer: data,
     uid,
+    dc,
     authKeyID     : authID,
-    authKeyUint8  : convertToUint8Array(auth),
+    authKey       : auth,
     thisSessionID : session,
     prevSessionID : thread.prevSessionID,
     getMsgById    : thread.getMsgById,
@@ -81,34 +81,8 @@ function validateDecrypt(decrypted) {
   return of(decrypted)//{ ...input, ...decrypted }
 }
 
-let sess: string
-const sessList: string[] = []
-
 function flattenMessage(input): MessageDraft[] {
   const { messageID, seqNo, sessionID, message, response, net, thread: { uid } } = input
-  // console.warn(sessList)
-  // let token = String([...sessionID])
-  // if (!sess) {
-  //   sess = token
-  //   sessList.push(token)
-  // }
-  // console.warn(token, sess)
-  // if (sessList.includes(token) && sess && sess !== token)
-  //   return []
-  // if (!sessList.includes(token)) {
-  //   sess = token
-  //   sessList.push(token)
-  // }
-  // if (net.session) {
-  //   token = String([...net.session])
-  //   console.warn(token, sess)
-  //   if (sessList.includes(token) && sess !== token)
-  //     return []
-  //   if (!sessList.includes(token)) {
-  //     sess = token
-  //     sessList.push(token)
-  //   }
-  // }
   const result = checkContainer(response)
   if (result.isContainer) return flattenContainer(input, result.data)
   else return [{

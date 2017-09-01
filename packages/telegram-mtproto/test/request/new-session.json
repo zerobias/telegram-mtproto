@@ -1,0 +1,49 @@
+{
+  "result": {
+    "response": {
+      "_": "msg_container",
+      "messages": [
+        {
+          "_": "message",
+          "msg_id": "6448486923934659585",
+          "seqno": 1,
+          "bytes": 28,
+          "body": {
+            "_": "new_session_created",
+            "first_msg_id": "6448486920141313876",
+            "unique_id": "12421112012260657803",
+            "server_salt": "16110848152311059500"
+          }
+        },
+        {
+          "_": "message",
+          "msg_id": "6448486924172834817",
+          "seqno": 3,
+          "bytes": 28,
+          "body": {
+            "_": "rpc_result",
+            "req_msg_id": "6448486920141313876",
+            "result": {
+              "_": "nearestDc",
+              "country": "RU",
+              "this_dc": 1,
+              "nearest_dc": 2
+            }
+          }
+        }
+      ]
+    },
+    "messageID": "6448486926536356865",
+    "sessionID": {
+      "0": 105,
+      "1": 175,
+      "2": 5,
+      "3": 192,
+      "4": 212,
+      "5": 118,
+      "6": 138,
+      "7": 89
+    },
+    "seqNo": 4
+  }
+}

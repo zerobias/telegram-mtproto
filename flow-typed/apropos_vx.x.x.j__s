@@ -79,7 +79,7 @@ declare module 'apropos' {
    * @param {R} value
    * @returns {Apropos<L, R>}
    */
-  declare export function Right<-L, R>(value: R): Apropos<L, R>
+  declare export function Right</*::-*/L, R>(value: R): Apropos<L, R>
 
   /**
    * Create left-handed value.
@@ -91,7 +91,7 @@ declare module 'apropos' {
    * @param {L} value
    * @returns {Apropos<L, R>}
    */
-  declare export function Left<L, -R>(value: L): Apropos<L, R>
+  declare export function Left<L, /*::-*/R>(value: L): Apropos<L, R>
 
   /**
    * Create pure right-handed value
@@ -123,6 +123,6 @@ declare module 'apropos' {
    * @param {T} value
    * @returns {boolean}
    */
-  declare export function is<-T>(value: T): boolean
+  declare export function is</*::-*/T>(value: T): boolean
 
 }

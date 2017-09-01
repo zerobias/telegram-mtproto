@@ -1,0 +1,19 @@
+declare module 'folktale/maybe' {
+  declare export type MaybeMatcher<T, /*::+*/A, /*::+*/B> = {
+    Just(res: { value: T }): A,
+    Nothing(): B,
+  }
+  declare export class Maybe<T> {
+    getOrElse(onElse: T): T,
+    orElse(onElse: T): T,
+    map<S>(fn: (obj: T) => S): Maybe<S>,
+    chain<S>(fn: (obj: T) => Maybe<S>): Maybe<S>,
+    matchWith<A, B>(matcher: MaybeMatcher<T, A, B>): A | B
+  }
+  declare export function Just<T>(obj: T): Maybe<T>
+  declare export function of<T>(obj: T): Maybe<T>
+  declare export function Nothing</*::+*/T>(): Maybe<T>
+  declare export function empty</*::+*/T>(): Maybe<T>
+  declare export function fromNullable<T>(obj: ?T): Maybe<T>
+  declare export function hasInstance(obj: any): boolean
+}

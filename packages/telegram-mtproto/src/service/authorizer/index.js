@@ -3,7 +3,9 @@
 import { cache, Fluture, encaseP, of, reject } from 'fluture'
 
 import { DcUrlError } from '../../error'
-import Config from '../../config-provider'
+import Config from 'ConfigProvider'
+import { MAIN } from 'Action'
+import { dispatch } from 'State'
 import { Serialization, Deserialization } from '../../tl'
 
 import random from '../secure-random'
@@ -16,9 +18,10 @@ import { bpe, str2bigInt, one,
   dup, sub_, sub, greater } from '../../vendor/leemon'
 import {
   type DCNumber,
+  type UID,
   toCryptoKey,
   type CryptoKey,
-} from '../../state/index.h'
+} from 'Newtype'
 
 import {
   type ResPQ,
@@ -43,7 +46,7 @@ import Logger from 'mtproto-logger'
 
 const log = Logger`auth`
 
-export default function Auth(uid: string, dc: DCNumber) {
+export default function Auth(uid: UID, dc: DCNumber) {
   const savedReq = Config.authRequest.get(uid, dc)
   if (savedReq) {
     const req: typeof runThread = savedReq
@@ -52,6 +55,14 @@ export default function Auth(uid: string, dc: DCNumber) {
 
   const runThread = getUrl(uid, dc)
     .chain(url => authFuture(uid, dc, url))
+    .map(res => ({ ...res, uid }))
+    .chain(res => encaseP(async res => {
+      await Config.storage.set(uid, `dc${dc}_server_salt`, res.serverSalt)
+      await Config.storage.set(uid, `dc${dc}_auth_key`, res.authKey)
+      await Config.storage.set(uid, `dc${dc}_auth_id`, res.authKeyID)
+      return res
+    }, res))
+    .map(res => (dispatch(MAIN.AUTH.RESOLVE(res), uid), res))
   const future = cache(runThread)
   Config.authRequest.set(uid, dc, future)
   return future

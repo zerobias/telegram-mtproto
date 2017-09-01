@@ -1,7 +1,7 @@
 //@flow
 
 import Emitter from 'eventemitter2'
-import { fromEvent, type Stream } from 'most'
+import { fromEvent, Stream } from 'most'
 
 import { type State } from './index.h'
 
@@ -35,6 +35,4 @@ rootStream.observe(state => {
   currentState = state
 })
 
-export function getState(): State {
-  return currentState
-}
+export const getState: () => State = () => currentState

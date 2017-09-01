@@ -37,7 +37,6 @@ import {
   type ᐸMTᐳBadNotification,
   type ᐸMTᐳRpcResult,
 } from 'Mtp'
-import Status, { netStatuses, type NetStatus } from '../net-status'
 
 import Logger from 'mtproto-logger'
 import { applyServerTime } from '../service/time-manager'
@@ -371,18 +370,20 @@ function handleError(ctx: IncomingType, data: MessageUnit) {
     message,
   } = err
   if (migrateRegexp.test(message)) {
-    return handleMigrateError(message, data, code)
+    return handleMigrateError(message, data, code, ctx)
   } else {
     switch (message) {
-      case 'AUTH_KEY_UNREGISTERED': return handleAuthUnreg(message, data, code)
-      case 'AUTH_RESTART': return handleAuthRestart(message, data, code)
+      case 'AUTH_KEY_UNREGISTERED': return handleAuthUnreg(ctx, message, data, code)
+      case 'AUTH_RESTART': return handleAuthRestart(message, data, code, )
     }
 
   }
   return { info: data, patch: emptyPatch() }
 }
 
-function handleMigrateError(message, data, code) {
+function handleMigrateError(message, data, code, ctx) {
+  const uid = ctx.uid
+
   const matched = message.match(migrateRegexp)
   if (!matched || matched.length < 2)
     return { info: data, patch: emptyPatch() }
@@ -390,7 +391,23 @@ function handleMigrateError(message, data, code) {
   if (!isFinite(newDcID))
     return { info: data, patch: emptyPatch() }
   const newDc = parseInt(newDcID, 10)
-  // dispatch(MAIN.DC_CHANGED(newDc))
+  dispatch(MAIN.RECOVERY_MODE({
+    halt: data.dc,
+    recovery: newDc,
+    uid,
+  }), uid)
+  Config.fastCache.init(uid, ctx.dc)
+  Config.seq.set(uid, ctx.dc, 0)
+  //$off
+  Config.halt.set(uid, ctx.dc, true)
+  Config.session.set(uid, ctx.dc, null)
+  Promise.all([
+    Config.storage.set(uid, 'dc', newDc),
+    Config.storage.set(uid, 'nearest_dc', newDc)
+  ]).then(() => dispatch(MAIN.DC_DETECTED({
+    dc: newDc,
+    uid,
+  }, newDc), uid))
   const patch = {
     flags: {
       net : true,
@@ -444,9 +461,9 @@ function handleAuthRestart(message, data, code) {
   return { info, patch }
 }
 
-function handleAuthUnreg(message, data, code) {
-  const { dc } = data
-  // dispatch(MAIN.AUTH_UNREG(dc))
+function handleAuthUnreg(ctx: IncomingType, message, data, code) {
+  const { dc, uid } = ctx
+  dispatch(MAIN.AUTH_UNREG(dc), uid)
   const patch = {
     flags: {
       net    : true,

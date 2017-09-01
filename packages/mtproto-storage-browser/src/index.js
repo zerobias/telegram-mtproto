@@ -23,6 +23,11 @@ class BrowserStorage implements AsyncStorage {
     return this.storage.getItem(key)
   }
 
+  async has(key: string): Promise<boolean> {
+    const data = await this.get(key)
+    return data != null
+  }
+
   async set(key: string, val: mixed) {
     await this.storage.setItem(key, val)
   }

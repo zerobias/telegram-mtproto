@@ -1,6 +1,6 @@
 //@flow
 
-import { Stream, of, awaitPromises, periodic } from 'most'
+import { Stream, of, awaitPromises } from 'most'
 import { complement, toPairs, contains } from 'ramda'
 
 import Logger from 'mtproto-logger'
@@ -11,19 +11,16 @@ const log = Logger`epic-task`
 import { API, NET } from '../action'
 import normalize, { decrypt } from '../../task/new-index'
 import { type MessageUnit } from '../../task/index.h'
-import { requestMap, homeStatus } from '../signal'
-import jsonError from '../../util/json-error'
-import parser from '../../service/chain'
+import { requestMap } from '../signal'
+import jsonError from 'Util/json-error'
+// import parser from '../../service/chain'
 import {
-  queryAuthID,
-  queryAuthKey,
   queryAck,
 } from '../query'
 import NetworkerThread from '../../service/networker'
-import List from '../../util/immutable-list'
+import List from 'Util/immutable-list'
 import { type ApiNewRequest } from '../index.h'
-import Status, { netStatusGuard, netStatuses } from '../../net-status'
-import { bytesToHex, convertToUint8Array } from '../../bin'
+import { bytesToHex } from 'Bin'
 import { dispatch } from '../portal'
 import { tsNow } from '../../service/time-manager'
 import { NetContainer } from '../../service/networker/net-message'
@@ -38,16 +35,15 @@ const isHandled = (unit: MessageUnit) =>
 
 const notHandled = complement(isHandled)
 
-homeStatus.observe(e => console.log(`\n homeStatus \n`, e))
-
 
 export const onTaskEnd =
 (action: Stream<any>) => action
   .thru(API.TASK.DONE.stream)
   // .thru(guestStatus)
-  // .thru(e => netStatusGuard(netStatuses.halt, homeStatus, e))
+  // .thru(e => netStatusGuard(netStatuses.halt, homeSttus, e))
   // .thru(e => netStatusGuard(netStatuses.guest, guards, e))
   .map(e => e.payload)
+  .filter((list) => list.length === 0 || !Config.halt.get(list[0].uid, list[0].dc))
   .chain(normalized => {
     // const withData = normalized => ({ normalized, ...data })
     const handledList = normalized
@@ -124,20 +120,20 @@ export const receiveResponse = (action: Stream<any>) => action
     const { salt, auth } = summary
     const saltPairs = toPairs(salt)
     const authPairs = toPairs(auth)
-    for (const [dc, value] of saltPairs) {
-      if (!Array.isArray(value)) {
-        await Config.storage.remove(uid, `dc${dc}_server_salt`)
-      } else {
-        await Config.storage.set(uid, `dc${dc}_server_salt`, bytesToHex(value))
-      }
-    }
-    for (const [dc, value] of authPairs) {
-      if (!Array.isArray(value)) {
-        await Config.storage.remove(uid, `dc${dc}_auth_key`)
-      } else {
-        await Config.storage.set(uid, `dc${dc}_auth_key`, bytesToHex(value))
-      }
-    }
+    // for (const [dc, value] of saltPairs) {
+    //   if (!Array.isArray(value)) {
+    //     await Config.storage.remove(uid, `dc${dc}_server_salt`)
+    //   } else {
+    //     await Config.storage.set(uid, `dc${dc}_server_salt`, value)
+    //   }
+    // }
+    // for (const [dc, value] of authPairs) {
+    //   if (!Array.isArray(value)) {
+    //     await Config.storage.remove(uid, `dc${dc}_auth_key`)
+    //   } else {
+    //     await Config.storage.set(uid, `dc${dc}_auth_key`, value)
+    //   }
+    // }
 
     for (const id of flatPairs(summary.processAck)) {
       processMessageAck(uid, dc, id)
@@ -216,7 +212,7 @@ export const receiveResponse = (action: Stream<any>) => action
     // dispatch(NETWORKER_STATE.SENT.DEL(sentDel, thread.dcID))
     thread.checkConnectionPeriod = Math.max(1.1, Math.sqrt(thread.checkConnectionPeriod))
     thread.checkLongPoll()
-    return normalized
+    return normalized.map(obj => ({ ...obj, uid }))
   })
   .map(API.TASK.DONE)
   .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))

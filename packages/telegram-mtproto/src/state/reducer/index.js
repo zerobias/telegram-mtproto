@@ -7,115 +7,80 @@ import { createReducer } from 'redux-act'
 import {
   append,
   contains,
-  isEmpty,
-  dissoc,
-  assoc,
   without,
-  fromPairs,
-  filter,
   map,
-  lens,
-  over,
-  chain,
   values,
   takeLast,
 } from 'ramda'
-import { of, Left, Right } from 'apropos'
+// import { Pure, liftF } from '@safareli/free'
+// import { of, Left, Right } from 'apropos'
+// import { Maybe, Just, Nothing } from 'folktale/maybe'
 
-import {
-  type MessageHistory,
-  type OnRequestDone,
-  type State,
-  type Client,
-  type ClientList,
-  type InitType,
-  type OnSetStatus,
-  type OnSeqSet,
-  type OnAckAdd,
-  type OnStorageImported,
-  type CommandList,
-  type UID,
+import type {
+  ApiNewRequest,
+  State,
+  Client,
+  ClientList,
+  InitType,
+  OnSetStatus,
+  OnAckAdd,
+  OnStorageImported,
+  OnRecovery,
+  OnDcDetected,
+  OnAuthResolve,
 } from '../index.h'
+import { trimType } from '../helpers'
 import {
-  type Carrier,
-} from '../carrier'
-import { MAIN, NET, API, AUTH, NETWORKER_STATE } from 'Action'
-import keyStorage, { KeyStorage } from '../../util/key-storage'
-import { convertToUint8Array, convertToArrayBuffer, sha1BytesSync, bytesToHex } from '../../bin'
+  type UID,
+  type DCNumber,
+} from 'Newtype'
+import { MAIN, NET, API, AUTH } from 'Action'
+import keyStorage, { KeyStorage } from 'Util/key-storage'
+import {  KeyValue } from 'Monad'
+import { sha1BytesSync } from 'Bin'
 import { NetMessage } from '../../service/networker/net-message'
-import { guardedReducer, trimType } from '../helpers'
 // import networker from './networker-state'
+import ApiRequest from '../../service/main/request'
 import request from './request'
-import status from './status'
-import { statuses } from '../../status'
-import { netStatuses, type NetStatus } from '../../net-status'
+import { netStatuses, type NetStatus } from 'NetStatus'
+import Config from 'ConfigProvider'
 
 import { type PUnitList } from '../../task/index.h'
 
 const initial: any = {}
-
-const active = createReducer({
-  //$FlowIssue
-  [MAIN.ACTIVATED]: () => true,
-}, false)
 
 const uid = createReducer({
   //$FlowIssue
   [MAIN.INIT]: (state: string, payload: InitType) => payload.uid,
 }, '')
 
-const invoke = createReducer({
-  //$FlowIssue
-  [MAIN.INIT]: (state: $PropertyType<InitType, 'invoke'>, payload: InitType) => payload.invoke,
-}, () => {})
+// const storageSet = createReducer({
+//   //$ FlowIssue
+//   [MAIN.INIT]           : (state: StorageSet, payload: InitType) => payload.storageSet,
+//   //$ off
+//   [AUTH.SET_SERVER_SALT]: (state: StorageSet, payload: number[], { id }: { id: number }) => {
+//     state(`dc${id}_server_salt`, bytesToHex(payload))
+//     return state
+//   },
+//   //$ off
+//   [AUTH.SET_AUTH_KEY]: (state: StorageSet, payload: number[], { id }: { id: number }) => {
+//     state(`dc${id}_auth_key`, bytesToHex(payload))
+//     return state
+//   },
+// }, () => Promise.resolve(void 0))
 
-const storageSet = createReducer({
-  //$FlowIssue
-  [MAIN.INIT]           : (state: StorageSet, payload: InitType) => payload.storageSet,
-  //$off
-  [AUTH.SET_SERVER_SALT]: (state: StorageSet, payload: number[], { id }: { id: number }) => {
-    state(`dc${id}_server_salt`, bytesToHex(payload))
-    return state
-  },
-  //$off
-  [AUTH.SET_AUTH_KEY]: (state: StorageSet, payload: number[], { id }: { id: number }) => {
-    state(`dc${id}_auth_key`, bytesToHex(payload))
-    return state
-  },
-}, () => Promise.resolve(void 0))
-
-const storageRemove = createReducer({
-  //$FlowIssue
-  [MAIN.INIT]      : (state: StorageRemove, payload: InitType) => payload.storageRemove,
-  //$off
-  [MAIN.AUTH_UNREG]: (state: StorageRemove, payload: number) => {
-    state(`dc${payload}_auth_key`, `dc${payload}_server_salt`)
-    return state
-  },
-}, () => Promise.resolve(void 0))
-
-const messageHistory = createReducer({
-  //$ FlowIssue
-  // [API.REQUEST.DONE]: (state: MessageHistory[], { normalized }: OnRequestDone) =>
-  //   state.concat(normalized.map(msg => ({
-  //     id       : msg.id,
-  //     seq      : msg.seq,
-  //     direction: 'in',
-  //     message  : msg,
-  //   }))),
-  // //$ FlowIssue
-  // [NET.SEND]: (state: MessageHistory[], payload) =>
-  //   append({
-  //     id       : payload.message.msg_id,
-  //     seq      : payload.message.seq_no,
-  //     direction: 'out',
-  //     message  : payload.message,
-  //   }, state),
-}, [])
+// const storageRemove = createReducer({
+//   //$ FlowIssue
+//   [MAIN.INIT]      : (state: StorageRemove, payload: InitType) => payload.storageRemove,
+//   //$ off
+//   [MAIN.AUTH_UNREG]: (state: StorageRemove, payload: number) => {
+//     state(`dc${payload}_auth_key`, `dc${payload}_server_salt`)
+//     return state
+//   },
+// }, () => Promise.resolve(void 0))
 
 type AckMap = { [dc: number]: string[] }
 type NetStatusMap = { [dc: number]: NetStatus }
-type SeqMap = { [dc: number]: number }
 
 const ackDefault: AckMap = initial
 const pendingAck = createReducer({
@@ -131,6 +96,11 @@ const pendingAck = createReducer({
     const updated = without(ack, dcAcks)
     return { ...state, [dc | 0]: updated }
   },
+  //$off
+  [MAIN.RECOVERY_MODE]: (state: AckMap, { halt, recovery }: OnRecovery): AckMap =>  ({
+    ...state,
+    [halt]: [],
+  })
 }, ackDefault)
 
 // const guardedHomeDc = guardedReducer([
@@ -141,40 +111,44 @@ const homeDc = createReducer({
   //$off
   [MAIN.STORAGE_IMPORTED]: (state: number, { home }: OnStorageImported) => home,
   //$off
-  [MAIN.DC_DETECTED]     : (state: number, pay: { newDC: number }) => typeof pay === 'number'
-    ? pay
-    : pay.newDC,
+  [MAIN.DC_DETECTED]     : (state: number, { dc }: OnDcDetected) => dc,
   //$FlowIssue
-  [MAIN.DC_CHANGED]: (state: number, { newDC }: { newDC: number }) => newDC,
+  [MAIN.DC_CHANGED]      : (state: number, { newDC }: OnDcDetected) => newDC,
 }, 2)
 
 const iNetStatus: NetStatusMap = initial
-const iSeq: SeqMap = initial
 
 const netStatus = createReducer({
-  '[01] action carrier': (state: NetStatusMap, payload: PUnitList) => ({ ...state, ...payload.statuses }),
-  //$off
-  [MAIN.AUTH_UNREG]    : (state: NetStatusMap, payload: number) => ({ ...state, [payload]: netStatuses.halt }),
-  //$off
-  [NET.STATUS_SET]     : (state: NetStatusMap, payload: OnSetStatus) => ({
-    ...state,
-    ...payload.reduce((acc, { dc, status }) => ({ ...acc, [dc]: status }), {})
-  })
-}, iNetStatus)
+  // '[01] action carrier': (state: NetStatusMap, payload: PUnitList) => ({ ...state, ...payload.statuses }),
+  // //$off
+  // [MAIN.AUTH_UNREG]    : (state: NetStatusMap, payload: number) => ({ ...state, [payload]: netStatuses.halt }),
+  // //$off
+  // [NET.STATUS_SET]     : (state: NetStatusMap, payload: OnSetStatus) => ({
+  //   ...state,
+  //   ...payload.reduce((acc, { dc, status }) => ({ ...acc, [dc]: status }), {})
+  // })
+}, {
+  2: 'active'
+})
 
-
-
-const seq = createReducer({
+const dcDetected = createReducer({
   //$off
-  [NET.SEQ_SET]: (state: SeqMap, { dc, seq }: OnSeqSet): SeqMap => assoc(dc, seq, state)
-}, iSeq)
+  [MAIN.DC_DETECTED]: () => true,
+  //$off
+  [MAIN.DC_REJECTED]: () => false,
+}, false)
 
 const salt = createReducer({
+  //$off
+  // [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.serverSalt),
   //$off
   [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { salt }: OnStorageImported) => state.merge(salt),
   '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.salt),
   //$off
-  [AUTH.SET_SERVER_SALT] : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload)
+  [AUTH.SET_SERVER_SALT] : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload),
+  //$off
+  [MAIN.RECOVERY_MODE]   : (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
+    state.remove(halt)
 }, keyStorage())
 
 const auth = createReducer({
@@ -182,7 +156,12 @@ const auth = createReducer({
   [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { auth }: OnStorageImported) => state.merge(auth),
   '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.auth),
   //$off
-  [AUTH.SET_AUTH_KEY]    : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload)
+  // [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKey),
+  //$off
+  [AUTH.SET_AUTH_KEY]    : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload),
+  //$off
+  [MAIN.RECOVERY_MODE]   : (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
+    state.remove(halt)
 }, keyStorage())
 
 const authID = createReducer({
@@ -192,11 +171,16 @@ const authID = createReducer({
   //$off
     state.merge(map(makeAuthID, payload.summary.auth)),
   //$off
+  // [MAIN.AUTH.RESOLVE]: (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKeyID),
+  //$off
   [AUTH.SET_AUTH_KEY]: (state: KeyStorage, payload: number[], { id }: { id: number }) => {
     const sha1 = sha1BytesSync(payload)
     const authID = sha1.slice(-8)
     return state.set(id, authID)
-  }
+  },
+  //$off
+  [MAIN.RECOVERY_MODE]: (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
+    state.remove(halt)
 }, keyStorage())
 
 const makeAuthID = (auth: number[] | false): number[] | false => Array.isArray(auth)
@@ -225,58 +209,71 @@ const lastMessages = (state: string[], payload: PUnitList) => {
   return takeLast(100, newMsgs)
 }
 
-const commandListInit: CommandList = {
-  msgs: [],
-  commands: [],
-  byMsg: {},
-  byCommand: {},
-}
-const command: Reducer<CommandList> =
-(state: CommandList = commandListInit, action: any): CommandList => {
-  const {
-    type,
-    uid,
-    payload
-  }: {
-    type: string,
-    uid: UID,
-    payload: any,
-  } = action
-  const typeName = trimType(type)
-  if (typeName !== 'networker/sent add') return state;
-  (payload: NetMessage[])
-  const apiRequests: [string, string][] = payload
+
+function commandReducer(
+  state: KeyValue<string, string> = KeyValue.empty(),
+  action: any
+): KeyValue<string, string> {
+  const typeName = trimType(action.type)
+  if (typeName === 'main/recovery mode') return state
+  if (typeName !== 'networker/sent add') return state
+  const payload: NetMessage[] = action.payload
+  const apiRequests = payload
     .filter(msg => msg.isAPI)
-    .map(({ msg_id, requestID }) => [msg_id, requestID])
-  const flipped = apiRequests.map(([msg, id]) => [id, msg])
-  const commands: string[] = apiRequests.map(([_, id]) => id)
-  const msgs: string[] = apiRequests.map(([msg]) => msg)
-  const byMsg = { ...state.byMsg, ...fromPairs(apiRequests) }
-  const byCommand = { ...state.byCommand, ...fromPairs(flipped) }
-  return {
-    msgs: state.msgs.concat(msgs),
-    commands: state.commands.concat(commands),
-    byMsg,
-    byCommand,
-  }
+    .map(({ msg_id, requestID }) => [msg_id, requestID || ''])
+  return state.push(apiRequests)
 }
+
+const clientRequest = createReducer({
+  //$off
+  [API.REQUEST.NEW]: (
+    state: KeyValue<UID, ApiRequest>,
+    { netReq }: ApiNewRequest
+  ): KeyValue<UID, ApiRequest> =>
+    state.push([[netReq.requestID, netReq]])
+}, KeyValue.empty())
 
 const client: Reducer<Client> = combineReducers({
   uid,
   homeDc,
-  command,
-  seq,
+  command: commandReducer,
+  request: clientRequest,
+  dcDetected,
+  netStatus,
+  // seq,
   salt,
   auth,
   authID,
   pendingAck,
+  status : createReducer({}, {})
 })
+
+function statusWatch(state: Client) {
+  const dcList = Config.dcList(state.uid)
+  const singleStatus = dc =>
+    state.auth.has(dc)
+    && state.authID.has(dc)
+    && state.salt.has(dc)
+  const kv: KeyValue<DCNumber, boolean> = KeyValue.empty()
+  return kv.push(
+    dcList
+      .map(dc => [dc, singleStatus(dc)]))
+}
+
+const decoratedClient: Reducer<Client & { status: KeyValue<DCNumber, boolean> }> =
+(state, action) => {
+  const currentState = client(state, action)
+  return {
+    ...currentState,
+    status: statusWatch(currentState)
+  }
+}
 
 const clientReducer: Reducer<ClientList> = (state: ClientList = { ids: [] }, action: any) => {
   if (typeof action.uid !== 'string') return state
   const uid: string = action.uid
   const oldValue = state[uid]
-  const newValue = client(oldValue, action)
+  const newValue = decoratedClient(oldValue, action)
   if (oldValue === newValue) return state
   return {
     ...state,
@@ -287,15 +284,6 @@ const clientReducer: Reducer<ClientList> = (state: ClientList = { ids: [] }, act
 
 const mainReducer: Reducer<State> = combineReducers({
   client      : clientReducer,
-  status,
-  netStatus,
-  invoke,
-  storageSet,
-  storageRemove,
-  active,
-  homeDc,
-  uid,
-  messageHistory,
   request,
   lastMessages: createReducer({
     '[01] action carrier': lastMessages
@@ -389,28 +377,6 @@ function idsReducer(state: string[], uid: string): string[] {
 //     }
 //   }
 // }, {})
-
-function statusWatcher(state: State) {
-  // const dcList = [...new Set([].concat(
-  //   state.auth.ids,
-  //   state.salt.ids,
-  //   // state.session.ids,
-  // ))].map(dc => ({
-  //   dc,
-  //   auth: state.auth.get(dc),
-  //   salt: state.salt.get(dc),
-  //   // session: state.session.get(dc),
-  // }))
-  // let statuses = state.netStatus
-  // for (const data of dcList) {
-  //   if (!data.auth || !data.salt/*  || !data.session */) {
-  //     statuses = { ...statuses, [data.dc]: netStatuses.load }
-  //   } else
-  //     statuses = { ...statuses, [data.dc]: netStatuses.active }
-  // }
-  // return { ...state, netStatus: statuses }
-  return state
-}
 
 // const reducer: Reducer<State> = (state, payload: any) =>
 //   statusWatcher(

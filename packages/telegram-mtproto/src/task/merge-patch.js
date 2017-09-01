@@ -1,6 +1,6 @@
 //@flow
-import { join } from 'path'
-import { outputJsonSync } from 'fs-extra'
+// import { join } from 'path'
+// import { outputJsonSync } from 'fs-extra'
 
 import { mergeWith, concat, append, groupBy, pipe, map, last, filter, fromPairs, contains } from 'ramda'
 
@@ -17,31 +17,28 @@ import {
   type DcAuth
 } from './index.h'
 import {
-  queryAuthID,
-  querySalt,
-  queryAuthKey,
   queryKeys,
 } from '../state/query'
 
 import singleHandler from './single-handler'
 
 import Logger from 'mtproto-logger'
-import Status, { netStatuses, type NetStatus } from '../net-status'
+import { netStatuses, type NetStatus } from '../net-status'
 const log = Logger`merge-patch`
 
-const testID = String((Date.now() - ((Date.now() / 1e8) | 0) * 1e8) / 1e3 | 0)
+// const testID = String((Date.now() - ((Date.now() / 1e8) | 0) * 1e8) / 1e3 | 0)
 
-let event = 0
-const eventId = () => String( ++event )
-
-const LOG_PATH = [process.cwd(), 'logs', testID]
+// let event = 0
+// const eventId = () => String( ++event )
+//
+// const LOG_PATH = [process.cwd(), 'logs', testID]
 
 export default function mergePatch(ctx: *, processed: MessageUnit[]) {
   const { message, summary } = processed
     .reduce((acc, msg) => {
       const { message, summary } = singleHandler(ctx, msg)
-      const file = join(...LOG_PATH, eventId() + '.json')
-      outputJsonSync(file, { message, summary }, { spaces: 2 })
+      // const file = join(...LOG_PATH, eventId() + '.json')
+      // outputJsonSync(file, { message, summary }, { spaces: 2 })
       return {
         message: append(message, acc.message),
         summary: append(summary, acc.summary),
@@ -186,11 +183,11 @@ function joinDcAuth(summary) {
 }
 
 const emptyDcAuth: DcAuth = {
-  auth   : false,
-  salt   : false,
+  auth: false,
+  salt: false,
 }
 
-const detectStatus = (uid: string) => (dc, dcAuth: DcAuth) => {
+const detectStatus = (uid) => (dc, dcAuth: DcAuth) => {
 
   let initialData = dcAuth
   const fromState = queryKeys(uid, dc).orElse(() => ({

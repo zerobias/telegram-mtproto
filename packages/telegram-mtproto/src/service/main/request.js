@@ -1,8 +1,8 @@
 //@flow
 
-import uuid from 'uuid/v4'
-import { type Defer } from '../../util/defer'
-import blueDefer from '../../util/defer'
+import blueDefer, { type Defer } from 'Util/defer'
+import { type DCNumber } from 'Newtype'
+import uuid from 'Util/uuid'
 
 export type ApiMethod = {
   method: string,
@@ -10,25 +10,30 @@ export type ApiMethod = {
 }
 
 export type RequestOptions = {
-  dc: number | '@@home',
-  requestID: string
+  dc: DCNumber,
+  requestID: string,
+  resultType: string,
 }
 
-class ApiRequest {
+
+export default class ApiRequest {
   data: ApiMethod
-  requestID: string = uuid()
+  requestID: UID = uuid()
+  uid: UID
   defer: Defer
   deferFinal: Defer
-  invoke: () => void
   needAuth: boolean
   options: RequestOptions
-  constructor(data: ApiMethod,
-              options: RequestOptions,
-              invoke: (val: ApiRequest) => any) {
+  constructor(
+    data: ApiMethod,
+    options: RequestOptions,
+    uid: UID
+  ) {
+    options.requestID = this.requestID
+    this.uid = uid
     this.data = data
     this.options = options
     this.needAuth = !allowNoAuth(data.method)
-    // this.messageID = options.messageID
     Object.defineProperty(this, 'defer', {
       value     : blueDefer(),
       enumerable: false,
@@ -39,13 +44,15 @@ class ApiRequest {
       enumerable: false,
       writable  : true,
     })
-    Object.defineProperty(this, 'invoke', {
-      value     : () => { invoke(this) },
-      enumerable: false,
-      writable  : true,
-    })
   }
 }
+
+declare var ap: ApiRequest
+
+/*::
+const fromUuid = uuid()
+type UID = typeof fromUuid
+*/
 
 const noAuthMethods = [
   'auth.sendCode',
@@ -60,5 +67,3 @@ const noAuthMethods = [
 
 const allowNoAuth = (method: string) =>
   noAuthMethods.indexOf(method) > -1
-
-export default ApiRequest

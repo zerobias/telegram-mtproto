@@ -1,10 +1,22 @@
 //@flow
 
 import { Right, Left, of, ofL, type Apropos } from 'apropos'
-import { append } from 'ramda'
+import { append, without, contains, once, into } from 'ramda'
 import { Fluture, of as resolve, reject, Future } from 'fluture'
 import { Maybe, Just, Nothing, fromNullable } from 'folktale/maybe'
 
+import * as Identity from './identity'
+
+export {
+  Identity
+}
+
+
+import OnlyStatic from '../only-static'
+import { TupleT, Tuple } from './tuple'
+
+export { TupleT, Tuple }
+export { KeyValue } from './key-value'
 
 export function maybeAp<I, O>(fn: Maybe<((x: I) => O)>, val: Maybe<I>): Maybe<O> {
   return val.chain(data => fn.map(f => f(data)))
@@ -37,11 +49,99 @@ type FoldMerge<L, R> = <LI, RI>(
   fluture: Fluture<RI, LI>
 ) => Fluture<Apropos<L, R>, void>
 
-// const d = futureEitherWrap(Future((rj, rs) => {
-//   if ('abc'.length > 1) rs(0)
-//   else rj('00')
-//   }))
+export type λOrd<M> = {
+  +min: M,
+  +max: M,
+  compare(a: M, b: M): (-1 | 0 | 1),
+  of<-T>(data: T): M,
+}
 
+export class Ord<M> {
+  /*:: +*/x: M
+  /*:: +*/statics: λOrd<M>
+  constructor(x: M, statics: λOrd<M>) {
+    this.x /*:: ; const xx*/ = x
+    this.statics/*:: ; const yy*/ = statics
+  }
+  compare(y: M): (-1 | 0 | 1) {
+    return this.statics.compare(this.x, y)
+  }
+  lt(y: M): boolean {
+    return this.statics.compare(this.x, y) === -1
+  }
+  gt(y: M): boolean {
+    return this.statics.compare(this.x, y) === 1
+  }
+  equals(y: M): boolean {
+    return this.statics.compare(this.x, y) === 0
+  }
+}
+
+export function ord<M>(statics: λOrd<M>): ((x: M) => Ord<M>) {
+  return (x: M) => new Ord(x, statics)
+}
+
+
+
+export const λEndo = {
+  empty<+O>(): Endo<O, O> {
+    return new Endo(x => x)
+  },
+  of<I, O>(fn: (x: I) => O): Endo<I, O> {
+    return new Endo(fn)
+  }
+}
+
+export class Endo<I, O> {
+  /*:: + */λ: ((x: I) => O)
+  constructor(fn: ((x: I) => O)) {
+    this.λ/*:: ; const yy*/ = fn
+  }
+  concat<Iʹ>(y: Endo<Iʹ, I>): Endo<Iʹ, O> {
+    return new Endo((x: Iʹ) => this.λ(y.λ(x)))
+  }
+}
+
+type λDual<M> = {
+  ord(x: M): Ord<M>,
+  of<-T>(data: T): M,
+  empty(): M,
+}
+
+class Dual<M> {
+  /*:: +*/x: M
+  /*:: +*/statics: λDual<M>
+  constructor(x: M, statics: λDual<M>) {
+    this.x /*:: ; const xx*/ = x
+    this.statics/*:: ; const yy*/ = statics
+  }
+  equals(y: M) {
+    return this.statics.ord(this.x).equals(y)
+  }
+  // of<T>(x: T): Dual<M> {
+  //   return new Dual(this.statics.of(x), this.statics)
+  // }
+  // empty(): Dual<M> {
+  //   return new Dual(this.statics.empty(), this.statics)
+  // }
+}
+
+// const Dual = M => {
+//
+//     const Dual = tagged('x');
+//
+//     Dual[of] = x => Dual(M[of](x));
+//     Dual[empty] = () => Dual(M[empty]());
+//
+//     Dual.prototype[equals] = function(y) {
+//         return this.x[equals](y.x);
+//     };
+//     Dual.prototype[concat] = function(y) {
+//         return Dual(y.x[concat](this.x));
+//     };
+//
+//     return Dual;
+// }
 
 export class FutureEither<Reject, Resolve> {
   value: Fluture<Apropos<Reject, Resolve>, *>
@@ -95,12 +195,6 @@ export function eitherToFuture<L, R>(either: Apropos<L, R>): Fluture<R, L> {
   })
 }
 
-class OnlyStatic {
-  constructor() {
-    throw new Error(`Created instance of only static class`)
-  }
-}
-
 export class FutureT extends OnlyStatic {
   static futureEither<L, R>(future: Fluture<R, L>): FutureEither<L, R> {
     const wrapped = futureEitherWrap(future)
@@ -133,6 +227,8 @@ export class EitherT extends OnlyStatic {
       })
   }
 }
+
+
 
 export class MaybeT extends OnlyStatic {
   static traverse = traverseMaybe
@@ -198,14 +294,20 @@ export class MaybeT extends OnlyStatic {
     return MaybeT.toFuture(() => void 0, m)
   }
 
-  static isJust</*::-*/T>(x: Maybe<T>): boolean {
-    return x.matchWith(/*::(*/isJustMatcher/*::, {
-      Just(x: any) { return true },
-      Nothing() { return false },
-    })*/)
+  static isJust<-T>(x: Maybe<T>): boolean {
+    return x.matchWith(
+      /*:: ( */
+        isJustMatcher
+      /*:: , { Just(x: any) { return true }, Nothing() { return false } }) */
+    )
   }
 
 }
+
+
+export { These } from './these'
+export type { λThese } from './these'
+
 
 const futureValue = x => resolve(x).mapRej(a => void 0)
 

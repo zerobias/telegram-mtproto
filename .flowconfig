@@ -16,7 +16,7 @@
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/*.json
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/jss/*
 <PROJECT_ROOT>/packages/telegram-mtproto/node_modules/mezzanine/*
-<PROJECT_ROOT>/packages/telegram-mtproto/src/fp/*
+<PROJECT_ROOT>/packages/telegram-mtproto/src/fl/*
 <PROJECT_ROOT>/packages/telegram-mtproto/src/util/profunctor/*
 <PROJECT_ROOT>/node_modules/mezzanine/*
 <PROJECT_ROOT>/node_modules/config-chain/*
@@ -25,7 +25,6 @@
 <PROJECT_ROOT>/node_modules/jss/*
 <PROJECT_ROOT>/node_modules/fbjs/*
 <PROJECT_ROOT>/node_modules/funfix/index.js.flow
-<PROJECT_ROOT>/flow/*
 .*/dist/.*
 .*/logs/.*
 .*/examples/.*
@@ -46,6 +45,7 @@ all=warn
 untyped-type-import=error
 
 [libs]
+./flow/
 ./flow-typed
 💩 <PROJECT_ROOT>/node_modules/apropos
 💩 ./node_modules/funfix/dist/funfix.js.flow
@@ -87,6 +87,10 @@ module.name_mapper='^ConfigProvider$' -> '<PROJECT_ROOT>/packages/telegram-mtpro
 module.name_mapper='^Util\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/util\1'
 module.name_mapper='^NetStatus$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/net-status'
 module.name_mapper='^Mtp$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/mtp.h.js'
+module.name_mapper='^Newtype$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/newtype.h.js'
+module.name_mapper='^Bin$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/bin'
+module.name_mapper='^Monad$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/util/monad-t'
+module.name_mapper='^telegram-mtproto$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src'
 module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/telegram-mtproto/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/mtproto-shared/node_modules

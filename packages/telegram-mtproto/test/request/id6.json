@@ -1,0 +1,175 @@
+{
+  "meta": {
+    "_": "api",
+    "id": "6448433038340670465"
+  },
+  "type": "[18] api/request done",
+  "payload": {
+    "result": {
+      "response": {
+        "_": "msg_container",
+        "messages": [
+          {
+            "_": "message",
+            "msg_id": "6448433038340637697",
+            "seqno": 5,
+            "bytes": 52,
+            "body": {
+              "_": "rpc_result",
+              "req_msg_id": "6448433035026275716"
+            }
+          },
+          {
+            "_": "message",
+            "msg_id": "6448433038340655105",
+            "seqno": 6,
+            "bytes": 20,
+            "body": {
+              "_": "msgs_ack",
+              "msg_ids": [
+                "6448433035022018596"
+              ]
+            }
+          }
+        ]
+      },
+      "messageID": "6448433038340670465",
+      "sessionID": {
+        "0": 149,
+        "1": 145,
+        "2": 115,
+        "3": 44,
+        "4": 203,
+        "5": 161,
+        "6": 6,
+        "7": 49
+      },
+      "seqNo": 6
+    },
+    "thread": {
+      "threadID": "9f679fb5-0cd0-4e0d-b573-b30a47274bb9",
+      "upload": false,
+      "pendingAcks": [],
+      "state": {
+        "sent": {},
+        "pending": {},
+        "resend": {}
+      },
+      "connectionInited": true,
+      "checkConnectionPeriod": 1.1,
+      "lastServerMessages": [
+        "6448432969202091009",
+        "6448432969469575169",
+        "6448433038340637697",
+        "6448433038342304769",
+        "6448433038340655105"
+      ],
+      "uid": "a52343a5-e269-4509-a99f-7938eee81aac",
+      "dcID": 2,
+      "iii": 2,
+      "longPoll": {
+        "maxWait": 25000,
+        "pendingTime": 1501392680338,
+        "requestTime": 1501392655338,
+        "isActive": true,
+        "alreadyWaitPending": false,
+        "pending": {}
+      },
+      "serverSalt": [
+        78,
+        238,
+        184,
+        46,
+        113,
+        23,
+        221,
+        158
+      ],
+      "seqNo": 9,
+      "sessionID": [
+        149,
+        145,
+        115,
+        44,
+        203,
+        161,
+        6,
+        49
+      ],
+      "offline": false,
+      "nextReqPromise": {
+        "isFulfilled": false,
+        "isRejected": false
+      }
+    },
+    "message": {
+      "acked": false,
+      "container": true,
+      "notContentRelated": false,
+      "createNetworker": false,
+      "longPoll": false,
+      "type": "container",
+      "uid": "a52343a5-e269-4509-a99f-7938eee81aac",
+      "msg_id": "6448433035055885436",
+      "seq_no": 14,
+      "inner": [
+        "6448433035022018596",
+        "6448433035026275716",
+        "6448433035034781092"
+      ],
+      "dc": 2
+    },
+    "messages": [
+      {
+        "chiral": "Right",
+        "value": {
+          "ids": {
+            "real": "6448433038340670465",
+            "box": "6448433038340670465",
+            "req": "6448433038340670465"
+          },
+          "type": "msg_container",
+          "meta": {},
+          "data": [
+            "6448433038340637697",
+            "6448433038340655105"
+          ]
+        }
+      },
+      {
+        "chiral": "Right",
+        "value": {
+          "ids": {
+            "real": "6448433038340637697",
+            "box": "6448433038340670465",
+            "req": "6448433035026275716"
+          },
+          "type": "rpc_result",
+          "meta": {},
+          "data": {
+            "_": "rpc_result",
+            "req_msg_id": "6448433035026275716"
+          }
+        }
+      },
+      {
+        "chiral": "Right",
+        "value": {
+          "ids": {
+            "real": "6448433038340655105",
+            "box": "6448433038340670465",
+            "req": "6448433038340655105"
+          },
+          "type": "msgs_ack",
+          "meta": {},
+          "data": {
+            "_": "msgs_ack",
+            "msg_ids": [
+              "6448433035022018596"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

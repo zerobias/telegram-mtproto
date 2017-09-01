@@ -2,86 +2,89 @@
 
 /* eslint-disable no-unused-vars, no-redeclare */
 
-type Transformer<A,B> = {
-  '@@transducer/step': <I,R>(r: A, a: *) => R,
-  '@@transducer/init': () => A,
-  '@@transducer/result': (result: *) => B
-}
-
-declare type UnaryFn<A,R> = (a: A) => R;
-declare type BinaryFn<A,B,R> = ((a: A, b: B) => R) & ((a:A) => (b: B) => R);
-declare type UnarySameTypeFn<T> = UnaryFn<T,T>
-declare type BinarySameTypeFn<T> = BinaryFn<T,T,T>
-declare type NestedObject<T> = { [k: string]: T | NestedObject<T> }
-declare type UnaryPredicateFn<T> = (x:T) => boolean
-declare type BinaryPredicateFn<T> = (x:T, y:T) => boolean
-declare type BinaryPredicateFn2<T,S> = (x:T, y:S) => boolean
-
-
-declare interface ObjPredicate {
-  (value: any, key: string): boolean;
-}
-
-declare type CurriedFunction2<T1, T2, R> =
-  & ((t1: T1, t2: T2) => R)
-  & ((t1: T1, ...rest: Array<void>) => (t2: T2) => R)
-
-declare type CurriedFunction3<T1, T2, T3, R> =
-  & ((t1: T1, t2: T2, t3: T3) => R)
-  & ((t1: T1, t2: T2, ...rest: Array<void>) => (t3: T3) => R)
-  & ((t1: T1, ...rest: Array<void>) => CurriedFunction2<T2, T3, R>)
-
-declare type CurriedFunction4<T1, T2, T3, T4, R> =
-  & ((t1: T1, t2: T2, t3: T3, t4: T4) => R)
-  & ((t1: T1, t2: T2, t3: T3, ...rest: Array<void>) => (t4: T4) => R)
-  & ((t1: T1, t2: T2, ...rest: Array<void>) => CurriedFunction2<T3, T4, R>)
-  & ((t1: T1, ...rest: Array<void>) => CurriedFunction3<T2, T3, T4, R>)
-
-declare type CurriedFunction5<T1, T2, T3, T4, T5, R> =
-  & ((t1: T1) => CurriedFunction4<T2, T3, T4, T5, R>)
-  & ((t1: T1, t2: T2) => CurriedFunction3<T3, T4, T5, R>)
-  & ((t1: T1, t2: T2, t3: T3) => CurriedFunction2<T4, T5, R>)
-  & ((t1: T1, t2: T2, t3: T3, t4: T4) => (t5: T5) => R)
-  & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5) => R)
-
-declare type CurriedFunction6<T1, T2, T3, T4, T5, T6, R> =
-  & ((t1: T1) => CurriedFunction5<T2, T3, T4, T5, T6, R>)
-  & ((t1: T1, t2: T2) => CurriedFunction4<T3, T4, T5, T6, R>)
-  & ((t1: T1, t2: T2, t3: T3) => CurriedFunction3<T4, T5, T6, R>)
-  & ((t1: T1, t2: T2, t3: T3, t4: T4) => CurriedFunction2<T5, T6, R>)
-  & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5) => (t6: T6) => R)
-  & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5, t6: T6) => R)
-
-
-declare type Curry = & (<T1, T2, TResult>(fn: (a: T1, b: T2) => TResult) => CurriedFunction2<T1,T2, TResult>)
-  & (<T1, T2, T3, TResult>(fn: (a: T1, b: T2, c: T3) => TResult) => CurriedFunction3<T1,T2, T3, TResult>)
-  & (<T1, T2, T3, T4, TResult>(fn: (a: T1, b: T2, c: T3, d: T4) => TResult) => CurriedFunction4<T1,T2, T3, T4, TResult>)
-  & (<T1, T2, T3, T4, T5, TResult>(fn: (a: T1, b: T2, c: T3, d: T4, e: T5) => TResult) => CurriedFunction5<T1,T2, T3, T4, T5, TResult>)
-  & (<T1, T2, T3, T4, T5, T6, TResult>(fn: (a: T1, b: T2, c: T3, d: T4, e: T5, f: T6) => TResult) => CurriedFunction6<T1,T2, T3, T4, T5, T6, TResult>)
-  & ((fn: Function) => Function)
-
-
-declare class Monad<T> {
-  chain: Function
-}
-
-declare class Semigroup<T> {}
-
-declare class Chain {
-  chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V, x: V): V;
-  chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V): (x: V) => V;
-}
-
-declare class GenericContructor<T> {
-  constructor(x: T): GenericContructor<any>
-}
-
-declare class GenericContructorMulti {
-  constructor(...args: Array<any>): GenericContructor<any>
-}
 
 
 declare module 'ramda' {
+
+
+  declare type Transformer<A,B> = {
+    '@@transducer/step': <I,R>(r: A, a: *) => R,
+    '@@transducer/init': () => A,
+    '@@transducer/result': (result: *) => B
+  }
+
+  declare type UnaryFn<A,R> = (a: A) => R;
+  declare type BinaryFn<A,B,R> = ((a: A, b: B) => R) & ((a:A) => (b: B) => R);
+  declare type UnarySameTypeFn<T> = UnaryFn<T,T>
+  declare type BinarySameTypeFn<T> = BinaryFn<T,T,T>
+  declare type NestedObject<T> = { [k: string]: T | NestedObject<T> }
+  declare type UnaryPredicateFn<T> = (x:T) => boolean
+  declare type BinaryPredicateFn<T> = (x:T, y:T) => boolean
+  declare type BinaryPredicateFn2<T,S> = (x:T, y:S) => boolean
+
+
+  declare interface ObjPredicate {
+    (value: any, key: string): boolean;
+  }
+
+  declare type CurriedFunction2<T1, T2, R> =
+    & ((t1: T1, t2: T2) => R)
+    & ((t1: T1, ...rest: Array<void>) => (t2: T2) => R)
+
+  declare type CurriedFunction3<T1, T2, T3, R> =
+    & ((t1: T1, t2: T2, t3: T3) => R)
+    & ((t1: T1, t2: T2, ...rest: Array<void>) => (t3: T3) => R)
+    & ((t1: T1, ...rest: Array<void>) => CurriedFunction2<T2, T3, R>)
+
+  declare type CurriedFunction4<T1, T2, T3, T4, R> =
+    & ((t1: T1, t2: T2, t3: T3, t4: T4) => R)
+    & ((t1: T1, t2: T2, t3: T3, ...rest: Array<void>) => (t4: T4) => R)
+    & ((t1: T1, t2: T2, ...rest: Array<void>) => CurriedFunction2<T3, T4, R>)
+    & ((t1: T1, ...rest: Array<void>) => CurriedFunction3<T2, T3, T4, R>)
+
+  declare type CurriedFunction5<T1, T2, T3, T4, T5, R> =
+    & ((t1: T1) => CurriedFunction4<T2, T3, T4, T5, R>)
+    & ((t1: T1, t2: T2) => CurriedFunction3<T3, T4, T5, R>)
+    & ((t1: T1, t2: T2, t3: T3) => CurriedFunction2<T4, T5, R>)
+    & ((t1: T1, t2: T2, t3: T3, t4: T4) => (t5: T5) => R)
+    & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5) => R)
+
+  declare type CurriedFunction6<T1, T2, T3, T4, T5, T6, R> =
+    & ((t1: T1) => CurriedFunction5<T2, T3, T4, T5, T6, R>)
+    & ((t1: T1, t2: T2) => CurriedFunction4<T3, T4, T5, T6, R>)
+    & ((t1: T1, t2: T2, t3: T3) => CurriedFunction3<T4, T5, T6, R>)
+    & ((t1: T1, t2: T2, t3: T3, t4: T4) => CurriedFunction2<T5, T6, R>)
+    & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5) => (t6: T6) => R)
+    & ((t1: T1, t2: T2, t3: T3, t4: T4, t5: T5, t6: T6) => R)
+
+
+  declare type Curry = & (<T1, T2, TResult>(fn: (a: T1, b: T2) => TResult) => CurriedFunction2<T1,T2, TResult>)
+    & (<T1, T2, T3, TResult>(fn: (a: T1, b: T2, c: T3) => TResult) => CurriedFunction3<T1,T2, T3, TResult>)
+    & (<T1, T2, T3, T4, TResult>(fn: (a: T1, b: T2, c: T3, d: T4) => TResult) => CurriedFunction4<T1,T2, T3, T4, TResult>)
+    & (<T1, T2, T3, T4, T5, TResult>(fn: (a: T1, b: T2, c: T3, d: T4, e: T5) => TResult) => CurriedFunction5<T1,T2, T3, T4, T5, TResult>)
+    & (<T1, T2, T3, T4, T5, T6, TResult>(fn: (a: T1, b: T2, c: T3, d: T4, e: T5, f: T6) => TResult) => CurriedFunction6<T1,T2, T3, T4, T5, T6, TResult>)
+    & ((fn: Function) => Function)
+
+
+  declare class Monad<T> {
+    chain: Function
+  }
+
+  declare class Semigroup<T> {}
+
+  declare class Chain {
+    chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V, x: V): V;
+    chain<T,V: Monad<T>|Array<T>>(fn: (a:T) => V): (x: V) => V;
+  }
+
+  declare class GenericContructor<T> {
+    constructor(x: T): GenericContructor<any>
+  }
+
+  declare class GenericContructorMulti {
+    constructor(...args: Array<any>): GenericContructor<any>
+  }
+
   declare export function pipe<A,B,C,D,E,F,G,H>(
     ab: (a: A) => B,
     bc: (b: B) => C,
@@ -945,318 +948,314 @@ declare module 'ramda' {
   declare export function when<T,V,S>(pred: UnaryPredicateFn<T>, fn: (x: S) => V, ...rest: Array<void>): (x: T|S) => V|T;
   declare export function when<T,V,S>(pred: UnaryPredicateFn<T>, fn: (x: S) => V, x: T|S): T|V;
 }
-
-declare module 'ramda/src/both' {
-
-  declare function both<T>(
-    x: (e: T) => boolean,
-    no: void
-  ): (y: (e: T) => boolean) =>
-    (e: T) => boolean;
-
-  declare function both<T, S>(
-    x: (e: T) => boolean,
-    y: (e: S) => boolean
-  ): (e: (T & S)|T) => boolean;
-  declare export default typeof both;
-}
-
-declare module 'ramda/src/chain' {
-
-  //NOTE: class Monad<T> { chain: Function }
-
-  declare function chain<T,V: { chain: Function }>(
-    fn: (a:T) => V,
-    x: V
-  ): V;
-
-  declare function chain<T,V: { chain: Function }>(
-    fn: (a:T) => V,
-    no: void
-  ): (x: V) => V;
-
-  declare function chain<T>(
-    fn: (a:T) => Array<T>,
-    x: Array<T>
-  ): Array<T>;
-
-  declare function chain<T>(
-    fn: (a:T) => Array<T>,
-    no: void
-  ): (x: Array<T>) => Array<T>;
-
-  declare export default typeof chain;
-}
-
-declare module 'ramda/src/contains' {
-  declare function contains(x: string, xs: string|Array<string>): boolean
-  declare function contains(x: string, no: void): (xs: string|Array<string>) => boolean
-  declare function contains<E>(x: E, xs: Array<E>): boolean
-  declare function contains<E>(x: E, no: void): (xs: Array<E>) => boolean
-
-  declare export default typeof contains;
-}
-
-declare module 'ramda/src/find' {
-  declare export function find<V,O:{[key:string]:*},T:Array<V>|O>(fn: UnaryPredicateFn<V>, ...rest: Array<void>): (xs:T|O) => ?V|O;
-  declare export function find<V,O:{[key:string]:*},T:Array<V>|O>(fn: UnaryPredicateFn<V>, xs:T|O): ?V|O;
-  declare export default typeof find;
-
-}
-
-declare module 'ramda/src/flatten' {
-  declare function flatten<E, T: Array<Array<E> | E> | Array<E> | E>(xs:
-  Array<
-    Array<
-      Array<
-        Array<T>
-        | T
-      >
-      | Array<T>
-      | T
-    >
-    | Array<
-      Array<T>
-      | T
-    >
-    | Array<T>
-    | T
-  >): Array<E>;
-  declare export default typeof flatten;
-}
-
-declare module 'ramda/src/has' {
-  declare type Has =
-    <T: { [key: string | number]: any }>(propName: string | number) => (obj: T) => boolean |
-    <T: { [key: string | number]: any }>(propName: string | number, obj: T) => boolean;
-  declare export function has(key: string | number, o: Object): boolean;
-  declare export function has(key: string | number):(o: Object) => boolean;
-  declare export default typeof has;
-}
-
-declare module 'ramda/src/is' {
-  declare function is<T>(t: T): (v: any) => boolean;
-  declare function is<T>(t: T, v: any): boolean;
-  declare export default typeof is;
-}
-
-declare module 'ramda/src/isEmpty' {
-  declare export function isEmpty(x:?Array<any>|Object|string): boolean;
-  declare export default typeof isEmpty;
-}
-
-declare module 'ramda/src/join' {
-  declare function join(x: string, xs: Array<any>): string
-  declare function join(x: string, no: void): (xs: Array<any>) => string
-  declare export default typeof join;
-}
-
-declare module 'ramda/src/map' {
-
-  declare function map<T,R>(
-    fn: (a: T) => R,
-    xs: Array<T>
-  ): Array<R>
-
-  declare function map<T,R,S: { map: Function }>(
-    fn: (a: T) => R,
-    xs: S
-  ): S
-
-  declare function map<T,R>(
-    fn: (a: T) => R,
-    no: void
-  ): (a: Array<T>) => Array<R>
-
-  declare function map<T,R>(
-    fn: (a: T) => R,
-    no: void
-  ): (a: { [key: string]: T }) =>
-    { [key: string]: R }
-
-  declare function map<T,R,S: { map: Function }>(
-    fn: (a: T) => R,
-    no: void
-  ): (a: T) => T
-
-  declare function map<T,R>(
-    fn: (a: T) => R,
-    xs: { [key: string]: T }
-  ): { [key: string]: R }
-
-  declare export default typeof map
-}
-
-declare module 'ramda/src/mapObjIndexed' {
-  declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, o: {[key: string]: A}): {[key: string]: B};
-  declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B): (o: {[key: string]: A}) => {[key: string]: B};
-  declare export default typeof mapObjIndexed;
-}
-
-declare module 'ramda/src/pathEq' {
-  declare type PathEq =
-    // <T: DataType>(pathList: KeyType[]) => (eq: *) => (obj: T) => boolean |
-    <T: { [key: string | number]: any }>(pathList: Array<string | number>, eq: *) => (obj: T) => boolean
-    // | <T: DataType>(pathList: KeyType[], eq: *, obj: T) => boolean
-
-  declare export default PathEq;
-}
-
-declare module 'ramda/src/pipe' {
-  declare function pipe<A,B,C,D,E,F,G,H>(
-    ab: (a: A) => B,
-    bc: (b: B) => C,
-    cd: (c: C) => D,
-    de: (d: D) => E,
-    ef: (e: E) => F,
-    fg: (f: F) => G,
-    gh: (g: G) => H
-  ): (a: A) => H
-  declare function pipe<A,B,C,D,E,F,G>(
-    ab: (a: A) => B,
-    bc: (b: B) => C,
-    cd: (c: C) => D,
-    de: (d: D) => E,
-    ef: (e: E) => F,
-    fg: (f: F) => G
-  ): (a: A) => G
-  declare function pipe<A,B,C,D,E,F>(
-    ab: (a: A) => B,
-    bc: (b: B) => C,
-    cd: (c: C) => D,
-    de: (d: D) => E,
-    ef: (e: E) => F
-  ): (a: A) => F
-  declare function pipe<A,B,C,D,E>(
-    ab: (a: A) => B,
-    bc: (b: B) => C,
-    cd: (c: C) => D,
-    de: (d: D) => E
-  ): (a: A) => E
-  declare function pipe<A,B,C,D>(
-    ab: (a: A) => B,
-    bc: (b: B) => C,
-    cd: (c: C) => D
-  ): (a: A) => D
-  declare function pipe<A,B,C>(
-    ab: (a: A) => B,
-    bc: (b: B) => C
-  ): (a: A) => C
-  declare function pipe<A,B>(
-    ab: (a: A) => B
-  ): (a: A) => B
-  declare export default typeof pipe;
-}
-
-declare module 'ramda/src/prop' {
-  declare type PropType =
-    <Key: string | number, Value, T: { [key: Key]: Value }>(propName: Key) => (obj: T) => Value |
-    <Key: string | number, Value, T: { [key: Key]: Value }>(propName: Key, obj: T) => Value
-
-  declare export default PropType;
-}
-
-declare module 'ramda/src/propEq' {
-  declare type PropEq = <T: { [key: string | number]: any }>(propName: string | number, eq: *, obj: T) => boolean |
-    <T: { [key: string | number]: any }>(propName: string | number) => (eq: *) => (obj: T) => boolean
-
-  declare export function propEq(prop: string, ...rest: Array<void>): ((val: *, o: {[k:string]: *}) => boolean) & ((val: *, ...rest: Array<void>) => (o: {[k:string]: *}) => boolean)
-  declare export function propEq(prop: string, val: *, ...rest: Array<void>): (o: {[k:string]: *}) => boolean;
-  declare export function propEq(prop: string, val: *, o: {[k:string]:*}): boolean;
-
-  declare export default typeof propEq;
-}
-
-declare module 'ramda/src/reject' {
-  declare function reject<V>(fn: (pred: V) => boolean, xs: Array<V>): Array<V>
-  declare function reject<V>(fn: (pred: V) => boolean, xs: {[key: string]:V}): {[key: string]:V}
-  declare function reject<V>(fn: (pred: V) => boolean, no: void): (xs: Array<V>) => Array<V>
-  declare function reject<V>(fn: (pred: V) => boolean, no: void): (xs: {[key: string]:V}) => {[key: string]:V}
-
-  declare export default typeof reject;
-}
-
-declare module 'ramda/src/replace' {
-  declare function replace(t1: RegExp|string, t2: string, t3: string): string
-  declare function replace(t1: RegExp|string, t2: string): (t3: string) => string
-
-  declare export default typeof replace;
-}
-
-declare module 'ramda/src/split' {
-  declare function split(pattern: RegExp|string, source: string): Array<string>
-  declare function split(pattern: RegExp|string, no: void): (source: string) => Array<string>
-  declare export default typeof split
-}
-
-declare module 'ramda/src/take' {
-  declare function taken<T: Array<*>>(arr: T): T
-  declare function taken(str: string): string
-
-  declare function take<T: Array<*>>(n: number, arr: T): T;
-  declare function take(n: number, str: string): string;
-  declare function take(n: number): typeof taken;
-  declare export default typeof take;
-}
-
-declare module 'ramda/src/toLower' {
-  declare function toLower(a: string): string;
-  declare export default typeof toLower;
-}
-
-declare module 'ramda/src/toString' {
-  declare export default (obj: *) => string;
-}
-
-declare module 'ramda/src/toUpper' {
-  declare function toUpper(a: string): string;
-  declare export default typeof toUpper;
-}
-
-declare module 'ramda/src/trim' {
-  declare export function trim(str: string): string;
-  declare export default typeof trim;
-}
-
-declare module 'ramda/src/unapply' {
-  declare export type Unapply = <T,V>(fn: (xs: T[]) => V) => (...args: T[]) => V;
-
-  declare var unapply: Unapply<*, *>;
-
-  declare export default Unapply;
-}
-
-declare module 'ramda/src/unnest' {
-  // declare type NestedArray = $PropertyType<$Exports<'ramda'>, 'NestedArray'>;
-  // declare function unnest<T>(xs: NestedArray<T>): NestedArray<T>;
-  declare type Unnest = <T>(xs: Array<T | T[]>) => T[];
-  declare export default Unnest;
-}
-
-declare module 'ramda/src/when' {
-  declare function when<T,V,S>(
-    pred: (a: T) => boolean,
-    no1: void,
-    no2: void
-  ): (fn: (a: S) => V, no: void) =>
-    (x: T|S) => T|V
-
-  declare function when<T,V,S>(
-    pred: (a: T) => boolean,
-    no1: void,
-    no2: void
-  ): (fn: (a: S) => V, x: T|S) => T|V
-
-  declare function when<T,V,S>(
-    pred: (a: T) => boolean,
-    fn: (a: S) => V,
-    no: void
-  ): (x: T|S) => V|T;
-  declare function when<T,V,S>(
-    pred: (a: T) => boolean,
-    fn: (a: S) => V,
-    x: T|S
-  ): T|V;
-
-  declare export default typeof when;
-}
+//
+// declare module 'ramda/src/both' {
+//
+//   declare function both<T>(
+//     x: (e: T) => boolean,
+//     no: void
+//   ): (y: (e: T) => boolean) =>
+//     (e: T) => boolean;
+//
+//   declare function both<T, S>(
+//     x: (e: T) => boolean,
+//     y: (e: S) => boolean
+//   ): (e: (T & S)|T) => boolean;
+//   declare export default typeof both;
+// }
+//
+// declare module 'ramda/src/chain' {
+//
+//   //NOTE: class Monad<T> { chain: Function }
+//
+//   declare function chain<T,V: { chain: Function }>(
+//     fn: (a:T) => V,
+//     x: V
+//   ): V;
+//
+//   declare function chain<T,V: { chain: Function }>(
+//     fn: (a:T) => V,
+//     no: void
+//   ): (x: V) => V;
+//
+//   declare function chain<T>(
+//     fn: (a:T) => Array<T>,
+//     x: Array<T>
+//   ): Array<T>;
+//
+//   declare function chain<T>(
+//     fn: (a:T) => Array<T>,
+//     no: void
+//   ): (x: Array<T>) => Array<T>;
+//
+//   declare export default typeof chain;
+// }
+//
+// declare module 'ramda/src/contains' {
+//   declare function contains(x: string, xs: string|Array<string>): boolean
+//   declare function contains(x: string, no: void): (xs: string|Array<string>) => boolean
+//   declare function contains<E>(x: E, xs: Array<E>): boolean
+//   declare function contains<E>(x: E, no: void): (xs: Array<E>) => boolean
+//
+//   declare export default typeof contains;
+// }
+//
+// declare module 'ramda/src/find' {
+//   declare export function find<V,O:{[key:string]:*},T:Array<V>|O>(fn: UnaryPredicateFn<V>, ...rest: Array<void>): (xs:T|O) => ?V|O;
+//   declare export function find<V,O:{[key:string]:*},T:Array<V>|O>(fn: UnaryPredicateFn<V>, xs:T|O): ?V|O;
+//   declare export default typeof find;
+//
+// }
+//
+// declare module 'ramda/src/flatten' {
+//   declare function flatten<E, T: Array<Array<E> | E> | Array<E> | E>(xs:
+//   Array<
+//     Array<
+//       Array<
+//         Array<T>
+//         | T
+//       >
+//       | Array<T>
+//       | T
+//     >
+//     | Array<
+//       Array<T>
+//       | T
+//     >
+//     | Array<T>
+//     | T
+//   >): Array<E>;
+//   declare export default typeof flatten;
+// }
+//
+// declare module 'ramda/src/has' {
+//   declare type Has =
+//     <T: { [key: string | number]: any }>(propName: string | number) => (obj: T) => boolean |
+//     <T: { [key: string | number]: any }>(propName: string | number, obj: T) => boolean;
+//   declare export function has(key: string | number, o: Object): boolean;
+//   declare export function has(key: string | number):(o: Object) => boolean;
+//   declare export default typeof has;
+// }
+//
+// declare module 'ramda/src/is' {
+//   declare function is<T>(t: T): (v: any) => boolean;
+//   declare function is<T>(t: T, v: any): boolean;
+//   declare export default typeof is;
+// }
+//
+// declare module 'ramda/src/isEmpty' {
+//   declare export function isEmpty(x:?Array<any>|Object|string): boolean;
+//   declare export default typeof isEmpty;
+// }
+//
+// declare module 'ramda/src/join' {
+//   declare function join(x: string, xs: Array<any>): string
+//   declare function join(x: string, no: void): (xs: Array<any>) => string
+//   declare export default typeof join;
+// }
+//
+// declare module 'ramda/src/map' {
+//
+//   declare function map<T,R>(
+//     fn: (a: T) => R,
+//     xs: Array<T>
+//   ): Array<R>
+//
+//   declare function map<T,R,S: { map: Function }>(
+//     fn: (a: T) => R,
+//     xs: S
+//   ): S
+//
+//   declare function map<T,R>(
+//     fn: (a: T) => R,
+//     no: void
+//   ): (a: Array<T>) => Array<R>
+//
+//   declare function map<T,R>(
+//     fn: (a: T) => R,
+//     no: void
+//   ): (a: { [key: string]: T }) =>
+//     { [key: string]: R }
+//
+//   declare function map<T,R,S: { map: Function }>(
+//     fn: (a: T) => R,
+//     no: void
+//   ): (a: T) => T
+//
+//   declare function map<T,R>(
+//     fn: (a: T) => R,
+//     xs: { [key: string]: T }
+//   ): { [key: string]: R }
+//
+//   declare export default typeof map
+// }
+//
+// declare module 'ramda/src/mapObjIndexed' {
+//   declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B, o: {[key: string]: A}): {[key: string]: B};
+//   declare function mapObjIndexed<A,B>(fn: (val: A, key: string, o: Object) => B): (o: {[key: string]: A}) => {[key: string]: B};
+//   declare export default typeof mapObjIndexed;
+// }
+//
+// declare module 'ramda/src/pathEq' {
+//   declare type PathEq =
+//     // <T: DataType>(pathList: KeyType[]) => (eq: *) => (obj: T) => boolean |
+//     <T: { [key: string | number]: any }>(pathList: Array<string | number>, eq: *) => (obj: T) => boolean
+//     // | <T: DataType>(pathList: KeyType[], eq: *, obj: T) => boolean
+//
+//   declare export default PathEq;
+// }
+//
+// declare module 'ramda/src/pipe' {
+//   declare function pipe<A,B,C,D,E,F,G,H>(
+//     ab: (a: A) => B,
+//     bc: (b: B) => C,
+//     cd: (c: C) => D,
+//     de: (d: D) => E,
+//     ef: (e: E) => F,
+//     fg: (f: F) => G,
+//     gh: (g: G) => H
+//   ): (a: A) => H
+//   declare function pipe<A,B,C,D,E,F,G>(
+//     ab: (a: A) => B,
+//     bc: (b: B) => C,
+//     cd: (c: C) => D,
+//     de: (d: D) => E,
+//     ef: (e: E) => F,
+//     fg: (f: F) => G
+//   ): (a: A) => G
+//   declare function pipe<A,B,C,D,E,F>(
+//     ab: (a: A) => B,
+//     bc: (b: B) => C,
+//     cd: (c: C) => D,
+//     de: (d: D) => E,
+//     ef: (e: E) => F
+//   ): (a: A) => F
+//   declare function pipe<A,B,C,D,E>(
+//     ab: (a: A) => B,
+//     bc: (b: B) => C,
+//     cd: (c: C) => D,
+//     de: (d: D) => E
+//   ): (a: A) => E
+//   declare function pipe<A,B,C,D>(
+//     ab: (a: A) => B,
+//     bc: (b: B) => C,
+//     cd: (c: C) => D
+//   ): (a: A) => D
+//   declare function pipe<A,B,C>(
+//     ab: (a: A) => B,
+//     bc: (b: B) => C
+//   ): (a: A) => C
+//   declare function pipe<A,B>(
+//     ab: (a: A) => B
+//   ): (a: A) => B
+//   declare export default typeof pipe;
+// }
+//
+// declare module 'ramda/src/prop' {
+//   declare type PropType =
+//     <Key: string | number, Value, T: { [key: Key]: Value }>(propName: Key) => (obj: T) => Value |
+//     <Key: string | number, Value, T: { [key: Key]: Value }>(propName: Key, obj: T) => Value
+//
+//   declare export default PropType;
+// }
+//
+// declare module 'ramda/src/propEq' {
+//   declare type PropEq = <T: { [key: string | number]: any }>(propName: string | number, eq: *, obj: T) => boolean |
+//     <T: { [key: string | number]: any }>(propName: string | number) => (eq: *) => (obj: T) => boolean
+//
+//   declare export function propEq(prop: string, ...rest: Array<void>): ((val: *, o: {[k:string]: *}) => boolean) & ((val: *, ...rest: Array<void>) => (o: {[k:string]: *}) => boolean)
+//   declare export function propEq(prop: string, val: *, ...rest: Array<void>): (o: {[k:string]: *}) => boolean;
+//   declare export function propEq(prop: string, val: *, o: {[k:string]:*}): boolean;
+//
+//   declare export default typeof propEq;
+// }
+//
+// declare module 'ramda/src/reject' {
+//   declare function reject<V>(fn: (pred: V) => boolean, xs: Array<V>): Array<V>
+//   declare function reject<V>(fn: (pred: V) => boolean, xs: {[key: string]:V}): {[key: string]:V}
+//   declare function reject<V>(fn: (pred: V) => boolean, no: void): (xs: Array<V>) => Array<V>
+//   declare function reject<V>(fn: (pred: V) => boolean, no: void): (xs: {[key: string]:V}) => {[key: string]:V}
+//
+//   declare export default typeof reject;
+// }
+//
+// declare module 'ramda/src/replace' {
+//   declare function replace(t1: RegExp|string, t2: string, t3: string): string
+//   declare function replace(t1: RegExp|string, t2: string): (t3: string) => string
+//
+//   declare export default typeof replace;
+// }
+//
+// declare module 'ramda/src/split' {
+//   declare function split(pattern: RegExp|string, source: string): Array<string>
+//   declare function split(pattern: RegExp|string, no: void): (source: string) => Array<string>
+//   declare export default typeof split
+// }
+//
+// declare module 'ramda/src/take' {
+//   declare function taken<T: Array<*>>(arr: T): T
+//   declare function taken(str: string): string
+//
+//   declare function take<T: Array<*>>(n: number, arr: T): T;
+//   declare function take(n: number, str: string): string;
+//   declare function take(n: number): typeof taken;
+//   declare export default typeof take;
+// }
+//
+// declare module 'ramda/src/toLower' {
+//   declare function toLower(a: string): string;
+//   declare export default typeof toLower;
+// }
+//
+// declare module 'ramda/src/toUpper' {
+//   declare function toUpper(a: string): string;
+//   declare export default typeof toUpper;
+// }
+//
+// declare module 'ramda/src/trim' {
+//   declare export function trim(str: string): string;
+//   declare export default typeof trim;
+// }
+//
+// declare module 'ramda/src/unapply' {
+//   declare export type Unapply = <T,V>(fn: (xs: T[]) => V) => (...args: T[]) => V;
+//
+//   declare var unapply: Unapply<*, *>;
+//
+//   declare export default Unapply;
+// }
+//
+// declare module 'ramda/src/unnest' {
+//   // declare type NestedArray = $PropertyType<$Exports<'ramda'>, 'NestedArray'>;
+//   // declare function unnest<T>(xs: NestedArray<T>): NestedArray<T>;
+//   declare type Unnest = <T>(xs: Array<T | T[]>) => T[];
+//   declare export default Unnest;
+// }
+//
+// declare module 'ramda/src/when' {
+//   declare function when<T,V,S>(
+//     pred: (a: T) => boolean,
+//     no1: void,
+//     no2: void
+//   ): (fn: (a: S) => V, no: void) =>
+//     (x: T|S) => T|V
+//
+//   declare function when<T,V,S>(
+//     pred: (a: T) => boolean,
+//     no1: void,
+//     no2: void
+//   ): (fn: (a: S) => V, x: T|S) => T|V
+//
+//   declare function when<T,V,S>(
+//     pred: (a: T) => boolean,
+//     fn: (a: S) => V,
+//     no: void
+//   ): (x: T|S) => V|T;
+//   declare function when<T,V,S>(
+//     pred: (a: T) => boolean,
+//     fn: (a: S) => V,
+//     x: T|S
+//   ): T|V;
+//
+//   declare export default typeof when;
+// }

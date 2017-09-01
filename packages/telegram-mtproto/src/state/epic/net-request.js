@@ -7,27 +7,28 @@ import Logger from 'mtproto-logger'
 const log = Logger`net-request`
 
 import { statuses, statusGuard } from '../../status'
-import { API, NET } from '../action'
+import { API, NET } from 'Action'
 import { NetMessage } from '../../service/networker/net-message'
 import NetworkerThread from '../../service/networker'
 import { apiMessage, mtMessage, encryptApiBytes } from '../../service/chain/encrypted-message'
 import Config from 'ConfigProvider'
 import { Serialization } from '../../tl'
 import { send } from '../../http'
-import { homeStatus, moduleStatus } from '../signal'
-import jsonError from '../../util/json-error'
+import jsonError from 'Util/json-error'
 import {
   queryAuthID,
   querySalt,
   queryAuthKey,
   queryKeys,
 } from '../query'
-import Status, { netStatusGuard, netStatuses } from '../../net-status'
-import { MaybeT } from 'Util/monad-t'
-import { toUID } from '../index.h'
+import Status, { netStatusGuard, netStatuses } from 'NetStatus'
+import { MaybeT } from 'Monad'
+import { toUID } from 'Newtype'
+import { makeAuthRequest } from '../../service/invoke'
 
 function makeApiBytes({ uid, dc, message, thread, ...rest }) {
   const keys = queryKeys(uid, dc)
+  console.error('keys', keys)
   const session = Config.session.get(uid, dc)
   if (!MaybeT.isJust(keys))
     throw new TypeError(`No session! ${String(keys)}`)
@@ -69,7 +70,7 @@ export function onNewRequest(action$: Stream<any>){
 
   const casual = action
     .filter(data => data.netReq.needAuth)
-    .thru(e => statusGuard(statuses.activated, moduleStatus, e))
+    // .thru(e => statusGuard(statuses.activated, moduleStatus, e))
     // .thru(e => netStatusGuard(netStatuses.active, homeStatus, e))
     // .delay(150)
 
@@ -87,7 +88,7 @@ export function onNewRequest(action$: Stream<any>){
       withHome,
       uid
     ) */
-    .thru(e => statusGuard(statuses.activated, moduleStatus, e))
+    // .thru(e => statusGuard(statuses.activated, moduleStatus, e))
     // .thru(e => netStatusGuard(netStatuses.guest, homeStatus, e))
     // .thru(guestStatus)
     // .thru(e => netStatusGuard(netStatuses.active, homeStatus, e))
@@ -97,16 +98,17 @@ export function onNewRequest(action$: Stream<any>){
 export const onNewTask = (action: Stream<any>) => action
   .thru(API.TASK.NEW.stream)
   .map(e => e.payload)
-  // .chain(e => of(e).delay(200))
+  .chain(e => of(e).delay(200))
   // .delay(100)
   // .thru(e => netStatusGuard(netStatuses.halt, homeStatus, e))
   // .thru(guestStatus)
   .tap(val => console.warn('onNewTask', val))
-  .tap(val => {
-    Array.isArray(val)
-      ? val.map(v => v.netReq.invoke())
-      : val.netReq.invoke()
-  })
+  .map(val => val.map(i => makeAuthRequest(i).promise()))
+  // .tap(val => {
+  //   Array.isArray(val)
+  //     ? val.map(v => v.netReq.invoke())
+  //     : val.netReq.invoke()
+  // })
   .filter(() => false)
 
 function encryption(ctx) {
@@ -151,8 +153,9 @@ const netRequest = (action: Stream<any>) => action
   .thru(NET.SEND.stream)
   .map(e => e.payload)
   .map(data => ({ ...data, dc: data.thread.dcID }))
-  .map(data => ({ ...data, uid: /*:: toUID(*/ data.thread.uid /*:: )*/ }))
+  .map(data => ({ ...data, uid: data.thread.uid }))
   .map(data => ({ ...data, url: Config.dcMap(data.uid, data.dc) }))
+  .filter(({ dc, uid }) => !Config.halt.get(uid, dc))
   .map(data => makeApiBytes(data).chain(encryption).promise())
   .thru(awaitPromises)
   .tap(data => console.warn('RECIEVE RESP', data))

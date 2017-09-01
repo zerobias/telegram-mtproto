@@ -26,6 +26,7 @@
     }
   },
   "globals": {
+    "__DEV__": true
   },
   "env": {
     "node"  : true,

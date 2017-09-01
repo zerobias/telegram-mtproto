@@ -3,7 +3,7 @@
 import {
   type DCNumber,
   toDCNumber,
-} from '../state/index.h'
+} from 'Newtype'
 
 type DcSettings = {
   dev: boolean,
@@ -16,8 +16,8 @@ const defaults: DcSettings = {
 }
 
 type SingleDc = {|
-  id: number,
-  host: string
+  +id: number,
+  +host: string,
 |}
 
 type DcConfig = {|

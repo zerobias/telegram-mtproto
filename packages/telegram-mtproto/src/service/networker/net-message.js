@@ -1,8 +1,8 @@
 //@flow
 
 import { generateID } from '../time-manager'
-import blueDefer from '../../util/defer'
-import { type Defer } from '../../util/defer'
+import blueDefer, { type Defer } from 'Util/defer'
+import { type DCNumber } from 'Newtype'
 
 type BodyBytes = number[] | Uint8Array
 
@@ -26,7 +26,7 @@ export class NetMessage {
   notContentRelated: boolean = false
   deferred: Defer
   requestID: ?string
-  dc: number
+  dc: DCNumber
   noShedule: ?boolean
   resultType: ?string
   createNetworker: boolean = false
@@ -72,7 +72,7 @@ export class NetMessage {
     else if (this.body != null) return this.body.length
     return 0*/
   }
-  clone(seq_no: number, dc: number/* | '@@home'*/): NetMessage {
+  clone(seq_no: number, dc: DCNumber): NetMessage {
     const copy = new NetMessage(this.uid, seq_no, this.body, this.type)
     const result = clone(this, copy, dc)
     return result
@@ -103,14 +103,14 @@ export class NetContainer extends NetMessage {
     this.inner = inner
     this.innerAPI = innerApi
   }
-  clone(seq_no: number, dc: number/* | '@@home'*/): NetContainer {
+  clone(seq_no: number, dc: DCNumber): NetContainer {
     const copy = new NetContainer(this.uid, seq_no, this.body, this.inner, this.innerAPI /*:: || [] */)
     const result = clone(this, copy, dc)
     return result
   }
 }
 
-function clone <+T: NetMessage>(orig: T, copy: T, dc: number): T {
+function clone <+T: NetMessage>(orig: T, copy: T, dc: DCNumber): T {
   copy.dc = dc
   copy.isAPI = orig.isAPI
   copy.notContentRelated = orig.notContentRelated

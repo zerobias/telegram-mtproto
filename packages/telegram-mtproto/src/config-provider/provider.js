@@ -5,7 +5,7 @@ import { type AsyncStorage } from 'mtproto-shared'
 
 import { ProviderRegistryError } from '../error'
 import { type TLSchema } from '../tl/index.h'
-import { type DCNumber } from '../state/index.h'
+import { type DCNumber } from 'Newtype'
 import {
   type PublicKey,
   type PublicKeyExtended,
@@ -35,6 +35,7 @@ export function registerInstance(config: $Diff<InstanceConfig, InstanceDiff>) {
     fastCache    : {},
     thread       : {},
     authRequest  : {},
+    halt         : {},
     publicKeys   : {},
     lastMessageID: [0, 0]
   }
@@ -56,6 +57,7 @@ type InstanceConfig = {
   authRequest: { [dc: number]: Fluture<*, *> },
   seq: { [dc: number]: number },
   session: { [dc: number]: number[] },
+  halt: { [dc: number]: boolean },
   thread: { [dc: number]: NetworkerThread },
   fastCache: { [dc: number]: L1Cache },
   /*::+*/schema: {|
@@ -76,6 +78,7 @@ type InstanceDiff = {
   lastMessageID: [number, number],
   authRequest: { [dc: number]: Fluture<*, *> },
   thread: { [dc: number]: NetworkerThread },
+  halt: { [dc: number]: boolean },
   fastCache: { [dc: number]: L1Cache },
   keyManager(fingerprints: string[]): PublicKeyExtended,
   publicKeys: { [key: string]: PublicKey },

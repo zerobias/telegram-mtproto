@@ -11,6 +11,7 @@ export default class L1Cache {
   sent: MessageMap = new Map()
   pending: PendingMap = new Map()
   resend: ResendSet = new Set()
+  messages: Map<string, NetMessage> = new Map
   addResend(msg_id: string) {
     return this.resend.add(msg_id)
   }

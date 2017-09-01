@@ -1,37 +1,37 @@
 //@flow
 
 import Bluebird from 'bluebird'
-import uuid from 'uuid/v4'
+import uuid from 'Util/uuid'
 import { contains, toPairs } from 'ramda'
 import { fromEvent } from 'most'
 import Emitter, { type Emit } from 'eventemitter2'
+import { smartTimeout, immediate } from 'mtproto-shared'
 
 import { tsNow } from '../time-manager'
 import { NetMessage, NetContainer } from './net-message'
-import { smartTimeout, immediate } from 'mtproto-shared'
 
-import { Serialization } from '../../tl'
+import { Serialization, TypeWriter } from '../../tl'
 import { writeInnerMessage } from '../chain/perform-request'
 import Config from 'ConfigProvider'
 import { requestNextSeq } from '../../state/reaction'
-import { queryAck } from '../../state/query'
-
-import Logger from 'mtproto-logger'
-
-const log = Logger`networker`
-
-import { TypeWriter } from '../../tl'
+import { queryAck, queryHomeDc } from '../../state/query'
+import ApiRequest from '../main/request'
 import { writeInt, writeBytes, writeLong } from '../../tl/writer'
 
 import LongPoll from '../../plugins/long-poll'
-import { NET, NETWORKER_STATE, AUTH } from '../../state/action'
+import { NET, NETWORKER_STATE, AUTH } from 'Action'
 import { type ApiConfig } from '../main/index.h'
 
-import { type DCNumber } from '../../state/index.h'
-import { dispatch } from '../../state'
-import { homeDc } from '../../state/signal'
+import {
+  type DCNumber,
+  type UID,
+} from 'Newtype'
+import { dispatch } from 'State'
 import { type ACFlags, makeCarrierAction } from '../../state/carrier'
 import L1Cache from '../../l1-cache'
+
+import Logger from 'mtproto-logger'
+const log = Logger`networker`
 
 let iii = 0
 let akStopped = false
@@ -66,9 +66,15 @@ function addAfterMessage(serialBox: TypeWriter, id: string) {
   writeLong(serialBox, id, 'msg_id')
 }
 
+function isHomeDC(uid, dc) {
+  return queryHomeDc(uid)
+    .map(x => x === dc)
+    .fold(() => false, x => x)
+}
+
 export class NetworkerThread {
-  threadID: string = uuid()
-  uid: string
+  threadID: UID = uuid()
+  uid: UID
   dcID: DCNumber
   authKeyBuffer: ArrayBuffer
   serverSalt: number[]
@@ -90,9 +96,8 @@ export class NetworkerThread {
     req_msg_id: string,
     resend_msg_ids: string[],
   } | void
-  isHome = false
 
-  constructor(dc: number,authKey: number[],serverSalt: number[], uid: string) {
+  constructor(dc: number, authKey: number[], serverSalt: number[], uid: UID) {
     this.uid = uid
     const emitter = Config.rootEmitter(this.uid)
     this.emit = emitter.emit
@@ -112,7 +117,7 @@ export class NetworkerThread {
         enumerable: false,
       },
       wrapMtpCall: {
-        value: this.wrapMtpCall.bind(this),
+        value     : this.wrapMtpCall.bind(this),
         enumerable: false,
       }
     })
@@ -125,19 +130,15 @@ export class NetworkerThread {
     //   storage.set(keyNames.authKey, bytesToHex(authKey)),
     //   storage.set(keyNames.saltKey, bytesToHex(serverSalt))
     // ]).then(() => {
-    console.warn('authKey', authKey)
-    dispatch(AUTH.SET_AUTH_KEY(authKey, dc), uid)
-    console.warn('serverSalt', serverSalt)
-    dispatch(AUTH.SET_SERVER_SALT(serverSalt, dc), uid)
+    // console.warn('authKey', authKey)
+    // dispatch(AUTH.SET_AUTH_KEY(authKey, dc), uid)
+    // console.warn('serverSalt', serverSalt)
+    // dispatch(AUTH.SET_SERVER_SALT(serverSalt, dc), uid)
     // })
 
     emitter.emit('new-networker', this)
 
     // this.updateSession()
-    homeDc.observe(newHome => {
-      if (isFinite(newHome))
-        this.isHome = newHome === this.dcID
-    })
     setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
     this.checkLongPoll()
   }
@@ -188,10 +189,10 @@ export class NetworkerThread {
       flags,
       net: {
         flags: {
-          add: true,
+          add   : true,
           delete: true,
         },
-        add: [newMessage],
+        add   : [newMessage],
         delete: [sentMessage]
       }
     }), this.uid)
@@ -245,22 +246,24 @@ export class NetworkerThread {
     logGroup`MT message, result`(object)
     logGroup`is acks`(isAcks)
     logGroup.groupEnd()
-    verifyInnerMessages(object.msg_ids)
     this.pushMessage(message, options)
     return message
   }
 
-  wrapApiCall(
-    method: string,
-    params: { [key: string]: mixed } = {},
-    options: Object,
-    requestID: ?string = null
-  ): NetMessage {
+  wrapApiCall(netReq: ApiRequest): NetMessage {
+    const {
+      data: {
+        method,
+        params,
+      },
+      options,
+      requestID
+    } = netReq
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
-    if (!this.connectionInited)
+    if (!this.connectionInited) {
       addInitialMessage(serialBox, this.appConfig)
-
+    }
     if (typeof options.afterMessageID === 'string')
       addAfterMessage(serialBox, options.afterMessageID)
 
@@ -290,7 +293,7 @@ export class NetworkerThread {
     || akStopped
   }
   checkLongPollAfterDcCond(isClean: boolean) {
-    return isClean && !this.isHome
+    return isClean && !isHomeDC(this.uid, this.dcID)
   }
   pollEvents = (() => {
     const emitter = new Emitter()
@@ -453,14 +456,14 @@ export class NetworkerThread {
     logGroup('messages')(messages)
     messages.map(msg => this.emit('message-in', msg))
 
-    if (!message) return Bluebird.resolve(false)
+    if (!message) return Bluebird.resolve(false) //TODO Why?
 
     if (message.isAPI && !message.longPoll) {
       const serializer = new Serialization({ mtproto: true }, this.uid)
       const params = {
-        max_delay : 200,
-        wait_after: 200,
-        max_wait  : 8000
+        max_delay : 0,
+        wait_after: 500,
+        max_wait  : 5000
       }
       serializer.storeMethod('http_wait', params)
       const netMessage = new NetMessage(
@@ -557,8 +560,6 @@ export class NetworkerThread {
     if (delay && this.nextReq && this.nextReq <= nextReq)
       return false
 
-    // console.log(dTime(), 'shedule req', delay)
-    // console.trace()
     smartTimeout.cancel(this.nextReqPromise)
     if (delay > 0)
       this.nextReqPromise = smartTimeout(
@@ -577,7 +578,7 @@ export class NetworkerThread {
   }
 
   reqResendMessage(msgID: string) {
-    log(`Req resend`)(msgID)
+    log`Req resend`(msgID)
     this.state.addResend(msgID)
     this.sheduleRequest(100)
   }
@@ -747,7 +748,7 @@ export class NetworkerThread {
         const sentMessageID = message.req_msg_id
         const sentMessage = this.state.getSent(sentMessageID)
 
-        // this.processMessageAck(sentMessageID)
+        this.processMessageAck(sentMessageID)
         if (!sentMessage) break
         // dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
         this.state.deleteSent(sentMessage)
@@ -775,8 +776,8 @@ export class NetworkerThread {
         break
       }
       default: {
-        /* this.ackMessage(messageID)
-        this.emit('untyped-message', {
+        this.ackMessage(messageID)
+        /* this.emit('untyped-message', {
           threadID   : this.threadID,
           networkerDC: this.dcID,
           message,
@@ -791,19 +792,11 @@ export class NetworkerThread {
   }
 }
 
-
-const verifyInnerMessages = (messages) => {
-  if (messages.length !== new Set(messages).size) {
-    console.log(`!!!!!!WARN!!!!!!`, 'container check failed', messages)
-    // throw new Error('Container bug')
-  }
-}
-
 export function createThread(
-  dc: number,
+  dc: DCNumber,
   authKey: number[],
   serverSalt: number[],
-  uid: string
+  uid: UID
 ): NetworkerThread {
   return new NetworkerThread(dc, authKey, serverSalt, uid)
 }

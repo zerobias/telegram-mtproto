@@ -4,21 +4,32 @@ import { readResponse, getDataWithPad, readHash, parsedResponse } from './parse-
 import { Deserialization } from '../../tl'
 import { NetMessage } from '../networker/net-message'
 
+import {
+  type CryptoKey,
+  type DCNumber,
+  type UID,
+} from 'Newtype'
+
+import { convertToUint8Array } from 'Bin'
+
 export type ParserContext = {
   responseBuffer: ArrayBuffer,
-  uid: string,
-  authKeyID: number[],
-  authKeyUint8: Uint8Array,
+  uid: UID,
+  dc: DCNumber,
+  authKeyID: CryptoKey,
+  authKey: CryptoKey,
+  // authKeyUint8: Uint8Array,
   thisSessionID: number[],
   prevSessionID: number[],
   getMsgById: ({ req_msg_id: string }) => NetMessage,
 }
 
-async function parser({
+export default async function parser({
   responseBuffer,
   uid,
+  dc,
   authKeyID,
-  authKeyUint8,
+  authKey,
   thisSessionID,
   prevSessionID,
   getMsgById,
@@ -36,7 +47,7 @@ async function parser({
   })
 
   const dataWithPadding = await getDataWithPad({
-    authKey: authKeyUint8,
+    authKey: convertToUint8Array(authKey),
     msgKey,
     encryptedData
   })
@@ -73,5 +84,3 @@ async function parser({
     seqNo
   }
 }
-
-export default parser

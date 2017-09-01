@@ -4,8 +4,9 @@ import { type AxiosXHR } from 'axios'
 
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
-import { type NetState, type DCNumber } from '../state/index.h'
-import { type NetStatus } from '../net-status'
+import { type NetState } from '../state/index.h'
+import { type DCNumber, type UID } from 'Newtype'
+import { type NetStatus } from 'NetStatus'
 
 export type RawInput = {
   message: NetMessage,
@@ -13,7 +14,7 @@ export type RawInput = {
   result: AxiosXHR<ArrayBuffer>,
   thread: NetworkerThread,
   dc: DCNumber,
-  uid: string,
+  uid: UID,
 }
 
 export type IncomingType = RawInput & {

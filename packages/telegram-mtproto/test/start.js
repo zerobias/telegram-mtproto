@@ -1,7 +1,7 @@
 // const { test } = require('tap')
 // jasmine.DEFAULT_TIMEOUT_INTERVAL = 40e3
 const { MTProto } = require('../lib')
-// const { Storage } = require('mtproto-storage-fs')
+const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
 // debug.useColors = false
 
@@ -31,7 +31,7 @@ const server = {
 }
 
 const app = {
-  // storage: new Storage('./test/storage.json')
+  storage: new Storage('./test/storage.json')
 }
 
 const config = {
@@ -84,9 +84,13 @@ const isAlreadyAuth = async() => {
 
 const connectionTest = async() => {
   // await telegram.storage.clear() //Just for clean test
-  const isAuth = await isAlreadyAuth()
+  // const isAuth = await isAlreadyAuth()
+
   let message
-  if (!isAuth) {
+  if (!false) {
+    await telegram('help.getNearestDc', {}, {
+      createNetworker: true,
+    })
     const { phone_code_hash } = await telegram('auth.sendCode', {
           phone_number  : phone.num,
           current_number: false,

@@ -1,45 +1,42 @@
 //@flow
 
-import { of, makeError, type MakeError } from 'apropos'
-import { contains } from 'ramda'
-import { Just, Nothing, fromNullable, Maybe } from 'folktale/maybe'
+import { makeError, type MakeError } from 'apropos'
+import { fromNullable, Maybe } from 'folktale/maybe'
 
 import { getState } from '../portal'
 import {
-  type State,
   type Client,
+} from '../index.h'
+
+import {
+  type DCNumber,
+  type UID,
   toCryptoKey,
   toDCNumber,
-  type DCNumber,
-} from '../index.h'
-import Status, { netStatuses } from 'NetStatus'
+} from 'Newtype'
 import { KeyStorage } from 'Util/key-storage'
-
-const activate = fn => /*::<I>*/(data: any) => fn(getState())(data)
 
 
 export const resolveRequest = (uid: string, dc: DCNumber, outID: string): Maybe<string> =>
   getClient(uid)
     .map(({ command }) => command)
-    .chain(({ byMsg }) => fromNullable(byMsg[outID]))
+    .chain(command => command.maybeGetK(outID))
+    .map(pair => pair.snd())
 
-const noNetworker: MakeError<'no networker'> = makeError('no networker')
-
-// export const queryNetworker = (dc: number) =>
-//   of({ dc })
-//     .map(netFromDc)
-//     .logic(getNetworker)
-
-function getClient(uid: string) {
-  const { client } = getState()
-  return fromNullable(client[uid])
+export function getClient(uid: string): Maybe<Client> {
+  return fromNullable(getState)
+    .chain(e => fromNullable(e()))
+    .chain(e => fromNullable(e.client))
+    .chain(e => fromNullable(e[uid]))
+  // const { client } = getState()
+  // return fromNullable(client[uid])
 }
 
 type KeySelector = (x: Client) => KeyStorage
 
 const keyQuery =
   (selector: KeySelector) =>
-    (uid: string, dc: DCNumber) =>
+    (uid: UID, dc: DCNumber) =>
       getClient(uid)
         .map(selector)
         .chain(fromNullable)
@@ -47,7 +44,7 @@ const keyQuery =
         /*:: .map(toCryptoKey) */
 
 export const queryHomeDc =
-  (uid: string) =>
+  (uid: UID) =>
     getClient(uid)
       .map(client => client.homeDc)
       .chain(fromNullable)
@@ -57,7 +54,7 @@ export const queryAuthID = keyQuery(client => client.authID)
 export const queryAuthKey = keyQuery(client => client.auth)
 export const querySalt = keyQuery(client => client.salt)
 
-export const queryKeys = (uid: string, dc: DCNumber) =>
+export const queryKeys = (uid: UID, dc: DCNumber) =>
   fromNullable(dc)
     .chain((
       dc
@@ -72,12 +69,3 @@ export const queryKeys = (uid: string, dc: DCNumber) =>
 
 export const queryAck = (uid: string, dc: DCNumber) =>
   getState().client[uid].pendingAck[dc] || ([]: string[])
-export const queryInvoke = () => getState().invoke
-export const queryStatus = (dc: DCNumber) => Status.ensure(getState().netStatus[dc])
-
-// const netFromDc = ({ dc }) => ({ netList: getState().networker, dc })
-const getNetworker = {
-  cond: ({ netList, dc }) => netList.has(dc),
-  pass: ({ netList, dc }) => netList.get(dc),
-  fail: ({ dc }) => noNetworker(dc)
-}

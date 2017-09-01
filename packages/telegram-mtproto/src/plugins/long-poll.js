@@ -2,14 +2,14 @@
 
 import Bluebird from 'bluebird'
 import { encaseP2, cache } from 'fluture'
+
 import { tsNow } from '../service/time-manager'
 /*:: import { NetworkerThread } from '../service/networker' */
-import active from '../state/signal/active'
 
 import Logger from 'mtproto-logger'
 const log = Logger`long-poll`
+import Config from 'ConfigProvider'
 
-// let inited = false
 
 function longPollRequest(thread: NetworkerThread, maxWait: number) {
   return thread.wrapMtpCall('http_wait', {
@@ -43,13 +43,9 @@ export default class LongPoll {
   maxWait = 25e3
   pendingTime = Date.now()
   requestTime = Date.now()
-  isActive = true
   alreadyWaitPending: boolean = false
-  pending: Promise<any>
   constructor(thread: NetworkerThread) {
     this.thread = thread
-    active
-      .observe(val => this.isActive = val)
     // if (inited) {
     //   log('Networker')(thread)
     //   //$ FlowIssue
@@ -58,8 +54,8 @@ export default class LongPoll {
     // inited = true
 
   }
-  get pending() {
-    if(!this.currentRequest)
+  get pending(): Promise<any> {
+    if (!this.currentRequest)
       this.currentRequest = cache(futureRequest(this.thread, this.maxWait)
         .map(x => {
           delete this.currentRequest
@@ -97,21 +93,22 @@ export default class LongPoll {
   //   const result = await this.request()
   //   return result
   // }
-  sendLongPool(): Promise<any> {
+  async sendLongPool(): Promise<any> {
     //TODO add base dc check
-    if (!this.isActive) return Bluebird.resolve(false)
-    return cache(futureRequest(this.thread, this.maxWait)
-      .map(x => {
-        // delete this.currentRequest
-        this.thread.checkLongPoll()
-        // this.pending
-      })).promise()
+    if (!Config.halt.get(this.thread.uid, this.thread.dcID)) return Bluebird.resolve(false)
+    // return cache(futureRequest(this.thread, this.maxWait)
+    //   .map(x => {
+    //     log`poll response`(x)
+    //     // delete this.currentRequest
+    //     this.thread.checkLongPoll()
+    //     // this.pending
+    //   })).promise()
     // if (this.allowLongPoll()) {
     //   this.pending = this.sending()
     // }
-    //
-    // const result = await this.pending
-    // return result
+
+    const result = await this.pending
+    return result
   }
 }
 

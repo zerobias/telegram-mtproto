@@ -1,6 +1,67 @@
+//
+// declare module '@' {
+//   // declare export type λ<M, First, Second> = {
+//   //   +typeclass: M,
+//   //   fold<Mʹ>(
+//   //     l: (x: First) => λ<Mʹ, any, any>,
+//   //     r: (x: Second) => λ<Mʹ, any, any>,
+//   //   ): λ<Mʹ, First, Second>
+//   // }
+// }
 
+declare module '@safareli/free' {
+  // import type { λ } from '@'
+  // declare export type Cata<+C, +L, +A, +P> = {
+  //   Chain<-F>(x: Freeλ, f: F): C,
+  //   Lift<-X, -F>(x: X, f: F): L,
+  //   Ap(x: Freeλ, y: Freeλ): A,
+  //   Pure<-X>(x: X): P,
+  // }
+  declare export type Mapped<T> = {
+    map<S>(fn: (x: T) => S): Mapped<S>,
+  }
+  declare export type Base<O> = {
+    of<I>(x: I): O,
+    // foldMap<I, T, B: Base<T>>(f: (x: I) => O, b: B): T,
+  }
+  declare export type ChainRec<T> = {
+    isNext: boolean,
+    value: T,
+  }
+  declare export type ChainRecIterator = <-I, O>(next: ChainRecF, done: ChainRecF, value: I) => ChainRec<O>
+  declare export type ChainRecF = <T>(x: T) => ChainRec<T>
+  declare export class Pure<A> {
+    cata<Aʹ>(d: { Pure(x: A): Aʹ }): Aʹ,
+    map<Aʹ>(f: (x: A) => Aʹ): Pure<Aʹ>,
+    chain<Aʹ>(f: (x: A) => (Pure<Aʹ> | Lift<Aʹ>)): Pure<Aʹ>,
+    // ap(y: *) {
+    //   return map(f => f(this.x), y)
+    // }
+    foldMap<I, O, B: Base<O>>(f: (x: I) => O, b: B): A,
+    /*::
+    static $call: (<B>(x: B) => Pure<B>)
+    */
+  }
+
+  declare export class Lift<I, O> {
+    cata<Iʹ>(d: { Lift(x: I): Iʹ }): Iʹ,
+    map<Oʹ>(f: (x: O) => Oʹ): Lift<I, Oʹ>,
+    chain<Iʹ, Oʹ>(f: (x: O) => Lift<Iʹ, Oʹ>): Lift<Iʹ, O>,
+    // ap(y: *) {
+    //   return map(f => f(this.x), y)
+    // }
+    foldMap<I, O, B: Base<O>>(f: (x: I) => O, b: B): O,
+    /*::
+    static $call: (<A, B>(x: A, fn: (x: A) => B) => Lift<A, B>)
+    */
+  }
+  declare export function liftF<T>(command: T): Lift<T, T>
+  declare export function of<B>(x: B): Pure<B>
+}
 
 declare module 'apropos' {
+  // import type { λ } from '@'
+
   /**
    * Either `Left` or `Right`
    *
@@ -9,6 +70,7 @@ declare module 'apropos' {
    * @template R
    */
   declare export class Apropos<L, R> {
+    // +typeclass: typeof Apropos,
     map<R1>(fn: (x: R) => R1): Apropos<L, R1>,
     mapR<R1>(fn: (x: R) => R1): Apropos<L, R1>,
     mapL<L1>(fn: (x: L) => L1): Apropos<L1, R>,
@@ -67,6 +129,7 @@ declare module 'apropos' {
 
     equals(value: any): boolean,
   }
+
   declare class AnnotatedError<-Tag = '', -Context = mixed> extends Error {
     -tag: Tag,
     -data: Context,
@@ -154,8 +217,10 @@ declare module 'folktale/maybe' {
     orElse(onElse: T): T,
     map<S>(fn: (obj: T) => S): Maybe<S>,
     chain<S>(fn: (obj: T) => Maybe<S>): Maybe<S>,
-    matchWith<A, B>(matcher: MaybeMatcher<T, A, B>): A | B
+    matchWith<A, B>(matcher: MaybeMatcher<T, A, B>): A | B,
+    fold<O>(l: () => O, r: (v: T) => O): O,
   }
+
   declare export function Just<T>(obj: T): Maybe<T>
   declare export function of<T>(obj: T): Maybe<T>
   declare export function Nothing</*::+*/T>(): Maybe<T>
@@ -165,9 +230,12 @@ declare module 'folktale/maybe' {
 }
 
 declare module 'fluture' {
+  // import type { λ } from '@'
+
   declare export type Cancel = () => void
 
   declare export class Fluture</*::+*/Resolve, /*::+*/Reject> {
+    // +typeclass: typeof Fluture,
     map<-T>(fn: (data: Resolve) => T): Fluture<T, Reject>,
     bimap<T, F>(left: (err: Reject) => F, right: (data: Resolve) => T): Fluture<T, F>,
     chain<T, F>(fn:
@@ -191,7 +259,14 @@ declare module 'fluture' {
       right: (val: Resolve) => T
     ): Fluture<T | F, void>,
     value(): Resolve,
+    lastly<T, F>(futureB: Fluture<T, F>): Fluture<Resolve, Reject | F>,
+    /*::
+    static $call: typeof FutureF
+    */
   }
+
+  // declare export opaque type λFluture<A, B>: λ<typeof Fluture, A, B>
+
   declare export function fold<IL, IR, OL, OR>(
     left: (val: IL) => OL,
     right: (val: IR) => OR,
@@ -204,7 +279,8 @@ declare module 'fluture' {
     <IL>(future: Fluture<IR, IL>) => Fluture<OR, IL | OL>
   )
 
-  declare export function Future<Resolve, Reject>(fn: (rj: (err: Reject) => void, rs: (data: Resolve) => void) => ((() => void) | void)): Fluture<Resolve, Reject>
+  declare function FutureF<Resolve, Reject>(fn: (rj: (err: Reject) => void, rs: (data: Resolve) => void) => ((() => void) | void)): Fluture<Resolve, Reject>
+  declare export var Future: typeof Fluture
   declare export function encaseP3<A, B, C, Resolve>(fn:(a: A, b: B, c: C) => Promise<Resolve>): (a: A, b: B, c: C) => Fluture<Resolve, mixed>
 
 
@@ -255,6 +331,7 @@ declare module 'fluture' {
   declare export function resolve<T, /*::+*/F>(value: T): Fluture<T, F>
 
   declare export function after<T, /*::+*/F>(time: number, value: T): Fluture<T, F>
+  declare export function rejectAfter</*::+*/T, F>(time: number, value: F): Fluture<T, F>
 
   declare export function both<TA, FA, TB, FB>(futureA: Fluture<TA, FA>, noa: void): (futureB: Fluture<TB, FB>) => Fluture<[TA, TB], FA | FB>
   declare export function both<TA, FA, TB, FB>(futureA: Fluture<TA, FA>, futureB: Fluture<TB, FB>): Fluture<[TA, TB], FA | FB>

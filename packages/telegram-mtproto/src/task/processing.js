@@ -15,7 +15,7 @@ import {
 } from './index.h'
 import { initFlags, isApiObject } from './fixtures'
 import { resolveRequest } from '../state/query'
-import { MaybeT } from 'Util/monad-t'
+import { MaybeT } from 'Monad'
 
 
 export default function processing(ctx: IncomingType, list: MessageDraft[]) {

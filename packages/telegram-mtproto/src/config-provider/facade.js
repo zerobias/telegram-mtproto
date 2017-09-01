@@ -3,7 +3,7 @@
 import { Just, Nothing, fromNullable, Maybe } from 'folktale/maybe'
 
 import { type PublicKey } from '../service/main/index.h'
-import { type DCNumber } from '../state/index.h'
+import { type DCNumber } from 'Newtype'
 import getCrypto from '../co-worker'
 import { getConfig } from './provider'
 import random from '../service/secure-random'
@@ -12,12 +12,28 @@ import NetworkerThread from '../service/networker'
 import L1Cache from '../l1-cache'
 
 const Config = {
+  halt: {
+    get(uid: string, dc: number): boolean {
+      const val = getConfig(uid).halt[dc]
+      if (typeof val !== 'boolean') {
+        Config.halt.set(uid, dc, false)
+        return false
+      }
+      return val
+    },
+    set(uid: string, dc: number, val: boolean) {
+      getConfig(uid).halt[dc] = val
+    }
+  },
+  // invoke(method: string, params: Object = {}, opts: Object = {}) {
+  //
+  // },
   seq: {
     get(uid: string, dc: number) {
       const seq = getConfig(uid).seq[dc]
       if (typeof seq !== 'number') {
-        Config.seq.set(uid, dc, 0)
-        return 0
+        Config.seq.set(uid, dc, 1)
+        return 1
       }
       return seq
     },
@@ -127,6 +143,9 @@ const Config = {
     if (typeof dc !== 'string')
       throw new Error(`Wrong dc id! ${id}`)
     return dc
+  },
+  dcList(uid: string) {
+    return [...getConfig(uid).dcMap.keys()]
   },
   common: getCrypto()
 }

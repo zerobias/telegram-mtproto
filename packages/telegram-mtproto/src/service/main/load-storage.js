@@ -1,10 +1,11 @@
 //@flow
 
 import { trim, fromPairs } from 'ramda'
+import { type AsyncStorage } from 'mtproto-shared'
 
 import dcStoreKeys from 'Util/dc-store-keys'
-import { type AsyncStorage } from 'mtproto-shared'
-import { dispatch } from '../../state'
+
+import { dispatch } from 'State'
 import random from '../secure-random'
 import { MAIN } from 'Action'
 import { bytesFromHex } from '../../bin'
@@ -22,7 +23,7 @@ import {
 import {
   type DCNumber,
   toDCNumber
-} from '../../state/index.h'
+} from 'Newtype'
 
 export default async function loadStorage(
   storage: AsyncStorage,
@@ -62,7 +63,7 @@ export default async function loadStorage(
     const d = dcStoreKeys(dc)
     const saltRaw = await storage.get(d.saltKey)
     const salt = checkString(saltRaw)
-    if (salt !== false) {
+    if (Array.isArray(salt)) {
       iSalt = { ...iSalt, [dc | 0]: salt }
 
       inactive = false
@@ -81,9 +82,8 @@ export default async function loadStorage(
       }
       // dispatch(AUTH.SET_SERVER_SALT(salt, dc))
     }
-    const authRaw = await storage.get(d.authKey)
-    const auth = checkString(authRaw)
-    if (auth !== false) {
+    const auth = await storage.get(d.authKey)
+    if (Array.isArray(auth)) {
       iAuth = { ...iAuth, [dc | 0]: auth }
 
       const saltKey = salt === false
@@ -150,6 +150,7 @@ export default async function loadStorage(
     auth: iAuth,
     salt: iSalt,
     home: iHome,
+    uid,
     session,
   }
   dispatch(MAIN.STORAGE_IMPORTED(finalAction), uid)
@@ -181,7 +182,6 @@ function checkString(source: mixed) {
   if (trimmed.length === 0) return false
   return bytesFromHex(trimmed)
 }
-
 
 function checkNumber(source: mixed): DCNumber | false {
   if (source == null || typeof source !== 'number') return false

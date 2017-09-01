@@ -1,11 +1,15 @@
 //@flow
 
-import EventEmitter, { type EventEmitterType } from 'eventemitter2'
+import EventEmitter, {
+  type EventEmitterType,
+  type Emit,
+  type On,
+} from 'eventemitter2'
 import { type AsyncStorage } from 'mtproto-shared'
 
 import { ApiManager } from '../api-manager'
-import { registerInstance } from '../../config-provider'
-import State from './state'
+import { registerInstance } from 'ConfigProvider'
+import { type UID } from 'Newtype'
 
 import Logger from 'mtproto-logger'
 const log = Logger`main`
@@ -13,8 +17,7 @@ const log = Logger`main`
 import streamBus, { type Bus } from '../../event/stream-bus'
 import { scopedEmitter } from '../../event'
 import { type ConfigType, type StrictConfig } from './index.h'
-import { type Emit, type On } from 'eventemitter2'
-import { dispatch } from '../../state'
+import { dispatch } from 'State'
 import { emitter } from '../../state/portal'
 import { MAIN } from 'Action/main'
 import loadStorage from './load-storage'
@@ -22,7 +25,7 @@ import { init } from './init'
 
 class MTProto {
   config: StrictConfig
-  uid: string
+  uid: UID
   emitter: EventEmitterType & EventEmitter = new EventEmitter({
     wildcard: true
   })
@@ -30,7 +33,7 @@ class MTProto {
   on: On = this.emitter.on.bind(this.emitter)
   emit: Emit = this.emitter.emit.bind(this.emitter)
   storage: AsyncStorage
-  state = new State
+  // state = new State
   defaultDC: number = 2
   bus: Bus
   load: () => Promise<void>
@@ -72,12 +75,9 @@ class MTProto {
     this.bus = streamBus(this)
     dispatch(MAIN.INIT({
       uid,
-      invoke       : this.api.mtpInvokeApi,
-      storageSet   : (key: string, value: mixed) => storage.set(key, value),
-      storageRemove: (...key: string[]) => storage.remove(...key),
     }), uid)
     const load = async() => {
-      // if (this.activated)
+      if (this.activated)
         await loadStorage(storage, dcMap, uid)
     }
     this.load = load
