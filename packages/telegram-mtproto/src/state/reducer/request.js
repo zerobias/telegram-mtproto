@@ -2,64 +2,139 @@
 
 /* eslint-disable object-shorthand */
 
-import { combineReducers } from 'redux'
-import { createReducer } from 'redux-act'
+// import { Pure, liftF } from '@safareli/free'
+// import { of, Left, Right } from 'apropos'
+import { Maybe } from 'folktale/maybe'
 
+import type {
+  Client,
+} from '../index.h'
+import {
+  actionName,
+  trimActionType,
+} from '../helpers'
+import {
+  type UID,
+  toUID,
+} from 'Newtype'
 import { API } from 'Action'
-import { type ApiMetaPL } from '../action'
-import List from '../../util/immutable-list'
-import guard from '../../util/match-spec'
-import { type ApiNewRequest, type OnRequestDone } from '../index.h'
-// import { RpcApiError } from '../../error'
-import { type MessageUnit } from '../../task/index.h'
-import { guardedReducer } from '../helpers'
+import { KeyValue, TupleT } from 'Monad'
+import { RpcApiError } from '../../error'
+import ApiRequest from '../../service/main/request'
+// import Config from 'ConfigProvider'
 
-const eqTest = guard({
-  flags: {
-    api : true,
-    body: true,
-  },
-  api: {
-    resolved: true,
-  },
-})
+import {
+  type MessageUnit,
+} from '../../task/index.h'
 
-const guardedRequestDone = /*:: ( */ guardedReducer([
-  (_: List<ApiNewRequest, string>, msg: MessageUnit) => eqTest(msg),
-  (acc: List<ApiNewRequest, string>, msg: MessageUnit) => acc.has(msg.api.apiID),
-], requestDoneReducer) /*:: , requestDoneReducer) */
-
-
-function requestDoneReducer(acc: List<ApiNewRequest, string>, msg: MessageUnit) {
-  console.log(`\n--- requestDone ---\n`, msg)
-  // if (!msg.flags.api || !msg.flags.body || !msg.api.resolved || !acc.has(msg.api.apiID)) return acc
-  // const stored = acc
-  //   .get(msg.api.apiID)
-  //   .netReq
-  //   .deferFinal
-  if (msg.flags.error){
-    if (msg.error.handled)
-      return acc
-    // stored.reject(new RpcApiError(msg.error.code, msg.error.message))
-  } /*else
-    stored.resolve(msg.body)*/
-  return acc.delete(msg.api.apiID)
+function handleError(
+  state: Client,
+  task: MessageUnit,
+  msgID: UID,
+  outID: UID
+): Client {
+  console.log(`\n--- request error ---\n`, task.body)
+  if (task.error.handled) return state
+  const errorObj = new RpcApiError(task.error.code, task.error.message)
+  const { command, request } = state
+  return command
+    .maybeGetK(outID)
+    /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
+    .chain(getRequestTuple(request))
+    .map(x => x.bimap(
+      removeMsgID(command, outID),
+      req => {
+        req.deferFinal.reject(errorObj)
+        return request
+          // .removeV(req)
+          .removeK(req.requestID)
+      }
+    ))
+    .fold(
+      stateK(state),
+      tupleToState(state))
 }
 
-const api = createReducer({
-  //$FlowIssue
-  [API.REQUEST.NEW]: (state: List<ApiNewRequest, string>, payload: ApiNewRequest, meta: ApiMetaPL) =>
-    state.set(meta.id, { ...payload, timestamp: new Date(payload.timestamp) }),
-  //$FlowIssue
-  [API.REQUEST.DONE]: (state: List<ApiNewRequest, string>,
-                       payload: OnRequestDone) =>
-    payload
-      .filter(data => data.flags.api)
-      .reduce(guardedRequestDone, state)
-}, List.empty())
+const getRequestByID =
+  (request: KeyValue<UID, ApiRequest>) =>
+    (reqID: UID): Maybe<ApiRequest> =>
+      request
+        .maybeGetK(reqID)
+        .map(TupleT.snd)
 
-const reducer = combineReducers({
-  api
+const removeMsgID = (command, outID) => msgID =>
+  command
+    .removeK(msgID)
+    .removeK(outID)
+
+const getRequestTuple =
+  request =>
+    tuple =>
+      TupleT.traverseMaybe(
+        tuple.map(getRequestByID(request))
+      )
+
+const stateK = (state: Client) => () => state
+
+const tupleToState = (state: Client) => tuple => ({
+  ...state,
+  command: tuple.fst(),
+  request: tuple.snd(),
 })
 
-export default reducer
+function handleApiResp(
+  state: Client,
+  task: MessageUnit,
+  msgID: UID,
+  outID: UID
+): Client {
+  const { body } = task
+  console.log(`\n--- request done ---\n`, task.body)
+  const { command, request } = state
+  return command
+    .maybeGetK(outID)
+    /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
+    .chain(getRequestTuple(request))
+    .map(x => x.bimap(
+      removeMsgID(command, outID),
+      req => {
+        req.deferFinal.resolve(body)
+        return request
+          // .removeV(req)
+          .removeK(req.requestID)
+      }
+    ))
+    .fold(
+      stateK(state),
+      tupleToState(state))
+}
+
+function resolveTask(state: Client, task: MessageUnit): Client {
+  const { flags } = task
+  const msgID = /*:: toUID( */ task.id /*:: ) */
+  if (flags.api) {
+    if (flags.methodResult) {
+      const outID = /*:: toUID( */ task.methodResult.outID /*:: ) */
+      if (flags.error) {
+        return handleError(state, task, msgID, outID)
+      } else if (flags.body) {
+        return handleApiResp(state, task, msgID, outID)
+      }
+    }
+  }
+  return state
+}
+
+export default function requestWatch(state: Client, action: any): Client {
+  switch (trimActionType(action)) {
+    case (actionName(API.TASK.DONE)): {
+      const tasks: MessageUnit[] = action.payload
+      let newState = state
+      for (const task of tasks) {
+        newState = resolveTask(newState, task)
+      }
+      return newState
+    }
+    default: return state
+  }
+}

@@ -8,7 +8,6 @@ import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker' */
 import { type ModuleStatus } from '../status'
 import { type NetStatus } from 'NetStatus'
-import { type MTP } from '../mtp.h'
 import { type MessageUnit } from '../task/index.h'
 import { KeyStorage } from 'Util/key-storage'
 import { KeyValue } from 'Monad'
@@ -33,10 +32,7 @@ export type OnRecovery = {
 }
 
 export type InitType = {
-  uid: string,
-  invoke: (method: string, options: Object, opts: any) => Promise<any>,
-  storageSet: (key: string, value: any) => Promise<void>,
-  storageRemove: (...key: string[]) => Promise<void>,
+  uid: UID,
 }
 
 export type ApiNewRequest = {
@@ -75,9 +71,11 @@ export type Client = {
   command: KeyValue<string, string>,
   request: KeyValue<UID, ApiRequest>,
   pendingAck: { [dc: number]: string[] },
+  lastMessages: UID[],
   salt: KeyStorage,
   auth: KeyStorage,
   authID: KeyStorage,
+  status: KeyValue<DCNumber, boolean>,
 }
 
 export type ClientList = {
@@ -87,9 +85,9 @@ export type ClientList = {
 
 export type State = {
   client: ClientList,
-  request: {
-    api: List<ApiNewRequest, string>
-  },
+  // request: {
+  //   api: List<ApiNewRequest, string>
+  // },
 }
 
 export type OnSetStatus = {

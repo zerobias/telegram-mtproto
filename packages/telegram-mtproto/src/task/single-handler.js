@@ -398,8 +398,8 @@ function handleMigrateError(message, data, code, ctx) {
   }), uid)
   Config.fastCache.init(uid, ctx.dc)
   Config.seq.set(uid, ctx.dc, 0)
-  //$off
   Config.halt.set(uid, ctx.dc, true)
+  //$off
   Config.session.set(uid, ctx.dc, null)
   Promise.all([
     Config.storage.set(uid, 'dc', newDc),

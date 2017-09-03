@@ -5,6 +5,9 @@ import { replace } from 'ramda'
 import { createAction } from 'redux-act'
 import { select } from 'redux-most'
 
+import {
+  type ActionName
+} from 'Newtype'
 
 
 type ActionCreator<Type, Payload> =
@@ -65,3 +68,19 @@ export const guardedReducer = <S, -P>(
 
 export const trimType: (type: string) => string =
   replace(/\[\d+\]\s*/, '')
+
+export function trimActionType(action: mixed): string {
+  if ( typeof action === 'object'
+    && action != null
+    && typeof action.type === 'string'
+  ) {
+    return trimType(action.type || '')
+  }
+  return ''
+}
+
+declare function tagToName<Tag>(tag: Tag): ActionName<Tag>
+
+export function actionName<Tag>(action: Action<Tag, any, any>): ActionName<Tag> {
+  return /*:: tagToName( */ action.getType() /*:: ) */
+}

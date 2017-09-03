@@ -1,7 +1,7 @@
 //@flow
 
 import uuid from 'Util/uuid'
-
+import { type UID } from 'Newtype'
 import { type ConfigType } from './index.h'
 import configNormalization from './config-normalization'
 import parseServerConfig from '../../config-check/dc'
@@ -9,7 +9,8 @@ import { type TLSchema } from '../../tl/index.h'
 import Layout from '../../layout'
 
 export function init(config: ConfigType) {
-  const uid = uuid()
+  //$off
+  const uid: UID = uuid()
   const fullConfig = configNormalization(config)
   const dcMap = parseServerConfig(config.server)
   const storage = fullConfig.app.storage

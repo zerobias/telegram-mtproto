@@ -10,6 +10,8 @@ declare export function toDCNumber(x: number): DCNumber
 export opaque type UID: string = string
 declare export function toUID(x: string): UID
 
+export opaque type ActionName<-Name>: string = string
+
 export opaque type Response: { _: string, [field: string]: any } = {
   _: string,
   [field: string]: any

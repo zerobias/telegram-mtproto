@@ -101,7 +101,7 @@ const getDcConfig = ({ dev = false, webogram = false }: DcSettings) => {
   }
 }
 
-const getFlatDcMap = ({ dcList, ...opts }: DcConfig) => {
+function getFlatDcMap({ dcList, ...opts }: DcConfig): Map<DCNumber, string> {
   const dcMap: Map<DCNumber, string> = new Map()
   const protocol = `${opts.protocol}://`
   const port = opts.port

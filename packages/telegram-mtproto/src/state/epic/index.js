@@ -5,17 +5,17 @@ import { Stream, awaitPromises } from 'most'
 import { append } from 'ramda'
 import { type UID, type DCNumber } from 'Newtype'
 import { MAIN, API } from 'Action'
-import { Pure, Lift, liftF } from '@safareli/free'
-import { resolve, Future, of, after } from 'fluture'
+// import { Pure, Lift, liftF } from '@safareli/free'
+import { after } from 'fluture'
 import netRequest, { onNewTask } from './net-request'
-import { onTaskEnd, receiveResponse } from './task'
+import { receiveResponse } from './task'
 import { getClient } from '../query'
 import Auth from '../../service/authorizer'
 import type {
   Client
 } from '../index.h'
 import { dispatch } from '../portal'
-import { Identity, KeyValue } from 'Monad'
+import { KeyValue } from 'Monad'
 import { trimType } from '../helpers'
 // import Config from 'ConfigProvider'
 
@@ -79,7 +79,7 @@ const onAuthResolve = (action: Stream<any>) => action
 
 const onNewRequest = (action: Stream<any>) => action
   .thru(e => API.REQUEST.NEW.stream(e))
-  //$off
+  //$ off
   // .map(({ uid }: { uid: string }) => uid)
   // .map(getClient)
   // .map((x) => x)
@@ -185,7 +185,7 @@ const rootEpic = combineEpics([
   onEvent,
   // afterCarrier,
   onNewTask,
-  onTaskEnd,
+  // onTaskEnd,
 ])
 
 export default rootEpic
