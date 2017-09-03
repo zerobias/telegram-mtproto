@@ -111,11 +111,11 @@ beforeEach(async() => {
 
 afterEach(async() => {
   consoleHR(`TEST END`)
-  await delay(4e3)
+  await delay(2e3)
   consoleHR(`PAUSE END`)
 })
 
-test.only('Loading from storage', async() => {
+test('Loading from storage', async() => {
   // expect.assertions(2)
   // await expect((async() => {
   infoCallMethod('auth.sendCode')
@@ -182,8 +182,6 @@ test.only('Loading from storage', async() => {
     limit: 100,
   })
   expect(dialogs).toBeDefined()
-    // return true
-  // })()).resolves.toBeDefined()
 })
 
 test(`Connection test`, async() => {

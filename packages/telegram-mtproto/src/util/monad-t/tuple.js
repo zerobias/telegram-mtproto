@@ -74,6 +74,8 @@ export class TupleT extends OnlyStatic {
   }
   static of = ofTuple
   static traverseMaybe = traverseMaybe
+  static snd = snd
+  static fst = fst
 }
 
 function traverseMaybe<A, B>(tuple: Tuple<A, Maybe<B>>): Maybe<Tuple<A, B>> {
@@ -82,6 +84,13 @@ function traverseMaybe<A, B>(tuple: Tuple<A, Maybe<B>>): Maybe<Tuple<A, B>> {
   return b.map(bVal => new Tuple(a, bVal))
 }
 
+function snd<-A, B>(tuple: Tuple<A, B>): B {
+  return tuple.snd()
+}
+
+function fst<A, -B>(tuple: Tuple<A, B>): A {
+  return tuple.fst()
+}
 
 function eq(a, b): boolean {
   if (a === b) return true

@@ -257,18 +257,17 @@ function handleError(
   state: Client,
   task: MessageUnit,
   msgID: UID,
-  outID: UID,
-  errorObj: RpcApiError,
+  outID: UID
 ): Client {
+  if (task.error.handled) return state
+  const errorObj = new RpcApiError(task.error.code, task.error.message)
   const { command, request } = state
   return command
     .maybeGetK(outID) // true by definition
     /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
-    .chain(tuple => TupleT.traverseMaybe(tuple.map(getRequestByID(request))))
+    .chain(getRequestTuple(request))
     .map(x => x.bimap(
-      msgID => command
-        .removeK(msgID)
-        .removeK(outID),
+      removeMsgID(command, outID),
       req => {
         req.deferFinal.reject(errorObj)
         return request
@@ -276,11 +275,9 @@ function handleError(
           .removeK(req.requestID)
       }
     ))
-    .fold(() => state, (tuple): Client => ({
-      ...state,
-      command: tuple.fst(),
-      request: tuple.snd(),
-    }))
+    .fold(
+      stateK(state),
+      tupleToState(state))
 }
 
 const getRequestByID =
@@ -288,24 +285,42 @@ const getRequestByID =
     (reqID: UID): Maybe<ApiRequest> =>
       request
         .maybeGetK(reqID)
-        .map(tuple => tuple.snd())
+        .map(TupleT.snd)
+
+const removeMsgID = (command, outID) => msgID =>
+  command
+    .removeK(msgID)
+    .removeK(outID)
+
+const getRequestTuple =
+  request =>
+    tuple =>
+      TupleT.traverseMaybe(
+        tuple.map(getRequestByID(request))
+      )
+
+const stateK = (state: Client) => () => state
+
+const tupleToState = (state: Client) => tuple => ({
+  ...state,
+  command: tuple.fst(),
+  request: tuple.snd(),
+})
 
 function handleApiResp(
   state: Client,
   task: MessageUnit,
   msgID: UID,
-  outID: UID,
-  body
+  outID: UID
 ): Client {
+  const { body } = task
   const { command, request } = state
   return command
-    .maybeGetK(outID) // true by definition
+    .maybeGetK(outID)
     /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
-    .chain(tuple => TupleT.traverseMaybe(tuple.map(getRequestByID(request))))
+    .chain(getRequestTuple(request))
     .map(x => x.bimap(
-      msgID => command
-        .removeK(msgID)
-        .removeK(outID),
+      removeMsgID(command, outID),
       req => {
         req.deferFinal.resolve(body)
         return request
@@ -313,34 +328,21 @@ function handleApiResp(
           .removeK(req.requestID)
       }
     ))
-    .fold(() => state, (tuple): Client => ({
-      ...state,
-      command: tuple.fst(),
-      request: tuple.snd(),
-    }))
+    .fold(
+      stateK(state),
+      tupleToState(state))
 }
 
 function resolveTask(state: Client, task: MessageUnit): Client {
-  const { request, command } = state
   const { flags } = task
   const msgID = /*:: toUID( */ task.id /*:: ) */
   if (flags.api) {
     if (flags.methodResult) {
       const outID = /*:: toUID( */ task.methodResult.outID /*:: ) */
       if (flags.error) {
-        const { error } = task
-        if (error.handled) return state
-        const errorObj = new RpcApiError(error.code, error.message)
-        // if (request.hasKey(outID)) {
-        return handleError(state, task, msgID, outID, errorObj)
-        // }
-      } else {
-        if (flags.body) {
-          const { body } = task
-          // if (request.hasKey(outID)) {
-          return handleApiResp(state, task, msgID, outID, body)
-          // }
-        }
+        return handleError(state, task, msgID, outID)
+      } else if (flags.body) {
+        return handleApiResp(state, task, msgID, outID)
       }
     }
   }
@@ -375,7 +377,7 @@ function statusWatch(state: Client) {
 }
 
 const decoratedClient: Reducer<Client & { status: KeyValue<DCNumber, boolean> }> =
-(state, action) => {
+(state, action: $off) => {
   const currentState = requestWatch(state, action)
   return {
     ...currentState,
