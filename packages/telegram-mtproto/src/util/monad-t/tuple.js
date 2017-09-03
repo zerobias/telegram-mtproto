@@ -1,5 +1,7 @@
 //@flow
 
+import { Maybe } from 'folktale/maybe'
+
 import OnlyStatic from '../only-static'
 
 export class Tuple<+A, +B> {
@@ -71,6 +73,13 @@ export class TupleT extends OnlyStatic {
     return list.map(([key, val]) => ofTuple(key, val))
   }
   static of = ofTuple
+  static traverseMaybe = traverseMaybe
+}
+
+function traverseMaybe<A, B>(tuple: Tuple<A, Maybe<B>>): Maybe<Tuple<A, B>> {
+  const a = tuple.fst()
+  const b = tuple.snd()
+  return b.map(bVal => new Tuple(a, bVal))
 }
 
 

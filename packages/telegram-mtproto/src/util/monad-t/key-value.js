@@ -25,6 +25,9 @@ export class KeyValue<Key, Val> {
   toValue() {
     return this.pairs.map(e => e.toValue())
   }
+  inspect() {
+    return this.toJSON()
+  }
   toJSON() {
     if (this.length === 0) return 'empty'
     const pairs = this.pairs.map(e => e.toValue())
