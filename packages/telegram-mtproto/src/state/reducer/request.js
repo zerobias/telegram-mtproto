@@ -10,7 +10,7 @@ import { type ApiMetaPL } from '../action'
 import List from '../../util/immutable-list'
 import guard from '../../util/match-spec'
 import { type ApiNewRequest, type OnRequestDone } from '../index.h'
-import { RpcApiError } from '../../error'
+// import { RpcApiError } from '../../error'
 import { type MessageUnit } from '../../task/index.h'
 import { guardedReducer } from '../helpers'
 
@@ -33,16 +33,16 @@ const guardedRequestDone = /*:: ( */ guardedReducer([
 function requestDoneReducer(acc: List<ApiNewRequest, string>, msg: MessageUnit) {
   console.log(`\n--- requestDone ---\n`, msg)
   // if (!msg.flags.api || !msg.flags.body || !msg.api.resolved || !acc.has(msg.api.apiID)) return acc
-  const stored = acc
-    .get(msg.api.apiID)
-    .netReq
-    .deferFinal
+  // const stored = acc
+  //   .get(msg.api.apiID)
+  //   .netReq
+  //   .deferFinal
   if (msg.flags.error){
     if (msg.error.handled)
       return acc
-    stored.reject(new RpcApiError(msg.error.code, msg.error.message))
-  } else
-    stored.resolve(msg.body)
+    // stored.reject(new RpcApiError(msg.error.code, msg.error.message))
+  } /*else
+    stored.resolve(msg.body)*/
   return acc.delete(msg.api.apiID)
 }
 

@@ -73,7 +73,7 @@ export type Client = {
   homeDc: number,
   dcDetected: boolean,
   command: KeyValue<string, string>,
-  request: KeyValue<UID, ApiNewRequest>,
+  request: KeyValue<UID, ApiRequest>,
   pendingAck: { [dc: number]: string[] },
   salt: KeyStorage,
   auth: KeyStorage,

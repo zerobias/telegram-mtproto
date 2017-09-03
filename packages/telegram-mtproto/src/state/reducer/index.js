@@ -14,7 +14,7 @@ import {
 } from 'ramda'
 // import { Pure, liftF } from '@safareli/free'
 // import { of, Left, Right } from 'apropos'
-// import { Maybe, Just, Nothing } from 'folktale/maybe'
+import { Maybe } from 'folktale/maybe'
 
 import type {
   ApiNewRequest,
@@ -32,20 +32,25 @@ import type {
 import { trimType } from '../helpers'
 import {
   type UID,
+  toUID,
   type DCNumber,
 } from 'Newtype'
 import { MAIN, NET, API, AUTH } from 'Action'
 import keyStorage, { KeyStorage } from 'Util/key-storage'
-import {  KeyValue } from 'Monad'
+import { KeyValue, TupleT, Tuple } from 'Monad'
 import { sha1BytesSync } from 'Bin'
 import { NetMessage } from '../../service/networker/net-message'
 // import networker from './networker-state'
+import { RpcApiError } from '../../error'
 import ApiRequest from '../../service/main/request'
 import request from './request'
 import { netStatuses, type NetStatus } from 'NetStatus'
 import Config from 'ConfigProvider'
 
-import { type PUnitList } from '../../task/index.h'
+import {
+  type PUnitList,
+  type MessageUnit,
+} from '../../task/index.h'
 
 const initial: any = {}
 
@@ -128,7 +133,7 @@ const netStatus = createReducer({
   //   ...payload.reduce((acc, { dc, status }) => ({ ...acc, [dc]: status }), {})
   // })
 }, {
-  2: 'active'
+  '2': 'active'
 })
 
 const dcDetected = createReducer({
@@ -139,7 +144,7 @@ const dcDetected = createReducer({
 }, false)
 
 const salt = createReducer({
-  //$off
+  //$ off
   // [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.serverSalt),
   //$off
   [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { salt }: OnStorageImported) => state.merge(salt),
@@ -155,7 +160,7 @@ const auth = createReducer({
   //$off
   [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { auth }: OnStorageImported) => state.merge(auth),
   '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.auth),
-  //$off
+  //$ off
   // [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKey),
   //$off
   [AUTH.SET_AUTH_KEY]    : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload),
@@ -170,7 +175,7 @@ const authID = createReducer({
   '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) =>
   //$off
     state.merge(map(makeAuthID, payload.summary.auth)),
-  //$off
+  //$ off
   // [MAIN.AUTH.RESOLVE]: (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKeyID),
   //$off
   [AUTH.SET_AUTH_KEY]: (state: KeyStorage, payload: number[], { id }: { id: number }) => {
@@ -248,6 +253,115 @@ const client: Reducer<Client> = combineReducers({
   status : createReducer({}, {})
 })
 
+function handleError(
+  state: Client,
+  task: MessageUnit,
+  msgID: UID,
+  outID: UID,
+  errorObj: RpcApiError,
+): Client {
+  const { command, request } = state
+  return command
+    .maybeGetK(outID) // true by definition
+    /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
+    .chain(tuple => TupleT.traverseMaybe(tuple.map(getRequestByID(request))))
+    .map(x => x.bimap(
+      msgID => command
+        .removeK(msgID)
+        .removeK(outID),
+      req => {
+        req.deferFinal.reject(errorObj)
+        return request
+          .removeV(req)
+          .removeK(req.requestID)
+      }
+    ))
+    .fold(() => state, (tuple): Client => ({
+      ...state,
+      command: tuple.fst(),
+      request: tuple.snd(),
+    }))
+}
+
+const getRequestByID =
+  (request: KeyValue<UID, ApiRequest>) =>
+    (reqID: UID): Maybe<ApiRequest> =>
+      request
+        .maybeGetK(reqID)
+        .map(tuple => tuple.snd())
+
+function handleApiResp(
+  state: Client,
+  task: MessageUnit,
+  msgID: UID,
+  outID: UID,
+  body
+): Client {
+  const { command, request } = state
+  return command
+    .maybeGetK(outID) // true by definition
+    /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
+    .chain(tuple => TupleT.traverseMaybe(tuple.map(getRequestByID(request))))
+    .map(x => x.bimap(
+      msgID => command
+        .removeK(msgID)
+        .removeK(outID),
+      req => {
+        req.deferFinal.resolve(body)
+        return request
+          .removeV(req)
+          .removeK(req.requestID)
+      }
+    ))
+    .fold(() => state, (tuple): Client => ({
+      ...state,
+      command: tuple.fst(),
+      request: tuple.snd(),
+    }))
+}
+
+function resolveTask(state: Client, task: MessageUnit): Client {
+  const { request, command } = state
+  const { flags } = task
+  const msgID = /*:: toUID( */ task.id /*:: ) */
+  if (flags.api) {
+    if (flags.methodResult) {
+      const outID = /*:: toUID( */ task.methodResult.outID /*:: ) */
+      if (flags.error) {
+        const { error } = task
+        if (error.handled) return state
+        const errorObj = new RpcApiError(error.code, error.message)
+        // if (request.hasKey(outID)) {
+        return handleError(state, task, msgID, outID, errorObj)
+        // }
+      } else {
+        if (flags.body) {
+          const { body } = task
+          // if (request.hasKey(outID)) {
+          return handleApiResp(state, task, msgID, outID, body)
+          // }
+        }
+      }
+    }
+  }
+  return state
+}
+
+function requestWatch(currentState: Client, action: { type: string, uid: UID, payload: any }): Client {
+  const state = client(currentState, action)
+  const type = trimType(action.type || '')
+  if (type === 'api/task done') {
+    const tasks: MessageUnit[] = action.payload
+    let newState = state
+    for (const task of tasks) {
+      newState = resolveTask(newState, task)
+    }
+    return newState
+  }
+
+  return state
+}
+
 function statusWatch(state: Client) {
   const dcList = Config.dcList(state.uid)
   const singleStatus = dc =>
@@ -262,7 +376,7 @@ function statusWatch(state: Client) {
 
 const decoratedClient: Reducer<Client & { status: KeyValue<DCNumber, boolean> }> =
 (state, action) => {
-  const currentState = client(state, action)
+  const currentState = requestWatch(state, action)
   return {
     ...currentState,
     status: statusWatch(currentState)

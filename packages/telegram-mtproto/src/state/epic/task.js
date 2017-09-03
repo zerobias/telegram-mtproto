@@ -43,7 +43,7 @@ export const onTaskEnd =
   // .thru(e => netStatusGuard(netStatuses.halt, homeSttus, e))
   // .thru(e => netStatusGuard(netStatuses.guest, guards, e))
   .map(e => e.payload)
-  .filter((list) => list.length === 0 || !Config.halt.get(list[0].uid, list[0].dc))
+  .filter((list) => list.length !== 0 && !Config.halt.get(list[0].uid, list[0].dc))
   .chain(normalized => {
     // const withData = normalized => ({ normalized, ...data })
     const handledList = normalized
@@ -212,9 +212,10 @@ export const receiveResponse = (action: Stream<any>) => action
     // dispatch(NETWORKER_STATE.SENT.DEL(sentDel, thread.dcID))
     thread.checkConnectionPeriod = Math.max(1.1, Math.sqrt(thread.checkConnectionPeriod))
     thread.checkLongPoll()
-    return normalized.map(obj => ({ ...obj, uid }))
+    const result = normalized.map(obj => ({ ...obj, uid }))
+    dispatch(API.TASK.DONE(result), uid)
   })
-  .map(API.TASK.DONE)
+  .filter(() => false)
   .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 //)
 

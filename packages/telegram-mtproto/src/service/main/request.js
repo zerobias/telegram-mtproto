@@ -1,7 +1,10 @@
 //@flow
 
 import blueDefer, { type Defer } from 'Util/defer'
-import { type DCNumber } from 'Newtype'
+import {
+  type DCNumber,
+  type UID,
+} from 'Newtype'
 import uuid from 'Util/uuid'
 
 export type ApiMethod = {
@@ -46,13 +49,6 @@ export default class ApiRequest {
     })
   }
 }
-
-declare var ap: ApiRequest
-
-/*::
-const fromUuid = uuid()
-type UID = typeof fromUuid
-*/
 
 const noAuthMethods = [
   'auth.sendCode',
