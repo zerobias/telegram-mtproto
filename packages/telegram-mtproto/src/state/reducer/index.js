@@ -62,6 +62,8 @@ function trimAction(action: any): string {
   return trimType(action.type)
 }
 
+type RequestResult = { +_: string, +[key: string]: any }
+
 const progress = (() => {
   const idle = createReducer({
     //$off
@@ -81,9 +83,9 @@ const progress = (() => {
   const result = createReducer({
     //$off
     [API.TASK.DONE]: (
-      state: KeyValue<string, { _: string, [key: string]: any }[]>,
+      state: KeyValue<string, RequestResult[]>,
       payload: MessageUnit[]
-    ): KeyValue<string, { _: string, [key: string]: any }[]> => {
+    ): KeyValue<string, RequestResult[]> => {
       const apiPL = onlyAPI(payload)
       const newState = apiPL.reduce(reduceResults, state)
       return newState
@@ -93,7 +95,7 @@ const progress = (() => {
     idle: ApiRequest[],
     current: ApiRequest[],
     done: ApiRequest[],
-    result: KeyValue<string, { _: string, [key: string]: any }[]>,
+    result: KeyValue<string, RequestResult[]>,
   }
   const reducer: Reducer<Progress> = combineReducers({
     idle,
@@ -103,12 +105,12 @@ const progress = (() => {
   })
 
   function reduceResults(
-    acc: KeyValue<string, { _: string, [key: string]: any }[]>,
+    acc: KeyValue<string, RequestResult[]>,
     val: MessageUnit
   ) {
     const id = val.api.apiID
     const data = val.body
-    const init: { _: string, [key: string]: any }[] = []
+    const init: RequestResult[] = []
     const list = acc
       .maybeGetK(id)
       .fold(() => init, x => x.snd())
@@ -235,8 +237,8 @@ const lastMessages = createReducer({
 
 const authData = (() => {
   const salt = createReducer({
-    //$ off
-    // [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.serverSalt),
+    //$off
+    [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.serverSalt),
     //$off
     [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { salt }: OnStorageImported) => state.merge(salt),
     '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.salt),
@@ -251,8 +253,8 @@ const authData = (() => {
     //$off
     [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { auth }: OnStorageImported) => state.merge(auth),
     '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.auth),
-    //$ off
-    // [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKey),
+    //$off
+    [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKey),
     //$off
     [AUTH.SET_AUTH_KEY]    : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload),
     //$off
@@ -266,8 +268,8 @@ const authData = (() => {
     '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) =>
     //$off
       state.merge(map(makeAuthID, payload.summary.auth)),
-    //$ off
-    // [MAIN.AUTH.RESOLVE]: (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKeyID),
+    //$off
+    [MAIN.AUTH.RESOLVE]: (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKeyID),
     //$off
     [AUTH.SET_AUTH_KEY]: (state: KeyStorage, payload: number[], { id }: { id: number }) => {
       const sha1 = sha1BytesSync(payload)

@@ -42,7 +42,7 @@ const Blackhole = {
     const { homeDc, status } = state
     const statusObj = status.toJSON()
     const type = trimType(action.type)
-    console.log(type, state, statusObj)
+    console.log(type, state)
     switch (type) {
       case 'api/request new': {
         console.warn(statusObj[homeDc])
@@ -210,7 +210,7 @@ const rootEpic = combineEpics([
   onMessageTrigger,
   // reactivate,
   // dcRecieved,
-  onNewRequest,
+  // onNewRequest,
   // onAuthResolve,
   netRequest,
   receiveResponse,

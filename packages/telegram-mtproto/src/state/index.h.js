@@ -76,7 +76,7 @@ export type Client = {
     idle: ApiRequest[],
     current: ApiRequest[],
     done: ApiRequest[],
-    result: KeyValue<string, { _: string, [key: string]: any }[]>,
+    result: KeyValue<string, { +_: string, +[key: string]: any }[]>,
   },
   salt: KeyStorage,
   auth: KeyStorage,

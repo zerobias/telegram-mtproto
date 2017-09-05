@@ -14,7 +14,7 @@ import Config from 'ConfigProvider'
 function longPollRequest(thread: NetworkerThread, maxWait: number) {
   return thread.wrapMtpCall('http_wait', {
     max_delay : 0,
-    wait_after: 300,
+    wait_after: 0,
     max_wait  : maxWait
   }, requestOpts)
 }
@@ -40,7 +40,7 @@ export default class LongPoll {
   thread: NetworkerThread
   currentRequest: FutureRequest | void
   futureRequest: FutureRequest
-  maxWait = 25e3
+  maxWait = 15e3
   pendingTime = Date.now()
   requestTime = Date.now()
   alreadyWaitPending: boolean = false

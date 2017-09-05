@@ -305,7 +305,7 @@ export class NetworkerThread {
   }
 
   poll = fromEvent('poll', this.pollEvents)
-    .throttle(200)
+    .throttle(100)
     .observe(this.runLongPoll)
   checkLongPoll() {
     const isClean = this.cleanupSent()
@@ -462,7 +462,7 @@ export class NetworkerThread {
       const serializer = new Serialization({ mtproto: true }, this.uid)
       const params = {
         max_delay : 0,
-        wait_after: 500,
+        wait_after: 0,
         max_wait  : 5000
       }
       serializer.storeMethod('http_wait', params)

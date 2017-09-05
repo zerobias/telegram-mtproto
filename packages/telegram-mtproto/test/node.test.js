@@ -68,30 +68,30 @@ const { default: Config } = require('../lib/config-provider')
   return history
 }*/
 
-const resetStorage = async() => {
-  consoleHR(`RESET STORAGE`)
-  //$off
-  telegram.storage.data = storageData()
-  //$ off
-  // await telegram.storage.save()
-  await delay(4000)
-  consoleHR(`RESET DONE`)
-}
+// const resetStorage = async() => {
+//   consoleHR(`RESET STORAGE`)
+//   //$off
+//   telegram.storage.data = storageData()
+//   //$ off
+//   // await telegram.storage.save()
+//   await delay(4000)
+//   consoleHR(`RESET DONE`)
+// }
 
-const isAlreadyAuth = async() => {
-  const dc = await telegram.storage.get('nearest_dc')
-  if (!dc) {
-    await resetStorage()
-    return false
-  }
-  const authKey = await telegram.storage.get(`dc${dc}_auth_key`)
-  const salt = await telegram.storage.get(`dc${dc}_server_salt`)
-  const result = !!authKey && !!salt
-  if (!result) {
-    await resetStorage()
-  }
-  return result
-}
+// const isAlreadyAuth = async() => {
+//   const dc = await telegram.storage.get('nearest_dc')
+//   if (!dc) {
+//     await resetStorage()
+//     return false
+//   }
+//   const authKey = await telegram.storage.get(`dc${dc}_auth_key`)
+//   const salt = await telegram.storage.get(`dc${dc}_server_salt`)
+//   const result = !!authKey && !!salt
+//   if (!result) {
+//     await resetStorage()
+//   }
+//   return result
+// }
 
 let sendCode, getDialogs, getNearest
 
@@ -121,7 +121,7 @@ test('Loading from storage', async() => {
   // expect.assertions(2)
   // await expect((async() => {
   infoCallMethod('auth.sendCode')
-  let nearest = await getNearest.promise()
+  await getNearest.promise()
   const res1 = await telegram('auth.sendCode', {
     phone_number  : phone.num,
     current_number: false,
@@ -148,7 +148,7 @@ test('Loading from storage', async() => {
   // // await expect((async() => {
   const nextStorage = new Storage(
     './test/storage1.json',
-    //$off
+    //$ off
     // telegram.storage.data
   )
   // // await nextStorage.save()
@@ -161,7 +161,7 @@ test('Loading from storage', async() => {
   // // expect(newInstance.storage.data.dc1_auth_key).toBe(
   // //   telegram.storage.data.dc1_auth_key
   // // )
-  nearest = await newInstance('help.getNearestDc')
+  await newInstance('help.getNearestDc')
   // console.log(Config.session.get(telegram.uid, 2))
   // infoCallMethod(Config.session.get(newInstance.uid, 2))
   // await delay(3000)
@@ -186,7 +186,7 @@ test('Loading from storage', async() => {
   expect(dialogs).toBeDefined()
 })
 
-test('DC migrate', async() => {
+test.only('DC migrate', async() => {
   infoCallMethod('getNearest')
   await getNearest.promise()
   infoCallMethod('auth.sendCode')
@@ -197,6 +197,15 @@ test('DC migrate', async() => {
     api_hash      : config.hash
   })
   expect(res1).toHaveProperty('phone_code_hash')
+  infoCallMethod('auth.signIn')
+  const res = await telegram('auth.signIn', {
+    phone_number   : phone.wrongNum,
+    phone_code_hash: res1.phone_code_hash,
+    phone_code     : phone.wrongCode,
+  })
+  expect(res).toBeTruthy()
+  const dialogs = await getDialogs.promise()
+  expect(dialogs).toBeTruthy()
 })
 
 test.skip(`Connection test`, async() => {
