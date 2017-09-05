@@ -2,6 +2,6 @@ image: node:8-alpine
 
 test:
   script:
-  - npm i -g lerna rimraf
-  - npm run cleanup
+  - npm i
+  - node node_modules/.bin/lerna bootstrap --hoist
   - npm t
