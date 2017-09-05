@@ -14,7 +14,7 @@ import Config from 'ConfigProvider'
 function longPollRequest(thread: NetworkerThread, maxWait: number) {
   return thread.wrapMtpCall('http_wait', {
     max_delay : 0,
-    wait_after: 0,
+    wait_after: 300,
     max_wait  : maxWait
   }, requestOpts)
 }
@@ -95,7 +95,7 @@ export default class LongPoll {
   // }
   async sendLongPool(): Promise<any> {
     //TODO add base dc check
-    if (!Config.halt.get(this.thread.uid, this.thread.dcID)) return Bluebird.resolve(false)
+    if (Config.halt.get(this.thread.uid, this.thread.dcID)) return Bluebird.resolve(false)
     // return cache(futureRequest(this.thread, this.maxWait)
     //   .map(x => {
     //     log`poll response`(x)

@@ -11,6 +11,7 @@ import type {
 } from '../index.h'
 import {
   actionName,
+  trimType,
   trimActionType,
 } from '../helpers'
 import {
@@ -113,6 +114,9 @@ function resolveTask(state: Client, task: MessageUnit): Client {
   const { flags } = task
   const msgID = /*:: toUID( */ task.id /*:: ) */
   if (flags.api) {
+    if (!task.api || !task.api.resolved) {
+      console.error(`Task not found!`, task)
+    }
     if (flags.methodResult) {
       const outID = /*:: toUID( */ task.methodResult.outID /*:: ) */
       if (flags.error) {
@@ -126,8 +130,8 @@ function resolveTask(state: Client, task: MessageUnit): Client {
 }
 
 export default function requestWatch(state: Client, action: any): Client {
-  switch (trimActionType(action)) {
-    case (actionName(API.TASK.DONE)): {
+  switch (trimType(action.type)) {
+    case ('api/task done'): {
       const tasks: MessageUnit[] = action.payload
       let newState = state
       for (const task of tasks) {

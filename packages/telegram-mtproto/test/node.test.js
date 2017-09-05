@@ -37,6 +37,7 @@ const phone = {
   num      : '+9996620000',
   code     : '22222',
   wrongCode: '11111',
+  wrongNum : '+9996610000',
 }
 
 const server = {
@@ -71,8 +72,8 @@ const resetStorage = async() => {
   consoleHR(`RESET STORAGE`)
   //$off
   telegram.storage.data = storageData()
-  //$off
-  await telegram.storage.save()
+  //$ off
+  // await telegram.storage.save()
   await delay(4000)
   consoleHR(`RESET DONE`)
 }
@@ -92,9 +93,9 @@ const isAlreadyAuth = async() => {
   return result
 }
 
-let sendCode, getDialogs
+let sendCode, getDialogs, getNearest
 
-beforeEach(async() => {
+beforeEach(() => {
   telegram = MTProto({ server, api, app })
   sendCode = telegram.future('auth.sendCode', {
     phone_number  : phone.num,
@@ -105,21 +106,22 @@ beforeEach(async() => {
   getDialogs = telegram.future('messages.getDialogs', {
     limit: 100,
   })
+  getNearest = telegram.future('help.getNearestDc')
   // await resetStorage()
 })
 
 
-afterEach(async() => {
+afterEach(() => {
   consoleHR(`TEST END`)
-  await delay(2e3)
-  consoleHR(`PAUSE END`)
+  // await delay(2e3)
+  // consoleHR(`PAUSE END`)
 })
 
 test('Loading from storage', async() => {
   // expect.assertions(2)
   // await expect((async() => {
   infoCallMethod('auth.sendCode')
-  let nearest = await telegram('help.getNearestDc')
+  let nearest = await getNearest.promise()
   const res1 = await telegram('auth.sendCode', {
     phone_number  : phone.num,
     current_number: false,
@@ -184,28 +186,43 @@ test('Loading from storage', async() => {
   expect(dialogs).toBeDefined()
 })
 
-test(`Connection test`, async() => {
+test('DC migrate', async() => {
+  infoCallMethod('getNearest')
+  await getNearest.promise()
+  infoCallMethod('auth.sendCode')
+  const res1 = await telegram('auth.sendCode', {
+    phone_number  : phone.wrongNum,
+    current_number: false,
+    api_id        : config.id,
+    api_hash      : config.hash
+  })
+  expect(res1).toHaveProperty('phone_code_hash')
+})
 
+test.skip(`Connection test`, async() => {
+  infoCallMethod('Connection test')
   expect.assertions(2)
-  const isAuth = await isAlreadyAuth()
+  infoCallMethod('getNearest')
+  await getNearest.promise()
+  // const isAuth = await isAlreadyAuth()
   let message
-  if (!isAuth) {
-    infoCallMethod('auth.sendCode')
-    const res1 = await sendCode.promise()
-    const { phone_code_hash } = res1
-    console.log('res1', res1)
-    console.log('phone_code_hash', phone_code_hash)
-    infoCallMethod('auth.signIn')
-    const res = await telegram('auth.signIn', {
-      phone_number: phone.num,
-      phone_code_hash,
-      phone_code  : phone.code,
-    })
-    console.log('signIn', res)
-    message = 'result is ok'
-  } else {
-    message = 'already authorized, skip'
-  }
+  // if (!isAuth) {
+  infoCallMethod('auth.sendCode')
+  const res1 = await sendCode.promise()
+  const { phone_code_hash } = res1
+  console.log('res1', res1)
+  console.log('phone_code_hash', phone_code_hash)
+  infoCallMethod('auth.signIn')
+  const res = await telegram('auth.signIn', {
+    phone_number: phone.num,
+    phone_code_hash,
+    phone_code  : phone.code,
+  })
+  console.log('signIn', res)
+  message = 'result is ok'
+  // } else {
+  //   message = 'already authorized, skip'
+  // }
   expect(message).toBeTruthy()
   infoCallMethod('messages.getDialogs')
   const dialogs = await getDialogs.promise()
@@ -213,31 +230,33 @@ test(`Connection test`, async() => {
 })
 
 test(`Rejection test`, async() => {
-  expect.assertions(2)
-  await expect((async() => {
-    infoCallMethod('auth.sendCode')
-    const { phone_code_hash } = await sendCode.promise()
-    infoCallMethod('auth.signIn')
-    await expect(
-      telegram('auth.signIn', {
-        phone_number: phone.num,
-        phone_code_hash,
-        phone_code  : phone.wrongCode,
-      })
-    ).rejects.toMatchObject({
-      code   : 400,
-      message: 'PHONE_CODE_INVALID',
+  infoCallMethod('Rejection test')
+  infoCallMethod('getNearest')
+  await getNearest.promise()
+  infoCallMethod('auth.sendCode')
+  const { phone_code_hash } = await sendCode.promise()
+  infoCallMethod('auth.signIn')
+  await expect(
+    telegram('auth.signIn', {
+      phone_number: phone.num,
+      phone_code_hash,
+      phone_code  : phone.wrongCode,
     })
-  })()).resolves.toBeUndefined()
+  ).rejects.toMatchObject({
+    code   : 400,
+    message: 'PHONE_CODE_INVALID',
+  })
 })
 
 
-test(`Parallel requests safety`, async() => {
+test.skip(`Parallel requests safety`, async() => {
   const TIMES = 10
   const TIMEOUT = 30e3
 
   expect.assertions(2)
+  infoCallMethod('Parallel requests safety')
   infoCallMethod('auth.sendCode')
+  await getNearest.promise()
   const { phone_code_hash } = await sendCode.promise()
   infoCallMethod('auth.signIn')
   const res = await telegram('auth.signIn', {

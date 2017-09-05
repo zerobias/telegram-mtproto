@@ -140,7 +140,7 @@ export class NetworkerThread {
 
     // this.updateSession()
     setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
-    this.checkLongPoll()
+    // this.checkLongPoll()
   }
   get state(): L1Cache {
     return Config.fastCache.get(this.uid, this.dcID)

@@ -13,9 +13,9 @@ export {
 
 
 import OnlyStatic from '../only-static'
-import { TupleT, Tuple } from './tuple'
+import { TupleT, Tuple, MTuple } from './tuple'
 
-export { TupleT, Tuple }
+export { TupleT, Tuple, MTuple }
 export { KeyValue } from './key-value'
 
 export function maybeAp<I, O>(fn: Maybe<((x: I) => O)>, val: Maybe<I>): Maybe<O> {

@@ -43,11 +43,11 @@ function withDC(uid, dc) {
       newThread(auth, salt),
       getThread
     )
-  const state = getState()
-  const client = state.client[uid]
-  const homeStatus = client.status
-    .maybeGetK(dc)
-    .fold(() => false, () => true)
+  // const state = getState()
+  // const client = state.client[uid]
+  // const homeStatus = client.status
+  //   .maybeGetK(dc)
+  //   .fold(() => false, () => true)
   // if (homeStatus) {
   //   const salt = client.salt.get(dc)
   //   const auth = client.auth.get(dc)
@@ -60,17 +60,17 @@ function withDC(uid, dc) {
   //   .map(foldGetThread)
   return MaybeT
     .toFutureR(queryKeys(uid, dc))
-    .mapRej(x => {
-      const xx = [uid, dc, queryKeys(uid, dc)]
-
-      // console.warn(, uid, dc)
-      return x
-    })
+    // .mapRej(x => {
+    //   const xx = [uid, dc, queryKeys(uid, dc)]
+    //
+    //   // console.warn(, uid, dc)
+    //   return x
+    // })
     .chainRej(doAuth)
     .map(foldGetThread)
 }
 
-const authRequest = (uid: string, dc) => Auth(uid, dc)
+export const authRequest = (uid: string, dc) => Auth(uid, dc)
   .bimap(
     tap(e => console.error('Auth error', e.message, e.stack)),
     ({

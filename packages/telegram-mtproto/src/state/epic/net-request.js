@@ -1,7 +1,7 @@
 //@flow
 
 import { Stream, of, awaitPromises } from 'most'
-import { encaseP } from 'fluture'
+import { encaseP, after } from 'fluture'
 
 import Logger from 'mtproto-logger'
 const log = Logger`net-request`
@@ -25,6 +25,7 @@ import Status, { netStatusGuard, netStatuses } from 'NetStatus'
 import { MaybeT } from 'Monad'
 import { toUID } from 'Newtype'
 import { makeAuthRequest } from '../../service/invoke'
+import { getState } from '../portal'
 
 function makeApiBytes({ uid, dc, message, thread, ...rest }) {
   const keys = queryKeys(uid, dc)
@@ -49,61 +50,20 @@ function makeApiBytes({ uid, dc, message, thread, ...rest }) {
     }))
 }
 
-export function onNewRequest(action$: Stream<any>){
-  const action = action$
-    .thru(e => API.REQUEST.NEW.stream(e))
-    .map(e => e.payload)
-  const getDc = action
-    // .thru(e => API.REQUEST.NEW.stream(e))
-    // .thru(e => netStatusGuard(netStatuses.halt, homeStatus, e))
-    // .thru(guestStatus)
-    // .map(x => x.payload)
-    .filter(data => data.method === 'help.getNearestDc')
-
-
-  const noAuth = action
-    // .thru(e => netStatusGuard(netStatuses.guest, homeStatus, e))
-    .filter(data => !data.netReq.needAuth)
-    .filter(data => data.method !== 'help.getNearestDc')
-    // .delay(100)
-    // .thru(e => statusGuard(statuses.activated, moduleStatus, e))
-
-  const casual = action
-    .filter(data => data.netReq.needAuth)
-    // .thru(e => statusGuard(statuses.activated, moduleStatus, e))
-    // .thru(e => netStatusGuard(netStatuses.active, homeStatus, e))
-    // .delay(150)
-
-  const merged = getDc.merge(noAuth, casual)
-
-  // const withHome = merged
-  //   .sample(
-  //     (data, homeDc) => ({ ...data, homeDc }),
-  //     merged,
-  //     homeDc
-  //   )
-  return merged /* withHome
-    .sample(
-      (data, uid) => ({ ...data, uid }),
-      withHome,
-      uid
-    ) */
-    // .thru(e => statusGuard(statuses.activated, moduleStatus, e))
-    // .thru(e => netStatusGuard(netStatuses.guest, homeStatus, e))
-    // .thru(guestStatus)
-    // .thru(e => netStatusGuard(netStatuses.active, homeStatus, e))
-    .map(API.TASK.NEW)
-}
-
 export const onNewTask = (action: Stream<any>) => action
-  .thru(API.TASK.NEW.stream)
+  .thru(API.NEXT.stream)
   .map(e => e.payload)
-  .chain(e => of(e).delay(200))
+  .map(({ uid }) => getState().client[uid])
+  .map(e => e.progress.current[0])
+  .filter(e => !!e)
+  // .map(e => e.payload)
+  // .chain(e => of(e).delay(200))
   // .delay(100)
   // .thru(e => netStatusGuard(netStatuses.halt, homeStatus, e))
   // .thru(guestStatus)
   .tap(val => console.warn('onNewTask', val))
-  .map(val => val.map(i => makeAuthRequest(i).promise()))
+  .map(i => makeAuthRequest(i).promise())
+
   // .tap(val => {
   //   Array.isArray(val)
   //     ? val.map(v => v.netReq.invoke())
@@ -156,9 +116,16 @@ const netRequest = (action: Stream<any>) => action
   .map(data => ({ ...data, uid: data.thread.uid }))
   .map(data => ({ ...data, url: Config.dcMap(data.uid, data.dc) }))
   .filter(({ dc, uid }) => !Config.halt.get(uid, dc))
-  .map(data => makeApiBytes(data).chain(encryption).promise())
+  // .filter(({ message }) => getState()
+  //   .client[message.uid]
+  //   .lastMessages
+  //   .indexOf(message.msg_id) === -1)
+  .map(data => makeApiBytes(data)
+    .chain(bytes => after(100, bytes))
+    .chain(encryption)
+    .promise())
   .thru(awaitPromises)
-  .tap(data => console.warn('RECIEVE RESP', data))
+  // .tap(data => console.warn('RECIEVE RESP', data))
   .map(NET.RECEIVE_RESPONSE)
   .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 

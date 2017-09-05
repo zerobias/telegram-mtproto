@@ -8,7 +8,7 @@ import dcStoreKeys from 'Util/dc-store-keys'
 import { dispatch } from 'State'
 import random from '../secure-random'
 import { MAIN } from 'Action'
-import { bytesFromHex } from '../../bin'
+import { bytesFromHex } from 'Bin'
 import Thread from '../networker'
 
 import {
@@ -61,8 +61,8 @@ export default async function loadStorage(
       session: [],
     }
     const d = dcStoreKeys(dc)
-    const saltRaw = await storage.get(d.saltKey)
-    const salt = checkString(saltRaw)
+    const salt = await storage.get(d.saltKey)
+    // const salt = checkString(saltRaw)
     if (Array.isArray(salt)) {
       iSalt = { ...iSalt, [dc | 0]: salt }
 

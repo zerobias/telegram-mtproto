@@ -32,6 +32,11 @@ export function getClient(uid: string): Maybe<Client> {
   // return fromNullable(client[uid])
 }
 
+export const getHomeStatus = (uid: string) =>
+  getClient(uid)
+    .map(client => client.homeStatus)
+    .fold(() => false, x => x)
+
 type KeySelector = (x: Client) => KeyStorage
 
 const keyQuery =

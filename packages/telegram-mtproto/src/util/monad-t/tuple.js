@@ -2,9 +2,11 @@
 
 import { Maybe } from 'folktale/maybe'
 
+import { ᐸMapᐳ, ᐸEmptyᐳ, λMap } from './index.h'
 import OnlyStatic from '../only-static'
 
-export class Tuple<+A, +B> {
+export class Tuple<+A, +B> implements λMap<'Tuple', B> {
+  typeName: 'Tuple'
   +ᐸ1ᐳ: A
   +ᐸ2ᐳ: B
   constructor(a: *, b: *) {
@@ -103,6 +105,23 @@ function eq(a, b): boolean {
 function ofTuple<Aʹ, Bʹ>(a: Aʹ, b: Bʹ): Tuple<Aʹ, Bʹ> {
   return new Tuple(a, b)
 }
+
+const typeID = 'zero-bias/Tuple@1'
+
+export const MTuple: (
+  & ᐸMapᐳ<'Tuple'>
+  & ᐸEmptyᐳ<'Tuple'>
+) = {
+  '@@type'            : typeID,
+  of                  : <A, B>([a, b]: [A, B]): Tuple<A, B> => new Tuple(a, b),
+  'fantasy-land/of'   : <A, B>([a, b]: [A, B]): Tuple<A, B> => new Tuple(a, b),
+  empty               : (): Tuple<void, void> => new Tuple(void 0, void 0),
+  'fantasy-land/empty': (): Tuple<void, void> => new Tuple(void 0, void 0)
+}
+
+/*::  ; const dull = {} */
+
+Object.assign(/*:: dull, */ Tuple, MTuple)
 
 function canCompare(x): boolean {
   return (

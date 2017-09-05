@@ -66,15 +66,22 @@ export type CommandList = {
 
 export type Client = {
   uid: string,
-  homeDc: number,
+  homeDc: DCNumber,
   dcDetected: boolean,
   command: KeyValue<string, string>,
   request: KeyValue<UID, ApiRequest>,
   pendingAck: { [dc: number]: string[] },
   lastMessages: UID[],
+  progress: {
+    idle: ApiRequest[],
+    current: ApiRequest[],
+    done: ApiRequest[],
+    result: KeyValue<string, { _: string, [key: string]: any }[]>,
+  },
   salt: KeyStorage,
   auth: KeyStorage,
   authID: KeyStorage,
+  homeStatus: boolean,
   status: KeyValue<DCNumber, boolean>,
 }
 
@@ -104,6 +111,8 @@ export type OnAckAdd = {
   dc: DCNumber,
   ack: string[]
 }
+
+export type OnNewTask = ApiRequest[]
 
 export type OnRequestDone = MessageUnit[]/* {
   message: NetMessage,
@@ -142,6 +151,11 @@ export type OnNetSend = {
 }
 
 export type OnDcDetected = {
+  dc: DCNumber,
+  uid: UID,
+}
+
+export type OnNext = {
   dc: DCNumber,
   uid: UID,
 }

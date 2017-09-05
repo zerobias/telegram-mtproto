@@ -4,6 +4,15 @@
 
 import { toString, equals } from 'ramda'
 
+import {
+  ᐸMapᐳ,
+  ᐸChainᐳ,
+  ᐸEmptyᐳ,
+  ᐸChainRecᐳ,
+  λMap,
+  λChain,
+} from './index.h'
+
 export type ChainRec<T> = {
   isNext: boolean,
   value: T,
@@ -46,10 +55,14 @@ class ChainRecDone<T> {
 /**
  * A data type that holds a value and exposes a monadic api.
  */
-export class Identity<T> {
+export
+class Identity<T>
+implements
+  λMap<'Identity', T>,
+  λChain<'Identity', T>
+{
+  typeName: 'Identity'
   value: T
-  of: typeof Identity.of
-  chainRec: typeof Identity.chainRec
   /**
    * Constructs a new `Identity[a]` data type that holds a single
    * value `a`.
@@ -83,7 +96,7 @@ export class Identity<T> {
    * @returns Monad[b]
    * @sig (Identity[a], m: Monad[_]) => (a -> m[b]) -> m[b]
    */
-  chain<O>(fn: (x: T) => O): O {
+  chain<Name, O>(fn: (x: T) => λChain<Name, O>): λChain<Name, O> {
     return fn(this.value)
   }
 
@@ -113,9 +126,26 @@ export class Identity<T> {
 
   static empty = empty
 
-  static ap = ap
+  // static ap = ap
 
   static chainRec = chainRec
+}
+
+const typeID = 'zero-bias/Identity@1'
+
+export const MIdentity: (
+  & ᐸMapᐳ<'Identity'>
+  & ᐸEmptyᐳ<'Identity'>
+  & ᐸChainᐳ<'Identity'>
+  & ᐸChainRecᐳ<'Identity'>
+) = {
+  '@@type'               : typeID,
+  chainRec,
+  'fantasy-land/chainRec': chainRec,
+  of                     : <T>(value: T): Identity<T> => new Identity(value),
+  'fantasy-land/of'      : <T>(value: T): Identity<T> => new Identity(value),
+  empty                  : (): Identity<void> => new Identity(void 0),
+  'fantasy-land/empty'   : (): Identity<void> => new Identity(void 0),
 }
 
 export function empty(): Identity<void> {
@@ -160,22 +190,10 @@ export function ap<I, O>(mapper: Identity<((x: I) => O)>, value: CanBeMapped<I>)
 
 /*::  ; const dull = {} */
 
-const typeID = 'zero-bias/Identity@1'
+Object.assign(/*:: dull, */ Identity, MIdentity)
 
-
-Identity /*:: ; dull */ ['@@type'] = typeID
-Identity /*:: ; dull */ ['fantasy-land/of'] = Identity.prototype /*:: ; dull */['fantasy-land/of'] = of
-Identity /*:: ; dull */ ['fantasy-land/chainRec'] =
-  Identity.prototype /*:: ; dull */['fantasy-land/chainRec'] =
-  chainRec
-
-Identity /*:: ; dull */ ['fantasy-land/empty'] =
-    Identity.prototype /*:: ; dull */['fantasy-land/empty'] =
-    empty
 // //eslint-disable-next-line
 // Identity.prototype /*:: ; dull */ .ap =
 //   function(value: any) {
 //     return Identity.ap(this, value)
 //   }
-
-Identity.prototype.chainRec = Identity.chainRec

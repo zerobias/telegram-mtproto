@@ -15,6 +15,6 @@ export function requestNextSeq(uid: string, dc: number, notContentRelated?: bool
   }
   console.warn(dc, nextSeq)
   Config.seq.set(uid, dc, nextSeq)
-  dispatch(NET.SEQ_SET({ dc, seq: nextSeq }), uid)
+  // dispatch(NET.SEQ_SET({ dc, seq: nextSeq }), uid)
   return seqNo
 }

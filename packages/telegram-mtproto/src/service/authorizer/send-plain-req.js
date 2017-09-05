@@ -55,7 +55,8 @@ function onlySendPlainReq(uid: string, requestBuffer: ArrayBuffer) {
 }
 
 function onlySendPlainErr(err) {
-  if (err.response.status === 404) return new ErrorNotFound(err)
+  if (err && err.response && err.response.status === 404)
+    return new ErrorNotFound(err)
   return err
 }
 

@@ -2,14 +2,15 @@
 
 import { combineEpics } from 'redux-most'
 import { Stream, awaitPromises } from 'most'
-import { append } from 'ramda'
+import { contains } from 'ramda'
 import { type UID, type DCNumber } from 'Newtype'
 import { MAIN, API } from 'Action'
 // import { Pure, Lift, liftF } from '@safareli/free'
 import { after } from 'fluture'
 import netRequest, { onNewTask } from './net-request'
 import { receiveResponse } from './task'
-import { getClient } from '../query'
+import { makeAuthRequest, authRequest } from '../../service/invoke'
+import { getClient, getHomeStatus, queryHomeDc } from '../query'
 import Auth from '../../service/authorizer'
 import type {
   Client
@@ -19,6 +20,10 @@ import { KeyValue } from 'Monad'
 import { trimType } from '../helpers'
 // import Config from 'ConfigProvider'
 
+const filterActions = (list: string[]) => action => contains(
+  trimType(action.type),
+  list
+)
 
 // const interpret = (act) => ({ action, hasUID }: { action: string[], hasUID: boolean[] }) => ({
 //   action: append(act.type, action),
@@ -38,54 +43,80 @@ const Blackhole = {
     const statusObj = status.toJSON()
     const type = trimType(action.type)
     console.log(type, state, statusObj)
-
-    if (type === 'api/request new') {
-      console.warn(statusObj[homeDc])
-      if (!statusObj[homeDc]) {
-        Auth(action.uid, state.homeDc).promise()
-      } else {
+    switch (type) {
+      case 'api/request new': {
+        console.warn(statusObj[homeDc])
         dispatch(API.TASK.NEW([action.payload.netReq]), action.uid)
+        break
       }
-    }
-    if (type === 'main/auth resolve') {
-      dispatch(API.TASK.NEW(state.request.values), action.uid)
+      case 'main/auth resolve': {
+        dispatch(API.TASK.NEW(state.request.values), action.uid)
+        break
+      }
+      case 'main/dc detected': {
+        const uid: string = action.payload.uid
+        const dc: number = action.payload.dc
+        authRequest(uid, dc).promise()
+
+      }
     }
   }
 }
 
 const onEvent = (action: Stream<any>) => action
   .filter(e => !!e.uid)
-  .map(e => after(1500, e).promise())
+  .map(e => after(500, e).promise())
   .thru(awaitPromises)
   .map(e => getClient(e.uid).map(state => Blackhole.action(state, e)))
   .filter(() => false)
 
-const onAuthResolve = (action: Stream<any>) => action
-  .thru(e => MAIN.AUTH.RESOLVE.stream(e))
-  .map(e => after(1500, e).promise())
-  .thru(awaitPromises)
-  // .filter(e => getClient(e.uid)
-  //   .map(statusRequest)
-  //   .matchWith({
-  //     Just   : ({ value }) => value,
-  //     Nothing: () => false,
-  //   }))
-  .tap(e => console.log(e))
-  .map(e => getClient(e.uid)
-    .map(st => st.request.values)
-    .map(vals => dispatch(API.TASK.NEW(vals), e.uid)))
+const onMessageTrigger = (action: Stream<any>) => action
+  .filter(e => !!e.uid)
+  .filter(filterActions([
+    'api/request new',
+    'main/auth resolve',
+    'api/task new',
+    'api/task done'
+  ]))
+  .map(({ uid }: { uid: string }) => uid)
+  .filter(getHomeStatus)
+  .map(uid => dispatch(API.NEXT({ uid }), uid))
   .filter(() => false)
+
+// const onAuthResolve = (action: Stream<any>) => action
+//   .thru(e => MAIN.AUTH.RESOLVE.stream(e))
+//   .map(e => after(1500, e).promise())
+//   .thru(awaitPromises)
+//   // .filter(e => getClient(e.uid)
+//   //   .map(statusRequest)
+//   //   .matchWith({
+//   //     Just   : ({ value }) => value,
+//   //     Nothing: () => false,
+//   //   }))
+//   .tap(e => console.log(e))
+//   .map(e => getClient(e.uid)
+//     .chain(({ homeDc, status, request }) => status
+//       .maybeGetK(homeDc)
+//       .map((homeStat: boolean) => ({ homeStat, request })))
+//     .map(({ homeStat, request }) => request.values)
+//     .map(vals => dispatch(API.TASK.NEW(vals), e.uid)))
+//   .filter(() => false)
 
 
 const onNewRequest = (action: Stream<any>) => action
   .thru(e => API.REQUEST.NEW.stream(e))
+  .map(e => e.payload.netReq)
+  .map(e => after(500, e).promise())
+  .thru(awaitPromises)
   //$ off
   // .map(({ uid }: { uid: string }) => uid)
   // .map(getClient)
   // .map((x) => x)
-  .map(e => getClient(e.uid)
-    .map(st => st.request.values)
-    .map(vals => dispatch(API.TASK.NEW(vals), e.uid)))
+  .map(netReq =>
+    dispatch(API.TASK.NEW([netReq]), netReq.uid))
+  // .map(e => getClient(e.uid)
+  //   .map(st => st.request.values)
+  //   .map(vals => dispatch(API.TASK.NEW(vals), e.uid)))
   .filter(() => false)
 
 // const initialize = (action: Stream<{ type: string, payload: any }>) =>
@@ -176,10 +207,11 @@ const rootEpic = combineEpics([
   // initialize,
   // noAuth,
   afterStorageImport,
+  onMessageTrigger,
   // reactivate,
   // dcRecieved,
   onNewRequest,
-  onAuthResolve,
+  // onAuthResolve,
   netRequest,
   receiveResponse,
   onEvent,

@@ -399,15 +399,18 @@ function handleMigrateError(message, data, code, ctx) {
   Config.fastCache.init(uid, ctx.dc)
   Config.seq.set(uid, ctx.dc, 0)
   Config.halt.set(uid, ctx.dc, true)
+  Config.halt.set(uid, newDc, false)
   //$off
   Config.session.set(uid, ctx.dc, null)
   Promise.all([
     Config.storage.set(uid, 'dc', newDc),
     Config.storage.set(uid, 'nearest_dc', newDc)
-  ]).then(() => dispatch(MAIN.DC_DETECTED({
-    dc: newDc,
-    uid,
-  }, newDc), uid))
+  ]).then(() => {
+    dispatch(MAIN.DC_DETECTED({
+      dc: newDc,
+      uid,
+    }, newDc), uid)
+  })
   const patch = {
     flags: {
       net : true,

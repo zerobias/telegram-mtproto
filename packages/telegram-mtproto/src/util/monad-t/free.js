@@ -1,7 +1,7 @@
 //@flow
 
 //
-import { of, map, ap, chain } from 'sanctuary-type-classes'
+import { of, map, ap, chain } from 'ramda'
 //
 // // data Free i a
 // //   = Ap { x: (Free i b), y: (Free i (b -> a)) }
@@ -29,7 +29,7 @@ class Freeλʹ {
   }
   foldMap(f, m) {
     return m.chainRec((next, done, v) => v.cata({
-      Pure : (x) => map(done, of(m, x)),
+      Pure : (x) => map(done, m.of(x)),
       Lift : (x, g: $off) => map(xx => done(g(xx)), f(x)),
       Ap   : (x: Freeλ, y: Freeλ) => map(done, ap(y.foldMap(f, m), x.foldMap(f, m))),
       Chain: (x: Freeλ, g: $off) => map(xx => next(g(xx)), x.foldMap(f, m)),
