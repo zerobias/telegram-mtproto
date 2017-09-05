@@ -1,0 +1,6 @@
+image: node:8
+
+test:
+  script:
+  - npm run cleanup
+  - npm t
