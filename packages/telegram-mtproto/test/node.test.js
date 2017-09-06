@@ -1,7 +1,5 @@
 //@flow
 
-const { outputJsonSync, readJSONSync } = require('fs-extra')
-const { join } = require('path')
 const Bluebird = require('bluebird')
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 180e3
@@ -18,7 +16,7 @@ const { MTProto } = require('../lib')
 */
 const { getStorageData, delay, consoleHR, infoCallMethod } = require('./fixtures')
 const { config, api } = require('./mtproto-config')
-const { default: Storage } = require('../lib/plugins/sync-fs')
+const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
 // debug.useColors = false
 
