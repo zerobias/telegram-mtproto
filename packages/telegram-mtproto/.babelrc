@@ -12,7 +12,7 @@
 
     ["transform-object-rest-spread", { "useBuiltIns": true }],
     ["transform-define", {
-      "__DEV__": true
+      "__DEV__": false
     }],
     ["module-resolver", {
       "alias": {
