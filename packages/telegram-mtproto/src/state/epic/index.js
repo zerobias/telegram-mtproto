@@ -42,10 +42,12 @@ const Blackhole = {
     const { homeDc, status } = state
     const statusObj = status.toJSON()
     const type = trimType(action.type)
-    console.log(type, state)
+    if (__DEV__)
+      console.log(type, state)
     switch (type) {
       case 'api/request new': {
-        console.warn(statusObj[homeDc])
+        if (__DEV__)
+          console.warn(statusObj[homeDc])
         dispatch(API.TASK.NEW([action.payload.netReq]), action.uid)
         break
       }

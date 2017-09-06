@@ -154,7 +154,8 @@ export default async function loadStorage(
     session,
   }
   dispatch(MAIN.STORAGE_IMPORTED(finalAction), uid)
-  console.log({ salt: iSalt, home: iHome, session })
+  if (__DEV__)
+    console.log({ salt: iSalt, home: iHome, session })
 }
 
 function getDcList(auth, salt, home) {

@@ -29,12 +29,14 @@ import { getState } from '../portal'
 
 function makeApiBytes({ uid, dc, message, thread, ...rest }) {
   const keys = queryKeys(uid, dc)
-  console.error('keys', keys)
+  if (__DEV__)
+    console.error('keys', keys)
   const session = Config.session.get(uid, dc)
   if (!MaybeT.isJust(keys))
     throw new TypeError(`No session! ${String(keys)}`)
   const { auth, salt, authID } = MaybeT.unsafeGet(keys)
-  console.warn('salt, session', salt, session)
+  if (__DEV__)
+    console.warn('salt, session', salt, session)
   const bytes = apiMessage({
     ctx       : new Serialization({ startMaxLength: message.body.length + 64 }, uid).writer,
     serverSalt: salt,
@@ -61,7 +63,10 @@ export const onNewTask = (action: Stream<any>) => action
   // .delay(100)
   // .thru(e => netStatusGuard(netStatuses.halt, homeStatus, e))
   // .thru(guestStatus)
-  .tap(val => console.warn('onNewTask', val))
+  .tap(val => {
+    if (__DEV__)
+      console.warn('onNewTask', val)
+  })
   .map(i => makeAuthRequest(i).promise())
 
   // .tap(val => {

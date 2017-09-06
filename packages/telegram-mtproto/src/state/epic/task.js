@@ -89,8 +89,11 @@ export const receiveResponse = (action: Stream<any>) => action
     }
   })
   .thru(awaitPromises)
-  .tap(({ normalized, summary, statuses }) => normalized.map(
-    msg => console.log('normalized, summary', msg, `\n`, summary, `\n`, statuses)))
+  .tap(({ normalized, summary, statuses }) => {
+    if (__DEV__)
+      normalized.map(
+        msg => console.log('normalized, summary', msg, `\n`, summary, `\n`, statuses))
+  })
   .map(({ uid, dc, thread, noResponseMsgs, normalized }) => {
     // await thread.requestPerformer(message, noResponseMsgs, result)
     const cache = Config.fastCache.get(uid, dc)

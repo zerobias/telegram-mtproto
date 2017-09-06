@@ -1,7 +1,7 @@
 //@flow
 
 import { Right, Left, of, ofL, type Apropos } from 'apropos'
-import { append, without, contains, once, into } from 'ramda'
+import { append } from 'ramda'
 import { Fluture, of as resolve, reject, Future } from 'fluture'
 import { Maybe, Just, Nothing, fromNullable } from 'folktale/maybe'
 
@@ -48,100 +48,6 @@ function futureEitherWrap<L, R>(
 type FoldMerge<L, R> = <LI, RI>(
   fluture: Fluture<RI, LI>
 ) => Fluture<Apropos<L, R>, void>
-
-export type λOrd<M> = {
-  +min: M,
-  +max: M,
-  compare(a: M, b: M): (-1 | 0 | 1),
-  of<-T>(data: T): M,
-}
-
-export class Ord<M> {
-  /*:: +*/x: M
-  /*:: +*/statics: λOrd<M>
-  constructor(x: M, statics: λOrd<M>) {
-    this.x /*:: ; const xx*/ = x
-    this.statics/*:: ; const yy*/ = statics
-  }
-  compare(y: M): (-1 | 0 | 1) {
-    return this.statics.compare(this.x, y)
-  }
-  lt(y: M): boolean {
-    return this.statics.compare(this.x, y) === -1
-  }
-  gt(y: M): boolean {
-    return this.statics.compare(this.x, y) === 1
-  }
-  equals(y: M): boolean {
-    return this.statics.compare(this.x, y) === 0
-  }
-}
-
-export function ord<M>(statics: λOrd<M>): ((x: M) => Ord<M>) {
-  return (x: M) => new Ord(x, statics)
-}
-
-
-
-export const λEndo = {
-  empty<+O>(): Endo<O, O> {
-    return new Endo(x => x)
-  },
-  of<I, O>(fn: (x: I) => O): Endo<I, O> {
-    return new Endo(fn)
-  }
-}
-
-export class Endo<I, O> {
-  /*:: + */λ: ((x: I) => O)
-  constructor(fn: ((x: I) => O)) {
-    this.λ/*:: ; const yy*/ = fn
-  }
-  concat<Iʹ>(y: Endo<Iʹ, I>): Endo<Iʹ, O> {
-    return new Endo((x: Iʹ) => this.λ(y.λ(x)))
-  }
-}
-
-type λDual<M> = {
-  ord(x: M): Ord<M>,
-  of<-T>(data: T): M,
-  empty(): M,
-}
-
-class Dual<M> {
-  /*:: +*/x: M
-  /*:: +*/statics: λDual<M>
-  constructor(x: M, statics: λDual<M>) {
-    this.x /*:: ; const xx*/ = x
-    this.statics/*:: ; const yy*/ = statics
-  }
-  equals(y: M) {
-    return this.statics.ord(this.x).equals(y)
-  }
-  // of<T>(x: T): Dual<M> {
-  //   return new Dual(this.statics.of(x), this.statics)
-  // }
-  // empty(): Dual<M> {
-  //   return new Dual(this.statics.empty(), this.statics)
-  // }
-}
-
-// const Dual = M => {
-//
-//     const Dual = tagged('x');
-//
-//     Dual[of] = x => Dual(M[of](x));
-//     Dual[empty] = () => Dual(M[empty]());
-//
-//     Dual.prototype[equals] = function(y) {
-//         return this.x[equals](y.x);
-//     };
-//     Dual.prototype[concat] = function(y) {
-//         return Dual(y.x[concat](this.x));
-//     };
-//
-//     return Dual;
-// }
 
 export class FutureEither<Reject, Resolve> {
   value: Fluture<Apropos<Reject, Resolve>, *>
@@ -297,7 +203,7 @@ export class MaybeT extends OnlyStatic {
   static isJust<-T>(x: Maybe<T>): boolean {
     return x.matchWith(
       /*:: ( */
-        isJustMatcher
+      isJustMatcher
       /*:: , { Just(x: any) { return true }, Nothing() { return false } }) */
     )
   }
@@ -307,86 +213,6 @@ export class MaybeT extends OnlyStatic {
 
 export { These } from './these'
 export type { λThese } from './these'
-
-
-const futureValue = x => resolve(x).mapRej(a => void 0)
-
-function* monadicChain() {
-  type X = 'x'
-  const x: X = 'x'
-  declare var out1: Apropos<void, 'x'>
-  declare var out2: Fluture<{ b: 'abc' }, TypeError>
-  const res2 = yield out2
-  const res3 = yield out2
-  const res4 = yield out2
-  return out1
-}
-
-export async function go<-L, -R, LO, RO>(
-  gen: Generator<Fluture<R, L>, Apropos<LO, RO>, Apropos<L, R>>
-): Promise<Apropos<LO, RO>> {
-  // const { value, done } = gen.next(val)
-  declare var fake: Apropos<L, R>
-  declare var fakeRes: { done: false, value: Fluture<R, L> }
-  declare var fakeOut: Apropos<LO, RO>
-  let next
-  let iteration: {
-    done: false,
-    value: Fluture<R, L>,
-  } | {
-    done: true,
-    value?: Apropos<LO, RO>,
-  }
-  while (true) {
-    iteration = gen.next(next)
-    if (iteration.done === true) {
-      const { value = (next/*::, fakeOut */) } = iteration
-      return value
-    }
-    const { value } = iteration
-    const wrapped = futureEitherWrap(value)
-    const result = await wrapped.promise()
-    next = result
-  }
-  return fakeOut
-}
-
-export async function co() {
-
-}
-
-function* Gen1(input) { console.log(input); const x = yield 'out'; return x }
-
-function* Gen(input) {
-  const r1 = yield 1
-  const r2 = yield* Gen1('gen 1')
-  const r3 = yield [input, r1, r2]
-  return r3
-}
-
-function* NextGen(input) {
-  const r1 = yield 'a'
-  const r2 = yield Gen1('gen 1 yield')
-  const r3 = yield 'b'
-  const r4 = yield * Gen('Gen')
-  const r5 = yield [r1, r2, r3, r4]
-  return r5
-}
-
-
-async function goo() {
-  const x = monadicChain()
-  // declare var dull: Apropos<*, *>
-  declare var data1: Apropos<void, 'x'>
-  declare var data2: Apropos<TypeError, { b: 'abc' }>
-  // const fromGen = x.next(dull)
-  // const first = await go(x, dull)
-  // const a = await go(x, data1)
-  const b = await go(x)
-  // const b = x.next({ c: 3 }).value
-  const xx = x
-  return b
-}
 
 const isJustMatcher = {
   Just   : (/*::x: any*/) => true,

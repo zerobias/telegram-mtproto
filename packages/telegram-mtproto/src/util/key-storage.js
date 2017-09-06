@@ -59,7 +59,8 @@ export class KeyStorage {
     )
   }
   merge(obj: { [dc: any]: number[] | false }) {
-    console.warn(obj)
+    if (__DEV__)
+      console.warn(obj)
     const rawResult = { ...this.keyMap, ...obj }
     const result = filter(e => Array.isArray(e), rawResult)
     return new KeyStorage(

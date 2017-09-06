@@ -70,7 +70,7 @@ const { default: Config } = require('../lib/config-provider')
 
 // const resetStorage = async() => {
 //   consoleHR(`RESET STORAGE`)
-//   //$off
+//   // $off
 //   telegram.storage.data = storageData()
 //   //$ off
 //   // await telegram.storage.save()
@@ -117,7 +117,7 @@ afterEach(() => {
   // consoleHR(`PAUSE END`)
 })
 
-test('Loading from storage', async() => {
+test.only('Loading from storage', async() => {
   // expect.assertions(2)
   // await expect((async() => {
   infoCallMethod('auth.sendCode')
@@ -186,7 +186,7 @@ test('Loading from storage', async() => {
   expect(dialogs).toBeDefined()
 })
 
-test.only('DC migrate', async() => {
+test('DC migrate', async() => {
   infoCallMethod('getNearest')
   await getNearest.promise()
   infoCallMethod('auth.sendCode')
@@ -238,7 +238,7 @@ test.skip(`Connection test`, async() => {
   expect(dialogs).toBeTruthy()
 })
 
-test(`Rejection test`, async() => {
+test.only(`Rejection test`, async() => {
   infoCallMethod('Rejection test')
   infoCallMethod('getNearest')
   await getNearest.promise()

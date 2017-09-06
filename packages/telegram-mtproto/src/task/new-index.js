@@ -125,8 +125,10 @@ function flattenContainer(input, container: RawContainer): MessageDraft[] {
   const { messages } = container
   const ids = messages.map(({ msg_id }) => msg_id)
   const session = Config.session.get(input.thread.uid, input.dc)
-  console.log(`input.sessionID`, input.sessionID)
-  console.log(`real session`, session)
+  if (__DEV__)
+    console.log(`input.sessionID`, input.sessionID)
+  if (__DEV__)
+    console.log(`real session`, session)
   const cont: MessageDraft = {
     type: 'container',
     id  : input.messageID,
