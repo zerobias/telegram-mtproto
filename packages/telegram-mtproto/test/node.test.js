@@ -243,16 +243,16 @@ test.only(`Rejection test`, async() => {
   infoCallMethod('auth.sendCode')
   const { phone_code_hash } = await sendCode.promise()
   infoCallMethod('auth.signIn')
+  const expectedError = new Error('PHONE_CODE_INVALID')
+  //$off
+  expectedError.code = 400
   await expect(
     telegram('auth.signIn', {
       phone_number: phone.num,
       phone_code_hash,
       phone_code  : phone.wrongCode,
     })
-  ).rejects.toMatchObject({
-    code   : 400,
-    message: 'PHONE_CODE_INVALID',
-  })
+  ).rejects.toMatchObject(expectedError)
 })
 
 
