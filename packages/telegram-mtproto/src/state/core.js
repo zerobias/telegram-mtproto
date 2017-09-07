@@ -1,6 +1,5 @@
 //@flow
 import { type Stream, from } from 'most'
-// import { async } from 'most-subject'
 import isNode from 'detect-node'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { createEpicMiddleware } from 'redux-most'
@@ -42,17 +41,8 @@ function configureStore(rootReducer: *, initialState: *) {
   const enhancers = composeEnhancers(
     applyMiddleware(
       normalizeActions({ meta: {} }),
-      // batch({
-      //   networker: [
-      //     'sent add',
-      //     'sent delete',
-      //     'pending add',
-      //   ]
-      // }),
       tryAddUid,
       skipEmptyMiddleware,
-      // extendActions,
-      // debounceMiddleware,
       epicMiddleware,
     )
   )

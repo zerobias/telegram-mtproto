@@ -7,7 +7,7 @@ import Logger from 'mtproto-logger'
 const log = Logger`epic-task`
 
 import { API, NET } from '../action'
-import normalize, { decrypt } from '../../task/new-index'
+import normalize, { decrypt } from '../../task'
 import jsonError from 'Util/json-error'
 import {
   queryAck,

@@ -28,7 +28,7 @@
     "mtproto-shared": "^0.1.8"
   },
   "devDependencies": {
-    "@types/fs-extra": "^4.0.0",
+    "@types/fs-extra": "^4.0.2",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",

@@ -1,21 +1,25 @@
 //@flow
 
 import EventEmitter from 'eventemitter2'
-
-import { uintToInt, intToUint, bytesToHex,
-  gzipUncompress, bytesToArrayBuffer } from '../bin'
-
 import { dTime } from 'mtproto-shared'
+
+import {
+  uintToInt,
+  intToUint,
+  bytesToHex,
+  gzipUncompress,
+  bytesToArrayBuffer,
+} from 'Bin'
+
 import { readLong, readInt, readBytes, readString, readDouble } from './reader'
 import { writeInt, writeIntBytes, writeBytes, writeDouble,
   writeBool, writeLong } from './writer'
 
 import Layout, { getFlags, isSimpleType, getTypeProps } from '../layout'
 import { TypeBuffer, TypeWriter, getNakedType, getTypeConstruct } from './type-buffer'
-import Config, { getConfig } from '../config-provider'
+import Config, { getConfig } from 'ConfigProvider'
 import type { MsgGetter } from './index.h'
 import { NetMessage } from '../service/networker/net-message'
-// import writer from 'Util/file-log'
 
 // const storeMethodLog = writer('storeMethod')
 // const fetchObjectLog = writer('fetchObject')
@@ -574,4 +578,3 @@ export class Deserialization {
 
 
 export { TypeWriter } from './type-buffer'
-

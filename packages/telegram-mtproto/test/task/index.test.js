@@ -30,7 +30,7 @@ test('binary parsing', async() => {
 
 
 test('normalize', async() => {
-  const normalize = require('../../src/task/new-index').default
+  const normalize = require('../../src/task').default
   const { rawData, authKey, serverSalt, sessionID, getMsgById } = require('./example-normalize')
   const { default: result, TIMESTAMP } = require('./example-target')
   const unfreezeTime = freezeTime(TIMESTAMP)
