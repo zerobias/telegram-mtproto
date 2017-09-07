@@ -14,7 +14,7 @@ import Config from 'ConfigProvider'
 function longPollRequest(thread: NetworkerThread, maxWait: number) {
   return thread.wrapMtpCall('http_wait', {
     max_delay : 0,
-    wait_after: 0,
+    wait_after: 200,
     max_wait  : maxWait
   }, requestOpts)
 }

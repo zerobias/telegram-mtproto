@@ -1,7 +1,7 @@
 //@flow
 
 import { Stream, of, awaitPromises } from 'most'
-import { encaseP, after } from 'fluture'
+import { encaseP, after, of as ofF } from 'fluture'
 
 import Logger from 'mtproto-logger'
 const log = Logger`net-request`
@@ -22,7 +22,7 @@ import {
 import { MaybeT } from 'Monad'
 import { toUID, type UID } from 'Newtype'
 import { makeAuthRequest } from '../../service/invoke'
-import { getState } from '../portal'
+import { getState, dispatch } from '../portal'
 
 function makeApiBytes({ uid, dc, message, thread, ...rest }) {
   const keys = queryKeys(uid, dc)
@@ -130,18 +130,22 @@ const netRequest = (action: Stream<any>) => action
   .map(data => ({ ...data, url: Config.dcMap(data.uid, data.dc) }))
   .filter(({ dc, uid }) => !Config.halt.get(uid, dc))
   .filter(sendCache)
+  .filter(({ dc, uid }) => queryKeys(uid, dc).fold(() => false, () => true))
   // .filter(({ message }) => getState()
   //   .client[message.uid]
   //   .lastMessages
   //   .indexOf(message.msg_id) === -1)
   .map(data => makeApiBytes(data)
-    .chain(bytes => after(100, bytes))
+    // .chain(bytes => after(100, bytes))
     .chain(encryption)
+    .map(res => dispatch(NET.RECEIVE_RESPONSE(res), data.uid))
+    .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), data.uid)))
     .promise())
-  .thru(awaitPromises)
+  .filter(() => false)
+  // .thru(awaitPromises)
   // .tap(data => console.warn('RECIEVE RESP', data))
-  .map(NET.RECEIVE_RESPONSE)
-  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
+  // .map(NET.RECEIVE_RESPONSE)
+  // .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 
 
 export default netRequest

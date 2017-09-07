@@ -28,7 +28,7 @@ import {
 import { dispatch } from 'State'
 import describeProtocolError from './describe-protocol-error'
 import { MAIN, NETWORKER_STATE } from 'Action'
-import { longToBytes, rshift32 } from '../bin'
+import { longToBytes, rshift32 } from 'Bin'
 import guard from 'Util/match-spec'
 import random from '../service/secure-random'
 import {
@@ -296,7 +296,7 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     }
     default: {
       const { id } = message
-      // thread.ackMessage(message.id)
+      thread.ackMessage(message.id)
       thread.emit('untyped-message', {
         threadID   : thread.threadID,
         networkerDC: message.dc,

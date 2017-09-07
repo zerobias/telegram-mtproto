@@ -426,7 +426,7 @@ export class NetworkerThread {
       const serializer = new Serialization({ mtproto: true }, this.uid)
       const params = {
         max_delay : 0,
-        wait_after: 0,
+        wait_after: 200,
         max_wait  : 5000
       }
       serializer.storeMethod('http_wait', params)
