@@ -65,19 +65,8 @@ function trimAction(action: any): string {
 type RequestResult = { +_: string, +[key: string]: any }
 
 const progress = (() => {
-  const idle = createReducer({
-    //$off
-    [API.TASK.NEW]: (state: ApiRequest[], payload: ApiRequest[]) => {
-      const ids = state.map(req => req.requestID)
-      const update = payload.filter(req => !contains(req.requestID, ids))
-      return state.concat(update)
-    },
-    // //$ off
-    // [API.TASK.DONE]: (state: state, payload: MessageUnit[]) => {
-    //   payload.map(unit => unit.id)
-    // }
-  }, [])
 
+  const idle = createReducer({}, [])
   const current = createReducer({}, [])
   const done = createReducer({}, [])
   const result = createReducer({
@@ -122,6 +111,7 @@ const progress = (() => {
   const findReq = (id: string) => (req: ApiRequest) => req.requestID === id
   const onlyAPI = (units: MessageUnit[]) => units
     .filter(p => p.flags.api && p.api.resolved)
+  const getReqIDs = (list: ApiRequest[]) => list.map(req => req.requestID)
 
   function unitReduce({ idle, current, done, result }: Progress, unit: MessageUnit) {
     const id = unit.api.apiID
@@ -167,6 +157,21 @@ const progress = (() => {
           result,
         }
         return newState
+      }
+      case 'api/task new': {
+        const ids = getReqIDs(idle)
+          .concat(
+            getReqIDs(current),
+          )
+        const payload: ApiRequest[] = action.payload
+        const update = payload.filter(req => !contains(req.requestID, ids))
+        const newIdle = idle.concat(update)
+        return {
+          idle: newIdle,
+          current,
+          done,
+          result
+        }
       }
       case 'api/task done': {
         const payload: MessageUnit[] = action.payload

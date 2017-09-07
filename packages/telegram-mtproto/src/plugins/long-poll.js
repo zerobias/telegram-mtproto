@@ -29,13 +29,6 @@ const future = futureRequest(fakeThread, 25e3)
 type FutureRequest = typeof future
 */
 
-const waitToTime = async(poll: LongPoll): Promise<void> => {
-  while (!poll.allowLongPoll())
-    await new Promise(rs => setTimeout(rs, 500))
-}
-
-const WAIT = 400
-
 export default class LongPoll {
   thread: NetworkerThread
   currentRequest: FutureRequest | void

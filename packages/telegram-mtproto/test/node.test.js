@@ -1,5 +1,6 @@
 //@flow
 
+const { outputJson } = require('fs-extra')
 const Bluebird = require('bluebird')
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 180e3
@@ -45,9 +46,6 @@ const server = {
 
 
 let telegram
-const app = {
-  storage: new Storage('./test/storage.json')
-}
 
 const { default: Config } = require('../lib/config-provider')
 
@@ -68,7 +66,7 @@ const { default: Config } = require('../lib/config-provider')
 
 // const resetStorage = async() => {
 //   consoleHR(`RESET STORAGE`)
-//   // $off
+//   //$ off
 //   telegram.storage.data = storageData()
 //   //$ off
 //   // await telegram.storage.save()
@@ -94,7 +92,7 @@ const { default: Config } = require('../lib/config-provider')
 let sendCode, getDialogs, getNearest
 
 beforeEach(() => {
-  telegram = MTProto({ server, api, app })
+  telegram = MTProto({ server, api })
   sendCode = telegram.future('auth.sendCode', {
     phone_number  : phone.num,
     current_number: false,
@@ -111,13 +109,55 @@ beforeEach(() => {
 
 afterEach(() => {
   consoleHR(`TEST END`)
-  // await delay(2e3)
-  // consoleHR(`PAUSE END`)
 })
 
-test.only('Loading from storage', async() => {
-  // expect.assertions(2)
-  // await expect((async() => {
+test(`Connection test`, async() => {
+  consoleHR(`Connection test`)
+
+  expect.assertions(2)
+  infoCallMethod('getNearest')
+  await getNearest.promise()
+
+  infoCallMethod('auth.sendCode')
+  const res1 = await sendCode.promise()
+  const { phone_code_hash } = res1
+  console.log('res1', res1)
+  console.log('phone_code_hash', phone_code_hash)
+  infoCallMethod('auth.signIn')
+  const res = await telegram('auth.signIn', {
+    phone_number: phone.num,
+    phone_code_hash,
+    phone_code  : phone.code,
+  })
+  console.log('signIn', res)
+  expect(res).toBeTruthy()
+  infoCallMethod('messages.getDialogs')
+  const dialogs = await getDialogs.promise()
+  expect(dialogs).toBeTruthy()
+})
+
+test('Loading from storage', async() => {
+  consoleHR(`Loading from storage`)
+
+  const storagePath = './test/storage.json'
+
+  await outputJson(storagePath, {})
+  const app = {
+    storage: new Storage(storagePath)
+  }
+  telegram = MTProto({ server, api, app })
+  sendCode = telegram.future('auth.sendCode', {
+    phone_number  : phone.num,
+    current_number: false,
+    api_id        : config.id,
+    api_hash      : config.hash
+  })
+  getDialogs = telegram.future('messages.getDialogs', {
+    limit: 100,
+  })
+  getNearest = telegram.future('help.getNearestDc')
+
+
   infoCallMethod('auth.sendCode')
   await getNearest.promise()
   const res1 = await telegram('auth.sendCode', {
@@ -132,52 +172,23 @@ test.only('Loading from storage', async() => {
     phone_code_hash,
     phone_code  : phone.code,
   })
-  //
+
   infoCallMethod('messages.getDialogs')
   const dialogs1 = await getDialogs.promise()
   expect(dialogs1).toBeDefined()
-  // //   return true
-  // // })()).resolves.toBeDefined()
-  //
-  //
-  //
+
+  consoleHR(`Next instance`)
   await delay(3000)
-  //
-  // // await expect((async() => {
-  const nextStorage = new Storage(
-    './test/storage1.json',
-    //$ off
-    // telegram.storage.data
-  )
-  // // await nextStorage.save()
-  // console.warn(nextStorage.data)
-  const newInstance = MTProto({ server, api, app: {
-    storage: nextStorage
-  } })
-  //
-  // await delay(4e3)
-  // // expect(newInstance.storage.data.dc1_auth_key).toBe(
-  // //   telegram.storage.data.dc1_auth_key
-  // // )
-  await newInstance('help.getNearestDc')
-  // console.log(Config.session.get(telegram.uid, 2))
-  // infoCallMethod(Config.session.get(newInstance.uid, 2))
-  // await delay(3000)
-  // await nextStorage.save()
-  nextBlock: {
-    const res1 = await newInstance('auth.sendCode', {
-      phone_number  : phone.num,
-      current_number: false,
-      api_id        : config.id,
-      api_hash      : config.hash
-    })
-    const { phone_code_hash } = res1
-    await newInstance('auth.signIn', {
-      phone_number: phone.num,
-      phone_code_hash,
-      phone_code  : phone.code,
-    })
+
+  const nextApp = {
+    storage: new Storage(storagePath)
   }
+
+  const newInstance = MTProto({ server, api, app: nextApp })
+
+  infoCallMethod('getNearestDc')
+  await newInstance('help.getNearestDc')
+  infoCallMethod('messages.getDialogs')
   const dialogs = await newInstance('messages.getDialogs', {
     limit: 100,
   })
@@ -185,6 +196,8 @@ test.only('Loading from storage', async() => {
 })
 
 test('DC migrate', async() => {
+  consoleHR(`DC migrate`)
+
   infoCallMethod('getNearest')
   await getNearest.promise()
   infoCallMethod('auth.sendCode')
@@ -206,38 +219,9 @@ test('DC migrate', async() => {
   expect(dialogs).toBeTruthy()
 })
 
-test.skip(`Connection test`, async() => {
-  infoCallMethod('Connection test')
-  expect.assertions(2)
-  infoCallMethod('getNearest')
-  await getNearest.promise()
-  // const isAuth = await isAlreadyAuth()
-  let message
-  // if (!isAuth) {
-  infoCallMethod('auth.sendCode')
-  const res1 = await sendCode.promise()
-  const { phone_code_hash } = res1
-  console.log('res1', res1)
-  console.log('phone_code_hash', phone_code_hash)
-  infoCallMethod('auth.signIn')
-  const res = await telegram('auth.signIn', {
-    phone_number: phone.num,
-    phone_code_hash,
-    phone_code  : phone.code,
-  })
-  console.log('signIn', res)
-  message = 'result is ok'
-  // } else {
-  //   message = 'already authorized, skip'
-  // }
-  expect(message).toBeTruthy()
-  infoCallMethod('messages.getDialogs')
-  const dialogs = await getDialogs.promise()
-  expect(dialogs).toBeTruthy()
-})
+test(`Rejection test`, async() => {
+  consoleHR('Rejection test')
 
-test.only(`Rejection test`, async() => {
-  infoCallMethod('Rejection test')
   infoCallMethod('getNearest')
   await getNearest.promise()
   infoCallMethod('auth.sendCode')
@@ -256,22 +240,23 @@ test.only(`Rejection test`, async() => {
 })
 
 
-test.skip(`Parallel requests safety`, async() => {
+test(`Parallel requests safety`, async() => {
+  consoleHR(`Parallel requests safety`)
   const TIMES = 10
-  const TIMEOUT = 30e3
+  const TIMEOUT = 40e3
 
-  expect.assertions(2)
-  infoCallMethod('Parallel requests safety')
-  infoCallMethod('auth.sendCode')
+  expect.assertions(1)
+  infoCallMethod('getNearest')
   await getNearest.promise()
+  infoCallMethod('auth.sendCode')
   const { phone_code_hash } = await sendCode.promise()
   infoCallMethod('auth.signIn')
-  const res = await telegram('auth.signIn', {
+  await telegram('auth.signIn', {
     phone_number: phone.num,
     phone_code_hash,
     phone_code  : phone.code,
   })
-  expect(res).toBeDefined()
+
   infoCallMethod(`messages.getDialogs (x${TIMES})`)
   const promises = []
   for (let i = 0; i < TIMES; i++)

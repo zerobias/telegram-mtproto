@@ -172,16 +172,3 @@ const createSessions = (dcList: number[]): { [dc: number]: number[] } =>
     dcList
       .map(dc => [dc, random(new Array(8))])
   )
-
-function checkString(source: mixed) {
-  if (source == null || typeof source !== 'string') return false
-  const trimmed = trim(source)
-  if (trimmed.length === 0) return false
-  return bytesFromHex(trimmed)
-}
-
-function checkNumber(source: mixed): DCNumber | false {
-  if (source == null || typeof source !== 'number') return false
-  if (!isFinite(source)) return false
-  return /*:: toDCNumber(*/ source /*::)*/
-}

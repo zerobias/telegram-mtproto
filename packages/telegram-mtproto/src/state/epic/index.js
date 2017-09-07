@@ -4,13 +4,18 @@ import { combineEpics } from 'redux-most'
 import { Stream, awaitPromises } from 'most'
 import { contains } from 'ramda'
 import { type UID, type DCNumber } from 'Newtype'
-import { MAIN, API } from 'Action'
+import { MAIN, API, AUTH } from 'Action'
 // import { Pure, Lift, liftF } from '@safareli/free'
 import { after } from 'fluture'
 import netRequest, { onNewTask } from './net-request'
 import { receiveResponse } from './task'
 import { makeAuthRequest, authRequest } from '../../service/invoke'
-import { getClient, getHomeStatus, queryHomeDc } from '../query'
+import {
+  getClient,
+  getHomeStatus,
+  queryHomeDc,
+  queryKeys,
+} from '../query'
 import Auth from '../../service/authorizer'
 import type {
   Client
@@ -58,8 +63,20 @@ const Blackhole = {
       case 'main/dc detected': {
         const uid: string = action.payload.uid
         const dc: number = action.payload.dc
-        authRequest(uid, dc).promise()
-
+        const homeStatus = getHomeStatus(uid)
+        const keys = queryKeys(uid, dc)
+          .map(({ dc, uid, auth, authID, salt }) => ({
+            dc, uid,
+            authKey   : auth,
+            authKeyID : authID,
+            serverSalt: salt,
+          }))
+          .fold(() => false, x => x)
+        if (homeStatus && keys) {
+          dispatch(MAIN.AUTH.RESOLVE(keys), uid)
+        } else {
+          authRequest(uid, dc).promise()
+        }
       }
     }
   }
