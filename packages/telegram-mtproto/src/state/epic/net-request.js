@@ -6,24 +6,21 @@ import { encaseP, after } from 'fluture'
 import Logger from 'mtproto-logger'
 const log = Logger`net-request`
 
-import { statuses, statusGuard } from '../../status'
 import { API, NET } from 'Action'
 import { NetMessage } from '../../service/networker/net-message'
 import NetworkerThread from '../../service/networker'
+import ApiRequest from '../../service/main/request'
 import { apiMessage, mtMessage, encryptApiBytes } from '../../service/chain/encrypted-message'
 import Config from 'ConfigProvider'
 import { Serialization } from '../../tl'
 import { send } from '../../http'
 import jsonError from 'Util/json-error'
+import TTLCache from 'Util/request-cache'
 import {
-  queryAuthID,
-  querySalt,
-  queryAuthKey,
   queryKeys,
 } from '../query'
-import Status, { netStatusGuard, netStatuses } from 'NetStatus'
 import { MaybeT } from 'Monad'
-import { toUID } from 'Newtype'
+import { toUID, type UID } from 'Newtype'
 import { makeAuthRequest } from '../../service/invoke'
 import { getState } from '../portal'
 
@@ -52,12 +49,23 @@ function makeApiBytes({ uid, dc, message, thread, ...rest }) {
     }))
 }
 
+const requestCache = TTLCache(
+  ({ requestID }: ApiRequest) => requestID,
+  80
+)
+
+const sendCache = TTLCache(
+  data => data.message.msg_id,
+  80
+)
+
 export const onNewTask = (action: Stream<any>) => action
   .thru(API.NEXT.stream)
   .map(e => e.payload)
   .map(({ uid }) => getState().client[uid])
   .map(e => e.progress.current[0])
   .filter(e => !!e)
+  .filter(requestCache)
   // .map(e => e.payload)
   // .chain(e => of(e).delay(200))
   // .delay(100)
@@ -121,6 +129,7 @@ const netRequest = (action: Stream<any>) => action
   .map(data => ({ ...data, uid: data.thread.uid }))
   .map(data => ({ ...data, url: Config.dcMap(data.uid, data.dc) }))
   .filter(({ dc, uid }) => !Config.halt.get(uid, dc))
+  .filter(sendCache)
   // .filter(({ message }) => getState()
   //   .client[message.uid]
   //   .lastMessages
