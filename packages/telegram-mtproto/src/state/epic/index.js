@@ -30,10 +30,6 @@ const filterActions = (list: string[]) => action => contains(
   list
 )
 
-// const interpret = (act) => ({ action, hasUID }: { action: string[], hasUID: boolean[] }) => ({
-//   action: append(act.type, action),
-//   hasUID: append(!!act.uid, hasUID),
-// })
 const Blackhole = {
   //$off
   action(state: {
@@ -84,8 +80,6 @@ const Blackhole = {
 
 const onEvent = (action: Stream<any>) => action
   .filter(e => !!e.uid)
-  .map(e => after(500, e).promise())
-  .thru(awaitPromises)
   .map(e => getClient(e.uid).map(state => Blackhole.action(state, e)))
   .filter(() => false)
 
@@ -101,56 +95,6 @@ const onMessageTrigger = (action: Stream<any>) => action
   .filter(getHomeStatus)
   .map(uid => dispatch(API.NEXT({ uid }), uid))
   .filter(() => false)
-
-// const onAuthResolve = (action: Stream<any>) => action
-//   .thru(e => MAIN.AUTH.RESOLVE.stream(e))
-//   .map(e => after(1500, e).promise())
-//   .thru(awaitPromises)
-//   // .filter(e => getClient(e.uid)
-//   //   .map(statusRequest)
-//   //   .matchWith({
-//   //     Just   : ({ value }) => value,
-//   //     Nothing: () => false,
-//   //   }))
-//   .tap(e => console.log(e))
-//   .map(e => getClient(e.uid)
-//     .chain(({ homeDc, status, request }) => status
-//       .maybeGetK(homeDc)
-//       .map((homeStat: boolean) => ({ homeStat, request })))
-//     .map(({ homeStat, request }) => request.values)
-//     .map(vals => dispatch(API.TASK.NEW(vals), e.uid)))
-//   .filter(() => false)
-
-
-const onNewRequest = (action: Stream<any>) => action
-  .thru(e => API.REQUEST.NEW.stream(e))
-  .map(e => e.payload.netReq)
-  .map(e => after(500, e).promise())
-  .thru(awaitPromises)
-  //$ off
-  // .map(({ uid }: { uid: string }) => uid)
-  // .map(getClient)
-  // .map((x) => x)
-  .map(netReq =>
-    dispatch(API.TASK.NEW([netReq]), netReq.uid))
-  // .map(e => getClient(e.uid)
-  //   .map(st => st.request.values)
-  //   .map(vals => dispatch(API.TASK.NEW(vals), e.uid)))
-  .filter(() => false)
-
-// const initialize = (action: Stream<{ type: string, payload: any }>) =>
-//   action
-//     .thru(MAIN.DC_DETECTED.stream)
-//     .map(val => val.payload)
-//     // .thru(e => statusGuard(statuses.importStorage, moduleStatus, e))
-//     // .map(async(dc): Promise<void> => {
-//     //   const set = Config.storage.set
-//     //   await set('nearest_dc', dc)
-//     //   await set('dc', dc)
-//     // })
-//     // .thru(awaitPromises)
-//     // .delay(1000)
-//     .map(() => MAIN.ACTIVATED())
 
 const afterStorageImport = (action: Stream<{ type: string, payload: any }>) => action
   .thru(MAIN.STORAGE_IMPORTED.stream)
@@ -175,68 +119,14 @@ const afterStorageImport = (action: Stream<{ type: string, payload: any }>) => a
   //   : [MAIN.MODULE_LOADED()])
   // .chain(from)
 
-// const reactivate = (action: Stream<{ type: string, payload: any }>) =>
-//   action
-//     .thru(MAIN.DC_CHANGED.stream)
-//     // .delay(66)
-//     .map(val => val.payload)
-//     .map(val => typeof val === 'number'
-//       ? val
-//       : val.newDC)
-//     // .skipRepeats()
-//     .map(MAIN.DC_DETECTED)
-
-// const dcRecieved = (action: Stream<{ type: string, payload: any }>) =>
-//   action
-//     .thru(MAIN.MODULE_LOADED.stream)
-  // .thru(e => statusGuard(statuses.importStorage, moduleStatus, e))
-  // .map(() => queryInvoke())
-  // .map(async(): Promise<number> => {
-  //   const opts = {
-  //     dc             : DEFAULT_DC,
-  //     createNetworker: true
-  //   }
-  //   const { nearest_dc }: {
-  //     nearest_dc: number
-  //   } = await invoke('help.getNearestDc', {}, opts)
-  //   if (!isFinite(nearest_dc))
-  //     return DEFAULT_DC
-  //   return nearest_dc
-  // })
-  // .thru(awaitPromises)
-  // .skipRepeats()
-  // .recoverWith(() => of(DEFAULT_DC))
-  // .map(({ dc }) => MAIN.DC_DETECTED)
-
-// const requestsRecovery = (action: Stream<any>) =>
-//   action
-//     .thru(MAIN.RECOVERY_MODE.stream)
-//     .map(e => e.payload)
-//     .delay(3000)
-//     .map(async({ halt, recovery, uid }) => {
-//       const state = getState()
-//       const reqMap = state.request.api
-//       reqMap.ids
-//         .map(id => reqMap.get(id))
-//         .map(({ method, params }) => state.invoke(method, params))
-//
-//     })
 
 const rootEpic = combineEpics([
-  // initialize,
-  // noAuth,
   afterStorageImport,
   onMessageTrigger,
-  // reactivate,
-  // dcRecieved,
-  // onNewRequest,
-  // onAuthResolve,
   netRequest,
   receiveResponse,
   onEvent,
-  // afterCarrier,
   onNewTask,
-  // onTaskEnd,
 ])
 
 export default rootEpic
