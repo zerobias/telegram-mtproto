@@ -115,7 +115,7 @@ export const receiveResponse = (action: Stream<any>) => action
       const result = normalized.map(obj => ({ ...obj, uid }))
       dispatch(API.TASK.DONE(result), uid)
     })
-    .chainRej(err => ofF(dispatch(jsonError(err), payload.uid)))
+    .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), payload.uid)))
     .promise()
   )
   .filter(() => false)

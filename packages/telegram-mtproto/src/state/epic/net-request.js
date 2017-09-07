@@ -135,8 +135,8 @@ const netRequest = (action: Stream<any>) => action
   //   .client[message.uid]
   //   .lastMessages
   //   .indexOf(message.msg_id) === -1)
-  .map(data => makeApiBytes(data)
-    // .chain(bytes => after(100, bytes))
+  .map(data => after(100, data)
+    .chain(makeApiBytes)
     .chain(encryption)
     .map(res => dispatch(NET.RECEIVE_RESPONSE(res), data.uid))
     .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), data.uid)))
