@@ -76,8 +76,6 @@ export class NetworkerThread {
   threadID: UID = uuid()
   uid: UID
   dcID: DCNumber
-  authKeyBuffer: ArrayBuffer
-  serverSalt: number[]
   iii: number
   upload: boolean = false
   sessionID: Bytes
@@ -90,14 +88,13 @@ export class NetworkerThread {
   offline: boolean
   longPoll: LongPoll
   nextReq: number
-  appConfig: ApiConfig
   nextReqPromise: Promise<mixed>
   lastResendReq: {
     req_msg_id: string,
     resend_msg_ids: string[],
   } | void
 
-  constructor(dc: number, authKey: number[], serverSalt: number[], uid: UID) {
+  constructor(dc: number, uid: UID) {
     this.uid = uid
     const emitter = Config.rootEmitter(this.uid)
     this.emit = emitter.emit
@@ -111,10 +108,6 @@ export class NetworkerThread {
         value     : this.performSheduledRequest.bind(this),
         enumerable: false,
         writable  : false,
-      },
-      appConfig: {
-        value     : Config.apiConfig.get(uid),
-        enumerable: false,
       },
       wrapMtpCall: {
         value     : this.wrapMtpCall.bind(this),
@@ -207,45 +200,26 @@ export class NetworkerThread {
     const seqNo = requestNextSeq(this.uid, this.dcID)
     const message = new NetMessage(
       this.uid,
+      this.dcID,
       seqNo,
       serializer.getBytes(true)
     )
-    message.dc = this.dcID
-    const logGroup = log.group('Wrap mtp call')
-    logGroup`Call method, msg_id, seqNo`(method, message.msg_id, seqNo)
-    logGroup`Call method, params`(params)
-    logGroup.groupEnd()
     this.pushMessage(message, options)
-    // this.emit('net-message', {
-    //   type  : 'mtp-call',
-    //   msg_id: message.msg_id,
-    //   message,
-    //   method,
-    //   params,
-    //   options
-    // })
     return message.deferred.promise
   }
 
   wrapMtpMessage(object: Object, options: NetOptions = {}) {
-
     const serializer = new Serialization({ mtproto: true }, this.uid)
     serializer.storeObject(object, 'Object', 'wrap_message')
 
     const seqNo = requestNextSeq(this.uid, this.dcID, options.notContentRelated)
     const message = new NetMessage(
       this.uid,
+      this.dcID,
       seqNo,
       serializer.getBytes(true),
       'ack/resend'
     )
-    message.dc = this.dcID
-    const logGroup = log.group('Wrap mtp message')
-    const isAcks = object._ === 'msgs_ack'
-    logGroup`MT message, msg_id, seqNo`(message.msg_id, seqNo)
-    logGroup`MT message, result`(object)
-    logGroup`is acks`(isAcks)
-    logGroup.groupEnd()
     this.pushMessage(message, options)
     return message
   }
@@ -262,7 +236,7 @@ export class NetworkerThread {
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
-      addInitialMessage(serialBox, this.appConfig)
+      addInitialMessage(serialBox, Config.apiConfig.get(this.uid))
     }
     if (typeof options.afterMessageID === 'string')
       addAfterMessage(serialBox, options.afterMessageID)
@@ -272,17 +246,13 @@ export class NetworkerThread {
     const seqNo = requestNextSeq(this.uid, this.dcID)
     const message = new NetMessage(
       this.uid,
+      this.dcID,
       seqNo,
       serializer.getBytes(true),
       'api'
     )
     message.isAPI = true
     message.requestID = requestID
-    message.dc = this.dcID
-    log(`Api call`)(method)
-    log(`|      |`, `msg_id`, `seqNo`)(message.msg_id, seqNo)
-    log(`|      |`, `params`)(params)
-    log(`|      |`, `options`)(options)
     this.pushMessage(message, options)
     return message
   }
@@ -423,13 +393,11 @@ export class NetworkerThread {
 
     this.performResend()
 
-    const messages = []
+    const messages: NetMessage[] = []
     //$off
     let message: NetMessage
     let messagesByteLen = 0
-    // const currentTime = tsNow()
     let lengthOverflow = false
-    const logGroup = log.group('perform sheduled request')
     const pendingIds = []
     for (const [messageID, value] of this.state.pendingIterator()) {
       if (value && value < tsNow()) continue
@@ -437,8 +405,6 @@ export class NetworkerThread {
       pendingIds.push(messageID)
       if (!this.state.hasSent(messageID)) continue
       message = this.state.getSent(messageID)
-      logGroup('message')(message)
-      logGroup('messageID, value' )(messageID, value)
       const messageByteLength = message.size() + 32
       const cond1 = !message.notContentRelated && lengthOverflow
       const cond2 = !message.notContentRelated
@@ -452,8 +418,6 @@ export class NetworkerThread {
       messagesByteLen += messageByteLength
     }
     // dispatch(NETWORKER_STATE.PENDING.DEL(pendingIds, this.dcID))
-    logGroup('message, final')(message)
-    logGroup('messages')(messages)
     messages.map(msg => this.emit('message-in', msg))
 
     if (!message) return Bluebird.resolve(false) //TODO Why?
@@ -468,20 +432,12 @@ export class NetworkerThread {
       serializer.storeMethod('http_wait', params)
       const netMessage = new NetMessage(
         this.uid,
+        this.dcID,
         requestNextSeq(this.uid, this.dcID),
         serializer.getBytesPlain(),
         'polling'
       )
-      netMessage.dc = this.dcID
       this.longPoll.writePollTime()
-      // this.emit('net-message', {
-      //   type   : 'mtp-call',
-      //   msg_id : netMessage.msg_id,
-      //   message: netMessage,
-      //   method : 'http_wait',
-      //   params,
-      //   options: {}
-      // })
       messages.push(netMessage)
     }
 
@@ -514,21 +470,16 @@ export class NetworkerThread {
         }, [])
       message = new NetContainer(
         this.uid,
+        this.dcID,
         requestNextSeq(this.uid, this.dcID, true),
         container.getBytes(true),
         innerMessages,
         innerApi)
-      message.dc = this.dcID
-      logGroup(`Container`)(innerMessages,
-                            noResponseMessages,
-                            message.msg_id,
-                            message.seq_no)
 
     } else {
       if (message.noResponse)
         noResponseMsgs.push(message.msg_id)
     }
-    logGroup.groupEnd()
     this.state.addSent(message)
 
     if (lengthOverflow) this.sheduleRequest()
@@ -794,11 +745,9 @@ export class NetworkerThread {
 
 export function createThread(
   dc: DCNumber,
-  authKey: number[],
-  serverSalt: number[],
   uid: UID
 ): NetworkerThread {
-  return new NetworkerThread(dc, authKey, serverSalt, uid)
+  return new NetworkerThread(dc, uid)
 }
 
 export default NetworkerThread

@@ -4,7 +4,6 @@ import { type AxiosXHR } from 'axios'
 
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
-import { type NetState } from '../state/index.h'
 import { type DCNumber, type UID } from 'Newtype'
 import { type NetStatus } from 'NetStatus'
 

@@ -31,9 +31,17 @@ export class NetMessage {
   resultType: ?string
   createNetworker: boolean = false
   longPoll: boolean = false
-  constructor(uid: string, seq_no: number, body: BodyBytes, type: NetMessageType = 'other') {
+
+  constructor(
+    uid: string,
+    dc: DCNumber,
+    seq_no: number,
+    body: BodyBytes,
+    type: NetMessageType = 'other'
+  ) {
     this.type = type
     this.uid = uid
+    this.dc = dc
     this.msg_id = generateID(uid)
     this.seq_no = seq_no
     Object.defineProperty(this, 'body', {
@@ -68,50 +76,38 @@ export class NetMessage {
       return this.body.byteLength
     else
       return this.body.length
-    /*
-    else if (this.body != null) return this.body.length
-    return 0*/
   }
   clone(seq_no: number, dc: DCNumber): NetMessage {
-    const copy = new NetMessage(this.uid, seq_no, this.body, this.type)
-    const result = clone(this, copy, dc)
+    const copy = new NetMessage(this.uid, dc, seq_no, this.body, this.type)
+    const result = clone(this, copy)
     return result
   }
-  // toJSON() {
-  //   return {
-  //     uid      : this.uid,
-  //     deferred : this.deferred,
-  //     requestID: this.requestID,
-  //     noShedule: this.noShedule,
-
-  //   }
-  // }
 }
 
 export class NetContainer extends NetMessage {
   inner: string[]
-  type: NetMessageType = 'container'
+  type: NetMessageType
   constructor(
     uid: string,
+    dc: DCNumber,
     seq_no: number,
     body: BodyBytes,
     inner: string[],
     innerApi: (string | boolean)[]
   ) {
-    super(uid, seq_no, body)
+    super(uid, dc, seq_no, body, 'container')
     this.container = true
     this.inner = inner
     this.innerAPI = innerApi
   }
   clone(seq_no: number, dc: DCNumber): NetContainer {
-    const copy = new NetContainer(this.uid, seq_no, this.body, this.inner, this.innerAPI /*:: || [] */)
-    const result = clone(this, copy, dc)
+    const copy = new NetContainer(this.uid, dc, seq_no, this.body, this.inner, this.innerAPI /*:: || [] */)
+    const result = clone(this, copy)
     return result
   }
 }
 
-function clone <+T: NetMessage>(orig: T, copy: T, dc: DCNumber): T {
-  copy.dc = dc
+function clone <+T: NetMessage>(orig: T, copy: T): T {
   copy.isAPI = orig.isAPI
   copy.notContentRelated = orig.notContentRelated
   copy.deferred = orig.deferred

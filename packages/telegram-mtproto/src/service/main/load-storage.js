@@ -13,7 +13,6 @@ import Thread from '../networker'
 
 import {
   type DCInt,
-  type Carrier,
   type ACAuth,
   type ACFlags,
   type ACNetworker,
@@ -22,12 +21,13 @@ import {
 
 import {
   type DCNumber,
+  type UID,
   toDCNumber
 } from 'Newtype'
 
 export default async function loadStorage(
   dcMap: Map<DCNumber, string>,
-  uid: string,
+  uid: UID,
 ) {
   let iAuth: { [dc: number]: number[] } = {}
   let iSalt: { [dc: number]: number[] } = {}
@@ -105,8 +105,6 @@ export default async function loadStorage(
       }
       new Thread(
         dc,
-        auth,
-        saltKey,
         uid
       )
       fields = {
@@ -128,6 +126,7 @@ export default async function loadStorage(
         [dc | 0]: fields,
       }
   }
+  //$off
   const nearest = await getter
     .nearestDC(uid)
     .then(val => val

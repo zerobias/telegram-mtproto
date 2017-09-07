@@ -6,7 +6,6 @@ import { type AxiosXHR } from 'axios'
 import ApiRequest from '../service/main/request'
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker' */
-import { type ModuleStatus } from '../status'
 import { type NetStatus } from 'NetStatus'
 import { type MessageUnit } from '../task/index.h'
 import { KeyStorage } from 'Util/key-storage'
@@ -40,21 +39,6 @@ export type ApiNewRequest = {
   method: string,
   params: { [key: string]: mixed },
   timestamp: number,
-}
-
-export type NetState = {
-  dc: string,
-  sent: List<NetMessage, string>,
-  status: ModuleStatus,
-  authKey: number[],
-  authSubKey: {
-    authKeyUint8: Uint8Array,
-    authKeyBuffer: ArrayBuffer,
-    authKeyID: number[],
-  },
-  salt: number[],
-  session: number[],
-  requestMap: { [req: string]: NetMessage },
 }
 
 export type CommandList = {

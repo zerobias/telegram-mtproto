@@ -12,12 +12,9 @@ import ApiRequest from './main/request'
 
 import { MaybeT } from 'Monad'
 import {
-  querySalt,
-  queryAuthKey,
   queryHomeDc,
+  queryKeys,
 } from '../state/query'
-
-import {  getState } from '../state/portal'
 
 export const makeAuthRequest = (netReq: ApiRequest) =>
   MaybeT
@@ -30,44 +27,17 @@ export const makeAuthRequest = (netReq: ApiRequest) =>
 
 function withDC(uid, dc) {
   const doAuth = () => authRequest(uid, dc)
-  const newThread = (auth, salt) => () =>
-    createThread( dc, auth, salt, uid )
-
-  const getThread =
+  const newThread = () => createThread( dc, uid )
+  const getThread = () =>
     Config
       .thread
       .get(uid, dc)
+      .fold(newThread, x => x)
 
-  const foldGetThread = ({ auth, salt }) =>
-    MaybeT.fold(
-      newThread(auth, salt),
-      getThread
-    )
-  // const state = getState()
-  // const client = state.client[uid]
-  // const homeStatus = client.status
-  //   .maybeGetK(dc)
-  //   .fold(() => false, () => true)
-  // if (homeStatus) {
-  //   const salt = client.salt.get(dc)
-  //   const auth = client.auth.get(dc)
-  //   return ofF(foldGetThread({ auth, salt }))
-  // }
-  // const salt = state.client[uid].salt.get(dc)
-  // const auth = state.client[uid].auth.get(dc)
-  //
-  // return Future((rj, rs) => { rs({ salt, auth }) } )
-  //   .map(foldGetThread)
   return MaybeT
     .toFutureR(queryKeys(uid, dc))
-    // .mapRej(x => {
-    //   const xx = [uid, dc, queryKeys(uid, dc)]
-    //
-    //   // console.warn(, uid, dc)
-    //   return x
-    // })
     .chainRej(doAuth)
-    .map(foldGetThread)
+    .map(getThread)
 }
 
 export const authRequest = (uid: string, dc) => Auth(uid, dc)
@@ -82,11 +52,6 @@ export const authRequest = (uid: string, dc) => Auth(uid, dc)
       dc
     })
   )
-
-const queryKeys = (uid, dc) => MaybeT.both(
-  queryAuthKey(uid, dc),
-  querySalt(uid, dc)
-).map(([auth, salt]) => ({ auth, salt, dc }))
 
 
 declare class NoDCError extends Error {  }
