@@ -5,8 +5,12 @@ import { Serialization } from '../../tl'
 
 import { writeBytes } from '../../tl/writer'
 
-import { bytesToHex, sha1BytesSync,
-  bytesFromHex, strDecToHex } from '../../bin'
+import {
+  bytesToHex,
+  sha1BytesSync,
+  bytesFromHex,
+  strDecToHex,
+} from 'Bin'
 import Config from 'ConfigProvider'
 
 

@@ -68,6 +68,59 @@ const Config = {
       return getConfig(uid).storage.remove(...keys)
     },
   },
+  storageAdapter: {
+    get: {
+      authKey(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.getAuthKey(dc)
+      },
+      authID(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.getAuthID(dc)
+      },
+      salt(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.getSalt(dc)
+      },
+      dc(uid: string) {
+        return getConfig(uid).storageAdapter.getDC()
+      },
+      nearestDC(uid: string) {
+        return getConfig(uid).storageAdapter.getNearestDC()
+      },
+    },
+    set: {
+      authKey(uid: string, dc: number, data: number[]) {
+        return getConfig(uid).storageAdapter.setAuthKey(dc, data)
+      },
+      authID(uid: string, dc: number, data: number[]) {
+        return getConfig(uid).storageAdapter.setAuthID(dc, data)
+      },
+      salt(uid: string, dc: number, data: number[]) {
+        return getConfig(uid).storageAdapter.setSalt(dc, data)
+      },
+      dc(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.setDC(dc)
+      },
+      nearestDC(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.setNearestDC(dc)
+      },
+    },
+    remove: {
+      authKey(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.removeAuthKey(dc)
+      },
+      authID(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.removeAuthID(dc)
+      },
+      salt(uid: string, dc: number) {
+        return getConfig(uid).storageAdapter.removeSalt(dc)
+      },
+      dc(uid: string) {
+        return getConfig(uid).storageAdapter.removeDC()
+      },
+      nearestDC(uid: string) {
+        return getConfig(uid).storageAdapter.removeNearestDC()
+      },
+    },
+  },
   fastCache: {
     get(uid: string, dc: DCNumber) {
       return getConfig(uid).fastCache[dc | 0]

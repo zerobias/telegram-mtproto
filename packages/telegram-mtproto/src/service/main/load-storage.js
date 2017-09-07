@@ -1,9 +1,9 @@
 //@flow
 
 import { trim, fromPairs } from 'ramda'
-import { type AsyncStorage } from 'mtproto-shared'
 
-import dcStoreKeys from 'Util/dc-store-keys'
+// import dcStoreKeys from 'Util/dc-store-keys'
+import Config from 'ConfigProvider'
 
 import { dispatch } from 'State'
 import random from '../secure-random'
@@ -26,7 +26,6 @@ import {
 } from 'Newtype'
 
 export default async function loadStorage(
-  storage: AsyncStorage,
   dcMap: Map<DCNumber, string>,
   uid: string,
 ) {
@@ -47,6 +46,9 @@ export default async function loadStorage(
     salt   : [],
     session: [],
   }
+
+  const getter = Config.storageAdapter.get
+
   for (const dc of dcMap.keys()) {
     // flags = { ...flags, networker: true }
     const dcInt: DCInt = toDCInt(dc)
@@ -60,8 +62,9 @@ export default async function loadStorage(
       salt   : [],
       session: [],
     }
-    const d = dcStoreKeys(dc)
-    const salt = await storage.get(d.saltKey)
+    const salt = await getter
+      .salt(uid, dc)
+      .then(val => val.fold(() => false, x => x))
     // const salt = checkString(saltRaw)
     if (Array.isArray(salt)) {
       iSalt = { ...iSalt, [dc | 0]: salt }
@@ -82,13 +85,15 @@ export default async function loadStorage(
       }
       // dispatch(AUTH.SET_SERVER_SALT(salt, dc))
     }
-    const auth = await storage.get(d.authKey)
+    const auth = await getter
+      .authKey(uid, dc)
+      .then(val => val.fold(() => false, x => x))
     if (Array.isArray(auth)) {
       iAuth = { ...iAuth, [dc | 0]: auth }
 
-      const saltKey = salt === false
-        ? bytesFromHex('AAAAAAAAAAAAAAAA')
-        : salt
+      const saltKey = Array.isArray(salt)
+        ? salt
+        : getDefaultSalt()
 
       iSalt = { ...iSalt, [dc | 0]: saltKey }
 
@@ -123,28 +128,18 @@ export default async function loadStorage(
         [dc | 0]: fields,
       }
   }
-  const nearestRaw = await storage.get('nearest_dc')
-  const nearest = checkNumber(nearestRaw)
-  let act: Carrier = {
-    flags,
-    networker,
-    auth: authList,
-    /*:: homeDC: toDCInt(0), */
-  }
+  const nearest = await getter
+    .nearestDC(uid)
+    .then(val => val
+      /*:: .map(toDCNumber) */
+      .fold(() => false, x => x))
   if (nearest !== false) {
     iHome = nearest
     flags = { ...flags, homeDC: true }
-    const dcIntNearest: DCInt = toDCInt(nearest+0)
-    act = {
-      ...act,
-      flags,
-      homeDC: dcIntNearest
-    }
     // dispatch(MAIN.DC_DETECTED(nearest))
   } //else
-    // dispatch(MAIN.MODULE_LOADED())
-    // dispatch(MAIN.DC_DETECTED(2))
-  // dispatch(makeCarrierAction(act))
+  // dispatch(MAIN.MODULE_LOADED())
+  // dispatch(MAIN.DC_DETECTED(2))
   const session = createSessions(getDcList(iAuth, iSalt, iHome))
   const finalAction = {
     auth: iAuth,
@@ -157,6 +152,8 @@ export default async function loadStorage(
   if (__DEV__)
     console.log({ salt: iSalt, home: iHome, session })
 }
+
+const getDefaultSalt = () => bytesFromHex('AAAAAAAAAAAAAAAA')
 
 function getDcList(auth, salt, home) {
   const dcList = []

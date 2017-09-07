@@ -78,7 +78,7 @@ class MTProto {
     }), uid)
     const load = async() => {
       if (this.activated)
-        await loadStorage(storage, dcMap, uid)
+        await loadStorage(dcMap, uid)
     }
     this.load = load
     setTimeout(load, 1e3)

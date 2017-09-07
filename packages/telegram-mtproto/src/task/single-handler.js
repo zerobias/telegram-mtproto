@@ -403,8 +403,8 @@ function handleMigrateError(message, data, code, ctx) {
   //$off
   Config.session.set(uid, ctx.dc, null)
   Promise.all([
-    Config.storage.set(uid, 'dc', newDc),
-    Config.storage.set(uid, 'nearest_dc', newDc)
+    Config.storageAdapter.set.dc(uid, newDc),
+    Config.storageAdapter.set.nearestDC(uid,  newDc)
   ]).then(() => {
     dispatch(MAIN.DC_DETECTED({
       dc: newDc,

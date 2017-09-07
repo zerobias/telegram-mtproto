@@ -13,7 +13,7 @@ import { applyServerTime, tsNow } from '../time-manager'
 
 import { bytesCmp, bytesToHex, sha1BytesSync,
   aesEncryptSync, aesDecryptSync, bytesToArrayBuffer,
-  bytesFromHex, bytesXor, generateNonce } from '../../bin'
+  bytesFromHex, bytesXor, generateNonce } from 'Bin'
 import { bpe, str2bigInt, one,
   dup, sub_, sub, greater } from '../../vendor/leemon'
 import {
@@ -57,9 +57,10 @@ export default function Auth(uid: UID, dc: DCNumber) {
     .chain(url => authFuture(uid, dc, url))
     .map(res => ({ ...res, uid }))
     .chain(res => encaseP(async res => {
-      await Config.storage.set(uid, `dc${dc}_server_salt`, res.serverSalt)
-      await Config.storage.set(uid, `dc${dc}_auth_key`, res.authKey)
-      await Config.storage.set(uid, `dc${dc}_auth_id`, res.authKeyID)
+      const setter = Config.storageAdapter.set
+      await setter.salt(uid, dc, res.serverSalt)
+      await setter.authKey(uid, dc, res.authKey)
+      await setter.authID(uid, dc, res.authKeyID)
       return res
     }, res))
     .map(res => (dispatch(MAIN.AUTH.RESOLVE(res), uid), res))
@@ -244,8 +245,9 @@ function dhGenOk(response, { key, id, aux }, { newNonce, serverNonce }) {
   const serverSalt = bytesXor(newNonce.slice(0, 8), serverNonce.slice(0, 8))
   // console.log('Auth successfull!', authKeyID, authKey, serverSalt)
   const authBlock = {
-    authKeyID: /*:: toCryptoKey(*/ id /*::)*/,
-    authKey  : /*:: toCryptoKey(*/ key /*::)*/,
+    authKeyID : /*:: toCryptoKey(*/ id /*::)*/,
+    authKey   : /*:: toCryptoKey(*/ key /*::)*/,
+    //eslint-disable-next-line
     serverSalt: /*:: toCryptoKey(*/ serverSalt /*::)*/,
   }
 

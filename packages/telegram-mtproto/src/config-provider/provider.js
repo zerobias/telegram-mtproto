@@ -15,6 +15,7 @@ import ScopedEmitter from '../event/scoped-emitter'
 import NetworkerThread from '../service/networker'
 import Layout from '../layout'
 import L1Cache from '../l1-cache'
+import StorageAdapter from '../storage-adapter'
 
 const provider: Provider = { }
 
@@ -28,16 +29,18 @@ export function registerInstance(config: $Diff<InstanceConfig, InstanceDiff>) {
   const fullConfig: InstanceConfig = {
     //$FlowIssue
     ...config,
-    keyManager   : keyManagerNotInited,
-    timerOffset  : 0,
-    seq          : {},
-    session      : {},
-    fastCache    : {},
-    thread       : {},
-    authRequest  : {},
-    halt         : {},
-    publicKeys   : {},
-    lastMessageID: [0, 0]
+    keyManager    : keyManagerNotInited,
+    //$off
+    storageAdapter: new StorageAdapter(config.storage),
+    timerOffset   : 0,
+    seq           : {},
+    session       : {},
+    fastCache     : {},
+    thread        : {},
+    authRequest   : {},
+    halt          : {},
+    publicKeys    : {},
+    lastMessageID : [0, 0]
   }
   provider[fullConfig.uid] = fullConfig
 }
@@ -51,6 +54,7 @@ type InstanceConfig = {
   emit: Emit,
   /*::+*/rootEmitter: ScopedEmitter,
   /*::+*/storage: AsyncStorage,
+  /*::+*/storageAdapter: StorageAdapter,
   /*::+*/apiConfig: ApiConfig,
   publicKeys: { [key: string]: PublicKey },
   keyManager: (fingerprints: string[]) => PublicKeyExtended,
@@ -76,6 +80,7 @@ type InstanceConfig = {
 type InstanceDiff = {
   timerOffset: number,
   lastMessageID: [number, number],
+  /*::+*/storageAdapter: StorageAdapter,
   authRequest: { [dc: number]: Fluture<*, *> },
   thread: { [dc: number]: NetworkerThread },
   halt: { [dc: number]: boolean },
