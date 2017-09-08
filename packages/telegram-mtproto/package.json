@@ -7,7 +7,7 @@
   "module": "es/index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "prepublish": "npm run rebuild:es && npm run rebuild:cjs",
+    "prepublish": "npm run rebuild:es && npm run rebuild:cjs && npm run rebuild:web",
     "types": "flow-copy-source src lib && flow-copy-source src es",
     "test": "jest test/node.test.js",
     "test:esnext": "jest test/*.test.js",
@@ -15,12 +15,10 @@
     "build": "npm run build:cjs && npm run build:es",
     "build:esnext": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --no-babelrc --plugins=transform-flow-strip-types,transform-exponentiation-operator,transform-es2015-modules-commonjs,transform-class-properties,transform-object-rest-spread",
     "watch:esnext": "npm run build:esnext -- --watch",
-    "build:web:vendor": "webpack --config config/web/webpack.vendor.config.js",
-    "build:web:lib": "webpack --config config/web/webpack.config.js",
-    "build:web": "npm run build:web:vendor && npm run build:web:lib",
+    "build:web": "webpack --config config/web/webpack.config.js",
     "clean:web": "rimraf dist/",
     "rebuild:web": "npm run clean:web && npm run build:web",
-    "watch:web": "node_modules/.bin/webpack-dev-server --config=config/web/webpack.config.js",
+    "watch:web": "webpack-dev-server --config=config/web/webpack.config.js",
     "build:cjs": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --ignore __mocks__,__mock_s__",
     "clean:cjs": "rimraf lib/",
     "rebuild:cjs": "npm run clean:cjs & npm run build:cjs",
@@ -37,7 +35,7 @@
     "@goodmind/node-cryptojs-aes": "^0.5.0",
     "ajv": "^5.2.2",
     "ajv-keywords": "^2.1.0",
-    "apropos": "^0.3.1",
+    "apropos": "^0.4.0",
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
     "detect-node": "^2.0.3",
@@ -87,6 +85,7 @@
     "tslint": "^5.7.0",
     "typescript": "^2.5.2",
     "webpack": "^3.5.6",
+    "webpack-dev-server": "^2.7.1",
     "worker-loader": "^0.8.1"
   },
   "engines": {
@@ -107,9 +106,7 @@
     "config",
     "dist/index.html",
     "dist/mtproto-browser.js",
-    "dist/mtproto-browser.js.map",
-    "dist/vendor.dll.js",
-    "dist/vendor.dll.js.map"
+    "dist/mtproto-browser.js.map"
   ],
   "keywords": [
     "telegram",
@@ -134,7 +131,7 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "3.2.3",
+  "version": "3.2.4",
   "quokka": {
     "babel": {
       "env": "commonjs"

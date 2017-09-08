@@ -10,17 +10,27 @@
     "transform-class-properties",
     "transform-async-to-generator",
     ["transform-es2015-block-scoping", {
-      "throwIfClosureRequired": true
+      "throwIfClosureRequired": false
+    }],
+    ["transform-define", {
+      "__DEV__": false
     }],
     ["module-resolver", {
       "alias": {
         "Action": "./packages/telegram-mtproto/src/state/action",
         "Util": "./packages/telegram-mtproto/src/util",
-        "NetStatus": "./packages/telegram-mtproto/src/net-status",
         "Mtp": "./packages/telegram-mtproto/src/mtp.h.js",
         "ConfigProvider": "./packages/telegram-mtproto/src/config-provider",
-        "State": "./packages/telegram-mtproto/src/state"
+        "State": "./packages/telegram-mtproto/src/state",
+        "Newtype": "./packages/telegram-mtproto/src/newtype.h",
+        "Bin": "./packages/telegram-mtproto/src/bin",
+        "Monad": "./packages/telegram-mtproto/src/util/monad-t"
       }
+    }],
+    ["minify-dead-code-elimination", {
+      "keepFnName": true,
+      "keepFnArgs": true,
+      "keepClassName": true
     }],
     ["transform-object-rest-spread", { "useBuiltIns": true }]
   ],

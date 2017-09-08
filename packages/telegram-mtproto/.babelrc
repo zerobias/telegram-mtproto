@@ -18,7 +18,6 @@
       "alias": {
         "Action": "./src/state/action",
         "Util": "./src/util",
-        "NetStatus": "./src/net-status",
         "Mtp": "./src/mtp.h.js",
         "ConfigProvider": "./src/config-provider",
         "State": "./src/state",

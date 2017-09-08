@@ -113,7 +113,7 @@ type auth.signIn = (phone_number: string, phone_code_hash: string, phone_code: s
 Additional examples can be obtained from [examples][examples] folder.
 
 ### Browser build
-Mtproto has standalone browser build, which can be found in `node_modules/telegram-mtproto/dist` folder with a html-page example.
+Mtproto has standalone browser build `mtproto-browser.js`, which can be found in `node_modules/telegram-mtproto/dist` folder with a html page example.
 
 
 ## Storage
