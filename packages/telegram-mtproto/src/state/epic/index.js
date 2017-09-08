@@ -1,10 +1,10 @@
 //@flow
 
 import { combineEpics } from 'redux-most'
-import { Stream, awaitPromises } from 'most'
+import { Stream } from 'most'
 import { contains } from 'ramda'
 import { type UID, type DCNumber } from 'Newtype'
-import { MAIN, API, AUTH } from 'Action'
+import { MAIN, API } from 'Action'
 // import { Pure, Lift, liftF } from '@safareli/free'
 import { after } from 'fluture'
 import netRequest, { onNewTask } from './net-request'
@@ -13,10 +13,8 @@ import { makeAuthRequest, authRequest } from '../../service/invoke'
 import {
   getClient,
   getHomeStatus,
-  queryHomeDc,
   queryKeys,
 } from '../query'
-import Auth from '../../service/authorizer'
 import type {
   Client
 } from '../index.h'
@@ -101,24 +99,6 @@ const afterStorageImport = (action: Stream<{ type: string, payload: any }>) => a
   .map(e => e.payload)
   .map(({ home, uid }) => ({ dc: home, uid }))
   .map(MAIN.DC_DETECTED)
-
-// const noAuth = (action: Stream<{ type: string, payload: any }>) => action
-//   .thru(MAIN.AUTH_UNREG.stream)
-//   .map(val => val.payload)
-  // .map((dc) =>
-  //   remove(`dc${dc}_auth_key`).then(() => dc))
-  // .thru(awaitPromises)
-  // .map(dc => dc === queryHomeDc()
-  //   ? [
-  //     MAIN.MODULE_LOADED(),
-  //     NET.STATUS_SET([{
-  //       dc,
-  //       status: netStatuses.load,
-  //     }]),
-  //   ]
-  //   : [MAIN.MODULE_LOADED()])
-  // .chain(from)
-
 
 const rootEpic = combineEpics([
   afterStorageImport,

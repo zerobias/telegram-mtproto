@@ -1,8 +1,8 @@
 //@flow
-import { type ModuleStatus } from '../status'
 
-/*::
+
 import { NetMessage } from '../service/networker/net-message'
+/*::
 export opaque type DCInt: number = number
 */
 
@@ -12,7 +12,6 @@ export type Carrier = {
   auth: ACAuth,
   homeDC: DCInt,
   net: ACNet,
-  // netStatus:
 }
 
 export type ActionCarrier = {
@@ -42,7 +41,6 @@ export type ACFlags = {
 export type ACNetworker = {
   ids: DCInt[],
   [dc: number]: {
-    status: ModuleStatus,
     authKey: number[],
     salt: number[],
     session: number[],

@@ -1,6 +1,6 @@
 //@flow
 
-import { Stream, of, awaitPromises } from 'most'
+import { Stream, of } from 'most'
 import { of as ofF } from 'fluture'
 import { toPairs, contains } from 'ramda'
 
@@ -33,13 +33,10 @@ export const receiveResponse = (action: Stream<any>) => action
   .map(e => e.payload)
   .map(payload => decrypt(payload)
     .map(normalize)
-    // .promise()
-    // .thru(awaitPromises)
     .map((data) => {
       const {
         normalized,
         summary,
-        statuses,
         dc,
         uid,
         salt: saltKey,
@@ -78,7 +75,7 @@ export const receiveResponse = (action: Stream<any>) => action
       dispatch({
         type   : '[01] action carrier',
         payload: {
-          normalized, summary, statuses
+          normalized, summary
         }
       }, uid)
       if (__DEV__)
@@ -86,15 +83,13 @@ export const receiveResponse = (action: Stream<any>) => action
           msg => console.log(
             'normalized, summary',
             msg, `\n`,
-            summary, `\n`,
-            statuses))
+            summary, `\n`))
       return {
         ...data,
         uid,
         dc,
         normalized,
         summary,
-        statuses,
       }
     })
     .map(({ uid, dc, thread, noResponseMsgs, normalized }) => {

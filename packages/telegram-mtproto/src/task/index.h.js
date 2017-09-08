@@ -5,7 +5,6 @@ import { type AxiosXHR } from 'axios'
 import { NetMessage } from '../service/networker/net-message'
 import NetworkerThread from '../service/networker'
 import { type DCNumber, type UID } from 'Newtype'
-import { type NetStatus } from 'NetStatus'
 
 export type RawInput = {
   message: NetMessage,
@@ -251,5 +250,4 @@ export type DcAuth = {
 export type PUnitList = {
   normalized: MessageUnit[],
   summary: ᐸPatchᐳSummaryReduced,
-  statuses: { [dc: number]: NetStatus },
 }

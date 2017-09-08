@@ -23,11 +23,6 @@ type Api = {
   NEXT: ActionPair<'api/next', OnNext>,
 }
 
-export type ApiMetaPL = {
-  _: 'api',
-  id: string,
-}
-
 const apiMeta = (_: any, id: string) => ({ _: 'api', id })
 
 

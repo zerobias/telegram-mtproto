@@ -85,7 +85,6 @@ module.name_mapper='^Action\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto
 module.name_mapper='^State$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/state'
 module.name_mapper='^ConfigProvider$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/config-provider'
 module.name_mapper='^Util\(.*\)$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/util\1'
-module.name_mapper='^NetStatus$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/net-status'
 module.name_mapper='^Mtp$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/mtp.h.js'
 module.name_mapper='^Newtype$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/newtype.h.js'
 module.name_mapper='^Bin$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/bin'

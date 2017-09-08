@@ -16,14 +16,10 @@ import {
 
   type DcAuth
 } from './index.h'
-import {
-  queryKeys,
-} from '../state/query'
 
 import singleHandler from './single-handler'
 
 import Logger from 'mtproto-logger'
-import { netStatuses, type NetStatus } from '../net-status'
 const log = Logger`merge-patch`
 
 // const testID = String((Date.now() - ((Date.now() / 1e8) | 0) * 1e8) / 1e3 | 0)
@@ -44,7 +40,6 @@ export default function mergePatch(ctx: *, processed: MessageUnit[]) {
         summary: append(summary, acc.summary),
       }
     }, { message: [], summary: [] })
-  const uid: string = ctx.uid
   const mergedSummary = summary.reduce(mergeSummary, emptySummary())
   const regrouped = regroupSummary(mergedSummary)
   const noAuth = dcWithoutAuth(regrouped.auth)
@@ -60,14 +55,9 @@ export default function mergePatch(ctx: *, processed: MessageUnit[]) {
   // log`mergedSummary`(mergedSummary)
   log`regrouped`(withNewSalt)
   log`joinedAuth`(joinedAuth)
-  const statuses: { [dc: number]: NetStatus } =
-  //$off
-    map(detectStatus(uid), joinedAuth)
-  log`detectStatus`(statuses)
   return {
     normalized: message,
     summary   : withNewSalt,
-    statuses,
   }
 }
 
@@ -180,32 +170,4 @@ function joinDcAuth(summary) {
     result = { ...result, [dc]: dcAuth }
   }
   return result
-}
-
-const emptyDcAuth: DcAuth = {
-  auth: false,
-  salt: false,
-}
-
-const detectStatus = (uid) => (dc, dcAuth: DcAuth) => {
-
-  let initialData = dcAuth
-  const fromState = queryKeys(uid, dc).orElse(() => ({
-    uid, dc, ...emptyDcAuth
-  }))
-  /*{
-    auth: queryAuthKey(dc),
-    salt: querySalt(dc),
-  }*/
-  const auth: number[] | false = fromState.auth && fromState.auth.length > 0
-    ? fromState.auth
-    : false
-  const salt: number[] | false = fromState.salt && fromState.salt.length > 0
-    ? fromState.salt
-    : false
-  initialData = { auth, salt, ...initialData }
-  initialData = { ...emptyDcAuth, ...initialData }
-  if (!initialData.auth || !initialData.salt)
-    return netStatuses.load
-  return netStatuses.active
 }

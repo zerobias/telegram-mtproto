@@ -6,9 +6,6 @@ import CryptoWorker from '../../crypto'
 import getMsgKeyIv from './msg-key'
 import { readLong } from '../../tl/reader'
 
-import { dispatch } from '../../state'
-import { AUTH } from 'Action'
-
 type ReadResponse = {
   response: ArrayBuffer | Buffer,
   reader: Deserialization,
@@ -69,8 +66,7 @@ export function readHash({ reader, currentSession, prevSession, dataWithPadding,
     //eslint-disable-next-line
     || !bytesCmp(sessionID, prevSession));
   if (isInvalidSession) {
-    console.warn('Sessions', sessionID, currentSession, prevSession)
-    dispatch(AUTH.SET_SESSION_ID([...sessionID], 2), uid)
+    console.warn('Invalid server session', sessionID, currentSession, prevSession)
     // throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) } ${sessionID.toString()}  ${bytesToHex(currentSession)} ${currentSession.toString()}`)
   }
 

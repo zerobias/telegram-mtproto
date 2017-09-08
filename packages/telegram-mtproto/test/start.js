@@ -58,72 +58,58 @@ const telegram = MTProto({ server, api, app })
   return history
 }*/
 
-const resetStorage = async() => {
-  telegram.storage.data = {
-    nearest_dc: 2,
-    dc        : 2,
-  }
-  // await telegram.storage.save()
-}
-
-const isAlreadyAuth = async() => {
-  const dc = await telegram.storage.get('dc')
-  if (!dc) {
-    await resetStorage()
-    return false
-  }
-  const authKey = await telegram.storage.get(`dc${dc}_auth_key`)
-  const salt = await telegram.storage.get(`dc${dc}_server_salt`)
-  const result = !!authKey && !!salt
-  if (!result)
-    await resetStorage()
-  return result
-  // dc${ this.dcID }_server_salt
-}
+// const resetStorage = async() => {
+//   telegram.storage.data = {
+//     nearest_dc: 2,
+//     dc        : 2,
+//   }
+//   // await telegram.storage.save()
+// }
+//
+// const isAlreadyAuth = async() => {
+//   const dc = await telegram.storage.get('dc')
+//   if (!dc) {
+//     await resetStorage()
+//     return false
+//   }
+//   const authKey = await telegram.storage.get(`dc${dc}_auth_key`)
+//   const salt = await telegram.storage.get(`dc${dc}_server_salt`)
+//   const result = !!authKey && !!salt
+//   if (!result)
+//     await resetStorage()
+//   return result
+//   // dc${ this.dcID }_server_salt
+// }
 
 
 const connectionTest = async() => {
   // await telegram.storage.clear() //Just for clean test
   // const isAuth = await isAlreadyAuth()
 
-  let message
-  if (!false) {
-    await telegram('help.getNearestDc', {}, {
-      createNetworker: true,
-    })
-    const { phone_code_hash } = await telegram('auth.sendCode', {
-          phone_number  : phone.num,
-          current_number: false,
-          api_id        : config.id,
-          api_hash      : config.hash
-    })
-    console.log('phone_code_hash', phone_code_hash)
-    const res = await telegram('auth.signIn', {
-      phone_number: phone.num,
-      phone_code_hash,
-      phone_code  : phone.code,
-    })
-    console.log('signIn', res)
-    console.log('\n Logined as user')
-    console.dir && console.dir(res.user, { colors: true })
-    message = 'result is ok'
-  } else {
-    message = 'already authorized, skip'
-  }
+  // if (!false) {
+  await telegram('help.getNearestDc')
+  const { phone_code_hash } = await telegram('auth.sendCode', {
+    phone_number  : phone.num,
+    current_number: false,
+    api_id        : config.id,
+    api_hash      : config.hash
+  })
+  console.log('phone_code_hash', phone_code_hash)
+  const res = await telegram('auth.signIn', {
+    phone_number: phone.num,
+    phone_code_hash,
+    phone_code  : phone.code,
+  })
+  console.log('signIn', res)
+  console.log('\n Logined as user')
+  console.dir(res.user, { colors: true })
+  // } else {
+  //   message = 'already authorized, skip'
+  // }
   const dialogs = await telegram('messages.getDialogs', {
     limit: 100,
   })
-  console.dir && console.dir(dialogs, { colors: true })
-  app.storage.data = {
-    nearest_dc: 2,
-    dc        : 2,
-  }
-  await app.storage.save()
-  console.log('ok')
-  // test(`Reuse stored auth`, reuseStoredAuth)
+  console.dir(dialogs, { colors: true })
+
 }
 connectionTest()
-
-
-// delayExit()
-  // await app.storage.save()

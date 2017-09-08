@@ -19,7 +19,7 @@ import ApiRequest from '../main/request'
 import { writeInt, writeBytes, writeLong } from '../../tl/writer'
 
 import LongPoll from '../../plugins/long-poll'
-import { NET, NETWORKER_STATE, AUTH } from 'Action'
+import { NET, NETWORKER_STATE } from 'Action'
 import { type ApiConfig } from '../main/index.h'
 
 import {
@@ -123,10 +123,6 @@ export class NetworkerThread {
     //   storage.set(keyNames.authKey, bytesToHex(authKey)),
     //   storage.set(keyNames.saltKey, bytesToHex(serverSalt))
     // ]).then(() => {
-    // console.warn('authKey', authKey)
-    // dispatch(AUTH.SET_AUTH_KEY(authKey, dc), uid)
-    // console.warn('serverSalt', serverSalt)
-    // dispatch(AUTH.SET_SERVER_SALT(serverSalt, dc), uid)
     // })
 
     emitter.emit('new-networker', this)
@@ -142,7 +138,6 @@ export class NetworkerThread {
   //   this.prevSessionID = this.sessionID
   //   this.sessionID = new Array(8)
   //   random(this.sessionID)
-  //   // dispatch(AUTH.SET_SESSION_ID(this.sessionID, this.dcID))
   // }
 
   updateSentMessage(sentMessageID: string) {
@@ -499,8 +494,7 @@ export class NetworkerThread {
     const serverSalt = longToBytes(newServerSalt)
     await this.storage.set(`dc${ this.dcID }_server_salt`, bytesToHex(serverSalt))
 
-    dispatch(AUTH.SET_SERVER_SALT(serverSalt, this.dcID), this.uid)
-    // this.serverSalt = serverSalt
+    this.serverSalt = serverSalt
     return true
   } */
 

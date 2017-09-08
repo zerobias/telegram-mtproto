@@ -10,15 +10,12 @@ import type {
   Client,
 } from '../index.h'
 import {
-  actionName,
   trimType,
-  trimActionType,
 } from '../helpers'
 import {
   type UID,
   toUID,
 } from 'Newtype'
-import { API } from 'Action'
 import { KeyValue, TupleT } from 'Monad'
 import { RpcApiError } from '../../error'
 import ApiRequest from '../../service/main/request'
@@ -115,7 +112,8 @@ function resolveTask(state: Client, task: MessageUnit): Client {
   const msgID = /*:: toUID( */ task.id /*:: ) */
   if (flags.api) {
     if (!task.api || !task.api.resolved) {
-      console.error(`Task not found!`, task)
+      if (__DEV__)
+        console.error(`Task not found!`, task)
     }
     if (flags.methodResult) {
       const outID = /*:: toUID( */ task.methodResult.outID /*:: ) */

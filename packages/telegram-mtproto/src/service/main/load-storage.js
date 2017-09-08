@@ -83,7 +83,6 @@ export default async function loadStorage(
         ...authList,
         salt: [ ...authList.salt, dcInt ]
       }
-      // dispatch(AUTH.SET_SERVER_SALT(salt, dc))
     }
     const auth = await getter
       .authKey(uid, dc)
@@ -117,7 +116,6 @@ export default async function loadStorage(
         salt   : [ ...new Set([ ...authList.salt, dcInt ]) ],
         authKey: [ ...authList.authKey, dcInt ]
       }
-      // dispatch(AUTH.SET_AUTH_KEY(auth, dc))
     }
     if (!inactive)
       networker = {

@@ -2,11 +2,10 @@
 
 import { type AxiosXHR } from 'axios'
 
-/*:: import List from 'Util/immutable-list'
+
 import ApiRequest from '../service/main/request'
 import { NetMessage } from '../service/networker/net-message'
-import NetworkerThread from '../service/networker' */
-import { type NetStatus } from 'NetStatus'
+import NetworkerThread from '../service/networker'
 import { type MessageUnit } from '../task/index.h'
 import { KeyStorage } from 'Util/key-storage'
 import { KeyValue } from 'Monad'
@@ -71,20 +70,12 @@ export type Client = {
 
 export type ClientList = {
   ids: string[],
-  [uid: string]: Client & { status: KeyValue<DCNumber, boolean> },
+  [uid: string]: Client,
 }
 
 export type State = {
   client: ClientList,
-  // request: {
-  //   api: List<ApiNewRequest, string>
-  // },
 }
-
-export type OnSetStatus = {
-  dc: number,
-  status: NetStatus,
-}[]
 
 export type OnSeqSet = {
   dc: number,

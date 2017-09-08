@@ -31,16 +31,14 @@ import type {
   OnDcDetected,
 } from '../index.h'
 import {
-  actionName,
   trimType,
-  trimActionType,
 } from '../helpers'
 import {
   type UID,
   toUID,
   type DCNumber,
 } from 'Newtype'
-import { MAIN, NET, API, AUTH, NETWORKER_STATE } from 'Action'
+import { MAIN, NET, API } from 'Action'
 import keyStorage, { KeyStorage } from 'Util/key-storage'
 import { KeyValue } from 'Monad'
 import { sha1BytesSync } from 'Bin'
@@ -248,8 +246,6 @@ const authData = (() => {
     [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { salt }: OnStorageImported) => state.merge(salt),
     '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.salt),
     //$off
-    [AUTH.SET_SERVER_SALT] : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload),
-    //$off
     [MAIN.RECOVERY_MODE]   : (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
       state.remove(halt)
   }, keyStorage())
@@ -260,8 +256,6 @@ const authData = (() => {
     '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.auth),
     //$off
     [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKey),
-    //$off
-    [AUTH.SET_AUTH_KEY]    : (state: KeyStorage, payload: number[], { id }: { id: number }) => state.set(id, payload),
     //$off
     [MAIN.RECOVERY_MODE]   : (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
       state.remove(halt)
@@ -274,13 +268,7 @@ const authData = (() => {
     //$off
       state.merge(map(makeAuthID, payload.summary.auth)),
     //$off
-    [MAIN.AUTH.RESOLVE]: (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKeyID),
-    //$off
-    [AUTH.SET_AUTH_KEY]: (state: KeyStorage, payload: number[], { id }: { id: number }) => {
-      const sha1 = sha1BytesSync(payload)
-      const authID = sha1.slice(-8)
-      return state.set(id, authID)
-    },
+    [MAIN.AUTH.RESOLVE] : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKeyID),
     //$off
     [MAIN.RECOVERY_MODE]: (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
       state.remove(halt)
