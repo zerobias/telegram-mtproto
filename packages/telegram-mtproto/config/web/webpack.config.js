@@ -1,5 +1,4 @@
 'use strict'
-const { resolve, join } = require('path')
 const webpack = require('webpack')
 const htmlWebpack = require('html-webpack-plugin')
 
@@ -8,10 +7,7 @@ const {
   source,
   build,
   devServer,
-  vendorFilename
 } = require('./config')
-
-const vendorDll = require(join(build, 'vendor.json'))
 
 const devEntry = [
   'webpack-dev-server/client?http://localhost:8899',
@@ -39,6 +35,7 @@ const config = {
     extensions: ['.js'],
     modules   : [
       'node_modules',
+      '../../node_modules'
       // resolve(__dirname, '../../../mtproto-shared'),
       // join(__dirname, '../../..', 'mtproto-shared', 'node_modules'),
       // join(__dirname, '../../..', 'mtproto-logger', 'node_modules'),
@@ -104,10 +101,10 @@ const config = {
     // }
   },
   plugins: [
-    new webpack.DllReferencePlugin({
-      context : source,
-      manifest: vendorDll
-    }),
+    // new webpack.DllReferencePlugin({
+    //   context : source,
+    //   manifest: vendorDll
+    // }),
     // new webpack.LoaderOptionsPlugin({
     //   options: {
     //     worker: {
@@ -121,7 +118,7 @@ const config = {
     new htmlWebpack({
       title   : 'MTProto test page',
       template: '../config/web/index.ejs',
-      vendor  : vendorFilename
+      // vendor  : vendorFilename
     })
   ],
   module: {
