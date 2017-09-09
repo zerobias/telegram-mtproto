@@ -87,7 +87,8 @@ function handleApiResp(
   outID: UID
 ): Client {
   const { body } = task
-  console.log(`\n--- request done ---\n`, task.body)
+  if (__DEV__)
+    console.log(`\n--- request done ---\n`, task.body)
   const { command, request } = state
   return command
     .maybeGetK(outID)

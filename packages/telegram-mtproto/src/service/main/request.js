@@ -1,5 +1,7 @@
 //@flow
 
+import { Maybe, fromNullable } from 'folktale/maybe'
+
 import blueDefer, { type Defer } from 'Util/defer'
 import {
   type DCNumber,
@@ -28,11 +30,14 @@ export default class ApiRequest {
   deferFinal: Defer
   needAuth: boolean
   options: RequestOptions
+  dc: Maybe<DCNumber>
   constructor(
     data: ApiMethod,
     options: RequestOptions,
-    uid: UID
+    uid: UID,
+    dc?: DCNumber
   ) {
+    this.dc = fromNullable(dc)
     options.requestID = this.requestID
     this.uid = uid
     this.data = data

@@ -1,5 +1,6 @@
 //@flow
 import { tap } from 'ramda'
+import { Just } from 'folktale/maybe'
 import { tryP, resolve, Future, of as ofF } from 'fluture'
 
 import Auth from './authorizer'
@@ -18,12 +19,19 @@ import {
 
 export const makeAuthRequest = (netReq: ApiRequest) =>
   MaybeT
-    .toFuture(ERR.noDC, queryHomeDc(netReq.uid))
+    .toFuture(ERR.noDC, queryReqDc(netReq))
     .chain(dc => withDC(netReq.uid, dc))
     .map(networker => networker.wrapApiCall(netReq))
     .chain(msg => tryP(() => msg.deferred.promise))
     .mapRej(tap(e => netReq.defer.reject(e)))
     .chain(() => tryP(() => netReq.defer.promise))
+
+const queryReqDc = (netReq: ApiRequest) =>
+  netReq.dc
+    .fold(
+      () => queryHomeDc(netReq.uid),
+      x => Just(x)
+    )
 
 function withDC(uid, dc) {
   const doAuth = () => authRequest(uid, dc)

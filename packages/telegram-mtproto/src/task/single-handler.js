@@ -2,12 +2,9 @@
 
 import { append, reject, isEmpty, chain, filter, pipe } from 'ramda'
 
+import { Just } from 'folktale/maybe'
+
 import {
-  type RawInput,
-  type RawMessage,
-  type RawContainer,
-  type RawObject,
-  type MessageDraft,
   type IncomingType,
   type SystemMessage,
   type MessageUnit,
@@ -30,14 +27,16 @@ import describeProtocolError from './describe-protocol-error'
 import { MAIN, NETWORKER_STATE } from 'Action'
 import { longToBytes, rshift32 } from 'Bin'
 import guard from 'Util/match-spec'
+import warning from 'Util/warning'
 import random from '../service/secure-random'
+import { toDCNumber } from 'Newtype'
 import {
   type ᐸMTᐳNewSessionCreated,
   type ᐸMTᐳBadSalt,
   type ᐸMTᐳBadNotification,
   type ᐸMTᐳRpcResult,
 } from 'Mtp'
-
+import { queryRequest } from '../state/query'
 import Logger from 'mtproto-logger'
 import { applyServerTime } from '../service/time-manager'
 import { NetMessage } from '../service/networker/net-message'
@@ -357,6 +356,8 @@ function handleInner(ctx: IncomingType, message: MessageUnit) {
 }
 
 const migrateRegexp = /^(PHONE_MIGRATE_|NETWORK_MIGRATE_|USER_MIGRATE_)(\d+)/
+const fileMigrateRegexp = /^(FILE_MIGRATE_)(\d+)/
+const floodWaitRegexp = /^(FLOOD_WAIT_)(\d+)/
 
 function handleError(ctx: IncomingType, data: MessageUnit) {
   const err: {
@@ -369,7 +370,11 @@ function handleError(ctx: IncomingType, data: MessageUnit) {
     code,
     message,
   } = err
-  if (migrateRegexp.test(message)) {
+  if (floodWaitRegexp.test(message)) {
+    return handleFloodWait(message, data, code, ctx)
+  } else if (fileMigrateRegexp.test(message)) {
+    return handleFileMigrate(message, data, code, ctx)
+  } else if (migrateRegexp.test(message)) {
     return handleMigrateError(message, data, code, ctx)
   } else {
     switch (message) {
@@ -377,6 +382,61 @@ function handleError(ctx: IncomingType, data: MessageUnit) {
       case 'AUTH_RESTART': return handleAuthRestart(message, data, code, )
     }
 
+  }
+  return { info: data, patch: emptyPatch() }
+}
+
+const floodWarning = warning({
+  isIssue: false,
+  message: ['Flood wait! Too many requests, you should wait', 'seconds before new requests']
+})
+
+function handleFloodWait(message, data, code, ctx) {
+  const matched = message.match(floodWaitRegexp)
+  if (!matched || matched.length < 2)
+    return { info: data, patch: emptyPatch() }
+  const [ , , newDcID] = matched
+  if (!isFinite(newDcID))
+    return { info: data, patch: emptyPatch() }
+  const waitTime = parseInt(newDcID, 10)
+
+  floodWarning(waitTime)
+  const info = {
+    ...data,
+    error: {
+      code,
+      message,
+      handled: true
+    }
+  }
+  return { info, patch: emptyPatch() }
+}
+
+function handleFileMigrate(message, data, code, ctx) {
+  const { uid, dc } = ctx
+  const matched = message.match(fileMigrateRegexp)
+  if (!matched || matched.length < 2)
+    return { info: data, patch: emptyPatch() }
+  const [ , , newDcID] = matched
+  if (!isFinite(newDcID))
+    return { info: data, patch: emptyPatch() }
+  const newDc = /*:: toDCNumber( */ parseInt(newDcID, 10) /*:: ) */
+  if (data.flags.methodResult) {
+    const { outID } = data.methodResult
+    const req = queryRequest(uid, dc, outID)
+      .fold(() => false, x => x)
+    if (req) {
+      req.dc = Just(newDc)
+      const info = {
+        ...data,
+        error: {
+          code,
+          message,
+          handled: true
+        }
+      }
+      return { info, patch: emptyPatch() }
+    }
   }
   return { info: data, patch: emptyPatch() }
 }

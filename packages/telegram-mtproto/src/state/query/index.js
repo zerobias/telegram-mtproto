@@ -23,6 +23,11 @@ export const resolveRequest = (uid: string, dc: DCNumber, outID: string): Maybe<
     .chain(command => command.maybeGetK(outID))
     .map(pair => pair.snd())
 
+export const queryRequest = (uid: string, dc: DCNumber, outID: string) =>
+  resolveRequest(uid, dc, outID)
+    .chain((reqID: $off) => getClient(uid).chain(state => state.request.maybeGetK(reqID)))
+    .map(pair => pair.snd())
+
 export function getClient(uid: string): Maybe<Client> {
   return fromNullable(getState)
     .chain(e => fromNullable(e()))
