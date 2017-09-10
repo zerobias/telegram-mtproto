@@ -33,7 +33,7 @@ export type TaskResult ={
 }
 
 export interface WorkerType {
-  postMessage(data: string | Task, target: '*'): void,
+  postMessage(data: string | Task): void,
   -onmessage: (e: TaskResult) => void,
   -onerror: (e: Error) => void
 }

@@ -20,7 +20,7 @@ export default class Webworker {
 
   constructor() {
     this.initWorker()
-    this.worker.postMessage('b', '*')
+    this.worker.postMessage('b')
   }
 
   getNextID() {
@@ -38,7 +38,7 @@ export default class Webworker {
 
   addTaskAwait(task: Task) {
     this.awaiting[task.taskID] = blueDefer()
-    this.worker.postMessage(task, '*')
+    this.worker.postMessage(task)
     return this.awaiting[task.taskID].promise
   }
 

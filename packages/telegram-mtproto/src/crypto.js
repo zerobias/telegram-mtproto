@@ -64,16 +64,16 @@ if (workerEnable) {
       console.info('Not crypto task', e, e.data)
       return e
     } else
-    return webWorker
-      ? finalizeTask(e.data.taskID, e.data.result)
-      : webWorker = tmpWorker
+      return webWorker
+        ? finalizeTask(e.data.taskID, e.data.result)
+        : webWorker = tmpWorker
   }
 
   tmpWorker.onerror = function(error) {
     console.error('CW error', error, error.stack)
     webWorker = false
   }
-  tmpWorker.postMessage('b', '*')
+  tmpWorker.postMessage('b')
   webWorker = tmpWorker
 }
 
@@ -85,7 +85,7 @@ const performTaskWorker = (task, params, embed) => {
 
   params.task = task
   params.taskID = taskID
-  ;(embed || webWorker).postMessage(params, '*')
+  ;(embed || webWorker).postMessage(params)
 
   taskID++
 
@@ -100,7 +100,7 @@ const sha1Hash = (bytes: *) => {
     // console.log(rework_d_T(), 'Native sha1 start')
     return webCrypto.digest({ name: 'SHA-1' }, bytesTyped).then(digest =>
       // console.log(rework_d_T(), 'Native sha1 done')
-        digest, e => {
+      digest, e => {
       console.error('Crypto digest error', e)
       useSha1Crypto = false
       return sha1HashSync(bytes)
@@ -132,8 +132,8 @@ const aesDecrypt = (encryptedBytes: *, keyBytes: *, ivBytes: *): Promise<ArrayBu
   immediate(() => convertToArrayBuffer(
     aesDecryptSync(encryptedBytes, keyBytes, ivBytes)))
 
-const factorize = (bytes: number[] | Uint8Array) => {
-  bytes = convertToByteArray(bytes)
+function factorize(bytesSrc: number[] | Uint8Array) {
+  const bytes = convertToByteArray(bytesSrc)
   return webWorker
     ? performTaskWorker('factorize', { bytes })
     : immediate(pqPrimeFactorization, bytes)
@@ -142,13 +142,13 @@ const factorize = (bytes: number[] | Uint8Array) => {
 const modPow = (x: number[] | Uint8Array,
                 y: number[] | Uint8Array,
                 m: number[] | Uint8Array): Promise<number[]> =>
-webWorker
-  ? performTaskWorker('mod-pow', {
-    x,
-    y,
-    m
-  })
-  : immediate(bytesModPow, x, y, m)
+  webWorker
+    ? performTaskWorker('mod-pow', {
+      x,
+      y,
+      m
+    })
+    : immediate(bytesModPow, x, y, m)
 
 export const CryptoWorker = {
   sha1Hash,
