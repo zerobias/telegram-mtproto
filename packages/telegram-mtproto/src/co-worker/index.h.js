@@ -1,10 +1,5 @@
 //@flow
 
-interface CoWorker <Tasks: { [key: string]: <Args, Result>(...args: Array<Args>) => Result }> {
-  tasks: $Shape<Tasks>,
-
-}
-
 export type TasksType =
   'factorize'
   | 'mod-pow'
@@ -38,7 +33,7 @@ export type TaskResult ={
 }
 
 export interface WorkerType {
-  postMessage(data: string | Task): void,
+  postMessage(data: string | Task, target: '*'): void,
   -onmessage: (e: TaskResult) => void,
   -onerror: (e: Error) => void
 }

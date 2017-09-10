@@ -1,14 +1,13 @@
 //@flow
 
-import blueDefer from 'Util/defer'
+import blueDefer, { type Defer } from 'Util/defer'
 import Logger from 'mtproto-logger'
 const log = Logger`web-worker`
 
 import type { TasksType, WorkerType, Task, TaskResult } from './index.h'
 
 
-
-class Webworker {
+export default class Webworker {
   static of() {
     return new Webworker
   }
@@ -16,16 +15,12 @@ class Webworker {
   taskCount: number = 0
   worker: WorkerType
   awaiting: {
-    [task: number]: {
-      resolve<-T>(data: T): void,
-      resolve<-E: Error>(data: E): void,
-      promise: Bluebird$Promise<*>
-    }
+    [task: number]: Defer
   } = {}
 
   constructor() {
     this.initWorker()
-    this.worker.postMessage('b')
+    this.worker.postMessage('b', '*')
   }
 
   getNextID() {
@@ -43,7 +38,7 @@ class Webworker {
 
   addTaskAwait(task: Task) {
     this.awaiting[task.taskID] = blueDefer()
-    this.worker.postMessage(task)
+    this.worker.postMessage(task, '*')
     return this.awaiting[task.taskID].promise
   }
 
@@ -101,5 +96,3 @@ function getWorker(): WorkerType {
   const worker = new WorkerInstance()
   return worker
 }
-
-export default Webworker

@@ -73,7 +73,7 @@ if (workerEnable) {
     console.error('CW error', error, error.stack)
     webWorker = false
   }
-  tmpWorker.postMessage('b')
+  tmpWorker.postMessage('b', '*')
   webWorker = tmpWorker
 }
 
@@ -85,7 +85,7 @@ const performTaskWorker = (task, params, embed) => {
 
   params.task = task
   params.taskID = taskID
-  ;(embed || webWorker).postMessage(params)
+  ;(embed || webWorker).postMessage(params, '*')
 
   taskID++
 

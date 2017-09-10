@@ -1,13 +1,11 @@
 //@flow
 
-// import type { postMessage } from './index.h'
-
 import tasks from './tasks'
 import type { TasksType, Task, WorkerMessage } from './index.h'
 
 console.info('Crypto worker registered')
 
-const selectTask = (taskName: TasksType) => {
+function selectTask(taskName: TasksType) {
   switch (taskName) {
     case 'factorize'  : return tasks.factorize
     case 'mod-pow'    : return tasks.modPow
@@ -19,12 +17,11 @@ const selectTask = (taskName: TasksType) => {
   }
 }
 
-const runTask = (ctx: Task) => {
+function runTask(ctx: Task) {
   const { task, taskID, data } = ctx
   const fn = selectTask(task)
   const result = fn(data)
-  //$FlowIssue
-  postMessage({ taskID, result })
+  postMessage({ taskID, result }, '*')
 }
 
 onmessage = (msg: WorkerMessage) => {
@@ -38,5 +35,6 @@ onmessage = (msg: WorkerMessage) => {
   runTask(msg.data)
 }
 
-//$FlowIssue
-postMessage('ready')
+postMessage('ready', '*')
+
+declare function postMessage(data: string | Task, target: '*'): void

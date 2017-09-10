@@ -24,8 +24,8 @@ onmessage = function(e) {
   } else {
     const taskID = e.data.taskID
     const result = runTask(e.data)
-    postMessage({ taskID, result })
+    postMessage({ taskID, result }, '*')
   }
 }
 
-postMessage('ready')
+postMessage('ready', '*')
