@@ -131,7 +131,7 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "3.2.6",
+  "version": "3.2.7",
   "quokka": {
     "babel": {
       "env": "commonjs"

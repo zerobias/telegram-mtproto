@@ -1,7 +1,28 @@
+//@flow
+
 const { pqPrimeFactorization, bytesModPow, sha1HashSync,
   aesEncryptSync, aesDecryptSync } = require('./bin')
 
 console.info('Crypto worker registered')
+
+const post = (() => {
+  function postStar(data: any) {
+    postMessage(data, '*')
+  }
+  function postPlain(data: any) {
+    postMessage(data)
+  }
+  let result = postStar
+  try {
+    result('ready')
+  } catch (err) {
+    result = postPlain
+    result('ready')
+  } finally {
+    //eslint-disable-next-line
+    return result
+  }
+})()
 
 const runTask = data => {
   switch (data.task) {
@@ -24,8 +45,8 @@ onmessage = function(e) {
   } else {
     const taskID = e.data.taskID
     const result = runTask(e.data)
-    postMessage({ taskID, result }, '*')
+    post({ taskID, result })
   }
 }
 
-postMessage('ready', '*')
+declare function postMessage(data: any, target?: '*'): void

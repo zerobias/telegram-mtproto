@@ -5,6 +5,25 @@ import type { TasksType, Task, WorkerMessage } from './index.h'
 
 console.info('Crypto worker registered')
 
+const post = (() => {
+  function postStar(data: any) {
+    postMessage(data, '*')
+  }
+  function postPlain(data: any) {
+    postMessage(data)
+  }
+  let result = postStar
+  try {
+    result('ready')
+  } catch (err) {
+    result = postPlain
+    result('ready')
+  } finally {
+    //eslint-disable-next-line
+    return result
+  }
+})()
+
 function selectTask(taskName: TasksType) {
   switch (taskName) {
     case 'factorize'  : return tasks.factorize
@@ -21,7 +40,7 @@ function runTask(ctx: Task) {
   const { task, taskID, data } = ctx
   const fn = selectTask(task)
   const result = fn(data)
-  postMessage({ taskID, result }, '*')
+  post({ taskID, result })
 }
 
 onmessage = (msg: WorkerMessage) => {
@@ -35,6 +54,4 @@ onmessage = (msg: WorkerMessage) => {
   runTask(msg.data)
 }
 
-postMessage('ready', '*')
-
-declare function postMessage(data: string | Task, target: '*'): void
+declare function postMessage(data: string | Task, target?: '*'): void
