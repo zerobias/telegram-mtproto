@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "bluebird": "^3.5.0",
-    "fs-extra": "^4.0.1",
+    "fs-extra": "^4.0.2",
     "mtproto-logger": "^0.1.8",
     "mtproto-shared": "^0.1.8"
   },
@@ -39,7 +39,7 @@
     "cross-env": "^5.0.5",
 
     "flow-copy-source": "^1.2.1",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.2"
   },
   "author": "Zero Bias",
   "license": "MIT"
