@@ -3,7 +3,10 @@
 import { Right, Left, of, ofL, type Apropos } from 'apropos'
 import { append } from 'ramda'
 import { Fluture, of as resolve, reject, Future } from 'fluture'
-import { Maybe, Just, Nothing, fromNullable } from 'folktale/maybe'
+// import { Maybe, Just } from 'folktale/maybe'
+
+import { Maybe } from 'apropos'
+const { Just } = Maybe
 
 import * as Identity from './identity'
 
@@ -35,6 +38,12 @@ export const traverseMaybe = (() => {
   return traverseMaybe
 })()
 
+function traverseMaybe3<A, B, C>(a: Maybe<A>, b: Maybe<B>, c: Maybe<C>): Maybe<[A, B, C]> {
+  //$off
+  const result: any = traverseMaybe([a, b, c])
+  const vector3: Maybe<[A, B, C]> = result
+  return vector3
+}
 
 function futureEitherWrap<L, R>(
   future: Fluture<R, L>
@@ -146,13 +155,13 @@ export class MaybeT extends OnlyStatic {
       .map(() => [unsafeGetMaybe(m1), unsafeGetMaybe(m2)])
     */
   }
+  static traverse3 = traverseMaybe3
+
   static unsafeGet<T>(x: Maybe<T>): T {
-    return x.matchWith({
-      Just({ value }): T {
-        return value
-      },
-      Nothing: ERR.isNothing,
-    })
+    return x.fold(
+      ERR.isNothing,
+      x => x
+    )
   }
 
   static ap<I, O>(fn: Maybe<((x: I) => O)>, val: Maybe<I>): Maybe<O> {
@@ -160,14 +169,10 @@ export class MaybeT extends OnlyStatic {
   }
 
   static toEither<L, R>(toLeft: () => L, m: Maybe<R>): Apropos<L, R> {
-    return m.matchWith({
-      Just({ value }) {
-        return Right(value)
-      },
-      Nothing() {
-        return Left(toLeft())
-      }
-    })
+    return m.fold(
+      () => Left(toLeft()),
+      Right
+    )
   }
 
   static toEitherR<R>(m: Maybe<R>): Apropos<void, R> {
@@ -175,25 +180,14 @@ export class MaybeT extends OnlyStatic {
   }
 
   static toFuture<L, R>(toLeft: () => L, m: Maybe<R>): Fluture<R, L> {
-    return m.matchWith({
-      Just({ value }) {
-        return resolve(value)
-      },
-      Nothing() {
-        return reject(toLeft())
-      }
-    })
+    return m.fold(
+      () => reject(toLeft()),
+      resolve
+    )
   }
 
   static fold<T>(toLeft: () => T, m: Maybe<T>): T {
-    return m.matchWith({
-      Just({ value }) {
-        return value
-      },
-      Nothing() {
-        return toLeft()
-      }
-    })
+    return m.fold(toLeft, x => x)
   }
 
   static toFutureR<R>(m: Maybe<R>): Fluture<R, void> {
@@ -201,11 +195,7 @@ export class MaybeT extends OnlyStatic {
   }
 
   static isJust<-T>(x: Maybe<T>): boolean {
-    return x.matchWith(
-      /*:: ( */
-      isJustMatcher
-      /*:: , { Just(x: any) { return true }, Nothing() { return false } }) */
-    )
+    return x.isJust()
   }
 
 }
@@ -213,11 +203,6 @@ export class MaybeT extends OnlyStatic {
 
 export { These } from './these'
 export type { λThese } from './these'
-
-const isJustMatcher = {
-  Just   : (/*::x: any*/) => true,
-  Nothing: () => false,
-}
 
 /*::
 type UnsafeGetMaybe = <T>(x: Maybe<T>) => T

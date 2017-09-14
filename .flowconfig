@@ -24,6 +24,8 @@
 <PROJECT_ROOT>/node_modules/esformatter/*
 <PROJECT_ROOT>/node_modules/jss/*
 <PROJECT_ROOT>/node_modules/fbjs/*
+💩 <PROJECT_ROOT>/node_modules/apropos/lib/*
+<PROJECT_ROOT>/node_modules/apropos/es/*
 <PROJECT_ROOT>/node_modules/funfix/index.js.flow
 .*/dist/.*
 .*/logs/.*
@@ -69,6 +71,7 @@ esproposal.export_star_as=enable
 module.name_mapper='^array-flatten$' -> '<PROJECT_ROOT>/node_modules/array-flatten'
 module.name_mapper='^debug$' -> '<PROJECT_ROOT>/node_modules/debug'
 module.name_mapper='^memoizee$' -> '<PROJECT_ROOT>/node_modules/memoizee'
+💩 module.name_mapper='^apropos$' -> '<PROJECT_ROOT>/node_modules/apropos/src'
 module.name_mapper='^axios$' -> '<PROJECT_ROOT>/node_modules/axios'
 module.name_mapper='^ajv\(.*\)$' -> '<PROJECT_ROOT>/node_modules/ajv\1'
 module.name_mapper='^most-subject$' -> '<PROJECT_ROOT>/node_modules/most-subject'

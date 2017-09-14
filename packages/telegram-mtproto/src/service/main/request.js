@@ -1,6 +1,8 @@
 //@flow
 
-import { Maybe, fromNullable } from 'folktale/maybe'
+// import { Maybe, fromNullable } from 'folktale/maybe'
+import { Maybe } from 'apropos'
+const { fromNullable } = Maybe
 
 import blueDefer, { type Defer } from 'Util/defer'
 import {

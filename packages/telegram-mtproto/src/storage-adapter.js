@@ -1,7 +1,10 @@
 //@flow
 
 import { type AsyncStorage } from 'mtproto-shared'
-import { fromNullable, Maybe, Just, Nothing } from 'folktale/maybe'
+// import { fromNullable, Maybe, Just, Nothing } from 'folktale/maybe'
+
+import { Maybe } from 'apropos'
+const { fromNullable, Just, Nothing } = Maybe
 
 export default class StorageAdapter {
   storage: AsyncStorage

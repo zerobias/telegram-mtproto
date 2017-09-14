@@ -6,7 +6,9 @@ import {
   filter,
 } from 'ramda'
 
-import { Just, Nothing, Maybe } from 'folktale/maybe'
+// import { Just, Nothing, Maybe } from 'folktale/maybe'
+import { Maybe } from 'apropos'
+const { Just, Nothing } = Maybe
 
 export class KeyStorage {
   keyMap: { [dc: string]: number[] }

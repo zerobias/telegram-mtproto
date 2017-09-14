@@ -9,6 +9,7 @@ import {
   ᐸChainᐳ,
   ᐸEmptyᐳ,
   ᐸChainRecᐳ,
+  ᐸOfᐳ,
   λMap,
   λChain,
 } from './index.h'
@@ -135,6 +136,7 @@ const typeID = 'zero-bias/Identity@1'
 
 export const MIdentity: (
   & ᐸMapᐳ<'Identity'>
+  & ᐸOfᐳ<'Identity'>
   & ᐸEmptyᐳ<'Identity'>
   & ᐸChainᐳ<'Identity'>
   & ᐸChainRecᐳ<'Identity'>

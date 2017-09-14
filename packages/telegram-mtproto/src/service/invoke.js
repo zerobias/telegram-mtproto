@@ -1,6 +1,8 @@
 //@flow
 import { tap } from 'ramda'
-import { Just } from 'folktale/maybe'
+// import { Just } from 'folktale/maybe'
+import { Maybe } from 'apropos'
+const { Just } = Maybe
 import { tryP, resolve, Future, of as ofF } from 'fluture'
 
 import Auth from './authorizer'

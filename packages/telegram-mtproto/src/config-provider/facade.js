@@ -1,6 +1,9 @@
 //@flow
 
-import { Just, Nothing, fromNullable, Maybe } from 'folktale/maybe'
+// import { Just, Nothing, fromNullable, Maybe } from 'folktale/maybe'
+
+import { Maybe } from 'apropos'
+const { fromNullable } = Maybe
 
 import { type PublicKey } from '../service/main/index.h'
 import { type DCNumber } from 'Newtype'

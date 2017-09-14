@@ -1,7 +1,10 @@
 //@flow
 
-import { makeError, type MakeError } from 'apropos'
-import { fromNullable, Maybe } from 'folktale/maybe'
+// import { fromNullable, Maybe } from 'folktale/maybe'
+
+import { Maybe } from 'apropos'
+
+import { MaybeT } from 'Monad'
 
 import { getState } from '../portal'
 import {
@@ -16,8 +19,13 @@ import {
 } from 'Newtype'
 import { KeyStorage } from 'Util/key-storage'
 
+const { fromNullable } = Maybe
 
-export const resolveRequest = (uid: string, dc: DCNumber, outID: string): Maybe<string> =>
+export const resolveRequest = (
+  uid: string,
+  dc: DCNumber,
+  outID: string
+): Maybe<string> =>
   getClient(uid)
     .map(({ command }) => command)
     .chain(command => command.maybeGetK(outID))
@@ -66,15 +74,19 @@ export const querySalt = keyQuery(client => client.salt)
 
 export const queryKeys = (uid: UID, dc: DCNumber) =>
   fromNullable(dc)
-    .chain((
-      dc
-    ) => queryAuthKey(uid, dc).map(auth => ({ dc, auth })))
-    .chain(({
-      dc, auth
-    }) => queryAuthID(uid, dc).map(authID => ({ dc, auth, authID })))
-    .chain(({
-      dc, auth, authID
-    }) => querySalt(uid, dc).map(salt => ({ uid, dc, auth, authID, salt })))
+    .chain((dcʹ) =>  MaybeT
+      .traverse3(
+        queryAuthKey(uid, dcʹ),
+        queryAuthID(uid, dcʹ),
+        querySalt(uid, dcʹ)
+      )
+      .map(([auth, authID, salt]) => ({
+        uid,
+        dc: dcʹ,
+        auth,
+        authID,
+        salt,
+      })))
 
 
 export const queryAck = (uid: string, dc: DCNumber) =>

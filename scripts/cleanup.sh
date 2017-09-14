@@ -28,6 +28,4 @@ rimraf ./packages/mtproto-storage-fs/es
 rimraf ./packages/mtproto-storage-browser/es
 rimraf ./packages/telegram-mtproto/es
 
-# sed -i 's/lerna bootstrap/lerna bootstrap --hoist/g'  package.json
-
 npm i

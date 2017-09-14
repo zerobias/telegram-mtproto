@@ -1,8 +1,9 @@
 //@flow
 
 import { append, without, contains, into } from 'ramda'
-import { Maybe, Just, Nothing } from 'folktale/maybe'
-
+// import { Maybe, Just, Nothing } from 'folktale/maybe'
+import { Maybe } from 'apropos'
+const { Just, Nothing } = Maybe
 
 import { Tuple, TupleT } from './tuple'
 

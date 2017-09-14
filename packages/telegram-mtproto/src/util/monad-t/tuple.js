@@ -1,6 +1,7 @@
 //@flow
 
-import { Maybe } from 'folktale/maybe'
+// import { Maybe } from 'folktale/maybe'
+import { Maybe } from 'apropos'
 
 import { ᐸMapᐳ, ᐸEmptyᐳ, λMap } from './index.h'
 import OnlyStatic from '../only-static'
