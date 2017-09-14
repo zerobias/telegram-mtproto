@@ -1,6 +1,16 @@
 //@flow
 
-import { append, reject, isEmpty, chain, filter, pipe } from 'ramda'
+import {
+  append,
+  reject,
+  isEmpty,
+  chain,
+  filter,
+  pipe,
+  lensPath,
+  over,
+  defaultTo,
+} from 'ramda'
 
 // import { Just } from 'folktale/maybe'
 import { Maybe } from 'apropos'
@@ -156,51 +166,83 @@ const processAckChain = selector(e => e.processAck)
 //$off
 const ackChain = selector(e => e.ack)
 //$off
-const homeChain = selector(e => e.home)
-//$off
-const authChain = selector(e => e.authKey)
+// const homeChain = selector(e => e.home)
+// //$off
+// const authChain = selector(e => e.authKey)
 //$off
 const reqResendChain = selector(e => e.reqResend)
-//$off
-const resendChain = selector(e => e.resend)
-//$off
-const lastMessagesChain = selector(e => e.lastServerMessages)
-//$off
-const saltChain = selector(e => e.salt)
-//$off
-const sessionChain = selector(e => e.session)
+// //$off
+// const resendChain = selector(e => e.resend)
+// //$off
+// const lastMessagesChain = selector(e => e.lastServerMessages)
+// //$off
+// const saltChain = selector(e => e.salt)
+// //$off
+// const sessionChain = selector(e => e.session)
 
 
 
 function makeSummary(collected): ᐸPatchᐳSummary {
   const processAck: ᐸPatchᐳProcessAck[] = processAckChain(collected)
   const ack: ᐸPatchᐳAck[] = ackChain(collected)
-  const home: ᐸPatchᐳHome[] = homeChain(collected)
-  const auth: ᐸPatchᐳAuthKey[] = authChain(collected)
+  // const home: ᐸPatchᐳHome[] = homeChain(collected)
+  // const auth: ᐸPatchᐳAuthKey[] = authChain(collected)
   const reqResend: ᐸPatchᐳReqResend[] = reqResendChain(collected)
-  const resend: ᐸPatchᐳResend[] = resendChain(collected)
-  const lastMessages: ᐸPatchᐳLastMesages[] = lastMessagesChain(collected)
-  const salt: ᐸPatchᐳSalt[] = saltChain(collected)
-  const session: ᐸPatchᐳSession[] = sessionChain(collected)
+  // const resend: ᐸPatchᐳResend[] = resendChain(collected)
+  // const lastMessages: ᐸPatchᐳLastMesages[] = lastMessagesChain(collected)
+  // const salt: ᐸPatchᐳSalt[] = saltChain(collected)
+  // const session: ᐸPatchᐳSession[] = sessionChain(collected)
 
   const result = {
     processAck,
     ack,
-    home,
-    auth,
+    // home,
+    // auth,
     reqResend,
-    resend,
-    lastMessages,
-    salt,
-    session,
+    // resend,
+    // lastMessages,
+    // salt,
+    // session,
   }
 
   return result
 }
+const patchState = (() => {
+  const defArray = defaultTo([])
+  // const lensProcessAck = lensPath(['processAck'])
+  // const lensAck = lensPath(['ack'])
+  // const lensReqResend = lensPath(['reqResend'])
+  // const lensFlags = lensPath(['flags'])
+  class PatchState {
+    value: ᐸPatchᐳSummary
+    constructor(value: ᐸPatchᐳSummary) {
+      this.value = value
+    }
+    ack(data) {
+      return new PatchState({
+        // flags: { ...flags, ack: true },
+        ...this.value,
+        ack  : [...defArray(this.value.ack), ...data]
+      })
+    }
+    processAck(data) {
+      return new PatchState({
+        // flags     : { ...flags, processAck: true },
+        ...this.value,
+        processAck: [...defArray(this.value.processAck), ...data]
+      })
+    }
+    reqResend(data) {
+      return new PatchState({
+        // flags    : { ...flags, reqResend: true },
+        ...this.value,
+        reqResend: [...defArray(this.value.reqResend), ...data]
+      })
+    }
+  }
+  return () => new PatchState(emptyPatch())
+})()
 
-function addFlags() {
-
-}
 
 function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
   const { thread, uid, dc } = ctx
@@ -213,33 +255,18 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     case 'msgs_ack': {
       body.msg_ids.forEach(thread.processMessageAck)
       const msg_ids: string[] = body.msg_ids
-      return {
-        flags: {
-          net       : true,
-          processAck: true,
-        },
-        net: [{
-          dc,
-          processAck: msg_ids,
-        }],
-        processAck: msg_ids.map(msg => ({ dc, id: msg }))
-      }
+
+      return patchState()
+        .processAck(msg_ids.map(msg => ({ dc, id: msg })))
+        .value
     }
     case 'msg_detailed_info': {
       if (!Config.fastCache.get(uid, dc).hasSent(body.msg_id)) {
         thread.ackMessage(body.answer_msg_id)
         const id: string = body.answer_msg_id
-        return {
-          flags: {
-            net: true,
-            ack: true,
-          },
-          net: [{
-            dc,
-            ack: [id],
-          }],
-          ack: [{ dc, id }]
-        }
+        return patchState()
+          .ack([{ dc, id }])
+          .value
       }
       return emptyPatch()
     }
@@ -247,20 +274,10 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
       const { answer_msg_id: id } = body
       // thread.ackMessage(id)
       // thread.reqResendMessage(id)
-      return {
-        flags: {
-          net      : true,
-          ack      : true,
-          reqResend: true,
-        },
-        net: [{
-          dc,
-          ack      : [id],
-          reqResend: [id],
-        }],
-        ack      : [{ dc, id }],
-        reqResend: [{ dc, id }],
-      }
+      return patchState()
+        .ack([{ dc, id }])
+        .reqResend([{ dc, id }])
+        .value
     }
     case 'msgs_state_info': {
       const { answer_msg_id } = body
@@ -274,17 +291,10 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
         Config.fastCache.get(uid, dc).deleteResent(badMsgID)
       }
       const aId: string = answer_msg_id
-      return {
-        flags: {
-          net: true,
-          ack: true,
-        },
-        net: [{
-          dc,
-          ack: [aId],
-        }],
-        ack: [{ dc, id: aId }]
-      }
+      return patchState()
+        .ack([{ dc, id: aId }])
+        .reqResend([{ dc, id }])
+        .value
       // dispatch(NETWORKER_STATE.RESEND.DEL(resendDel, this.dcID))
     }
     case 'rpc_result': {
@@ -316,17 +326,9 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
         sessionID  : Config.session.get(ctx.thread.uid, message.dc),
         result     : message,
       })
-      return {
-        flags: {
-          net: true,
-          ack: true,
-        },
-        net: [{
-          dc,
-          ack: [id],
-        }],
-        ack: [{ dc, id }]
-      }
+      return patchState()
+        .ack([{ dc, id }])
+        .value
     }
   }
 }
@@ -337,17 +339,9 @@ function handleInner(ctx: IncomingType, message: MessageUnit) {
   if (thread.lastServerMessages.indexOf(id) != -1) {
     // console.warn('[MT] Server same messageID: ', messageID)
     // thread.ackMessage(id)
-    return {
-      flags: {
-        net: true,
-        ack: true,
-      },
-      net: [{
-        dc,
-        ack: [id],
-      }],
-      ack: [{ dc, id }]
-    }
+    return patchState()
+      .ack([{ dc, id }])
+      .value
   } else {
     thread.lastServerMessages.push(id)
     if (thread.lastServerMessages.length > 100) {
@@ -569,9 +563,12 @@ function handleAuthUnreg(ctx: IncomingType, message, data, code) {
   return { info, patch }
 }
 
-const emptyPatch = () => ({
+//$off
+const emptyPatch = (): ᐸPatchᐳSummary => ({
   flags: {
-    /*:: net: true, */
+    /*::
+    net: true,
+    */
   }
 })
 

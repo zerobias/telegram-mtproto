@@ -30,7 +30,6 @@ function processSingle(ctx: IncomingType, msg: MessageDraft): MessageUnit {
   switch (msg.type) {
     case 'container': {
       flags = { ...flags, container: true }
-      //$FlowIssue
       const contains: string[] = msg.raw
       body = { ...body, container: { contains } }
       break
@@ -38,11 +37,9 @@ function processSingle(ctx: IncomingType, msg: MessageDraft): MessageUnit {
     case 'inner': {
       flags = { ...flags, inner: true }
       body = { ...body, inner: { container: ctx.messageID } }
-      //$FlowIssue
       const data: RawInner = msg.raw
       if (hasBody(data)) {
         const insideInner = data.body
-        // body = { ...body, body: insideInner }
         const { flagsResult, accResult } = processInners(ctx, msg, insideInner)
         flags = { ...flags, ...flagsResult }
         if (accResult != null)
@@ -51,7 +48,6 @@ function processSingle(ctx: IncomingType, msg: MessageDraft): MessageUnit {
       break
     }
     case 'object': {
-      //$FlowIssue
       const data: RawObject = msg.raw
       const { flagsResult, accResult } = processInners(ctx, msg, data)
       flags = { ...flags, ...flagsResult }

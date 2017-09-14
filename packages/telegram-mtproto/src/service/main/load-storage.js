@@ -12,14 +12,6 @@ import { bytesFromHex } from 'Bin'
 import Thread from '../networker'
 
 import {
-  type DCInt,
-  type ACAuth,
-  type ACFlags,
-  type ACNetworker,
-  toDCInt,
-} from '../../state/carrier'
-
-import {
   type DCNumber,
   type UID,
   toDCNumber
@@ -32,27 +24,10 @@ export default async function loadStorage(
   let iAuth: { [dc: number]: number[] } = {}
   let iSalt: { [dc: number]: number[] } = {}
   let iHome = 2
-  let flags: ACFlags = {
-    networker: false,
-    auth     : false,
-    homeDC   : false,
-    net      : false,
-  }
-  let networker: ACNetworker = {
-    ids: [],
-  }
-  let authList: ACAuth = {
-    authKey: [],
-    salt   : [],
-    session: [],
-  }
 
   const getter = Config.storageAdapter.get
 
   for (const dc of dcMap.keys()) {
-    // flags = { ...flags, networker: true }
-    const dcInt: DCInt = toDCInt(dc)
-    let inactive = true
     let fields: {
       authKey: number[],
       salt: number[],
@@ -68,20 +43,9 @@ export default async function loadStorage(
     // const salt = checkString(saltRaw)
     if (Array.isArray(salt)) {
       iSalt = { ...iSalt, [dc | 0]: salt }
-
-      inactive = false
-      flags = {
-        ...flags,
-        networker: true,
-        auth     : true,
-      }
       fields = {
         ...fields,
         salt,
-      }
-      authList = {
-        ...authList,
-        salt: [ ...authList.salt, dcInt ]
       }
     }
     const auth = await getter
@@ -95,13 +59,6 @@ export default async function loadStorage(
         : getDefaultSalt()
 
       iSalt = { ...iSalt, [dc | 0]: saltKey }
-
-      inactive = false
-      flags = {
-        ...flags,
-        networker: true,
-        auth     : true,
-      }
       new Thread(
         dc,
         uid
@@ -111,18 +68,7 @@ export default async function loadStorage(
         salt   : saltKey,
         authKey: auth,
       }
-      authList = {
-        ...authList,
-        salt   : [ ...new Set([ ...authList.salt, dcInt ]) ],
-        authKey: [ ...authList.authKey, dcInt ]
-      }
     }
-    if (!inactive)
-      networker = {
-        ...networker,
-        ids : [ ...networker.ids, dcInt ],
-        [dc | 0]: fields,
-      }
   }
   //$off
   const nearest = await getter
@@ -132,7 +78,6 @@ export default async function loadStorage(
       .fold(() => false, x => x))
   if (nearest !== false) {
     iHome = nearest
-    flags = { ...flags, homeDC: true }
     // dispatch(MAIN.DC_DETECTED(nearest))
   } //else
   // dispatch(MAIN.MODULE_LOADED())

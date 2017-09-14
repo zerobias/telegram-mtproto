@@ -27,7 +27,6 @@ import {
   type UID,
 } from 'Newtype'
 import { dispatch } from 'State'
-import { type ACFlags, makeCarrierAction } from '../../state/carrier'
 import L1Cache from '../../l1-cache'
 
 import Logger from 'mtproto-logger'
@@ -154,12 +153,6 @@ export class NetworkerThread {
           newInner.push(innerSentMessage.msg_id)
       }
     }
-    const flags: ACFlags = {
-      networker: false,
-      auth     : false,
-      homeDC   : false,
-      net      : true,
-    }
     // dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], this.dcID))
     this.state.deleteSent(sentMessage)
     const seq_no = requestNextSeq(
@@ -173,17 +166,6 @@ export class NetworkerThread {
       newMessage.inner = newInner
     }
     this.state.addSent(newMessage)
-    dispatch(makeCarrierAction({
-      flags,
-      net: {
-        flags: {
-          add   : true,
-          delete: true,
-        },
-        add   : [newMessage],
-        delete: [sentMessage]
-      }
-    }), this.uid)
     // dispatch(NETWORKER_STATE.SENT.ADD([newMessage], this.dcID))
     return newMessage
   }
@@ -270,7 +252,7 @@ export class NetworkerThread {
   }
 
   poll = fromEvent('poll', this.pollEvents)
-    .throttle(100)
+    .throttle(50)
     .observe(this.runLongPoll)
   checkLongPoll() {
     const isClean = this.cleanupSent()
@@ -421,7 +403,7 @@ export class NetworkerThread {
       const serializer = new Serialization({ mtproto: true }, this.uid)
       const params = {
         max_delay : 0,
-        wait_after: 200,
+        wait_after: 100,
         max_wait  : 5000
       }
       serializer.storeMethod('http_wait', params)
