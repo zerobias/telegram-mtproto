@@ -51,10 +51,10 @@ export default function mergePatch(ctx: *, processed: MessageUnit[]) {
     salt   : updatedSalt,
     session: updatedSession,
   }
-  const joinedAuth = joinDcAuth(withNewSalt)
+  // const joinedAuth = joinDcAuth(withNewSalt)
   // log`mergedSummary`(mergedSummary)
-  log`regrouped`(withNewSalt)
-  log`joinedAuth`(joinedAuth)
+  // log`regrouped`(withNewSalt)
+  // log`joinedAuth`(joinedAuth)
   return {
     normalized: message,
     summary   : withNewSalt,
@@ -86,42 +86,42 @@ const groupAndExtract = /*:: <T, S>*/(fn: (x: T) => S): GroupAndExtract<T, S> =>
 )
 
 const groupDcIds: GroupAndExtract<ᐸPatchᐳMessage, string> = groupAndExtract(e => e.id)
-const groupAuthKey: GroupAndExtract<ᐸPatchᐳAuthKey, number[] | false> = groupAndExtract(e => e.authKey)
-const groupSalt: GroupAndExtract<ᐸPatchᐳSalt, number[]> = groupAndExtract(e => e.salt)
-const groupSession: GroupAndExtract<ᐸPatchᐳSession, ᐸPatchᐳSession> = groupAndExtract(e => e)
+// const groupAuthKey: GroupAndExtract<ᐸPatchᐳAuthKey, number[] | false> = groupAndExtract(e => e.authKey)
+// const groupSalt: GroupAndExtract<ᐸPatchᐳSalt, number[]> = groupAndExtract(e => e.salt)
+// const groupSession: GroupAndExtract<ᐸPatchᐳSession, ᐸPatchᐳSession> = groupAndExtract(e => e)
 
 function regroupSummary(summary: ᐸPatchᐳSummary) {
   const {
     processAck,
     ack,
-    home,
-    auth,
+    // home,
+    // auth,
     reqResend,
-    resend,
-    lastMessages,
-    salt,
-    session,
+    // resend,
+    // lastMessages,
+    // salt,
+    // session,
   } = summary
-
   const regrouped = {
-    processAck  : groupDcIds(processAck),
-    ack         : groupDcIds(ack),
-    home,
-    auth        : reduceToLast(groupAuthKey(auth)),
-    reqResend   : groupDcIds(reqResend),
-    resend      : groupDcIds(resend),
-    lastMessages: groupDcIds(lastMessages),
-    salt        : reduceToLast(groupSalt(salt)),
-    session     : reduceToLast(groupSession(session)),
+    ...summary,
+    processAck: groupDcIds(processAck),
+    ack       : groupDcIds(ack),
+    // home,
+    // auth        : reduceToLast(groupAuthKey(auth)),
+    reqResend : groupDcIds(reqResend),
+    // resend      : groupDcIds(resend),
+    // lastMessages: groupDcIds(lastMessages),
+    // salt        : reduceToLast(groupSalt(salt)),
+    // session     : reduceToLast(groupSession(session)),
   }
 
   return regrouped
 }
 
 
-type ReduceToLast = <T>(dcMap: { [dc: number]: T[] }) => { [dc: number]: T }
-//$off
-const reduceToLast: ReduceToLast = map(last)
+// type ReduceToLast = <T>(dcMap: { [dc: number]: T[] }) => { [dc: number]: T }
+//$ off
+// const reduceToLast: ReduceToLast = map(last)
 
 //$off
 type DcWithoutAuth = (auth: { [dc: number]: number[] | false }) =>
@@ -129,45 +129,45 @@ type DcWithoutAuth = (auth: { [dc: number]: number[] | false }) =>
 const dcWithoutAuth: DcWithoutAuth = filter(e => e === false)
 
 
-const empty: any = {}
-const toDcs = obj => Object
-  .keys(obj)
-  .filter(isFinite)
-  .map(e => parseInt(e, 10))
-
-function joinDcAuth(summary) {
-  /*::
-  type AuthMap = typeof summary.auth
-  type SaltMap = typeof summary.salt
-  type SessionMap = typeof summary.session
-  */
-  const emptyAuth: AuthMap = empty
-  const emptySalt: SaltMap = empty
-  const emptySession: SessionMap = empty
-  const {
-    auth = emptyAuth,
-    salt = emptySalt,
-    session = emptySession,
-  } = summary
-  const authKeys = toDcs(auth)
-  const saltKeys = toDcs(salt)
-  const sessionKeys = toDcs(session)
-  const usedDcs = [...new Set([...authKeys, ...saltKeys, ...sessionKeys])]
-  const emptyDcAuth: DcAuth = /*::(*/{}/*:: : any)*/
-  let result: {
-    //$off
-    [dc: number]: DcAuth
-  } = fromPairs(usedDcs.map(e => [e, emptyDcAuth]))
-  for (const dc of usedDcs) {
-    let dcAuth = result[dc]
-    const hasDc = contains(dc)
-    if (hasDc(authKeys))
-      dcAuth = { ...dcAuth, auth: auth[dc] }
-    if (hasDc(saltKeys))
-      dcAuth = { ...dcAuth, salt: salt[dc] }
-    if (hasDc(sessionKeys))
-      dcAuth = { ...dcAuth, session: session[dc] }
-    result = { ...result, [dc]: dcAuth }
-  }
-  return result
-}
+// const empty: any = {}
+// const toDcs = obj => Object
+//   .keys(obj)
+//   .filter(isFinite)
+//   .map(e => parseInt(e, 10))
+//
+// function joinDcAuth(summary) {
+//   /*::
+//   type AuthMap = typeof summary.auth
+//   type SaltMap = typeof summary.salt
+//   type SessionMap = typeof summary.session
+//   */
+//   const emptyAuth: AuthMap = empty
+//   const emptySalt: SaltMap = empty
+//   const emptySession: SessionMap = empty
+//   const {
+//     auth = emptyAuth,
+//     salt = emptySalt,
+//     session = emptySession,
+//   } = summary
+//   const authKeys = toDcs(auth)
+//   const saltKeys = toDcs(salt)
+//   const sessionKeys = toDcs(session)
+//   const usedDcs = [...new Set([...authKeys, ...saltKeys, ...sessionKeys])]
+//   const emptyDcAuth: DcAuth = /*::(*/{}/*:: : any)*/
+//   let result: {
+//     //$ off
+//     [dc: number]: DcAuth
+//   } = fromPairs(usedDcs.map(e => [e, emptyDcAuth]))
+//   for (const dc of usedDcs) {
+//     let dcAuth = result[dc]
+//     const hasDc = contains(dc)
+//     if (hasDc(authKeys))
+//       dcAuth = { ...dcAuth, auth: auth[dc] }
+//     if (hasDc(saltKeys))
+//       dcAuth = { ...dcAuth, salt: salt[dc] }
+//     if (hasDc(sessionKeys))
+//       dcAuth = { ...dcAuth, session: session[dc] }
+//     result = { ...result, [dc]: dcAuth }
+//   }
+//   return result
+// }

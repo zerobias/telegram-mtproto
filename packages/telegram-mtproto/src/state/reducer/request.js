@@ -4,7 +4,8 @@
 
 // import { Pure, liftF } from '@safareli/free'
 // import { of, Left, Right } from 'apropos'
-import { Maybe } from 'folktale/maybe'
+// import { Maybe } from 'folktale/maybe'
+import { Maybe } from 'apropos'
 
 import type {
   Client,
@@ -25,6 +26,33 @@ import {
   type MessageUnit,
 } from '../../task/index.h'
 
+function handleApiResp(
+  state: Client,
+  task: MessageUnit,
+  msgID: UID,
+  outID: UID
+): Client {
+  const { body } = task
+  if (__DEV__)
+    console.log(`\n--- request done ---\n`, task.body)
+  const { command, request } = state
+  return command
+    .maybeGetK(outID)
+    /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
+    .chain(getRequestTuple(request))
+    .map(x => x.bimap(
+      removeMsgID(command, outID),
+      req => {
+        req.deferFinal.resolve(body)
+        return request
+          .removeK(req.requestID)
+      }
+    ))
+    .fold(
+      stateK(state),
+      tupleToState(state))
+}
+
 function handleError(
   state: Client,
   task: MessageUnit,
@@ -44,7 +72,6 @@ function handleError(
       req => {
         req.deferFinal.reject(errorObj)
         return request
-          // .removeV(req)
           .removeK(req.requestID)
       }
     ))
@@ -79,34 +106,6 @@ const tupleToState = (state: Client) => tuple => ({
   command: tuple.fst(),
   request: tuple.snd(),
 })
-
-function handleApiResp(
-  state: Client,
-  task: MessageUnit,
-  msgID: UID,
-  outID: UID
-): Client {
-  const { body } = task
-  if (__DEV__)
-    console.log(`\n--- request done ---\n`, task.body)
-  const { command, request } = state
-  return command
-    .maybeGetK(outID)
-    /*:: .map(tuple => tuple.bimap(toUID, toUID)) */
-    .chain(getRequestTuple(request))
-    .map(x => x.bimap(
-      removeMsgID(command, outID),
-      req => {
-        req.deferFinal.resolve(body)
-        return request
-          // .removeV(req)
-          .removeK(req.requestID)
-      }
-    ))
-    .fold(
-      stateK(state),
-      tupleToState(state))
-}
 
 function resolveTask(state: Client, task: MessageUnit): Client {
   const { flags } = task

@@ -71,12 +71,12 @@ opaque type NonNegativeInt: Int = number
 opaque type DcInt: NonNegativeInt = number
 */
 
-export type MessageCore = {
+export type MessageCore = {|
   +id: string,
   +seq: number,
   +session: number[],
   +dc: number,
-}
+|}
 
 export type MessageMain = {
   +id: string,
@@ -94,20 +94,23 @@ export type MessageMain = {
   }
 }
 
-export type MessageDraft = MessageCore & (
+export type MessageDraft =
   | {
+    ...MessageCore,
     +type: 'object',
     +raw: RawObject,
   }
   | {
+    ...MessageCore,
     +type: 'container',
     +raw: string[],
   }
   | {
+    ...MessageCore,
     +type: 'inner',
     +raw: RawInner,
   }
-)
+
 
 export type Conformᐸincomingᐳ = {
   +incoming: {
@@ -216,29 +219,29 @@ export type ᐸPatchᐳSession = {
 export type ᐸPatchᐳSummary = {
   processAck: ᐸPatchᐳProcessAck[],
   ack: ᐸPatchᐳAck[],
-  home: ᐸPatchᐳHome[],
-  auth: ᐸPatchᐳAuthKey[],
+  // home: ᐸPatchᐳHome[],
+  // auth: ᐸPatchᐳAuthKey[],
   reqResend: ᐸPatchᐳReqResend[],
-  resend: ᐸPatchᐳResend[],
-  lastMessages: ᐸPatchᐳLastMesages[],
-  salt: ᐸPatchᐳSalt[],
-  session: ᐸPatchᐳSession[],
+  // resend: ᐸPatchᐳResend[],
+  // lastMessages: ᐸPatchᐳLastMesages[],
+  // salt: ᐸPatchᐳSalt[],
+  // session: ᐸPatchᐳSession[],
 }
 
 
 type ReducedMessage = { [dc: number]: string[] }
-type MaybeKey = { [dc: number]: number[] | false }
+// type MaybeKey = { [dc: number]: number[] | false }
 
 export type ᐸPatchᐳSummaryReduced = {
   processAck: ReducedMessage,
   ack: ReducedMessage,
-  home: ᐸPatchᐳHome[],
-  auth: MaybeKey,
+  // home: ᐸPatchᐳHome[],
+  // auth: MaybeKey,
   reqResend: ReducedMessage,
-  resend: ReducedMessage,
-  lastMessages: ReducedMessage,
-  salt: MaybeKey,
-  session: { [dc: number]: ᐸPatchᐳSession | false },
+  // resend: ReducedMessage,
+  // lastMessages: ReducedMessage,
+  // salt: MaybeKey,
+  // session: { [dc: number]: ᐸPatchᐳSession | false },
 }
 
 export type DcAuth = {

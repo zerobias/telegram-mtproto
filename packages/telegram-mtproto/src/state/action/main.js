@@ -36,7 +36,7 @@ export const MAIN: Main = {
     _ : 'networker',
     id: 2,
   })),
-  DC_DETECTED  : doubleCreator('main/dc detected', onDc),
+  DC_DETECTED  : doubleCreator('main/dc detected'),
   DC_REJECTED  : doubleCreator('main/dc rejected'),
   ACTIVATED    : doubleCreator('main/instance activated'),
   DC_CHANGED   : doubleCreator('main/dc changed', onDc),

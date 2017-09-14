@@ -8,7 +8,7 @@ import Logger from 'mtproto-logger'
 const log = Logger`epic-task`
 
 import { API, NET } from '../action'
-import normalize, { decrypt } from '../../task'
+import { normalize, decrypt } from '../../task'
 import jsonError from 'Util/json-error'
 import {
   queryAck,
@@ -28,10 +28,18 @@ function flatPairs(data) {
 
 }
 
-export const receiveResponse = (action: Stream<any>) => action
-  .thru(NET.RECEIVE_RESPONSE.stream)
+const epicHandler = (actionCreator, future) => (action: Stream<any>) => action
+  .thru(actionCreator.stream)
   .map(e => e.payload)
-  .map(payload => decrypt(payload)
+  .map(payload => future(payload)
+    .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), payload.uid)))
+    .promise())
+  .filter(() => false)
+  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
+
+export const receiveResponse = epicHandler(
+  NET.RECEIVE_RESPONSE,
+  payload => decrypt(payload)
     .map(normalize)
     .map((data) => {
       const {
@@ -39,10 +47,15 @@ export const receiveResponse = (action: Stream<any>) => action
         summary,
         dc,
         uid,
-        salt: saltKey,
-        auth: authKey,
+        // salt: saltKey,
+        // auth: authKey,
         thread,
       } = data
+      const {
+        processAck,
+        ack,
+        reqResend,
+      } = summary
       // const { salt, auth } = summary
       // const saltPairs = toPairs(salt)
       // const authPairs = toPairs(auth)
@@ -61,13 +74,13 @@ export const receiveResponse = (action: Stream<any>) => action
       //   }
       // }
 
-      for (const id of flatPairs(summary.processAck)) {
+      for (const id of flatPairs(processAck)) {
         processMessageAck(uid, dc, id)
       }
-      for (const id of flatPairs(summary.ack)) {
+      for (const id of flatPairs(ack)) {
         ackMessage(uid, dc, id, thread)
       }
-      for (const id of flatPairs(summary.reqResend)) {
+      for (const id of flatPairs(reqResend)) {
         pushResend(uid, dc, id, thread)
       }
       performResend(uid, dc, thread)
@@ -79,7 +92,7 @@ export const receiveResponse = (action: Stream<any>) => action
         }
       }, uid)
       if (__DEV__)
-        normalized.map(
+        normalized.forEach(
           msg => console.log(
             'normalized, summary',
             msg, `\n`,
@@ -89,7 +102,6 @@ export const receiveResponse = (action: Stream<any>) => action
         uid,
         dc,
         normalized,
-        summary,
       }
     })
     .map(({ uid, dc, thread, noResponseMsgs, normalized }) => {
@@ -110,11 +122,7 @@ export const receiveResponse = (action: Stream<any>) => action
       const result = normalized.map(obj => ({ ...obj, uid }))
       dispatch(API.TASK.DONE(result), uid)
     })
-    .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), payload.uid)))
-    .promise()
-  )
-  .filter(() => false)
-  .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
+)
 
 function processMessageAck(uid, dc, msg: string) {
   const cache = Config.fastCache.get(uid, dc)
@@ -126,10 +134,8 @@ function processMessageAck(uid, dc, msg: string) {
 }
 
 function ackMessage(uid, dc, msg: string, thread: NetworkerThread) {
-  const cache = Config.fastCache.get(uid, dc)
   const ackMsgIDs = queryAck(uid, dc)
   if (contains(msg, ackMsgIDs)) return
-  cache
   dispatch(NET.ACK_ADD({ dc, ack: [msg] }), uid)
   thread.sheduleRequest(30000)
 }

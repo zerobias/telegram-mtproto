@@ -2,7 +2,9 @@
 
 import { append, reject, isEmpty, chain, filter, pipe } from 'ramda'
 
-import { Just } from 'folktale/maybe'
+// import { Just } from 'folktale/maybe'
+import { Maybe } from 'apropos'
+const { Just, Nothing } = Maybe
 
 import {
   type IncomingType,
@@ -43,28 +45,29 @@ import { NetMessage } from '../service/networker/net-message'
 import Config from 'ConfigProvider'
 const log = Logger`single-handler`
 
+//eslint-disable-next-line
+const appendRO = (() => {
+  /*:: declare function appendReadOnly<T>(
+    value: T,
+    list: $ReadOnlyArray<T>
+  ): $ReadOnlyArray<T> */
+  return (append /*:: , appendReadOnly */)
+})()
+
 /*::
-interface Writer<T> {
+interface Writer<+T> {
   set next(x: T): void,
-  read(): T[],
+  read(): $ReadOnlyArray<T>,
 }
 */
-function writer<T>(): Writer<T> {
-  let state: Array<T> = []
-
-  const facade = {}
-  //$off
-  Object.defineProperties(facade, {
-    next: {
-      set(x: T) {
-        state = append(x, state)
-      }
-    },
-    read: {
-      value: () => state
-    }
-  })
-  return facade
+class WriterFacade<T> implements Writer<T> {
+  state: $ReadOnlyArray<T> = []
+  set next(x: T) {
+    this.state = appendRO(x, this.state)
+  }
+  read(): $ReadOnlyArray<T> {
+    return this.state
+  }
 }
 
 type Selector = <A, B>(
@@ -88,7 +91,12 @@ export default function singleHandler(
   summary: ᐸPatchᐳSummary,
 } {
   const { flags } = message
-  const patches: Writer<*> = writer()
+  /*::
+  const inners = handleInner(ctx, message)
+  const unrels = handleUnrelated(ctx, message)
+  */
+  type Saved = ᐸPatchᐳSummary
+  const patches: Writer<ᐸPatchᐳSummary> = new WriterFacade
   let result = message
   if (flags.inner) {
     patches.next = handleInner(ctx, message)
@@ -188,6 +196,10 @@ function makeSummary(collected): ᐸPatchᐳSummary {
   }
 
   return result
+}
+
+function addFlags() {
+
 }
 
 function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
@@ -386,114 +398,119 @@ function handleError(ctx: IncomingType, data: MessageUnit) {
   return { info: data, patch: emptyPatch() }
 }
 
+function numberFromError(message, regexp): Maybe<number> {
+  const matched = message.match(regexp)
+  if (!matched || matched.length < 2) return Nothing()
+  const [ , , numStr] = matched
+  if (!isFinite(numStr)) return Nothing()
+  const num = parseInt(numStr, 10)
+  return Just(num)
+}
+
+const patchNothing = data => () => ({
+  info : data,
+  patch: emptyPatch(),
+})
+
 const floodWarning = warning({
   isIssue: false,
   message: ['Flood wait! Too many requests, you should wait', 'seconds before new requests']
 })
 
 function handleFloodWait(message, data, code, ctx) {
-  const matched = message.match(floodWaitRegexp)
-  if (!matched || matched.length < 2)
-    return { info: data, patch: emptyPatch() }
-  const [ , , newDcID] = matched
-  if (!isFinite(newDcID))
-    return { info: data, patch: emptyPatch() }
-  const waitTime = parseInt(newDcID, 10)
-
-  floodWarning(waitTime)
-  const info = {
-    ...data,
-    error: {
-      code,
-      message,
-      handled: true
-    }
-  }
-  return { info, patch: emptyPatch() }
+  return numberFromError(message, floodWaitRegexp)
+    .fold(
+      patchNothing(data),
+      waitTime => {
+        floodWarning(waitTime)
+        const info = {
+          ...data,
+          error: {
+            code,
+            message,
+            handled: true
+          }
+        }
+        return { info, patch: emptyPatch() }
+      })
 }
 
 function handleFileMigrate(message, data, code, ctx) {
   const { uid, dc } = ctx
-  const matched = message.match(fileMigrateRegexp)
-  if (!matched || matched.length < 2)
-    return { info: data, patch: emptyPatch() }
-  const [ , , newDcID] = matched
-  if (!isFinite(newDcID))
-    return { info: data, patch: emptyPatch() }
-  const newDc = /*:: toDCNumber( */ parseInt(newDcID, 10) /*:: ) */
-  if (data.flags.methodResult) {
-    const { outID } = data.methodResult
-    const req = queryRequest(uid, dc, outID)
-      .fold(() => false, x => x)
-    if (req) {
-      req.dc = Just(newDc)
-      const info = {
-        ...data,
-        error: {
-          code,
-          message,
-          handled: true
+  return numberFromError(message, fileMigrateRegexp)
+  /*:: .map(toDCNumber) */
+    .pred(dc => data.flags.methodResult)
+    .chain(newDc => queryRequest(uid, dc, data.methodResult.outID).map(req => ({
+      req,
+      newDc,
+    })))
+    .fold(
+      patchNothing(data),
+      ({ req, newDc }) => {
+        req.dc = Just(newDc)
+        const info = {
+          ...data,
+          error: {
+            code,
+            message,
+            handled: true
+          }
         }
-      }
-      return { info, patch: emptyPatch() }
-    }
-  }
-  return { info: data, patch: emptyPatch() }
+        return { info, patch: emptyPatch() }
+      })
 }
 
 function handleMigrateError(message, data, code, ctx) {
-  const uid = ctx.uid
-
-  const matched = message.match(migrateRegexp)
-  if (!matched || matched.length < 2)
-    return { info: data, patch: emptyPatch() }
-  const [ , , newDcID] = matched
-  if (!isFinite(newDcID))
-    return { info: data, patch: emptyPatch() }
-  const newDc = parseInt(newDcID, 10)
-  dispatch(MAIN.RECOVERY_MODE({
-    halt: data.dc,
-    recovery: newDc,
-    uid,
-  }), uid)
-  Config.fastCache.init(uid, ctx.dc)
-  Config.seq.set(uid, ctx.dc, 0)
-  Config.halt.set(uid, ctx.dc, true)
-  Config.halt.set(uid, newDc, false)
-  //$off
-  Config.session.set(uid, ctx.dc, null)
-  Promise.all([
-    Config.storageAdapter.set.dc(uid, newDc),
-    Config.storageAdapter.set.nearestDC(uid,  newDc)
-  ]).then(() => {
-    dispatch(MAIN.DC_DETECTED({
-      dc: newDc,
-      uid,
-    }, newDc), uid)
-  })
-  const patch = {
-    flags: {
-      net : true,
-      home: true,
-    },
-    net: [{
-      dc  : data.dc,
-      home: false,
-    }, {
-      dc  : newDc,
-      home: true,
-    }],
-    home: [newDc],
-  }
-  const info = {
-    ...data,
-    error: {
-      code,
-      message,
-      handled: true
-    }
-  }
-  return { info, patch }
+  const { uid, dc } = ctx
+  return numberFromError(message, migrateRegexp)
+  /*:: .map(toDCNumber) */
+    .fold(
+      patchNothing(data),
+      newDc => {
+        dispatch(MAIN.RECOVERY_MODE({
+          halt    : dc,
+          recovery: newDc,
+          uid,
+        }), uid)
+        Config.fastCache.init(uid, dc)
+        Config.seq.set(uid, dc, 0)
+        Config.halt.set(uid, dc, true)
+        Config.halt.set(uid, newDc, false)
+        //$off
+        Config.session.set(uid, ctx.dc, null)
+        Promise.all([
+          Config.storageAdapter.set.dc(uid, newDc),
+          Config.storageAdapter.set.nearestDC(uid,  newDc)
+        ]).then(() => {
+          dispatch(MAIN.DC_DETECTED({
+            dc: newDc,
+            uid,
+          }), uid)
+        })
+        const patch = {
+          flags: {
+            net : true,
+            home: true,
+          },
+          net: [{
+            dc  : data.dc,
+            home: false,
+          }, {
+            dc  : newDc,
+            home: true,
+          }],
+          home: [newDc],
+        }
+        const info = {
+          ...data,
+          error: {
+            code,
+            message,
+            handled: true
+          }
+        }
+        return { info, patch }
+      })
 }
 
 function handleAuthRestart(message, data, code) {
@@ -651,7 +668,7 @@ function handleBadNotify(ctx: IncomingType, message: MessageUnit) {
       flags = { ...flags, ack: true }
       data = {
         ...data,
-        ck: [{ dc, id }],
+        ack: [{ dc, id }],
       }
     }
   }
