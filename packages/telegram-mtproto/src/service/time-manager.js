@@ -1,6 +1,6 @@
 //@flow
 
-import isNode from 'detect-node'
+import { isNode } from 'Runtime'
 
 import { nextRandomInt, lshift32 } from '../bin'
 import Config from '../config-provider'

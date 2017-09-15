@@ -14,7 +14,8 @@
 			"State": "./src/state",
 			"Newtype": "./src/newtype.h",
       "Bin": "./src/bin",
-			"Monad": "./src/util/monad-t"
+			"Monad": "./src/util/monad-t",
+			"Runtime": "./src/runtime"
     },
     "baseUrl": "./src",
     "skipLibCheck": true,

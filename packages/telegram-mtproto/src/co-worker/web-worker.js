@@ -87,11 +87,11 @@ function getWorker(): WorkerType {
   let WorkerInstance
   try {
     //$FlowIssue
-    WorkerInstance = require('worker-loader?inline!./worker.js')
+    WorkerInstance = require('worker-loader?inline&fallback=false!./worker.js')
   } catch (err) {
+    console.error(err)
     WorkerInstance = require('./worker.js')
   }
-
   //$FlowIssue
   const worker = new WorkerInstance()
   return worker

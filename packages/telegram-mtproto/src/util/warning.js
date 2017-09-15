@@ -1,6 +1,6 @@
 //@flow
-import isNode from 'detect-node'
 import { intersperse } from 'ramda'
+import { isNode } from 'Runtime'
 
 const objectFlagVariants = {
   browser: '%O',

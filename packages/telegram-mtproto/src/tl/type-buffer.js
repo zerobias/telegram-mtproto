@@ -1,6 +1,6 @@
 //@flow
 
-import isNode from 'detect-node'
+import { isNode } from 'Runtime'
 
 import Logger from 'mtproto-logger'
 const log = Logger('tl', 'type-buffer')

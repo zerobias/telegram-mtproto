@@ -1,10 +1,11 @@
 //@flow
 import { type Stream, from } from 'most'
-import isNode from 'detect-node'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { createEpicMiddleware } from 'redux-most'
 import Logger from 'mtproto-logger'
 const log = Logger`redux-core`
+
+import { isNode } from 'Runtime'
 
 import { type State } from './index.h'
 import rootReducer from './reducer'
@@ -22,13 +23,13 @@ if (!__DEV__) {
 }
 
 if (__DEV__) {
-  composeEnhancers = require('remote-redux-devtools').composeWithDevTools({
-    realtime             : true,
-    hostname             : 'localhost',
-    port                 : 8000,
-    maxAge               : 600,
-    suppressConnectErrors: true,
-  })
+  // composeEnhancers = require('remote-redux-devtools').composeWithDevTools({
+  //   realtime             : true,
+  //   hostname             : 'localhost',
+  //   port                 : 8000,
+  //   maxAge               : 600,
+  //   suppressConnectErrors: true,
+  // })
 
   process.on('unhandledRejection', val => {
     console.log(val)

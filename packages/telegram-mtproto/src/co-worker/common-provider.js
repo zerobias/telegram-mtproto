@@ -1,5 +1,5 @@
 //@flow
-import isNode from 'detect-node'
+import { isNode } from 'Runtime'
 
 type WebCryptoType = {
   digest(
@@ -10,7 +10,7 @@ type WebCryptoType = {
   ): Promise<ArrayBuffer>
 }
 
-const testWebCrypto = (): void | WebCryptoType => {
+function testWebCrypto(): void | WebCryptoType {
   let webCrypto
 
   try {
@@ -29,7 +29,7 @@ const testWebCrypto = (): void | WebCryptoType => {
   }
 }
 
-export const featureDetector = () => {
+const cryptoCommon = (() => {
   const webCrypto = testWebCrypto()
   const useWebCrypto = !!webCrypto
   const sha1Crypto = useWebCrypto
@@ -43,8 +43,6 @@ export const featureDetector = () => {
       webworker: !isNode,
     }
   }
-}
-
-const cryptoCommon = featureDetector()
+})()
 
 export default cryptoCommon
