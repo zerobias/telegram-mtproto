@@ -48,7 +48,7 @@ import {
   type ᐸMTᐳBadNotification,
   type ᐸMTᐳRpcResult,
 } from 'Mtp'
-import { queryRequest } from '../state/query'
+import { queryRequest, queryAck } from '../state/query'
 import Logger from 'mtproto-logger'
 import { applyServerTime } from '../service/time-manager'
 import { NetMessage } from '../service/networker/net-message'
@@ -253,7 +253,7 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
 
   switch (body._) {
     case 'msgs_ack': {
-      body.msg_ids.forEach(thread.processMessageAck)
+      // body.msg_ids.forEach(thread.processMessageAck)
       const msg_ids: string[] = body.msg_ids
 
       return patchState()
@@ -262,8 +262,9 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     }
     case 'msg_detailed_info': {
       if (!Config.fastCache.get(uid, dc).hasSent(body.msg_id)) {
-        thread.ackMessage(body.answer_msg_id)
+
         const id: string = body.answer_msg_id
+        thread.ackMessage(id)
         return patchState()
           .ack([{ dc, id }])
           .value
@@ -272,11 +273,11 @@ function handleUnrelated(ctx: IncomingType, message: MessageUnit) {
     }
     case 'msg_new_detailed_info': {
       const { answer_msg_id: id } = body
-      // thread.ackMessage(id)
-      // thread.reqResendMessage(id)
-      return patchState()
-        .ack([{ dc, id }])
-        .reqResend([{ dc, id }])
+      let state = patchState()
+      if (queryAck(uid, dc).indexOf(id) === -1)
+        state = state.reqResend([{ dc, id }])
+      return state
+        // .ack([{ dc, id }])
         .value
     }
     case 'msgs_state_info': {

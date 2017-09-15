@@ -3,11 +3,14 @@ import { tap } from 'ramda'
 // import { Just } from 'folktale/maybe'
 import { Maybe } from 'apropos'
 const { Just } = Maybe
-import { tryP, resolve, Future, of as ofF } from 'fluture'
+import { tryP, of as ofF } from 'fluture'
 
 import Auth from './authorizer'
+import { type LeftOptions } from './main/index.h'
 
-
+import { type UID, type DCNumber } from 'Newtype'
+import { API } from 'Action'
+import { dispatch } from 'State'
 import { createThread } from './networker'
 
 import Config from 'ConfigProvider'
@@ -50,7 +53,7 @@ function withDC(uid, dc) {
     .map(getThread)
 }
 
-export const authRequest = (uid: string, dc) => Auth(uid, dc)
+export const authRequest = (uid: UID, dc: DCNumber) => Auth(uid, dc)
   .bimap(
     tap(e => console.error('Auth error', e.message, e.stack)),
     ({
@@ -63,6 +66,28 @@ export const authRequest = (uid: string, dc) => Auth(uid, dc)
     })
   )
 
+export default function invoke(
+  uid: UID,
+  method: string,
+  params: Object = {},
+  options: LeftOptions = {}
+) {
+  return ofF()
+    .map(() => {
+      const netReq = new ApiRequest(
+        { method, params },
+        { ...options },
+        uid)
+      dispatch(API.REQUEST.NEW({
+        netReq,
+        method,
+        params,
+        timestamp: Date.now(),
+      }, netReq.requestID), uid)
+      return netReq
+    })
+    .chain(netReq => tryP(() => netReq.deferFinal.promise))
+}
 
 declare class NoDCError extends Error {  }
 declare class NoThreadError extends Error {  }

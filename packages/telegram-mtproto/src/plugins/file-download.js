@@ -55,7 +55,7 @@ const getLocation = (doc: MTDocument): MTLocation => ({
 
 const downloadDocument =
   (ctx: MTProto) =>
-    async (doc: MTDocument) => {
+    async(doc: MTDocument) => {
       // console.dir(ctx, { colors: true })
       const location = getLocation(doc)
       const parts = Math.ceil(doc.size / CHUNK_SIZE)
@@ -64,6 +64,7 @@ const downloadDocument =
         const offset = getOffset(i)
         const args = getArgs(location, offset)
         const response = await ctx.api.mtpInvokeApi(usedMethod, args)
+        //TODO mtpInvokeApi was removed!
         results.set(response.bytes, offset)
       }
       return results

@@ -5,11 +5,9 @@ import { Stream } from 'most'
 import { contains } from 'ramda'
 import { type UID, type DCNumber } from 'Newtype'
 import { MAIN, API } from 'Action'
-// import { Pure, Lift, liftF } from '@safareli/free'
-import { after } from 'fluture'
 import netRequest, { onNewTask } from './net-request'
 import { receiveResponse } from './task'
-import { makeAuthRequest, authRequest } from '../../service/invoke'
+import { authRequest } from '../../service/invoke'
 import {
   getClient,
   getHomeStatus,

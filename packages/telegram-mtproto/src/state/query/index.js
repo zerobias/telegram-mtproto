@@ -89,5 +89,8 @@ export const queryKeys = (uid: UID, dc: DCNumber) =>
       })))
 
 
-export const queryAck = (uid: string, dc: DCNumber) =>
-  getState().client[uid].pendingAck[dc] || ([]: string[])
+export const queryAck = (uid: UID, dc: DCNumber) =>
+  getClient(uid)
+    .map(client => client.pendingAck[dc])
+    .chain(fromNullable)
+    .fold(() => [], x => x)

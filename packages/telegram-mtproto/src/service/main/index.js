@@ -7,8 +7,7 @@ import EventEmitter, {
 } from 'eventemitter2'
 import { type AsyncStorage } from 'mtproto-shared'
 
-import { ApiManager } from '../api-manager'
-import { registerInstance } from 'ConfigProvider'
+import Config, { registerInstance } from 'ConfigProvider'
 import { type UID } from 'Newtype'
 
 import Logger from 'mtproto-logger'
@@ -29,7 +28,6 @@ class MTProto {
   emitter: EventEmitterType & EventEmitter = new EventEmitter({
     wildcard: true
   })
-  api: ApiManager
   on: On = this.emitter.on.bind(this.emitter)
   emit: Emit = this.emitter.emit.bind(this.emitter)
   storage: AsyncStorage
@@ -71,7 +69,8 @@ class MTProto {
     this.emitter.on('deactivate', () => {
       this.activated = false
     })
-    this.api = new ApiManager(fullConfig, uid)
+    Config.publicKeys.init(uid, fullConfig.app.publicKeys)
+    // this.api = new ApiManager(fullConfig, uid)
     this.bus = streamBus(this)
     dispatch(MAIN.INIT({
       uid,

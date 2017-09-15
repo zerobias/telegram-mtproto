@@ -392,6 +392,12 @@ declare module 'fluture' {
 
   // declare export opaque type λFluture<A, B>: λ<typeof Fluture, A, B>
 
+  declare type Go = <-Resolve, Reject, +Return>(
+    gen: Generator<Fluture<Resolve, Reject>, Resolve, Return>
+  ) => Fluture<Return, Reject>
+
+  declare export var go: Go
+
   declare export function fold<IL, IR, OL, OR>(
     left: (val: IL) => OL,
     right: (val: IR) => OR,
