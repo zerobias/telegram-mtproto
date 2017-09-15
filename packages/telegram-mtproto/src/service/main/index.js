@@ -31,7 +31,6 @@ class MTProto {
   on: On = this.emitter.on.bind(this.emitter)
   emit: Emit = this.emitter.emit.bind(this.emitter)
   storage: AsyncStorage
-  // state = new State
   defaultDC: number = 2
   bus: Bus
   load: () => Promise<void>

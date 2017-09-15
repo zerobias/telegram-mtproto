@@ -1,6 +1,6 @@
 //@flow
 import { identity, has, both } from 'ramda'
-import isNode from 'detect-node'
+import { isNode, isWebpack } from 'Runtime'
 
 import blueDefer from 'Util/defer'
 import type { Defer } from 'Util/defer'
@@ -44,16 +44,25 @@ function isWebCrypto() {
 const isCryptoTask = both(has('taskID'), has('result'))
 
 //eslint-disable-next-line
-const workerEnable = !isNode && hasWindow && window.Worker
-if (workerEnable) {
-  let TmpWorker
+const workerEnable = !isNode && hasWindow && window.Worker && isWebpack
+function initWorker() {
+  let TmpWorker, tmpWorker
   try {
     //$FlowIssue
-    TmpWorker = require('worker-loader?inline!./worker.js')
+    TmpWorker = require('worker-loader?inline&fallback=false!./worker.js')
   } catch (err) {
-    TmpWorker = require('./worker.js')
+    console.error('webWorker disabled', err)
+    webWorker = false
+    return
   }
-  const tmpWorker = new TmpWorker()
+  try {
+    tmpWorker = new TmpWorker()
+  } catch (err) {
+    console.error('webWorker disabled', err)
+    webWorker = false
+    return
+  }
+
   // tmpWorker.onmessage = function(event) {
   //   console.info('CW tmpWorker.onmessage', event && event.data)
   // }
@@ -76,8 +85,10 @@ if (workerEnable) {
   tmpWorker.postMessage('b')
   webWorker = tmpWorker
 }
+if (workerEnable)
+  initWorker()
 
-const performTaskWorker = (task, params, embed) => {
+function performTaskWorker(task, params, embed) {
   // console.log(rework_d_T(), 'CW start', task)
   const deferred = blueDefer()
 

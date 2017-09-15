@@ -11,7 +11,7 @@ import {
   over,
   defaultTo,
 } from 'ramda'
-
+import { cache } from 'fluture'
 // import { Just } from 'folktale/maybe'
 import { Maybe } from 'apropos'
 const { Just, Nothing } = Maybe
@@ -51,6 +51,7 @@ import {
 import { queryRequest, queryAck } from '../state/query'
 import Logger from 'mtproto-logger'
 import { applyServerTime } from '../service/time-manager'
+import invoke from '../service/invoke'
 import { NetMessage } from '../service/networker/net-message'
 import Config from 'ConfigProvider'
 const log = Logger`single-handler`
@@ -443,6 +444,30 @@ function handleFileMigrate(message, data, code, ctx) {
       patchNothing(data),
       ({ req, newDc }) => {
         req.dc = Just(newDc)
+        const futureAuth = Config.authRequest.get(uid, newDc)
+        if (!futureAuth) {
+          const authReq = cache(invoke(uid, 'auth.exportAuthorization', { dc_id: newDc })
+            .map(resp => (console.log(resp), resp))
+            .map((resp: mixed) => {
+              if (typeof resp === 'object' && resp != null) {
+                if (typeof resp.id === 'number') {
+                  const { id } = resp
+                  if (resp.bytes != null) {
+                    const { bytes } = resp
+                    return {
+                      id,
+                      bytes: [...bytes]
+                    }
+                  }
+                }
+              }
+              console.error('incorrect', resp)
+              return resp
+            })
+            .chain(resp => invoke(uid, 'auth.importAuthorization', resp, { dcID: newDc })))
+          Config.authRequest.set(uid, newDc, authReq)
+          authReq.promise()
+        }
         const info = {
           ...data,
           error: {

@@ -115,6 +115,9 @@ const config = {
     //     }
     //   }
     // }),
+    new webpack.EnvironmentPlugin({
+      IS_WEBPACK: true,
+    }),
     new htmlWebpack({
       title   : 'MTProto test page',
       template: '../config/web/index.ejs',

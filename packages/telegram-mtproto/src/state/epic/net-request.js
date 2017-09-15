@@ -135,17 +135,17 @@ const netRequest = (action: Stream<any>) => action
   //   .client[message.uid]
   //   .lastMessages
   //   .indexOf(message.msg_id) === -1)
-  .map(data => after(100, data)
-    .chain(makeApiBytes)
-    .chain(encryption)
-    .map(res => dispatch(NET.RECEIVE_RESPONSE(res), data.uid))
-    .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), data.uid)))
-    .promise())
+  .map(data => requestItself(data).promise())
   .filter(() => false)
   // .thru(awaitPromises)
   // .tap(data => console.warn('RECIEVE RESP', data))
   // .map(NET.RECEIVE_RESPONSE)
   // .recoverWith(err => of(NET.NETWORK_ERROR(jsonError(err))))
 
+const requestItself = data => after(100, data)
+  .chain(makeApiBytes)
+  .chain(encryption)
+  .map(res => dispatch(NET.RECEIVE_RESPONSE(res), data.uid))
+  .chainRej(err => ofF(dispatch(NET.NETWORK_ERROR(jsonError(err)), data.uid)))
 
 export default netRequest

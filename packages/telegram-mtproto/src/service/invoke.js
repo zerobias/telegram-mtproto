@@ -77,7 +77,10 @@ export default function invoke(
       const netReq = new ApiRequest(
         { method, params },
         { ...options },
-        uid)
+        uid,
+        //$off
+        options.dcID
+      )
       dispatch(API.REQUEST.NEW({
         netReq,
         method,

@@ -92,6 +92,7 @@ module.name_mapper='^Mtp$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/mtp.
 module.name_mapper='^Newtype$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/newtype.h.js'
 module.name_mapper='^Bin$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/bin'
 module.name_mapper='^Monad$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/util/monad-t'
+module.name_mapper='^Runtime$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src/runtime'
 module.name_mapper='^telegram-mtproto$' -> '<PROJECT_ROOT>/packages/telegram-mtproto/src'
 module.system.node.resolve_dirname=<PROJECT_ROOT>/node_modules
 module.system.node.resolve_dirname=<PROJECT_ROOT>/packages/telegram-mtproto/node_modules

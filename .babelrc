@@ -24,7 +24,8 @@
         "State": "./packages/telegram-mtproto/src/state",
         "Newtype": "./packages/telegram-mtproto/src/newtype.h",
         "Bin": "./packages/telegram-mtproto/src/bin",
-        "Monad": "./packages/telegram-mtproto/src/util/monad-t"
+        "Monad": "./packages/telegram-mtproto/src/util/monad-t",
+        "Runtime": "./packages/telegram-mtproto/src/runtime"
       }
     }],
     ["minify-dead-code-elimination", {

@@ -7,7 +7,7 @@ import {
   aesEncryptSync,
   aesDecryptSync,
   convertToByteArray
-} from '../bin'
+} from 'Bin'
 
 
 const tasks = {
