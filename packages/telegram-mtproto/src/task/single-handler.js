@@ -408,10 +408,21 @@ const patchNothing = data => () => ({
   patch: emptyPatch(),
 })
 
-const floodWarning = warning({
-  isIssue: false,
-  message: ['Flood wait! Too many requests, you should wait', 'seconds before new requests']
-})
+const formatSeconds = seconds => 
+  new Intl.DateTimeFormat(undefined, {
+    hour    : 'numeric', 
+    minute  : 'numeric', 
+    second  : 'numeric',
+    timeZone: 'UTC'
+  }).format(new Date(seconds * 1000))
+
+const floodWarning = pipe(
+  formatSeconds,
+  warning({
+    isIssue: false,
+    message: ['Flood wait! Too many requests, you should wait', 'before new requests']
+  })
+)
 
 function handleFloodWait(message, data, code, ctx) {
   return numberFromError(message, floodWaitRegexp)
