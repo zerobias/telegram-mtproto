@@ -1,6 +1,6 @@
 //@flow
 
-import { isNode } from 'detect-node'
+import isNode from 'detect-node'
 
 export { isNode }
 
