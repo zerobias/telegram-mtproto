@@ -23,6 +23,29 @@ export class MTError extends Error {
   }
 }
 
+export class TypedError extends MTError {
+  static group: string
+  group: string
+  static block: string
+  block: string
+  static type: string
+  static groupOffset: number
+  static blockOffset: number
+  static typeOffset: number
+  constructor(message: string) {
+    super(0, '', '')
+    const code = 1e4 +
+      this.constructor.groupOffset * 1e3 +
+      this.constructor.blockOffset * 1e2 +
+      this.constructor.typeOffset
+    this.code = code
+    this.block = this.constructor.block
+    this.group = this.constructor.group
+    this.type = this.constructor.type
+    this.message = `[${this.group} ${this.block} ${this.type}|${code.toString(10)}] ${message}`
+  }
+}
+
 export class ErrorBadResponse extends MTError {
   originalError: Error | $AxiosXHR<any>
   constructor(url: string, originalError?: Error | null | $AxiosXHR<any> = null) {
