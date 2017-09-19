@@ -2,14 +2,10 @@
 
 import { isNode } from 'Runtime'
 
-import Logger from 'mtproto-logger'
-const log = Logger('tl', 'type-buffer')
+// import Logger from 'mtproto-logger'
+// const log = Logger('tl', 'type-buffer')
 
-// import { immediate } from 'mtproto-shared'
 import { TypeBufferIntError } from '../error'
-
-// import { bigint, uintToInt, intToUint, bytesToHex,
-//   gzipUncompress, bytesToArrayBuffer, longToInts, lshift32 } from '../bin'
 
 import type { BinaryData, TLConstruct, TLSchema } from './index.h'
 
@@ -96,7 +92,7 @@ export class TypeWriter {
     if (this.offset + needBytes < this.maxLength) {
       return
     }
-    log('Increase buffer')(this.offset, needBytes, this.maxLength)
+    // log('Increase buffer')(this.offset, needBytes, this.maxLength)
     this.maxLength = countNewLength(
       this.maxLength,
       needBytes,
@@ -131,16 +127,14 @@ export class TypeWriter {
   getBytesPlain(): number[] {
     return Array.from(this.byteView.subarray(0, this.offset))
   }
-  writeInt(i: number, field: string) {
-    // immediate(writeIntLog, i, field)
-
+  writeInt(i: number) {
     this.checkLength(4)
     this.intView[this.offset / 4] = i
     this.offset += 4
   }
-  writePair(n1: number, n2: number, field1: string, field2: string) {
-    this.writeInt(n1, field1)
-    this.writeInt(n2, field2)
+  writePair(n1: number, n2: number) {
+    this.writeInt(n1)
+    this.writeInt(n2)
   }
   addPadding() {
     while (this.offset % 4)

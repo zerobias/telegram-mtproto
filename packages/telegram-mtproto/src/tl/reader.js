@@ -1,57 +1,58 @@
 //@flow
 
 import { TypeBuffer } from './type-buffer'
-import { lshift32, bytesToHex } from '../bin'
+import { lshift32 } from 'Bin'
 
-import Logger from 'mtproto-logger'
-const log = Logger`tl:reader`
+// import Logger from 'mtproto-logger'
+// const log = Logger`tl:reader`
 
 
 
-export function readInt(ctx: TypeBuffer, field: string): number {
+export function readInt(ctx: TypeBuffer): number {
   const result = ctx.nextInt()
-  log('int')(field, result)
   return result
 }
 
-export function readLong(ctx: TypeBuffer, field: string ) {
-  const iLow: number = readInt(ctx, `${ field }:long[low]`)
-  const iHigh: number = readInt(ctx, `${ field }:long[high]`)
+export function readLong(ctx: TypeBuffer) {
+  const iLow: number = readInt(ctx)
+  const iHigh: number = readInt(ctx)
 
   const res = lshift32(iHigh, iLow)
   return res
 }
 
-export function readDouble(ctx: TypeBuffer, field: string) {
+export function readDouble(ctx: TypeBuffer) {
   const buffer = new ArrayBuffer(8)
   const intView = new Int32Array(buffer)
   const doubleView = new Float64Array(buffer)
 
-  intView[0] = readInt(ctx, `${ field }:double[low]`)
-  intView[1] = readInt(ctx, `${ field }:double[high]`)
+  intView[0] = readInt(ctx)
+  intView[1] = readInt(ctx)
 
   return doubleView[0]
 }
 
-export function readString(ctx: TypeBuffer, field: string) {
-  const bytes = readBytes(ctx, `${field}:string`)
+export function readString(ctx: TypeBuffer) {
+  const bytes = readBytes(ctx)
   const sUTF8 = [...bytes]
     .map(getChar)
     .join('')
 
+  return safeEscape(sUTF8)
+}
+
+function safeEscape(str: string) {
   let s
   try {
-    s = decodeURIComponent(escape(sUTF8))
+    s = decodeURIComponent(escape(str))
   } catch (e) {
-    s = sUTF8
+    s = str
   }
-
-  log(`string`)(s, `${field}:string`)
 
   return s
 }
 
-export function readBytes(ctx: TypeBuffer, field: string) {
+export function readBytes(ctx: TypeBuffer) {
   let len = ctx.nextByte()
 
   if (len == 254) {
@@ -62,8 +63,6 @@ export function readBytes(ctx: TypeBuffer, field: string) {
 
   const bytes = ctx.next(len)
   ctx.addPadding()
-
-  log(`bytes`)(bytesToHex(bytes), `${ field }:bytes`)
 
   return bytes
 }

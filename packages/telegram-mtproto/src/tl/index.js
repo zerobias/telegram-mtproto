@@ -6,7 +6,6 @@ import { dTime } from 'mtproto-shared'
 import {
   uintToInt,
   intToUint,
-  bytesToHex,
   gzipUncompress,
   bytesToArrayBuffer,
 } from 'Bin'
@@ -21,11 +20,8 @@ import Config, { getConfig } from 'ConfigProvider'
 import type { MsgGetter } from './index.h'
 import { NetMessage } from '../service/networker/net-message'
 
-// const storeMethodLog = writer('storeMethod')
-// const fetchObjectLog = writer('fetchObject')
-
-import Logger from 'mtproto-logger'
-const logr = Logger`tl,read`
+// import Logger from 'mtproto-logger'
+// const log = Logger`tl,read`
 
 const PACKED = 0x3072cfa1
 
@@ -39,6 +35,29 @@ type DConfig = {
   override?: *,
   getter?: MsgGetter
 }
+
+function isArray(list: mixed): boolean %checks {
+  return Array.isArray(list) || list instanceof Uint8Array
+}
+
+function assertArray<P: $Pred<1>>(
+  paramName: string,
+  methodName: string,
+  list: mixed,
+  cb: P
+): $Refine<number[] | Uint8Array, P, 1> {
+  if (cb(list)) return list
+  const message = `Vector argument ${paramName} in ${methodName} required Array or Uint8Array,
+got ${String(list)} ${typeof list}`
+  throw new TypeError(message)
+}
+
+// function refine<P: $Pred<1>>(v: mixed, cb: P): $Refine<Identity<mixed>, P, 1> {
+//   if (cb(v)) {
+//     return v
+//   }
+//   throw new Error()
+// }
 
 export class Serialization {
   writer: TypeWriter = new TypeWriter()
@@ -86,9 +105,7 @@ export class Serialization {
     const pred = layer.funcs.get(methodName)
     if (!pred) throw new Error(`No method name ${methodName} found`)
 
-    writeInt(this.writer,
-             intToUint(`${pred.id}`),
-             `${methodName}[id]`)
+    writeInt(this.writer, intToUint(`${pred.id}`))
     if (pred.hasFlags) {
       const flags = getFlags(pred)(params)
       this.storeObject(flags, '#', `f ${methodName} #flags ${flags}`)
@@ -116,14 +133,13 @@ export class Serialization {
         fieldObj = params[paramName]
       }
       if (param.isVector) {
-        if (!Array.isArray(fieldObj))
-          throw new TypeError(`Vector argument ${paramName} in ${methodName} required Array,`  +
-          //$FlowIssue
-          ` got ${fieldObj} ${typeof fieldObj}`)
-        writeInt(this.writer, 0x1cb5c415, `${paramName}[id]`)
-        writeInt(this.writer, fieldObj.length, `${paramName}[count]`)
-        for (const [ i, elem ] of fieldObj.entries())
+        const vector = assertArray(paramName, methodName, fieldObj, isArray)
+        writeInt(this.writer, 0x1cb5c415)
+        writeInt(this.writer, vector.length)
+        for (let i = 0, elem; i < vector.length; i++) {
+          elem = vector[i]
           this.storeObject(elem, param.typeClass, `${paramName}[${i}]`)
+        }
       } else
         this.storeObject(fieldObj, param.typeClass, `f ${methodName}(${paramName})`)
     }
@@ -165,13 +181,13 @@ export class Serialization {
       ? { _: resultConstruct.predicate }
       : null
   }*/
-  storeObject(obj: *, type: string, field: string) {
-    switch (type) {
+  storeObject(obj: *, inputType: string, field: string) {
+    switch (inputType) {
       case '#':
       case 'int':
-        return writeInt(this.writer, obj, field)
+        return writeInt(this.writer, obj)
       case 'long':
-        return writeLong(this.writer, obj, field)
+        return writeLong(this.writer, obj)
       case 'int128':
         return writeIntBytes(this.writer, obj, 128)
       case 'int256':
@@ -183,32 +199,33 @@ export class Serialization {
       case 'bytes':
         return writeBytes(this.writer, obj)
       case 'double':
-        return writeDouble(this.writer, obj, field)
+        return writeDouble(this.writer, obj)
       case 'Bool':
-        return writeBool(this.writer, obj, field)
+        return writeBool(this.writer, obj)
       case 'true':
         return
     }
 
-    if (Array.isArray(obj)) {
+    let type = inputType
+
+    if (Array.isArray(obj) || obj instanceof Uint8Array) {
       if (type.substr(0, 6) == 'Vector')
-        writeInt(this.writer, 0x1cb5c415, `${field}[id]`)
+        writeInt(this.writer, 0x1cb5c415)
       else if (type.substr(0, 6) != 'vector') {
-        throw new Error(`Invalid vector type ${  type}`)
+        ERR.S.vectorType(type)
       }
       const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
-      writeInt(this.writer, obj.length, `${field}[count]`)
+      writeInt(this.writer, obj.length)
       for (let i = 0; i < obj.length; i++) {
         this.storeObject(obj[i], itemType, `${field  }[${  i  }]`)
       }
       return true
-    }
-    else if (type.substr(0, 6).toLowerCase() == 'vector') {
-      throw new Error('Invalid vector object')
+    } else if (type.substr(0, 6).toLowerCase() == 'vector') {
+      ERR.S.vectorObject()
     }
 
     if (typeof obj !== 'object')
-      throw new Error(`Invalid object for type ${  type}`)
+      ERR.S.objectForType(type)
 
     const schema = this.mtproto
       ? Config.schema.mtSchema(this.uid)
@@ -230,15 +247,13 @@ export class Serialization {
     }
 
     if (!constructorData)
-      throw new Error(`No predicate ${predicate} found`)
+      ERR.S.noPredicate(predicate)
 
     if (predicate == type)
       isBare = true
 
     if (!isBare)
-      writeInt(this.writer,
-               intToUint(constructorData.id),
-               `${field}.${predicate}[id]`)
+      writeInt(this.writer, intToUint(constructorData.id))
 
     let condType
     let fieldBit
@@ -309,16 +324,12 @@ export class Deserialization {
     // this.fetchObject = mock
   }
 
-  // log('int')(field, i.toString(16), i)
-  readInt = (field: string) =>
-    readInt(this.typeBuffer, field)
-
-  fetchInt(field: string = ''): number {
-    return this.readInt(`${ field }:int`)
+  fetchInt(): number {
+    return readInt(this.typeBuffer)
   }
 
   fetchBool(field: string = '') {
-    const i = this.readInt(`${ field }:bool`)
+    const i = this.fetchInt()
     switch (i) {
       case 0x997275b5: return true
       case 0xbc799737: return false
@@ -328,7 +339,7 @@ export class Deserialization {
       }
     }
   }
-  fetchIntBytes(bitss: number, field: string = ''): Uint8Array {
+  fetchIntBytes(bitss: number): Uint8Array {
     let bits = bitss
     if (Array.isArray(bits)) {
       console.trace()
@@ -341,30 +352,25 @@ export class Deserialization {
     const len = bits / 8
 
     const bytes = this.typeBuffer.next(len)
-
-    logr(`int bytes`)(bytesToHex(bytes), `${ field }:int${  bits}`)
-
     return bytes
   }
 
-  fetchRawBytes(len: number | false, field: string = ''): Uint8Array {
+  fetchRawBytes(len: number | false): Uint8Array {
     let ln: number
     if (typeof len === 'number')
       ln = len
     else if (typeof len === 'boolean' && len === false) {
-      ln = this.readInt(`${ field }_length`)
+      ln = this.fetchInt()
       if (ln > this.typeBuffer.byteView.byteLength)
         throw new Error(`Invalid raw bytes length: ${ln}, buffer len: ${this.typeBuffer.byteView.byteLength}`)
     } else
       throw new TypeError(`[fetchRawBytes] len must be number or false, get ${typeof len}`)
     const bytes = this.typeBuffer.next(ln)
-    logr(`raw bytes`)(bytesToHex(bytes), field)
-
     return bytes
   }
 
   fetchPacked(type: string, field: string = '') {
-    const compressed = readBytes( this.typeBuffer, `${field}[packed_string]`)
+    const compressed = readBytes( this.typeBuffer)
     const uncompressed = gzipUncompress(compressed)
     const buffer = bytesToArrayBuffer(uncompressed)
     const newDeserializer = new Deserialization(
@@ -380,7 +386,7 @@ export class Deserialization {
   fetchVector(type: string, field: string = '') {
     // const typeProps = getTypeProps(type)
     if (type.charAt(0) === 'V') {
-      const constructor = this.readInt(`${field}[id]`)
+      const constructor = this.fetchInt()
       const constructorCmp = uintToInt(constructor)
 
       if (constructorCmp === PACKED)
@@ -388,7 +394,7 @@ export class Deserialization {
       if (constructorCmp !== 0x1cb5c415)
         throw new Error(`Invalid vector constructor ${constructor}`)
     }
-    const len = this.readInt(`${field}[count]`)
+    const len = this.fetchInt()
     const result = []
     if (len > 0) {
       const itemType = type.substr(7, type.length - 8) // for "Vector<itemType>"
@@ -399,39 +405,35 @@ export class Deserialization {
     return result
   }
 
-  fetchObject(type: string, field: string = '') {
+  fetchObject(type: string, inputField: string = '') {
 
     switch (type) {
       case '#':
       case 'int':
-        return this.fetchInt(field)
+        return this.fetchInt()
       case 'long':
-        return readLong(this.typeBuffer, field)
+        return readLong(this.typeBuffer)
       case 'int128':
-        return this.fetchIntBytes(128, field)
+        return this.fetchIntBytes(128)
       case 'int256':
-        return this.fetchIntBytes(256, field)
+        return this.fetchIntBytes(256)
       case 'int512':
-        return this.fetchIntBytes(512, field)
+        return this.fetchIntBytes(512)
       case 'string':
-        return readString(this.typeBuffer, field)
+        return readString(this.typeBuffer)
       case 'bytes':
-        return readBytes(this.typeBuffer, field)
+        return readBytes(this.typeBuffer)
       case 'double':
-        return readDouble(this.typeBuffer, field)
+        return readDouble(this.typeBuffer)
       case 'Bool':
-        return this.fetchBool(field)
+        return this.fetchBool(inputField)
       case 'true':
         return true
     }
     let fallback
-    field = field || type || 'Object'
+    const field = inputField || type || 'Object'
 
-    // const layer = this.mtproto
-    //   ? mtLayer
-    //   : apiLayer
     const typeProps = getTypeProps(type)
-    // layer.typesById
 
     if (typeProps.isVector)
       return this.fetchVector(type, field)
@@ -442,12 +444,12 @@ export class Deserialization {
       ? mtSchema
       : apiSchema
     let predicate = false
-    let constructorData = false
+    let constructorData
 
     if (typeProps.isBare)
       constructorData = getNakedType(type, schema)
     else {
-      const constructor = this.readInt(`${field}[id]`)
+      const constructor = this.fetchInt()
       const constructorCmp = uintToInt(constructor)
 
       if (constructorCmp === PACKED)
@@ -474,17 +476,19 @@ export class Deserialization {
         }
       }
       if (!constructorData) {
-        throw new Error(`Constructor not found: ${constructor} ${this.fetchInt()} ${this.fetchInt()}`)
+        ERR.D.constructorNotFound(constructor, this.fetchInt(), this.fetchInt())
       }
     }
-
+    if (!constructorData) {
+      throw new Error(`Constructor not found: ${type} ${field}`)
+    }
     predicate = constructorData.predicate
 
     const result = { '_': predicate }
 
     const isOverrided =
-      predicate === 'rpc_result' ||
-      predicate === 'message'
+      predicate === 'rpc_result'
+      || predicate === 'message'
 
     if (this.mtproto && isOverrided) {
       switch (predicate) {
@@ -498,21 +502,22 @@ export class Deserialization {
         }
       }
     } else {
+      let subtype: string
       for (const param of constructorData.params) {
-        type = param.type
+        subtype = param.type
         // if (type === '#' && isNil(result.pFlags))
         //   result.pFlags = {}
-        if (type.indexOf('?') !== -1) {
-          const condType = type.split('?')
+        if (subtype.indexOf('?') !== -1) {
+          const condType = subtype.split('?')
           const fieldBit = condType[0].split('.')
           const fieldName = fieldBit[0]
           const bit: any = fieldBit[1]
           if (!(result[fieldName] & 1 << bit))
             continue
-          type = condType[1]
+          subtype = condType[1]
         }
         const paramName = param.name
-        const value = this.fetchObject(type, `${field}[${predicate}][${paramName}]`)
+        const value = this.fetchObject(subtype, `${field}[${predicate}][${paramName}]`)
 
         result[paramName] = value
       }
@@ -539,24 +544,20 @@ export class Deserialization {
   }
 
   rpc_result(result: { [key: string]: * }, field: string) {
-    result.req_msg_id = readLong(this.typeBuffer, `${ field }[req_msg_id]`)
+    result.req_msg_id = readLong(this.typeBuffer)
     if (this.getter == null) return result
     const sentMessage: NetMessage = this.getter(result)
     const type = sentMessage && sentMessage.resultType || 'Object'
 
-    if (result.req_msg_id && !sentMessage) {
-      // console.warn(dTime(), 'Result for unknown message', result)
-      return
-    }
+    if (result.req_msg_id && !sentMessage) return
     result.result = this.fetchObject(type, `${ field }[result]`)
-      // console.log(dTime(), 'override rpc_result', sentMessage, type, result)
   }
 
   message(result: { [key: string]: * }, field: string) {
-    result.msg_id = readLong(this.typeBuffer, `${ field }[msg_id]`)
-    result.seqno = readInt(this.typeBuffer, `${ field }[seqno]`)
-    result.bytes = readInt(this.typeBuffer, `${ field }[bytes]`)
 
+    const msg_id = readLong(this.typeBuffer)
+    const seqno = readInt(this.typeBuffer)
+    const bytes = readLong(this.typeBuffer)
     const offset = this.getOffset()
 
     try {
@@ -565,16 +566,39 @@ export class Deserialization {
       console.error(dTime(), 'parse error', e.message, e.stack)
       result.body = { _: 'parse_error', error: e }
     }
-    if (this.typeBuffer.offset != offset + result.bytes) {
+    if (this.typeBuffer.offset != offset + bytes) {
       // console.warn(dTime(), 'set offset', this.offset, offset, result.bytes)
       // console.log(dTime(), result)
-      this.typeBuffer.offset = offset + result.bytes
+      this.typeBuffer.offset = offset + bytes
     }
+    result.seqno = seqno
+    result.bytes = bytes
+    result.msg_id = msg_id
     // console.log(dTime(), 'override message', result)
   }
 
 }
 
-
+const ERR = {
+  S: {
+    vectorType(type): empty {
+      throw new Error(`Invalid vector type ${type}`)
+    },
+    vectorObject(): empty {
+      throw new Error('Invalid vector object')
+    },
+    objectForType(type): empty {
+      throw new Error(`Invalid object for type ${type}`)
+    },
+    noPredicate(predicate): empty {
+      throw new Error(`No predicate ${predicate} found`)
+    }
+  },
+  D: {
+    constructorNotFound(constr, intA, intB): empty {
+      throw new Error(`Constructor not found: ${constr} ${intA} ${intB}`)
+    }
+  }
+}
 
 export { TypeWriter } from './type-buffer'

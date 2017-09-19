@@ -12,19 +12,19 @@ type WriteInner = {
 export function writeInnerMessage({ writer, messages }: WriteInner) {
   const innerMessages: string[] = []
   const noResponseMessages: string[] = []
-  messages.forEach((msg: NetMessage, i: number) => {
-    writeLong(writer, msg.msg_id, `CONTAINER[${i}][msg_id]`)
+  for (let i = 0; i < messages.length; i++) {
+    const msg: NetMessage = messages[i]
+    writeLong(writer, msg.msg_id)
     innerMessages.push(msg.msg_id)
-    writeInt(writer, msg.seq_no, `CONTAINER[${i}][seq_no]`)
-    writeInt(writer, msg.body.length, `CONTAINER[${i}][bytes]`)
+    writeInt(writer, msg.seq_no)
+    writeInt(writer, msg.body.length)
     writeIntBytes(writer, msg.body, false)
     if (msg.noResponse)
       noResponseMessages.push(msg.msg_id)
-  })
+  }
 
   return {
     innerMessages,
     noResponseMessages
   }
 }
-

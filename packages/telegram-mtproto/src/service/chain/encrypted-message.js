@@ -7,7 +7,7 @@ import { writeInt, writeIntBytes, writeLong } from '../../tl/writer'
 
 import { NetMessage } from '../networker/net-message'
 import { TypeWriter } from '../../tl/type-buffer'
-import { convertToUint8Array } from '../../bin'
+import { convertToUint8Array } from 'Bin'
 // import Logger from 'mtproto-logger'
 
 // const log = Logger`encrypted message`
@@ -31,10 +31,10 @@ type MtMessageProps = {
 export function apiMessage({ ctx, serverSalt, sessionID, message }: ApiMessageProps) {
   writeIntBytes(ctx, serverSalt, 64)
   writeIntBytes(ctx, sessionID, 64)
-  writeLong(ctx, message.msg_id, 'message_id')
-  writeInt(ctx, message.seq_no, 'seq_no')
+  writeLong(ctx, message.msg_id)
+  writeInt(ctx, message.seq_no)
 
-  writeInt(ctx, message.body.length, 'message_data_length')
+  writeInt(ctx, message.body.length)
   writeIntBytes(ctx, message.body, false)
 
   const apiBytes = ctx.getBuffer()

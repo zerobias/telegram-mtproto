@@ -1,7 +1,7 @@
 //@flow
 
 import { TypeWriter } from './type-buffer'
-import { longToInts, stringToChars } from '../bin'
+import { longToInts, stringToChars } from 'Bin'
 
 // import Logger from 'mtproto-logger'
 // const log = Logger`tl:writer`
@@ -9,49 +9,45 @@ import { longToInts, stringToChars } from '../bin'
 import type { BinaryData } from './index.h'
 
 
-export function writeInt(ctx: TypeWriter, i: number, field: string = '') {
-  ctx.writeInt(i, `${ field }:int`)
+export function writeInt(ctx: TypeWriter, i: number) {
+  ctx.writeInt(i)
 }
 
-export function writeBool(ctx: TypeWriter, i: boolean, field: string = '') {
+export function writeBool(ctx: TypeWriter, i: boolean) {
   if (i) {
-    ctx.writeInt(0x997275b5, `${ field }:bool`)
+    ctx.writeInt(0x997275b5)
   } else {
-    ctx.writeInt(0xbc799737, `${ field }:bool`)
+    ctx.writeInt(0xbc799737)
   }
 }
 
-export function writeLongP(ctx: TypeWriter,
-                           iHigh: number,
-                           iLow: number,
-                           field: string) {
-  ctx.writePair(iLow, iHigh,
-                `${ field }:long[low]`,
-                `${ field }:long[high]`)
+export function writeLongP(
+  ctx: TypeWriter,
+  iHigh: number,
+  iLow: number
+) {
+  ctx.writePair(iLow, iHigh)
 }
 
-export function writeLong(ctx: TypeWriter,
-                          sLong?: number[] | string | number,
-                          field: string = '') {
+export function writeLong(
+  ctx: TypeWriter,
+  sLong?: number[] | string | number
+) {
   if (Array.isArray(sLong))
     return sLong.length === 2
-        ? writeLongP(ctx, sLong[0], sLong[1], field)
-        : writeIntBytes(ctx, sLong, 64)
+      ? writeLongP(ctx, sLong[0], sLong[1])
+      : writeIntBytes(ctx, sLong, 64)
   let str
   if (typeof sLong !== 'string')
     str = sLong
-        ? sLong.toString()
-        : '0'
+      ? sLong.toString()
+      : '0'
   else str = sLong
   const [int1, int2] = longToInts(str)
-  ctx.writePair(int2, int1,
-                `${ field }:long[low]`,
-                `${ field }:long[high]`)
+  ctx.writePair(int2, int1)
 }
 
-export function writeDouble(ctx: TypeWriter,
-                            f: number,
-                            field: string = '') {
+export function writeDouble(ctx: TypeWriter, f: number) {
   const buffer = new ArrayBuffer(8)
   const intView = new Int32Array(buffer)
   const doubleView = new Float64Array(buffer)
@@ -59,17 +55,14 @@ export function writeDouble(ctx: TypeWriter,
   doubleView[0] = f
 
   const [int1, int2] = intView
-  ctx.writePair(int2, int1,
-                `${ field }:double[low]`,
-                `${ field }:double[high]`)
+  ctx.writePair(int2, int1)
 }
 
-export function writeBytes(ctx: TypeWriter,
-                           bytes?: number[] | ArrayBuffer | string,
-                           /*field: string = ''*/) {
+export function writeBytes(
+  ctx: TypeWriter,
+  bytes?: number[] | ArrayBuffer | string
+) {
   const { list, length } = binaryDataGuard(bytes)
-    // debug && console.log('>>>', bytesToHex(bytes), `${ field }:bytes`)
-
   ctx.checkLength(length + 8)
   if (length <= 253) {
     ctx.next(length)
@@ -84,10 +77,11 @@ export function writeBytes(ctx: TypeWriter,
   ctx.addPadding()
 }
 
-export function writeIntBytes(ctx: TypeWriter,
-                              bytes: BinaryData  | ArrayBuffer | string,
-                              bits: number | false,
-                              /*field: string = ''*/) {
+export function writeIntBytes(
+  ctx: TypeWriter,
+  bytes: BinaryData  | ArrayBuffer | string,
+  bits: number | false
+) {
   const { list, length } = binaryDataGuard(bytes)
 
   if (bits) {
@@ -97,13 +91,12 @@ export function writeIntBytes(ctx: TypeWriter,
       throw new Error(`Invalid bits: ${  bits  }, ${length}`)
     }
   }
-  // debug && console.log('>>>', bytesToHex(bytes), `${ field }:int${  bits}`)
   ctx.checkLength(length)
   ctx.set(list, length)
 }
 
 
-const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) => {
+function binaryDataGuard(bytes?: number[] | ArrayBuffer | Uint8Array | string) {
   let list, length
   if (bytes instanceof ArrayBuffer) {
     list = new Uint8Array(bytes)
@@ -116,7 +109,8 @@ const binaryDataGuard = (bytes?: number[] | ArrayBuffer | Uint8Array | string) =
             bytes)))
     length = list.length
   } else if (bytes === undefined) {
-    list = []
+    const stub: number[] = []
+    list = stub
     length = 0
   } else {
     list = bytes

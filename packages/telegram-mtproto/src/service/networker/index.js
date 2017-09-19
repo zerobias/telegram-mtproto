@@ -45,24 +45,21 @@ type NetOptions = {
 }
 type Bytes = number[]
 
-const storeIntString = (writer: TypeWriter) => ([field, value]: [string, number | string]) => {
-  switch (typeof value) {
-    case 'string': return writeBytes(writer, value)
-    case 'number': return writeInt(writer, value, field)
-    default: throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
+function addInitialMessage(serialBox: TypeWriter, appConfig: ApiConfig) {
+  //$off
+  const pairs: [string, string | number][] = toPairs(appConfig)
+  for (const [field, value] of pairs) {
+    switch (typeof value) {
+      case 'string': return writeBytes(serialBox, value)
+      case 'number': return writeInt(serialBox, value)
+      default: ERR.storeIntString(field, value)
+    }
   }
 }
 
-function addInitialMessage(serialBox: TypeWriter, appConfig: ApiConfig) {
-  const mapper = storeIntString(serialBox)
-  //$off
-  const pairs: [string, string | number][] = toPairs(appConfig)
-  pairs.forEach(mapper)
-}
-
 function addAfterMessage(serialBox: TypeWriter, id: string) {
-  writeInt(serialBox, 0xcb9f372d, 'invokeAfterMsg')
-  writeLong(serialBox, id, 'msg_id')
+  writeInt(serialBox, 0xcb9f372d)
+  writeLong(serialBox, id)
 }
 
 function isHomeDC(uid, dc) {
@@ -428,8 +425,8 @@ export class NetworkerThread {
     if (messages.length > 1) {
       const container = new Serialization({ mtproto: true, startMaxLength: messagesByteLen + 64 }, this.uid)
       const contBox = container.writer
-      writeInt(contBox, 0x73f1f8dc, 'CONTAINER[id]')
-      writeInt(contBox, messages.length, 'CONTAINER[count]')
+      writeInt(contBox, 0x73f1f8dc)
+      writeInt(contBox, messages.length)
 
       const {
         innerMessages,
@@ -724,6 +721,12 @@ export function createThread(
   uid: UID
 ): NetworkerThread {
   return new NetworkerThread(dc, uid)
+}
+
+const ERR = {
+  storeIntString(field, value): empty {
+    throw new Error(`tl storeIntString field ${field} value type ${typeof value}`)
+  }
 }
 
 export default NetworkerThread
