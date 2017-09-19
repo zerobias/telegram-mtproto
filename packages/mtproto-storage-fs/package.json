@@ -1,6 +1,6 @@
 {
   "name": "mtproto-storage-fs",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Save telegram-mtproto session into plain json file",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -24,7 +24,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "fs-extra": "^4.0.2",
-    "mtproto-logger": "^0.1.8",
+    "mtproto-logger": "^0.1.9",
     "mtproto-shared": "^0.1.8"
   },
   "devDependencies": {

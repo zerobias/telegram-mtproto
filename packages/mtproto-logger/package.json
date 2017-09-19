@@ -1,6 +1,6 @@
 {
   "name": "mtproto-logger",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -25,7 +25,7 @@
     "chalk": "^2.1.0",
     "debug": "^2.6.8",
     "eventemitter2": "^4.1.2",
-    "most": "^1.7.0",
+    "most": "^1.7.1",
     "mtproto-shared": "^0.1.8"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "mtproto-storage-browser",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Save telegram-mtproto session in localStorage",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
@@ -24,7 +24,7 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "localforage": "^1.5.0",
-    "mtproto-logger": "^0.1.8",
+    "mtproto-logger": "^0.1.9",
     "mtproto-shared": "^0.1.8"
   },
   "devDependencies": {

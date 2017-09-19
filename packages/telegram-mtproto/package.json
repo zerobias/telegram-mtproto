@@ -45,9 +45,9 @@
     "folktale": "^2.0.1",
     "most": "^1.7.1",
     "most-subject": "^5.3.0",
-    "mtproto-logger": "^0.1.8",
+    "mtproto-logger": "^0.1.9",
     "mtproto-shared": "^0.1.8",
-    "mtproto-storage-fs": "^0.3.0",
+    "mtproto-storage-fs": "^0.3.1",
     "pako": "^1.0.6",
     "ramda": "^0.24.1",
     "randombytes": "^2.0.5",
@@ -133,7 +133,7 @@
     "type": "git",
     "url": "git+https://github.com/zerobias/telegram-mtproto.git"
   },
-  "version": "3.2.9",
+  "version": "3.2.10",
   "quokka": {
     "babel": {
       "env": "commonjs"
