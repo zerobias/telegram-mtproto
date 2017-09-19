@@ -557,7 +557,7 @@ export class Deserialization {
 
     const msg_id = readLong(this.typeBuffer)
     const seqno = readInt(this.typeBuffer)
-    const bytes = readLong(this.typeBuffer)
+    const bytes = readInt(this.typeBuffer)
     const offset = this.getOffset()
 
     try {

@@ -50,8 +50,14 @@ function addInitialMessage(serialBox: TypeWriter, appConfig: ApiConfig) {
   const pairs: [string, string | number][] = toPairs(appConfig)
   for (const [field, value] of pairs) {
     switch (typeof value) {
-      case 'string': return writeBytes(serialBox, value)
-      case 'number': return writeInt(serialBox, value)
+      case 'string': {
+        writeBytes(serialBox, value)
+        break
+      }
+      case 'number': {
+        writeInt(serialBox, value)
+        break
+      }
       default: ERR.storeIntString(field, value)
     }
   }
