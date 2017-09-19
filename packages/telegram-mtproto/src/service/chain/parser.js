@@ -70,7 +70,6 @@ export default async function parser({
     mtproto: true,
     getter : getMsgById
   }
-  //$FlowIssue
   const response: Object = await parsedResponse({
     hashData,
     msgKey,

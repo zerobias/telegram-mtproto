@@ -56,18 +56,12 @@ export class NetMessage {
       writable    : true,
       value       : blueDefer()
     })
-    Object.defineProperty(this, 'copyHelper', {
-      enumerable  : false,
-      configurable: true,
-      writable    : true,
-      value       : this.copyHelper
-    })
   }
   copyOptions(options: Object) { //TODO remove this
     for (const [key, val] of Object.entries(options))
       this.copyHelper(val, key)
   }
-  copyHelper = (value: any, key: string) => {
+  copyHelper(value: any, key: string) {
     //$FlowIssue
     this[key] = value
   }
