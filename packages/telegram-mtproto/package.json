@@ -35,7 +35,7 @@
     "@goodmind/node-cryptojs-aes": "^0.5.0",
     "ajv": "^5.2.2",
     "ajv-keywords": "^2.1.0",
-    "apropos": "^0.6.1",
+    "apropos": "^0.6.2",
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
     "detect-node": "^2.0.3",
@@ -43,7 +43,7 @@
     "fluture": "^7.1.2",
     "@safareli/free": "^1.0.0",
     "folktale": "^2.0.1",
-    "most": "^1.7.0",
+    "most": "^1.7.1",
     "most-subject": "^5.3.0",
     "mtproto-logger": "^0.1.8",
     "mtproto-shared": "^0.1.8",
@@ -86,8 +86,8 @@
     "rimraf": "^2.6.2",
     "tslint": "^5.7.0",
     "typescript": "^2.5.2",
-    "webpack": "^3.5.6",
-    "webpack-dev-server": "^2.8.1",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.8.2",
     "worker-loader": "^0.8.1"
   },
   "engines": {
