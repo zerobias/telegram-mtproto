@@ -23,7 +23,7 @@ export default async function loadStorage(
 ) {
   let iAuth: { [dc: number]: number[] } = {}
   let iSalt: { [dc: number]: number[] } = {}
-  let iHome = 2
+  let iHome = /*:: toDCNumber( */ 2 /*:: ) */
 
   const getter = Config.storageAdapter.get
 

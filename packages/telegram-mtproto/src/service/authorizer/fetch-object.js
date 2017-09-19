@@ -25,8 +25,7 @@ export const fetchServerDh = (reader: Reader): Server_DH_Params =>
   //$off
   reader.fetchObject('Server_DH_Params', 'RESPONSE')
 
-export const fetchResPQ = (reader: Reader): ResPQ =>
-  //$off
+export const fetchResPQ = (reader: Reader) =>
   reader.fetchObject('ResPQ', 'ResPQ')
 
 

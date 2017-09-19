@@ -2,7 +2,7 @@
 
 import { cache, Fluture, encaseP, of, reject } from 'fluture'
 
-import { DcUrlError } from '../../error'
+import { DcUrlError, TypedError } from '../../error'
 import Config from 'ConfigProvider'
 import { MAIN } from 'Action'
 import { dispatch } from 'State'
@@ -144,15 +144,24 @@ const factorizePQInner = ctx =>
     .map(([ p, q, it ]) => ({ ...ctx, p, q, it }))
     /*::.mapRej(cryptoErr)*/
 
-const assertResPQ = (nonce) => (response: ResPQ) => {
-  if (response._ !== 'resPQ') {
-    return reject(ERR.sendPQ.response(response._))/*::.mapRej(sendPqFail)*/
-  }
-  if (!bytesCmp(nonce, response.nonce)) {
-    return reject(ERR.sendPQ.nonce())/*::.mapRej(sendPqFail)*/
-  }
+const assertResPQ = (nonce) => (response) =>
+  refineResPQ(nonce, response)
 
-  return of(response)/*::.mapRej(sendPqFail)*/
+function refineResPQ(nonce, response) {
+  if (
+    typeof response !== 'object'
+    || response == null
+    || response instanceof Uint8Array
+    || Array.isArray(response)
+  ) return reject(ERR.sendPQ.noResponse())
+  if (response._ !== 'resPQ') {
+    return reject(ERR.sendPQ.response(response._))
+  }
+  const resp: ResPQ = (response: any)
+  if (!bytesCmp(nonce, resp.nonce)) {
+    return reject(ERR.sendPQ.nonce())
+  }
+  return of(resp)
 }
 
 const authKeyFuture = (uid, url) => (auth) => {
@@ -484,10 +493,100 @@ declare function decryptFail</*:: -*/F>(x: F): DecryptError
 declare class VerifyError extends Error {  }
 declare function verifyFail</*:: -*/F>(x: F): VerifyError
 
-declare class SendPqError extends Error {  }
-declare function sendPqFail</*:: -*/F>(x: F): SendPqError
+
+const Errors = (() => {
+  class AuthError extends TypedError {
+    static group = 'AUTH'
+    static groupOffset = 1
+  }
+
+  const Group = {}
+
+  groups: {
+    class SendPQ extends AuthError {
+      static block = 'SendPQ'
+      static blockOffset = 1
+    }
+
+    class SendDH extends AuthError {
+      static block = 'SendDH'
+      static blockOffset = 2
+    }
+
+    Group.SendPQ = SendPQ
+    Group.SendDH = SendDH
+  }
 
 
+
+  const Block = {}
+
+
+
+
+  SendDH: {
+    class Invalid extends Group.SendDH {
+      static type = 'Invalid'
+      static typeOffset = 1
+    }
+    class Nonce extends Group.SendDH {
+      static type = 'Nonce'
+      static typeOffset = 2
+    }
+    class ServerNonce extends Group.SendDH {
+      static type = 'ServerNonce'
+      static typeOffset = 3
+    }
+    class Hash extends Group.SendDH {
+      static type = 'Hash'
+      static typeOffset = 4
+    }
+    class Fail extends Group.SendDH {
+      static type = 'Fail'
+      static typeOffset = 5
+    }
+
+    Block.SendDH = {
+      Invalid,
+      Nonce,
+      ServerNonce,
+      Hash,
+      Fail,
+    }
+  }
+
+  SendPQ: {
+    class NoResponse extends Group.SendPQ {
+      static type = 'NoResponse'
+      static typeOffset = 1
+    }
+
+    class ResponseInvalid extends Group.SendPQ {
+      static type = 'ResponseInvalid'
+      static typeOffset = 2
+    }
+
+    class NonceError extends Group.SendPQ {
+      static type = 'NonceError'
+      static typeOffset = 3
+    }
+
+
+    Block.SendPQ = {
+      NoResponse,
+      ResponseInvalid,
+      NonceError,
+    }
+  }
+
+
+
+  return Block
+})()
+
+const e = new Errors.SendPQ.NoResponse('')
+
+e
 const ERR = {
   dh: {
     paramsFail: () => new Error('[MT] Set_client_DH_params_answer fail'),
@@ -514,14 +613,15 @@ const ERR = {
     sha1       : () => new Error('[MT] server_DH_inner_data SHA1-hash mismatch'),
   },
   sendDH: {
-    invalid    : (_: string) => new Error(`[MT] Server_DH_Params response invalid: ${_}`),
-    nonce      : () => new Error('[MT] Server_DH_Params nonce mismatch'),
-    serverNonce: () => new Error('[MT] Server_DH_Params server_nonce mismatch'),
-    hash       : () => new Error('[MT] server_DH_params_fail new_nonce_hash mismatch'),
-    fail       : () => new Error('[MT] server_DH_params_fail'),
+    invalid    : (_: string) => new Errors.SendDH.Invalid(`Server_DH_Params response invalid: ${_}`),
+    nonce      : () => new Errors.SendDH.Nonce('Server_DH_Params nonce mismatch'),
+    serverNonce: () => new Errors.SendDH.ServerNonce('Server_DH_Params server_nonce mismatch'),
+    hash       : () => new Errors.SendDH.Hash('server_DH_params_fail new_nonce_hash mismatch'),
+    fail       : () => new Errors.SendDH.Fail('server_DH_params_fail'),
   },
   sendPQ: {
-    response: (_: string) => new Error(`[MT] resPQ response invalid: ${_}`),
-    nonce   : () => new Error('[MT] resPQ nonce mismatch'),
+    noResponse: () => new Errors.SendPQ.NoResponse('resPQ no response'),
+    response  : (_) => new Errors.SendPQ.ResponseInvalid(`resPQ response invalid: ${String(_)}`),
+    nonce     : () => new Errors.SendPQ.NonceError('resPQ nonce mismatch'),
   },
 }

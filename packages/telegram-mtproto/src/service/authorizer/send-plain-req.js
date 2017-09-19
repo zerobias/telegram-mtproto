@@ -34,9 +34,9 @@ function onlySendPlainReq(uid: string, requestBuffer: ArrayBuffer) {
   const header = new Serialization({}, uid)
   const headBox = header.writer
 
-  writeLongP(headBox, 0, 0, 'auth_key_id') // Auth key
-  writeLong(headBox, generateID(uid), 'msg_id') // Msg_id
-  writeInt(headBox, requestLength, 'request_length')
+  writeLongP(headBox, 0, 0) // Auth key
+  writeLong(headBox, generateID(uid)) // Msg_id
+  writeInt(headBox, requestLength)
 
   const headerBuffer: ArrayBuffer = headBox.getBuffer(),
         headerArray = new Int32Array(headerBuffer)
@@ -72,9 +72,9 @@ function onlySendPlain(
   try {
     deserializer = new Deserialization(req.data, { mtproto: true }, uid)
     const ctx = deserializer.typeBuffer
-    readLong(ctx, 'auth_key_id')
-    readLong(ctx, 'msg_id')
-    readInt(ctx, 'msg_len')
+    readLong(ctx) // 'auth_key_id'
+    readLong(ctx) // 'msg_id'
+    readInt(ctx) // 'msg_len'
   } catch (e) {
     const error = new ErrorBadResponse(url, e)
     Config.emit(uid)('response-raw', error)

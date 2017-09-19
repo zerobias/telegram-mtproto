@@ -32,18 +32,24 @@ type ParsedResponse = {
   reader: Deserialization,
 }
 
-
-export function readResponse({ response, reader, authKeyStored }: ReadResponse) {
-  const authKeyID = reader.fetchIntBytes(64, 'auth_key_id')
+function assertAuthKeyID(authKeyID, authKeyStored) {
   if (!bytesCmp(authKeyID, authKeyStored)) { //TODO Remove auth keys from logs
+    const authStr = authKeyID.toString()
+    const idStr = bytesToHex(authKeyID)
+    const keyStored = authKeyStored.toString()
+    const asHex = bytesToHex(authKeyStored)
     throw new Error(
-      `[MT] Invalid server auth_key_id: ${authKeyID.toString()} ${bytesToHex(authKeyID)}, authKeyStored: ${authKeyStored.toString()} ${bytesToHex(authKeyStored)}`
+      `[MT] Invalid server auth_key_id: ${authStr} ${idStr}, authKeyStored: ${keyStored} ${asHex}`
     )
   }
-  const msgKey = reader.fetchIntBytes(128, 'msg_key')
+}
+
+export function readResponse({ response, reader, authKeyStored }: ReadResponse) {
+  const authKeyID = reader.fetchIntBytes(64) // auth_key_id
+  assertAuthKeyID(authKeyID, authKeyStored)
+  const msgKey = reader.fetchIntBytes(128) // msg_key
   const encryptedData = reader.fetchRawBytes(
-    response.byteLength - reader.getOffset(),
-    'encrypted_data')
+    response.byteLength - reader.getOffset()) //encrypted_data
   return {
     msgKey,
     encryptedData
@@ -58,9 +64,9 @@ export async function getDataWithPad({ authKey, msgKey, encryptedData }: GetData
 }
 
 export function readHash({ reader, currentSession, prevSession, dataWithPadding, uid }: ReadHash) {
-  reader.fetchIntBytes(64, 'salt')
-  const sessionID = reader.fetchIntBytes(64, 'session_id')
-  const messageID = readLong(reader.typeBuffer, 'message_id')
+  reader.fetchIntBytes(64) // salt
+  const sessionID = reader.fetchIntBytes(64) // session_id
+  const messageID = readLong(reader.typeBuffer) // message_id
 
   const isInvalidSession = !bytesCmp(sessionID, currentSession) && (!prevSession
     //eslint-disable-next-line
@@ -70,17 +76,17 @@ export function readHash({ reader, currentSession, prevSession, dataWithPadding,
     // throw new Error(`[MT] Invalid server session_id: ${ bytesToHex(sessionID) } ${sessionID.toString()}  ${bytesToHex(currentSession)} ${currentSession.toString()}`)
   }
 
-  const seqNo = reader.fetchInt('seq_no')
+  const seqNo = reader.fetchInt() // seq_no
 
   let offset = reader.getOffset()
   const totalLength = dataWithPadding.byteLength
 
-  const messageBodyLength = reader.fetchInt('message_data[length]')
+  const messageBodyLength = reader.fetchInt() // message_data[length]
   if (messageBodyLength % 4
     || messageBodyLength > totalLength - offset) {
     throw new Error(`[MT] Invalid body length: ${  messageBodyLength}`)
   }
-  const messageBody = reader.fetchRawBytes(messageBodyLength, 'message_data')
+  const messageBody = reader.fetchRawBytes(messageBodyLength) // message_data
 
   const buffer = bytesToArrayBuffer(messageBody)
 
