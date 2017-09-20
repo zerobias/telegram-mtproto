@@ -269,3 +269,34 @@ test(`Parallel requests safety`, async() => {
       .timeout(TIMEOUT)
   ).resolves.toHaveLength(10)
 })
+
+test.only(`Download small files`, async() => {
+  consoleHR(`Download small files`)
+
+  const location = { 
+    _        : 'inputFileLocation',
+    dc_id    : 1,
+    local_id : 1321,
+    volume_id: '702109604',
+    secret   : '7272927231373671580'
+  }
+
+  infoCallMethod('getNearest')
+  await getNearest.promise()
+  infoCallMethod('auth.sendCode')
+  const { phone_code_hash } = await sendCode.promise()
+  infoCallMethod('auth.signIn')
+  await telegram('auth.signIn', {
+    phone_number: phone.num,
+    phone_code_hash,
+    phone_code  : phone.code,
+  })
+  infoCallMethod('upload.getFile')
+  const file = await telegram('upload.getFile', {
+    location,
+    offset: 0,
+    limit : 1024 * 1024
+  })
+
+  console.log(file)
+})
