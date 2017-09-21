@@ -299,10 +299,11 @@ interface AddPadding {
   (bytes: ArrayBuffer, blockSize?: number, zeroes?: boolean): ArrayBuffer,
 }
 
-const addPadding: AddPadding = (
-  bytes,
-  blockSize: number = 16,
-  zeroes: boolean = false) => {
+function addPadding<B: ArrayBuffer | Bytes>(
+  bytes: B,
+  blockSize?: number = 16,
+  zeroes?: boolean = false
+) {
   let len
 
   if (bytes instanceof ArrayBuffer) {
@@ -464,4 +465,3 @@ export function bytesModPow(x: Bytes | Uint8Array, y: Bytes | Uint8Array, m: Byt
 
   return bytesFromHex(bigInt2str(resBigInt, 16))
 }
-

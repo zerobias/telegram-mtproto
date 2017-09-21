@@ -16,6 +16,7 @@ cldr
 coverage/
 .nyc_output
 dist/**
+**/docs/**
 logs/**
 typings.json
 typings/**

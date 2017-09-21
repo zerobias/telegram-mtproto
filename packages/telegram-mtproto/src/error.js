@@ -2,7 +2,7 @@
 
 import { type $AxiosXHR } from 'axios'
 
-import stackCleaner from './util/clean-stack'
+import stackCleaner from 'Util/clean-stack'
 import type { TypeBuffer } from './tl/type-buffer'
 import { type MTPᐸRpcErrorᐳ } from './mtp.h'
 
@@ -43,6 +43,7 @@ export class TypedError extends MTError {
     this.group = this.constructor.group
     this.type = this.constructor.type
     this.message = `[${this.group} ${this.block} ${this.type}|${code.toString(10)}] ${message}`
+    this.stack = this.message + this.stack.slice(12)
   }
 }
 

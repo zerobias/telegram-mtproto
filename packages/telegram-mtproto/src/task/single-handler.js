@@ -135,7 +135,6 @@ export default function singleHandler(
 
   // collected.forEach(e => log`patches`(e))
   const summary = makeSummary(collected)
-  //$off
   log`summary`(noEmpty(summary))
   return {
     message: result,
@@ -166,21 +165,13 @@ type Flags = {
 const processAckChain = selector(e => e.processAck)
 //$off
 const ackChain = selector(e => e.ack)
-//$off
 // const homeChain = selector(e => e.home)
-// //$off
 // const authChain = selector(e => e.authKey)
-//$off
 const reqResendChain = selector(e => e.reqResend)
-// //$off
 // const resendChain = selector(e => e.resend)
-// //$off
 // const lastMessagesChain = selector(e => e.lastServerMessages)
-// //$off
 // const saltChain = selector(e => e.salt)
-// //$off
 // const sessionChain = selector(e => e.session)
-
 
 
 function makeSummary(collected): ᐸPatchᐳSummary {
@@ -408,10 +399,10 @@ const patchNothing = data => () => ({
   patch: emptyPatch(),
 })
 
-const formatSeconds = seconds => 
+const formatSeconds = seconds =>
   new Intl.DateTimeFormat(undefined, {
-    hour    : 'numeric', 
-    minute  : 'numeric', 
+    hour    : 'numeric',
+    minute  : 'numeric',
     second  : 'numeric',
     timeZone: 'UTC'
   }).format(new Date(seconds * 1000))
@@ -459,22 +450,7 @@ function handleFileMigrate(message, data, code, ctx) {
         if (!futureAuth) {
           const authReq = cache(invoke(uid, 'auth.exportAuthorization', { dc_id: newDc })
             .map(resp => (console.log(resp), resp))
-            .map((resp: mixed) => {
-              if (typeof resp === 'object' && resp != null) {
-                if (typeof resp.id === 'number') {
-                  const { id } = resp
-                  if (resp.bytes != null) {
-                    const { bytes } = resp
-                    return {
-                      id,
-                      bytes: [...bytes]
-                    }
-                  }
-                }
-              }
-              console.error('incorrect', resp)
-              return resp
-            })
+            .map(exportAuthRefine)
             .chain(resp => invoke(uid, 'auth.importAuthorization', resp, { dcID: newDc })))
           Config.authRequest.set(uid, newDc, authReq)
           authReq.promise()
@@ -489,6 +465,26 @@ function handleFileMigrate(message, data, code, ctx) {
         }
         return { info, patch: emptyPatch() }
       })
+}
+
+function exportAuthTypecheck(resp: mixed): boolean %checks {
+  return (
+    typeof resp === 'object'
+    && resp != null
+    && typeof resp.id === 'number'
+    && resp.bytes != null
+    && (Array.isArray(resp.bytes) || resp.bytes instanceof Uint8Array)
+  )
+}
+
+type AuthExportResp = {
+  id: number,
+  bytes: number[] | Uint8Array,
+}
+
+function exportAuthRefine(resp: mixed): $Refine<AuthExportResp, $Pred<1>, 1> {
+  if (exportAuthTypecheck(resp)) return { id: resp.id, bytes: resp.bytes }
+  throw new TypeError(`Incorrect auth export`)
 }
 
 function handleMigrateError(message, data, code, ctx) {

@@ -84,7 +84,6 @@ export class NetworkerThread {
   prevSessionID: Bytes
   connectionInited = false
   checkConnectionPeriod = 0
-  checkConnectionPromise: Promise<mixed>
   emit: Emit
   lastServerMessages: string[] = []
   offline: boolean
@@ -313,13 +312,6 @@ export class NetworkerThread {
 
       if (this.checkConnectionPeriod < 1.5)
         this.checkConnectionPeriod = 0
-
-
-      this.checkConnectionPromise = smartTimeout(
-        this.checkConnection, parseInt(this.checkConnectionPeriod * 1000))
-      this.checkConnectionPeriod = Math.min(30, (1 + this.checkConnectionPeriod) * 1.5)
-
-      // this.onOnlineCb = this.checkConnection
       // this.emit('net.offline', this.onOnlineCb)
     } else {
       this.longPoll.pendingTime = Date.now()
@@ -329,8 +321,6 @@ export class NetworkerThread {
 
       // if (this.onOnlineCb)
       //   this.emit('net.online', this.onOnlineCb)
-
-      smartTimeout.cancel(this.checkConnectionPromise)
 
     }
   }
@@ -484,7 +474,6 @@ export class NetworkerThread {
   } */
 
   sheduleRequest(delay: number = 0) {
-    if (this.offline) this.checkConnection()
     const nextReq = tsNow() + delay
 
     if (delay && this.nextReq && this.nextReq <= nextReq)

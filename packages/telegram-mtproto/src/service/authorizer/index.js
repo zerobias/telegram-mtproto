@@ -584,10 +584,8 @@ const Errors = (() => {
   return Block
 })()
 
-const e = new Errors.SendPQ.NoResponse('')
 
-e
-const ERR = {
+export const ERR = {
   dh: {
     paramsFail: () => new Error('[MT] Set_client_DH_params_answer fail'),
     nonce     : {
@@ -621,7 +619,7 @@ const ERR = {
   },
   sendPQ: {
     noResponse: () => new Errors.SendPQ.NoResponse('resPQ no response'),
-    response  : (_) => new Errors.SendPQ.ResponseInvalid(`resPQ response invalid: ${String(_)}`),
+    response  : (_: mixed) => new Errors.SendPQ.ResponseInvalid(`resPQ response invalid: ${String(_)}`),
     nonce     : () => new Errors.SendPQ.NonceError('resPQ nonce mismatch'),
   },
 }

@@ -4,6 +4,9 @@
 
 import { combineReducers, type Reducer } from 'redux'
 import { createReducer } from 'redux-act'
+import { Map } from 'immutable'
+import { Maybe } from 'apropos'
+const { fromNullable } = Maybe
 import {
   append,
   contains,
@@ -29,6 +32,7 @@ import type {
   OnStorageImported,
   OnRecovery,
   OnDcDetected,
+  Instance,
 } from '../index.h'
 import {
   trimType,
@@ -40,10 +44,12 @@ import {
 } from 'Newtype'
 import { MAIN, NET, API } from 'Action'
 import keyStorage, { KeyStorage } from 'Util/key-storage'
+import { mapGet } from 'Util/immutable'
 import { KeyValue } from 'Monad'
 import { sha1BytesSync } from 'Bin'
 import { NetMessage } from '../../service/networker/net-message'
 import requestWatch from './request'
+import progress from './progress'
 import ApiRequest from '../../service/main/request'
 import Config from 'ConfigProvider'
 
@@ -55,134 +61,6 @@ import {
 const initial: any = {}
 
 declare var req: ApiRequest
-
-function trimAction(action: any): string {
-  return trimType(action.type)
-}
-
-type RequestResult = { +_: string, +[key: string]: any }
-
-const progress = (() => {
-
-  const idle = createReducer({}, [])
-  const current = createReducer({}, [])
-  const done = createReducer({}, [])
-  const result = createReducer({
-    //$off
-    [API.TASK.DONE]: (
-      state: KeyValue<string, RequestResult[]>,
-      payload: MessageUnit[]
-    ): KeyValue<string, RequestResult[]> => {
-      const apiPL = onlyAPI(payload)
-      const newState = apiPL.reduce(reduceResults, state)
-      return newState
-    }
-  }, KeyValue.empty())
-  type Progress = {
-    idle: ApiRequest[],
-    current: ApiRequest[],
-    done: ApiRequest[],
-    result: KeyValue<string, RequestResult[]>,
-  }
-  const reducer: Reducer<Progress> = combineReducers({
-    idle,
-    current,
-    done,
-    result,
-  })
-
-  function reduceResults(
-    acc: KeyValue<string, RequestResult[]>,
-    val: MessageUnit
-  ) {
-    const id = val.api.apiID
-    const data = val.body
-    const init: RequestResult[] = []
-    const list = acc
-      .maybeGetK(id)
-      .fold(() => init, x => x.snd())
-    const saved = append(data, list)
-    const res = acc.push([[id, saved]])
-    return res
-  }
-
-  const findReq = (id: string) => (req: ApiRequest) => req.requestID === id
-  const onlyAPI = (units: MessageUnit[]) => units
-    .filter(p => p.flags.api && p.api.resolved)
-  const getReqIDs = (list: ApiRequest[]) => list.map(req => req.requestID)
-
-  function unitReduce({ idle, current, done, result }: Progress, unit: MessageUnit) {
-    const id = unit.api.apiID
-    let newIdle = idle
-    let newCurrent = current
-    let newDone = done
-    const find = findReq(id)
-    const inIdle = newIdle.findIndex(find)
-    const inCurrent = newCurrent.findIndex(find)
-    if (inIdle > -1) {
-      const req = newIdle[inIdle]
-      newIdle = remove(inIdle, 1, newIdle)
-      newDone = append(req, newDone)
-    }
-    if (inCurrent > -1) {
-      const req = newCurrent[inCurrent]
-      newCurrent = remove(inCurrent, 1, newCurrent)
-      newDone = append(req, newDone)
-    }
-    return {
-      idle   : newIdle,
-      current: newCurrent,
-      done   : newDone,
-      result,
-    }
-  }
-
-  return function watcher(
-    currentState: Progress,
-    action: any
-  ): Progress {
-    const state: Progress = reducer(currentState, action)
-    const { idle, current, done, result } = state
-    switch (trimAction(action)) {
-      case 'api/next': {
-        if (idle.length === 0) return state
-        if (current.length > 0) return state
-        const newNext: ApiRequest = head(idle) /*:: || req */
-        const newState = {
-          idle   : tail(idle),
-          current: append(newNext, current),
-          done,
-          result,
-        }
-        return newState
-      }
-      case 'api/task new': {
-        const ids = getReqIDs(idle)
-          .concat(
-            getReqIDs(current),
-          )
-        const payload: ApiRequest[] = action.payload
-        const update = payload.filter(req => !contains(req.requestID, ids))
-        const newIdle = idle.concat(update)
-        return {
-          idle: newIdle,
-          current,
-          done,
-          result
-        }
-      }
-      case 'api/task done': {
-        const payload: MessageUnit[] = action.payload
-        const apiPL = onlyAPI(payload)
-        const newState: Progress = apiPL.reduce(unitReduce, state)
-        return newState
-      }
-      default: return state
-    }
-  }
-})()
-
-
 
 const uid = createReducer({
   //$FlowIssue
@@ -359,6 +237,31 @@ const clientReducer: Reducer<ClientList> = (state: ClientList = { ids: [] }, act
   }
 }
 
+const instance: Reducer<Instance> = combineReducers({
+  uid
+})
+const instanceReducer: Reducer<Map<UID, Instance>> =
+(state: Map<UID, Instance> = Map([]), action: any) =>
+  actionUID(action)
+    .fold(() =>  state, uid => instanceUpdate(state, uid, action))
+
+function instanceUpdate(
+  state: Map<UID, Instance>,
+  uid: UID,
+  action: any
+) {
+  const inst = mapGet(uid, state)
+  const newState = inst.fold(
+    () => instance(initial, action),
+    current => instance(current, action)
+  )
+  return state.set(uid, newState)
+}
+
+function actionUID(action: Object): Maybe<UID> {
+  return fromNullable(action.uid)
+}
+
 function idsReducer(state: string[], uid: string): string[] {
   return contains(uid, state)
     ? state
@@ -366,7 +269,8 @@ function idsReducer(state: string[], uid: string): string[] {
 }
 
 const mainReducer: Reducer<State> = combineReducers({
-  client: clientReducer,
+  client  : clientReducer,
+  instance: instanceReducer,
 })
 
 export default mainReducer

@@ -1,7 +1,7 @@
 //@flow
 
 import { type AxiosXHR } from 'axios'
-
+import { OrderedSet, Map } from 'immutable'
 
 import ApiRequest from '../service/main/request'
 import { NetMessage } from '../service/networker/net-message'
@@ -47,6 +47,16 @@ export type CommandList = {
   byCommand: { [command: string]: string },
 }
 
+export type RequestResult = { +_: string, +[key: string]: any }
+
+export type Progress = {
+  idle: ApiRequest[],
+  current: ApiRequest[],
+  done: ApiRequest[],
+  result: KeyValue<string, RequestResult[]>,
+  pending: OrderedSet<ApiRequest>,
+}
+
 export type Client = {
   uid: string,
   homeDc: DCNumber,
@@ -55,17 +65,16 @@ export type Client = {
   request: KeyValue<UID, ApiRequest>,
   pendingAck: { [dc: number]: string[] },
   lastMessages: UID[],
-  progress: {
-    idle: ApiRequest[],
-    current: ApiRequest[],
-    done: ApiRequest[],
-    result: KeyValue<string, { +_: string, +[key: string]: any }[]>,
-  },
+  progress: Progress,
   salt: KeyStorage,
   auth: KeyStorage,
   authID: KeyStorage,
   homeStatus: boolean,
   status: KeyValue<DCNumber, boolean>,
+}
+
+export type Instance = {
+  uid: UID,
 }
 
 export type ClientList = {
@@ -75,6 +84,7 @@ export type ClientList = {
 
 export type State = {
   client: ClientList,
+  instance: Map<UID, Instance>,
 }
 
 export type OnSeqSet = {

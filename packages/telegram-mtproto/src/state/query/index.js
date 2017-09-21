@@ -1,7 +1,7 @@
 //@flow
 
 // import { fromNullable, Maybe } from 'folktale/maybe'
-
+import { Map } from 'immutable'
 import { Maybe } from 'apropos'
 
 import { MaybeT } from 'Monad'
@@ -37,20 +37,11 @@ export const queryRequest = (uid: string, dc: DCNumber, outID: string) =>
     .map(pair => pair.snd())
 
 export function getClient(uid: string): Maybe<Client> {
-  return fromNullable(getState)
-    .chain(e => fromNullable(e()))
-    .chain(e => fromNullable(e.client))
+  return fromNullable(getState().client)
     .chain(e => fromNullable(e[uid]))
   // const { client } = getState()
   // return fromNullable(client[uid])
 }
-
-export const getHomeStatus = (uid: string) =>
-  getClient(uid)
-    .map(client => client.homeStatus)
-    .fold(() => false, x => x)
-
-type KeySelector = (x: Client) => KeyStorage
 
 const keyQuery =
   (selector: KeySelector) =>
@@ -59,14 +50,28 @@ const keyQuery =
         .map(selector)
         .chain(fromNullable)
         .chain(keyStorage => keyStorage.getMaybe(dc))
-        /*:: .map(toCryptoKey) */
 
 export const queryHomeDc =
   (uid: UID) =>
     getClient(uid)
       .map(client => client.homeDc)
       .chain(fromNullable)
-      /*:: .map(toDCNumber) */
+
+export const queryRequestIDs = (uid: string, requestID: UID) =>
+  getClient(uid)
+    .map(state => state.command.pairs
+      .filter( tuple => tuple.snd() === requestID )
+      .map( tuple => tuple.fst() ))
+    .fold((): string[] => [], x => x)
+
+export const getHomeStatus = (uid: string) =>
+  getClient(uid)
+    .map(client => client.homeStatus)
+    .fold(() => false, x => x)
+
+type KeySelector = (x: Client) => KeyStorage
+
+
 
 export const queryAuthID = keyQuery(client => client.authID)
 export const queryAuthKey = keyQuery(client => client.auth)
