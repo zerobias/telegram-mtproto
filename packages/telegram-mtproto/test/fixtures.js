@@ -1,4 +1,6 @@
 
+const { encase } = require('fluture')
+
 //$off
 const prompt = require('prompt')
 
@@ -38,10 +40,14 @@ function infoMessage(str) {
   console.log(value)
 }
 
-function infoCallMethod(str) {
+function infoCallMethod(raw) {
+  const str = Array.isArray(raw)
+    ? raw[0]
+    : raw
   infoMessage(`Call method ${str}`)
 }
 
+const futureInfoCall = encase(infoCallMethod)
 
 exports.getStorageData = getStorageData
 exports.inputField = inputField
@@ -49,3 +55,4 @@ exports.delayExit = delayExit
 exports.delay = delay
 exports.consoleHR = consoleHR
 exports.infoCallMethod = infoCallMethod
+exports.futureInfoCall = futureInfoCall

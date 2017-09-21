@@ -15,7 +15,13 @@ const { MTProto } = require('../lib')
 /*::
 `
 */
-const { getStorageData, delay, consoleHR, infoCallMethod } = require('./fixtures')
+const {
+  getStorageData,
+  delay,
+  consoleHR,
+  infoCallMethod,
+  futureInfoCall,
+} = require('./fixtures')
 const { config, api } = require('./mtproto-config')
 const { Storage } = require('mtproto-storage-fs')
 // const debug = require('debug')
@@ -89,10 +95,30 @@ const { default: Config } = require('../lib/config-provider')
 //   return result
 // }
 
-let sendCode, getDialogs, getNearest
+let sendCode, getDialogs, getNearest, runAuth
 
+const future = client => (method, args, opts) =>
+  futureInfoCall(method)
+    .and(client.future(method, args, opts))
+
+const futureAuth = client => {
+  const call = future(client)
+  return call('help.getNearestDc')
+    .and(call('auth.sendCode', {
+      phone_number  : phone.num,
+      current_number: false,
+      api_id        : config.id,
+      api_hash      : config.hash
+    }))
+    .chain(({ phone_code_hash }) => call('auth.signIn', {
+      phone_number: phone.num,
+      phone_code_hash,
+      phone_code  : phone.code,
+    }))
+}
 beforeEach(() => {
   telegram = MTProto({ server, api })
+  runAuth = futureAuth(telegram)
   sendCode = telegram.future('auth.sendCode', {
     phone_number  : phone.num,
     current_number: false,
@@ -113,22 +139,7 @@ afterEach(() => {
 
 test(`Connection test`, async() => {
   consoleHR(`Connection test`)
-
-  expect.assertions(2)
-  infoCallMethod('getNearest')
-  await getNearest.promise()
-
-  infoCallMethod('auth.sendCode')
-  const res1 = await sendCode.promise()
-  const { phone_code_hash } = res1
-  console.log('res1', res1)
-  console.log('phone_code_hash', phone_code_hash)
-  infoCallMethod('auth.signIn')
-  const res = await telegram('auth.signIn', {
-    phone_number: phone.num,
-    phone_code_hash,
-    phone_code  : phone.code,
-  })
+  const res = await runAuth.promise()
   console.log('signIn', res)
   expect(res).toBeTruthy()
   infoCallMethod('messages.getDialogs')
@@ -146,32 +157,12 @@ test('Loading from storage', async() => {
     storage: new Storage(storagePath)
   }
   telegram = MTProto({ server, api, app })
-  sendCode = telegram.future('auth.sendCode', {
-    phone_number  : phone.num,
-    current_number: false,
-    api_id        : config.id,
-    api_hash      : config.hash
-  })
+  runAuth = futureAuth(telegram)
   getDialogs = telegram.future('messages.getDialogs', {
     limit: 100,
   })
-  getNearest = telegram.future('help.getNearestDc')
 
-
-  infoCallMethod('auth.sendCode')
-  await getNearest.promise()
-  const res1 = await telegram('auth.sendCode', {
-    phone_number  : phone.num,
-    current_number: false,
-    api_id        : config.id,
-    api_hash      : config.hash
-  })
-  const { phone_code_hash } = res1
-  await telegram('auth.signIn', {
-    phone_number: phone.num,
-    phone_code_hash,
-    phone_code  : phone.code,
-  })
+  await runAuth.promise()
 
   infoCallMethod('messages.getDialogs')
   const dialogs1 = await getDialogs.promise()
@@ -245,17 +236,7 @@ test(`Parallel requests safety`, async() => {
   const TIMES = 10
   const TIMEOUT = 40e3
 
-  expect.assertions(1)
-  infoCallMethod('getNearest')
-  await getNearest.promise()
-  infoCallMethod('auth.sendCode')
-  const { phone_code_hash } = await sendCode.promise()
-  infoCallMethod('auth.signIn')
-  await telegram('auth.signIn', {
-    phone_number: phone.num,
-    phone_code_hash,
-    phone_code  : phone.code,
-  })
+  await runAuth.promise()
 
   infoCallMethod(`messages.getDialogs (x${TIMES})`)
   const promises = []
@@ -270,10 +251,10 @@ test(`Parallel requests safety`, async() => {
   ).resolves.toHaveLength(10)
 })
 
-test.only(`Download small files`, async() => {
+test(`Download small files`, async() => {
   consoleHR(`Download small files`)
 
-  const location = { 
+  const location = {
     _        : 'inputFileLocation',
     dc_id    : 1,
     local_id : 1321,
@@ -281,16 +262,8 @@ test.only(`Download small files`, async() => {
     secret   : '7272927231373671580'
   }
 
-  infoCallMethod('getNearest')
-  await getNearest.promise()
-  infoCallMethod('auth.sendCode')
-  const { phone_code_hash } = await sendCode.promise()
-  infoCallMethod('auth.signIn')
-  await telegram('auth.signIn', {
-    phone_number: phone.num,
-    phone_code_hash,
-    phone_code  : phone.code,
-  })
+  await runAuth.promise()
+
   infoCallMethod('upload.getFile')
   const file = await telegram('upload.getFile', {
     location,
@@ -299,4 +272,5 @@ test.only(`Download small files`, async() => {
   })
 
   console.log(file)
+  expect(file).toBeDefined()
 })
