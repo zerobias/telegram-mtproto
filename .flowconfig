@@ -17,6 +17,7 @@
 <PROJECT_ROOT>/packages/mtproto-inspect/node_modules/jss/*
 <PROJECT_ROOT>/packages/telegram-mtproto/node_modules/mezzanine/*
 <PROJECT_ROOT>/packages/telegram-mtproto/src/fl/*
+<PROJECT_ROOT>/packages/telegram-mtproto/docs/*
 <PROJECT_ROOT>/packages/telegram-mtproto/src/util/profunctor/*
 <PROJECT_ROOT>/node_modules/mezzanine/*
 <PROJECT_ROOT>/node_modules/config-chain/*
@@ -26,6 +27,7 @@
 <PROJECT_ROOT>/node_modules/fbjs/*
 💩 <PROJECT_ROOT>/node_modules/apropos/lib/*
 <PROJECT_ROOT>/node_modules/apropos/es/*
+<PROJECT_ROOT>/node_modules/documentation/*
 <PROJECT_ROOT>/node_modules/funfix/index.js.flow
 .*/dist/.*
 .*/logs/.*
