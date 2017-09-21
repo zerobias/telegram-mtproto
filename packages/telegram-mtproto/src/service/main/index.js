@@ -22,6 +22,33 @@ import { MAIN } from 'Action/main'
 import loadStorage from './load-storage'
 import { init } from './init'
 
+//$off
+export function registerMock(config: ConfigType = {}, uid: UID = 'mock') {
+  const emitter = new EventEmitter({
+    wildcard: true
+  })
+  const emit = emitter.emit.bind(emitter)
+  const {
+    fullConfig,
+    dcMap,
+    storage,
+    layer,
+  } = init(config)
+  registerInstance({
+    uid,
+    emit,
+    rootEmitter: scopedEmitter(uid, emitter),
+    schema     : {
+      apiSchema: fullConfig.schema,
+      mtSchema : fullConfig.mtSchema
+    },
+    apiConfig: fullConfig.api,
+    storage,
+    layer,
+    dcMap
+  })
+}
+
 class MTProto {
   config: StrictConfig
   uid: UID

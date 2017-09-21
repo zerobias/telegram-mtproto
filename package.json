@@ -11,7 +11,7 @@
     "watch": "lerna run --parallel watch:cjs",
     "cleanup": "sh ./scripts/cleanup.sh",
     "remotedev": "node scripts/remotedev",
-    "redux": "node scripts/redux"
+    "redux": "MOCK=true node scripts/redux"
   },
   "devDependencies": {
     "@types/fs-extra": "^4.0.2",

@@ -6,6 +6,7 @@ import { type AsyncStorage } from 'mtproto-shared'
 import { ProviderRegistryError } from '../error'
 import { type TLSchema } from '../tl/index.h'
 import { type DCNumber } from 'Newtype'
+import { isMock } from 'Runtime'
 import {
   type PublicKey,
   type PublicKeyExtended,
@@ -21,7 +22,14 @@ const provider: Provider = { }
 
 export function getConfig(uid: string) {
   const config = provider[uid]
-  if (config == null) throw new ProviderRegistryError(uid)
+  if (config == null) {
+    if (isMock) {
+      const { registerMock } = require('../service/main')
+      registerMock({}, uid)
+      return provider[uid]
+    }
+    throw new ProviderRegistryError(uid)
+  }
   return config
 }
 

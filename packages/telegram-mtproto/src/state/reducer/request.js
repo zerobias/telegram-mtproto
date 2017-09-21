@@ -21,7 +21,7 @@ import { KeyValue, TupleT } from 'Monad'
 import { RpcApiError } from '../../error'
 import ApiRequest from '../../service/main/request'
 // import Config from 'ConfigProvider'
-
+import { isMock } from 'Runtime'
 import {
   type MessageUnit,
 } from '../../task/index.h'
@@ -127,7 +127,7 @@ function resolveTask(state: Client, task: MessageUnit): Client {
   return state
 }
 
-export default function requestWatch(state: Client, action: any): Client {
+function requestWatch(state: Client, action: any): Client {
   switch (trimType(action.type)) {
     case ('api/task done'): {
       const tasks: MessageUnit[] = action.payload
@@ -140,3 +140,7 @@ export default function requestWatch(state: Client, action: any): Client {
     default: return state
   }
 }
+const result = isMock
+  ? (state: Client, action: any) => state
+  : requestWatch
+export default result
