@@ -19,4 +19,4 @@ const store = createStore(
   {},
   enh)
 
-setInterval(() => store, 2e3)
+setInterval(() => {}, 2e3)

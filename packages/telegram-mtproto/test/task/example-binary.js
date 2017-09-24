@@ -1,4 +1,4 @@
-//@flow
+//@ flow
 /* eslint-disable max-len */
 
 export const authKey = [

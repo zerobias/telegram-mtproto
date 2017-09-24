@@ -5,6 +5,8 @@ const Bluebird = require('bluebird')
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 180e3
 
+const { default: Auth } = require('../lib/service/authorizer')
+
 /*::
 import MTProto from 'telegram-mtproto'
 
@@ -97,9 +99,9 @@ const { default: Config } = require('../lib/config-provider')
 
 let sendCode, getDialogs, getNearest, runAuth
 
-const future = client => (method, args, opts) =>
+const future = client => (method, args) =>
   futureInfoCall(method)
-    .and(client.future(method, args, opts))
+    .and(client.future(method, args))
 
 const futureAuth = client => {
   const call = future(client)
@@ -141,10 +143,10 @@ test(`Connection test`, async() => {
   consoleHR(`Connection test`)
   const res = await runAuth.promise()
   console.log('signIn', res)
-  expect(res).toBeTruthy()
+  // expect(res).toBeTruthy()
   infoCallMethod('messages.getDialogs')
   const dialogs = await getDialogs.promise()
-  expect(dialogs).toBeTruthy()
+  // expect(dialogs).toBeTruthy()
 })
 
 test('Loading from storage', async() => {
@@ -230,7 +232,6 @@ test(`Rejection test`, async() => {
   ).rejects.toMatchObject(expectedError)
 })
 
-
 test(`Parallel requests safety`, async() => {
   consoleHR(`Parallel requests safety`)
   const TIMES = 10
@@ -248,29 +249,89 @@ test(`Parallel requests safety`, async() => {
       //$off
       .all(promises)
       .timeout(TIMEOUT)
-  ).resolves.toHaveLength(10)
+  ).resolves.toHaveLength(TIMES)
 })
 
-test(`Download small files`, async() => {
-  consoleHR(`Download small files`)
+describe.only('Download small files', () => {
+  test(`Manual`, async() => {
+    consoleHR(`Download small files`)
 
-  const location = {
-    _        : 'inputFileLocation',
-    dc_id    : 1,
-    local_id : 1321,
-    volume_id: '702109604',
-    secret   : '7272927231373671580'
-  }
+    const location = {
+      _        : 'inputFileLocation',
+      dc_id    : 1,
+      local_id : 1321,
+      volume_id: '702109604',
+      secret   : '7272927231373671580'
+    }
 
-  await runAuth.promise()
+    infoCallMethod('auth 1')
 
-  infoCallMethod('upload.getFile')
-  const file = await telegram('upload.getFile', {
-    location,
-    offset: 0,
-    limit : 1024 * 1024
+    await runAuth.promise()
+    // await Auth(telegram.uid, 1).promise()
+
+    const importAuth = ({ id, bytes }) => telegram.future(
+      'auth.importAuthorization', { id, bytes: [...bytes] }, { dcID: 1 }
+    )
+    await telegram.future('auth.exportAuthorization', { dc_id: 1 })
+      .chain(importAuth)
+      .promise()
+
+    infoCallMethod('upload.getFile')
+    const file = await telegram('upload.getFile', {
+      location,
+      offset: 0,
+      limit : 1024 * 1024
+    }, { dcID: 1 })
+
+    console.log(file)
+    expect(file).toBeDefined()
   })
 
-  console.log(file)
-  expect(file).toBeDefined()
+  test.skip(`Without manual auth`, async() => {
+    consoleHR(`Download small files`)
+
+    const location = {
+      _        : 'inputFileLocation',
+      dc_id    : 1,
+      local_id : 1321,
+      volume_id: '702109604',
+      secret   : '7272927231373671580'
+    }
+
+    await runAuth.promise()
+
+    infoCallMethod('upload.getFile')
+    const file = await telegram('upload.getFile', {
+      location,
+      offset: 0,
+      limit : 1024 * 1024
+    }, { dcID: 1 })
+
+    console.log(file)
+    expect(file).toBeDefined()
+  })
+
+  test(`Full auto redirect`, async() => {
+    consoleHR(`Download small files`)
+
+    const location = {
+      _        : 'inputFileLocation',
+      dc_id    : 1,
+      local_id : 1321,
+      volume_id: '702109604',
+      secret   : '7272927231373671580'
+    }
+
+    await runAuth.promise()
+
+    infoCallMethod('upload.getFile')
+    const file = await telegram('upload.getFile', {
+      location,
+      offset: 0,
+      limit : 1024 * 1024
+    })
+
+    console.log(file)
+    expect(file).toBeDefined()
+  })
 })

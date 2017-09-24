@@ -27,12 +27,12 @@ const api = {
 }
 const server = {
   dev     : true,
-  webogram: false
+  webogram: true,
 }
 
-const app = {
-  storage: new Storage('./test/storage.json')
-}
+// const app = {
+//   storage: new Storage('./test/storage.json')
+// }
 
 const config = {
   id  : 49631,
@@ -40,8 +40,7 @@ const config = {
 }
 
 
-const telegram = MTProto({ server, api, app })
-
+const telegram = MTProto({ server, api })
 
 /*const getHistory = async (chat) => {
   const peer = {
@@ -81,35 +80,75 @@ const telegram = MTProto({ server, api, app })
 //   // dc${ this.dcID }_server_salt
 // }
 
+const futureAuth =
+  telegram.future('help.getNearestDc')
+    .and(telegram.future('auth.sendCode', {
+      phone_number  : phone.num,
+      current_number: false,
+      api_id        : config.id,
+      api_hash      : config.hash
+    }))
+    .chain(({ phone_code_hash }) => telegram.future('auth.signIn', {
+      phone_number: phone.num,
+      phone_code_hash,
+      phone_code  : phone.code,
+    }))
 
 const connectionTest = async() => {
   // await telegram.storage.clear() //Just for clean test
   // const isAuth = await isAlreadyAuth()
 
   // if (!false) {
-  await telegram('help.getNearestDc')
-  const { phone_code_hash } = await telegram('auth.sendCode', {
-    phone_number  : phone.num,
-    current_number: false,
-    api_id        : config.id,
-    api_hash      : config.hash
+  // const cfg = await telegram('help.getConfig')
+
+  // consoleHR(`Download small files`)
+
+
+  const location = {
+    _        : 'inputFileLocation',
+    dc_id    : 1,
+    local_id : 1321,
+    volume_id: '702109604',
+    secret   : '7272927231373671580'
+  }
+
+  await futureAuth.promise()
+
+  // infoCallMethod('upload.getFile')
+  const file = await telegram('upload.getFile', {
+    location,
+    offset: 0,
+    limit : 1024 * 1024
   })
-  console.log('phone_code_hash', phone_code_hash)
-  const res = await telegram('auth.signIn', {
-    phone_number: phone.num,
-    phone_code_hash,
-    phone_code  : phone.code,
-  })
-  console.log('signIn', res)
-  console.log('\n Logined as user')
-  console.dir(res.user, { colors: true })
+
+  console.log(file)
+  // const { phone_code_hash } = await telegram('auth.sendCode', {
+  //   phone_number  : phone.num,
+  //   current_number: false,
+  //   api_id        : config.id,
+  //   api_hash      : config.hash
+  // })
+  // console.log('phone_code_hash', phone_code_hash)
+  // const res = await telegram('auth.signIn', {
+  //   phone_number: phone.num,
+  //   phone_code_hash,
+  //   phone_code  : phone.code,
+  // })
+  // console.log('signIn', res)
+  // console.log('\n Logined as user')
+  // console.dir(res.user, { colors: true })
   // } else {
   //   message = 'already authorized, skip'
   // }
-  const dialogs = await telegram('messages.getDialogs', {
-    limit: 100,
-  })
-  console.dir(dialogs, { colors: true })
+  // const dialogs = await telegram('messages.getDialogs', {
+  //   limit: 100,
+  // })
+  // console.dir(cfg, { colors: true })
 
 }
 connectionTest()
+
+module.exports = {
+  telegram,
+  connectionTest,
+}

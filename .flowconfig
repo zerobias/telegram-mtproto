@@ -24,6 +24,7 @@
 <PROJECT_ROOT>/node_modules/conventional-changelog-core/*
 <PROJECT_ROOT>/node_modules/esformatter/*
 <PROJECT_ROOT>/node_modules/jss/*
+<PROJECT_ROOT>/node_modules/most/*
 <PROJECT_ROOT>/node_modules/fbjs/*
 💩 <PROJECT_ROOT>/node_modules/apropos/lib/*
 <PROJECT_ROOT>/node_modules/apropos/es/*
