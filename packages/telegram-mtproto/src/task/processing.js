@@ -100,7 +100,7 @@ function processRpc(ctx: IncomingType, msg: MessageDraft, body: RawBody) {
       ...flagsResult,
       body: true,
     }
-    const maybeApiID = resolveRequest(uid, dc, outID)
+    const maybeApiID = resolveRequest(uid, outID)
     let apiID: string = '',
         resolved = false
     if (MaybeT.isJust(maybeApiID)) {

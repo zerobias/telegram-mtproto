@@ -6,10 +6,12 @@ import {
   type OnAckAdd,
   type OnReceiveResponse,
   type OnNetSend,
+  type OnNetEncrypt,
 } from '../index.h'
 
 type Net = {
-  SEND: ActionPair<'net/send', OnNetSend, NetworkerMeta>,
+  ENCRYPT: ActionPair<'net/encrypt', OnNetEncrypt>,
+  SEND: ActionPair<'net/send', OnNetSend>,
   RECEIVE_RESPONSE: ActionPair<'net/response', OnReceiveResponse>,
   NETWORK_ERROR: ActionPair<'net/error', any>,
   SEQ_SET: ActionPair<'net/seq set', OnSeqSet>,
@@ -17,12 +19,9 @@ type Net = {
   ACK_DELETE: ActionPair<'net/ack delete', OnAckAdd>,
 }
 
-type NetworkerMeta = number
-
-const networkerMeta = (_: any, dc: number) => ({ _: 'networker', id: dc })
-
 export const NET: Net = {
-  SEND            : doubleCreator('net/send', networkerMeta),
+  ENCRYPT         : doubleCreator('net/encrypt'),
+  SEND            : doubleCreator('net/send'),
   RECEIVE_RESPONSE: doubleCreator('net/response'),
   NETWORK_ERROR   : doubleCreator('net/error'),
   SEQ_SET         : doubleCreator('net/seq set'),

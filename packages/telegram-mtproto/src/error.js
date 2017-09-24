@@ -3,6 +3,7 @@
 import { type $AxiosXHR } from 'axios'
 
 import stackCleaner from 'Util/clean-stack'
+import { type DCNumber } from 'Newtype'
 import type { TypeBuffer } from './tl/type-buffer'
 import { type MTPᐸRpcErrorᐳ } from './mtp.h'
 
@@ -68,14 +69,12 @@ export class ErrorBadRequest extends MTError {
 export class ErrorNotFound extends MTError {
   constructor(err: { config: { url: string } }) {
     super(404, 'REQUEST_FAILED', err.config.url)
-      // this.originalError = err
   }
 }
 
 export class DcUrlError extends MTError {
-  constructor(dcID: number, dc: string | boolean) {
+  constructor(dcID: DCNumber, dc: string) {
     super(860, 'WRONG_DC_URL', `Wrong url! dcID ${dcID}, url ${dc.toString()}`)
-      // this.originalError = err
   }
 }
 

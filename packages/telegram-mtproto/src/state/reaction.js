@@ -1,8 +1,9 @@
 //@flow
 
-import Config from '../config-provider'
+import Config from 'ConfigProvider'
+import { type UID, type DCNumber } from 'Newtype'
 
-export function requestNextSeq(uid: string, dc: number, notContentRelated?: boolean) {
+export function requestNextSeq(uid: UID, dc: DCNumber, notContentRelated?: boolean) {
   const currentSeq = Config.seq.get(uid, dc)
   if (__DEV__)
     console.warn(dc, currentSeq)

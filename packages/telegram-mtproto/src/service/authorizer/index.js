@@ -48,6 +48,7 @@ const log = Logger`auth`
 
 export default function Auth(uid: UID, dc: DCNumber) {
   const savedReq = Config.authRequest.get(uid, dc)
+  log`in auth, uid, dc, savedReq`(uid, dc, savedReq)
   if (savedReq) {
     const req: typeof runThread = savedReq
     return req
@@ -69,7 +70,7 @@ export default function Auth(uid: UID, dc: DCNumber) {
   return future
 }
 
-const failureHandler = (uid: string, dc: number) => (err) => {
+const failureHandler = (uid: UID, dc: DCNumber) => (err) => {
   log`authChain, error`(err)
   Config.authRequest.remove(uid, dc)
   return err
@@ -110,7 +111,7 @@ function getUrl(uid: string, dc: DCNumber): Fluture<string, DcUrlError> {
   return of(url)
 }
 
-function authFuture(uid: string, dc: DCNumber, url: string) {
+function authFuture(uid: UID, dc: DCNumber, url: string) {
   const nonce = newNonce()
 
   return of(writeReqPQ(uid, nonce))

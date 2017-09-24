@@ -14,6 +14,8 @@ import {
   takeLast,
   pipe,
   concat,
+  uniq,
+  last,
   tail,
   head,
   remove,
@@ -42,7 +44,13 @@ import { NetMessage } from '../../service/networker/net-message'
 import requestWatch from './request'
 import ApiRequest from '../../service/main/request'
 import Config from 'ConfigProvider'
-
+import {
+  isHomeDC,
+  getHomeStatus,
+  queryHomeDc,
+  getDCStatus,
+  getClient,
+} from '../query'
 import {
   type PUnitList,
   type MessageUnit,
@@ -54,8 +62,6 @@ function trimAction(action: any): string {
 }
 
 declare var req: ApiRequest
-const pendingSet: OrderedSet<ApiRequest> = OrderedSet.of(/*:: req */)
-const pending = createReducer({}, pendingSet)
 const idle = createReducer({}, [])
 const current = createReducer({}, [])
 const done = createReducer({}, [])
@@ -76,7 +82,6 @@ const reducer: Reducer<Progress> = combineReducers({
   current,
   done,
   result,
-  pending,
 })
 
 function reduceResults(
@@ -99,10 +104,7 @@ const onlyAPI = (units: MessageUnit[]) => units
   .filter(p => p.flags.api && p.api.resolved)
 const getReqIDs = (list: ApiRequest[]) => list.map(req => req.requestID)
 
-const a = List.of([1])
-a
-
-function unitReduce({ idle, current, done, result, pending }: Progress, unit: MessageUnit) {
+function unitReduce({ idle, current, done, result }: Progress, unit: MessageUnit) {
   const id = unit.api.apiID
   let newIdle = idle
   let newCurrent = current
@@ -125,8 +127,21 @@ function unitReduce({ idle, current, done, result, pending }: Progress, unit: Me
     current: newCurrent,
     done   : newDone,
     result,
-    pending,
   }
+}
+
+function pushBackLostRequests(uid, ids) {
+  const filter = req => ids.indexOf(req.requestID) === -1
+  return getClient(uid)
+    .map(client => ({
+      importMap: client.authImported,
+      requests : client.request.values,
+      homeDC   : client.homeDc,
+    }))
+    .map(({ importMap, requests, homeDC }) => requests
+      .filter(filter)
+      .filter(req => !!importMap.get(req.dc.orElse(homeDC))))
+    .orElse([])
 }
 
 export default function watcher(
@@ -134,27 +149,60 @@ export default function watcher(
   action: any
 ): Progress {
   const state: Progress = reducer(currentState, action)
-  const { idle, current, done, result, pending } = state
+  const { idle, current, done, result } = state
   switch (trimAction(action)) {
-    case 'api/next': {
-      if (idle.length === 0) return state
-      if (current.length > 0) return state
-      const newNext: ApiRequest = head(idle) /*:: || req */
-      const newState = {
-        idle   : tail(idle),
-        current: append(newNext, current),
+    case API.REQUEST.NEW.short: {
+      const payload = typedPayload(API.REQUEST.NEW, action)
+      return { ...state, idle: append(payload.netReq, state.idle) }
+    }
+    case API.NEXT.short: {
+      // if (idle.length === 0) return state
+      // if (current.length > 0) return state
+      const payload = typedPayload(API.NEXT, action)
+      if (!getHomeStatus(payload.uid)) return state
+      const includedRequests = uniq(idle
+        .map(req => req.requestID)
+        .concat(
+          current.map(req => req.requestID),
+          result.pairs.reduce(
+            (acc: string[], tuple) => tuple
+              .map(last)
+              .foldMap((val) => val != null && val._ !== 'rpc_error')
+              ? [...acc, tuple.fst()]
+              : acc
+            , [])
+        ))
+      if (__DEV__)
+        console.warn(includedRequests)
+      const revertedRequests = uniq(pushBackLostRequests(payload.uid, includedRequests))
+      if (__DEV__)
+        console.warn(revertedRequests)
+      const maybeDC = queryHomeDc(payload.uid)
+      const checkStatus = dc => getDCStatus(payload.uid, dc)
+      const canRequest = idle.filter(msg => !msg.needAuth || msg.dc
+        .alt(maybeDC)
+        .map(checkStatus)
+        .fold(() => false, x => x))
+      const newNext = head(canRequest)
+      const newCurrent = newNext == null
+        ? current
+        : append(newNext, current)
+      const newIdle = newNext == null
+        ? idle
+        : tail(idle)
+      return {
+        idle   : newIdle,
+        current: newCurrent.concat(revertedRequests),
         done,
         result,
-        pending: pending.add(newNext),
       }
-      return newState
     }
-    case 'api/task new': {
+    case API.TASK.NEW.short: {
       const ids = getReqIDs(idle)
         .concat(
           getReqIDs(current),
         )
-      const payload: ApiRequest[] = action.payload
+      const payload = typedPayload(API.TASK.NEW, action)
       const update = payload.filter(req => !contains(req.requestID, ids))
       const newIdle = idle.concat(update)
       return {
@@ -162,15 +210,38 @@ export default function watcher(
         current,
         done,
         result,
-        pending,
       }
     }
-    case 'api/task done': {
-      const payload: MessageUnit[] = action.payload
-      const apiPL = onlyAPI(payload)
+    case API.TASK.DONE.short: {
+      const payload = typedPayload(API.TASK.DONE, action)
+      const apiPL = onlyAPI(payload).filter(msg => !msg.flags.error || msg.error.handled)
       const newState: Progress = apiPL.reduce(unitReduce, state)
       return newState
     }
+    case MAIN.AUTH.RESOLVE.short: {
+      const payload = typedPayload(MAIN.AUTH.RESOLVE, action)
+      if (isHomeDC(payload.uid, payload.dc)) {
+        const firstIdle = head(idle)
+        if (firstIdle == null) return state
+        return {
+          idle   : tail(idle),
+          current: [...current, firstIdle],
+          done,
+          result,
+        }
+
+      } else return {
+        idle   : current.concat(idle),
+        current: [],
+        done,
+        result,
+      }
+
+    }
     default: return state
   }
+}
+
+function typedPayload<Name, Payload>(pair: ActionPair<Name, Payload, *>, action: any): Payload {
+  return action.payload
 }

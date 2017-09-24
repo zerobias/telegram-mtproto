@@ -87,6 +87,7 @@ export default class LongPoll {
   //   return result
   // }
   async sendLongPool(): Promise<any> {
+    if (!this.thread.isHome) return Bluebird.resolve(false)
     //TODO add base dc check
     if (Config.halt.get(this.thread.uid, this.thread.dcID)) return Bluebird.resolve(false)
     // return cache(futureRequest(this.thread, this.maxWait)

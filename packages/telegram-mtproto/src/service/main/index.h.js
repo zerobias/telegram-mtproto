@@ -78,7 +78,7 @@ export interface ApiManagerInstance {
   (method: string): Promise<any>,
   (method: string, params: Object): Promise<any>,
   (method: string, params: Object, options: LeftOptions): Promise<any>,
-  future(method: string, params?: Object): Fluture<Response, MTError>,
+  future(method: string, params?: Object, options?: ConfigType): Fluture<Response, MTError>,
   storage: AsyncStorage,
   on: On,
   emit: Emit,

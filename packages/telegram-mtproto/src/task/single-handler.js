@@ -2,16 +2,17 @@
 
 import {
   append,
-  reject,
+  reject as filterNot,
   isEmpty,
   chain,
   filter,
   pipe,
+  tap,
   lensPath,
   over,
   defaultTo,
 } from 'ramda'
-import { cache } from 'fluture'
+import { cache, of, reject } from 'fluture'
 // import { Just } from 'folktale/maybe'
 import { Maybe } from 'apropos'
 const { Just, Nothing } = Maybe
@@ -41,7 +42,7 @@ import { longToBytes, rshift32 } from 'Bin'
 import guard from 'Util/match-spec'
 import warning from 'Util/warning'
 import random from '../service/secure-random'
-import { toDCNumber } from 'Newtype'
+import { toDCNumber, type UID, type DCNumber } from 'Newtype'
 import {
   type ᐸMTᐳNewSessionCreated,
   type ᐸMTᐳBadSalt,
@@ -49,11 +50,12 @@ import {
   type ᐸMTᐳRpcResult,
 } from 'Mtp'
 import { queryRequest, queryAck } from '../state/query'
-import Logger from 'mtproto-logger'
 import { applyServerTime } from '../service/time-manager'
 import invoke from '../service/invoke'
+import Auth from '../service/authorizer'
 import { NetMessage } from '../service/networker/net-message'
 import Config from 'ConfigProvider'
+import Logger from 'mtproto-logger'
 const log = Logger`single-handler`
 
 //eslint-disable-next-line
@@ -92,7 +94,7 @@ const selector: Selector = (select) => pipe(
   chain(select)
 )
 
-const noEmpty = reject(isEmpty)
+const noEmpty = filterNot(isEmpty)
 
 export default function singleHandler(
   ctx: IncomingType,
@@ -438,34 +440,85 @@ function handleFileMigrate(message, data, code, ctx) {
   return numberFromError(message, fileMigrateRegexp)
   /*:: .map(toDCNumber) */
     .pred(dc => data.flags.methodResult)
-    .chain(newDc => queryRequest(uid, dc, data.methodResult.outID).map(req => ({
+    .chain(newDc => queryRequest(uid, data.methodResult.outID).map(req => ({
       req,
       newDc,
     })))
     .fold(
       patchNothing(data),
-      ({ req, newDc }) => {
-        req.dc = Just(newDc)
-        const futureAuth = Config.authRequest.get(uid, newDc)
-        if (!futureAuth) {
-          const authReq = cache(invoke(uid, 'auth.exportAuthorization', { dc_id: newDc })
-            .map(resp => (console.log(resp), resp))
-            .map(exportAuthRefine)
-            .chain(resp => invoke(uid, 'auth.importAuthorization', resp, { dcID: newDc })))
-          Config.authRequest.set(uid, newDc, authReq)
-          authReq.promise()
-        }
-        const info = {
-          ...data,
-          error: {
-            code,
-            message,
-            handled: true
-          }
-        }
-        return { info, patch: emptyPatch() }
-      })
+      ({ req, newDc }) => fileMigrateHandler(uid, data, code, message, req, newDc))
 }
+
+export const moveAuthProgression = (uid: UID, newDc: DCNumber) =>
+  invoke(uid, 'auth.exportAuthorization', { dc_id: newDc })
+    .chain(resp => {
+      let authData
+      try {
+        authData = exportAuthRefine(resp)
+      } catch (err) {
+        const e: TypeError = err
+        return reject(e)
+      }
+      return invoke(uid, 'auth.importAuthorization', authData, { dcID: newDc })
+    })
+
+let alreadyMoved = false
+
+const setAlreadyMoved = () => {
+  alreadyMoved = true
+  setTimeout(() => alreadyMoved = false, 3e3)
+}
+
+function fileMigrateHandler(uid, data, code, message, req, newDc) {
+  req.dc = Just(newDc)
+
+  // const futureAuth = Config.authRequest.get(uid, newDc)
+  if (!alreadyMoved) {
+    // Config.halt.set(uid, newDc, true)
+    const auth = cache(
+      moveAuthProgression(uid, newDc)
+      //   .map(tapLog`after auth`)
+      // .map(resp => (Config.halt.set(uid, newDc, false), resp))
+      // .map(e => (log`auth`(e), e))
+    )
+    // const authReq = invoke(uid, 'auth.exportAuthorization', { dc_id: newDc })
+    //   .map(resp => (console.log(resp), resp))
+    //   // .map(({ id, bytes }) => ({ id, bytes }))
+    //   // .map(tapLog`before auth`)
+    //   .chain(resp => {
+    //     const { id, bytes } = exportAuthRefine(resp)
+    //     const refined = { id, bytes: [...bytes] }
+    //     const futureAuth = Config.authRequest.get(uid, newDc)
+    //     if (futureAuth) return futureAuth
+    //     // const auth = cache(Auth(uid, newDc)
+    //     //   .map(tapLog`after auth`)
+    //     //   .chain(e => importAuth(refined).and(of(e))))
+    //     const auth = cache(importAuth(refined))
+    //
+    //
+    //     return auth
+    //   })
+    //   .map(tapLog`after import`)
+
+    // Config.authRequest.set(uid, newDc, auth)
+    setAlreadyMoved()
+    auth.promise()
+  }
+  const info = {
+    ...data,
+    error: {
+      code,
+      message,
+      handled: true
+    }
+  }
+  return { info, patch: emptyPatch() }
+}
+
+type AuthExportResp = $Exact<{
+  +id: number,
+  +bytes: number[],
+}>
 
 function exportAuthTypecheck(resp: mixed): boolean %checks {
   return (
@@ -474,16 +527,17 @@ function exportAuthTypecheck(resp: mixed): boolean %checks {
     && typeof resp.id === 'number'
     && resp.bytes != null
     && (Array.isArray(resp.bytes) || resp.bytes instanceof Uint8Array)
+    && resp._ === 'auth.exportedAuthorization'
   )
 }
 
-type AuthExportResp = {
-  id: number,
-  bytes: number[] | Uint8Array,
-}
-
-function exportAuthRefine(resp: mixed): $Refine<AuthExportResp, $Pred<1>, 1> {
-  if (exportAuthTypecheck(resp)) return { id: resp.id, bytes: resp.bytes }
+function exportAuthRefine(
+  resp: mixed
+): $Refine<AuthExportResp, typeof exportAuthTypecheck, 1> {
+  if (exportAuthTypecheck(resp)) {
+    const { id, bytes } = resp
+    return { id, bytes: [...bytes] }
+  }
   throw new TypeError(`Incorrect auth export`)
 }
 
@@ -493,51 +547,51 @@ function handleMigrateError(message, data, code, ctx) {
   /*:: .map(toDCNumber) */
     .fold(
       patchNothing(data),
-      newDc => {
-        dispatch(MAIN.RECOVERY_MODE({
-          halt    : dc,
-          recovery: newDc,
-          uid,
-        }), uid)
-        Config.fastCache.init(uid, dc)
-        Config.seq.set(uid, dc, 0)
-        Config.halt.set(uid, dc, true)
-        Config.halt.set(uid, newDc, false)
-        //$off
-        Config.session.set(uid, ctx.dc, null)
-        Promise.all([
-          Config.storageAdapter.set.dc(uid, newDc),
-          Config.storageAdapter.set.nearestDC(uid,  newDc)
-        ]).then(() => {
-          dispatch(MAIN.DC_DETECTED({
-            dc: newDc,
-            uid,
-          }), uid)
-        })
-        const patch = {
-          flags: {
-            net : true,
-            home: true,
-          },
-          net: [{
-            dc  : data.dc,
-            home: false,
-          }, {
-            dc  : newDc,
-            home: true,
-          }],
-          home: [newDc],
-        }
-        const info = {
-          ...data,
-          error: {
-            code,
-            message,
-            handled: true
-          }
-        }
-        return { info, patch }
-      })
+      newDc => migrateHandler(uid, dc, newDc, message, data, code))
+}
+
+const dispatchDcDetected = (uid, dc) => dispatch(
+  MAIN.DC_DETECTED({ dc, uid }), uid)
+
+function migrateHandler(uid, dc, newDc, message, data, code) {
+  dispatch(MAIN.RECOVERY_MODE({
+    halt    : dc,
+    recovery: newDc,
+    uid,
+  }), uid)
+  Config.fastCache.init(uid, dc)
+  Config.seq.set(uid, dc, 0)
+  Config.halt.set(uid, dc, true)
+  Config.halt.set(uid, newDc, false)
+  //$off
+  Config.session.set(uid, dc, null)
+  Promise.all([
+    Config.storageAdapter.set.dc(uid, newDc),
+    Config.storageAdapter.set.nearestDC(uid,  newDc)
+  ]).then(() => dispatchDcDetected(uid, newDc))
+  const patch = {
+    flags: {
+      net : true,
+      home: true,
+    },
+    net: [{
+      dc  : data.dc,
+      home: false,
+    }, {
+      dc  : newDc,
+      home: true,
+    }],
+    home: [newDc],
+  }
+  const info = {
+    ...data,
+    error: {
+      code,
+      message,
+      handled: true
+    }
+  }
+  return { info, patch }
 }
 
 function handleAuthRestart(message, data, code) {

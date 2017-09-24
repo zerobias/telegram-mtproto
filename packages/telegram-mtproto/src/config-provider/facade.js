@@ -6,7 +6,7 @@ import { Maybe } from 'apropos'
 const { fromNullable } = Maybe
 
 import { type PublicKey } from '../service/main/index.h'
-import { type DCNumber } from 'Newtype'
+import { type DCNumber, type UID } from 'Newtype'
 import getCrypto from '../co-worker'
 import { getConfig } from './provider'
 import random from '../service/secure-random'
@@ -16,7 +16,7 @@ import L1Cache from '../l1-cache'
 
 const Config = {
   halt: {
-    get(uid: string, dc: number): boolean {
+    get(uid: UID, dc: DCNumber): boolean {
       const val = getConfig(uid).halt[dc]
       if (typeof val !== 'boolean') {
         Config.halt.set(uid, dc, false)
@@ -24,15 +24,12 @@ const Config = {
       }
       return val
     },
-    set(uid: string, dc: number, val: boolean) {
+    set(uid: string, dc: DCNumber, val: boolean) {
       getConfig(uid).halt[dc] = val
     }
   },
-  // invoke(method: string, params: Object = {}, opts: Object = {}) {
-  //
-  // },
   seq: {
-    get(uid: string, dc: number) {
+    get(uid: string, dc: DCNumber) {
       const seq = getConfig(uid).seq[dc]
       if (typeof seq !== 'number') {
         Config.seq.set(uid, dc, 1)
@@ -40,7 +37,7 @@ const Config = {
       }
       return seq
     },
-    set(uid: string, dc: number, newSeq: number) {
+    set(uid: string, dc: DCNumber, newSeq: number) {
       getConfig(uid).seq[dc] = newSeq
     }
   },
@@ -64,22 +61,22 @@ const Config = {
     set(uid: string, key: string, value: any): Promise<void> {
       return getConfig(uid).storage.set(key, value)
     },
-    has(uid: string, key: string): Promise<boolean> {
-      return getConfig(uid).storage.has(key)
-    },
+    // has(uid: string, key: string): Promise<boolean> {
+    //   return getConfig(uid).storage.has(key)
+    // },
     remove(uid: string, ...keys: string[]): Promise<void> {
       return getConfig(uid).storage.remove(...keys)
     },
   },
   storageAdapter: {
     get: {
-      authKey(uid: string, dc: number) {
+      authKey(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.getAuthKey(dc)
       },
-      authID(uid: string, dc: number) {
+      authID(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.getAuthID(dc)
       },
-      salt(uid: string, dc: number) {
+      salt(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.getSalt(dc)
       },
       dc(uid: string) {
@@ -90,30 +87,30 @@ const Config = {
       },
     },
     set: {
-      authKey(uid: string, dc: number, data: number[]) {
+      authKey(uid: string, dc: DCNumber, data: number[]) {
         return getConfig(uid).storageAdapter.setAuthKey(dc, data)
       },
-      authID(uid: string, dc: number, data: number[]) {
+      authID(uid: string, dc: DCNumber, data: number[]) {
         return getConfig(uid).storageAdapter.setAuthID(dc, data)
       },
-      salt(uid: string, dc: number, data: number[]) {
+      salt(uid: string, dc: DCNumber, data: number[]) {
         return getConfig(uid).storageAdapter.setSalt(dc, data)
       },
-      dc(uid: string, dc: number) {
+      dc(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.setDC(dc)
       },
-      nearestDC(uid: string, dc: number) {
+      nearestDC(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.setNearestDC(dc)
       },
     },
     remove: {
-      authKey(uid: string, dc: number) {
+      authKey(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.removeAuthKey(dc)
       },
-      authID(uid: string, dc: number) {
+      authID(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.removeAuthID(dc)
       },
-      salt(uid: string, dc: number) {
+      salt(uid: string, dc: DCNumber) {
         return getConfig(uid).storageAdapter.removeSalt(dc)
       },
       dc(uid: string) {
@@ -126,10 +123,10 @@ const Config = {
   },
   fastCache: {
     get(uid: string, dc: DCNumber) {
-      return getConfig(uid).fastCache[dc | 0]
+      return getConfig(uid).fastCache[dc]
     },
     init(uid: string, dc: DCNumber) {
-      getConfig(uid).fastCache[dc | 0] = L1Cache.of()
+      getConfig(uid).fastCache[dc] = L1Cache.of()
     }
   },
   publicKeys: {
@@ -147,18 +144,20 @@ const Config = {
     },
   },
   authRequest: {
-    get(uid: string, dc: number) {
+    get(uid: string, dc: DCNumber) {
       return getConfig(uid).authRequest[dc]
     },
-    set(uid: string, dc: number, req: *) {
+    set(uid: string, dc: DCNumber, req: *) {
+      if (__DEV__)
+        console.trace(uid, dc)
       getConfig(uid).authRequest[dc] = req
     },
-    remove(uid: string, dc: number) {
+    remove(uid: string, dc: DCNumber) {
       delete getConfig(uid).authRequest[dc]
     },
   },
   session: {
-    get(uid: string, dc: number) {
+    get(uid: string, dc: DCNumber) {
       let session = getConfig(uid).session[dc]
       if (!Array.isArray(session)) {
         session = new Array(8)
@@ -167,7 +166,7 @@ const Config = {
       }
       return session
     },
-    set(uid: string, dc: number, session: number[]) {
+    set(uid: string, dc: DCNumber, session: number[]) {
       getConfig(uid).session[dc] = session
     }
   },

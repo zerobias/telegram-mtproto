@@ -5,7 +5,7 @@ import { Stream } from 'most'
 import { contains } from 'ramda'
 import { type UID, type DCNumber } from 'Newtype'
 import { MAIN, API } from 'Action'
-import netRequest, { onNewTask } from './net-request'
+import netRequest, { onNewTask, encrypt, authTransfer } from './net-request'
 import { receiveResponse } from './task'
 import { authRequest } from '../../service/invoke'
 import {
@@ -39,18 +39,16 @@ const Blackhole = {
     const { homeDc, status } = state
     const statusObj = status.toJSON()
     const type = trimType(action.type)
-    if (__DEV__)
-      console.log(type, state)
+    // if (__DEV__)
+    //   console.log(type, state)
     switch (type) {
       case 'api/request new': {
-        if (__DEV__)
-          //$off
-          console.warn(statusObj[homeDc])
         dispatch(API.TASK.NEW([action.payload.netReq]), action.uid)
         break
       }
       case 'main/auth resolve': {
-        dispatch(API.TASK.NEW(state.request.values), action.uid)
+        if (homeDc === action.payload.dc)
+          dispatch(API.TASK.NEW(state.request.values), action.uid)
         break
       }
       case 'main/dc detected': {
@@ -106,6 +104,8 @@ const rootEpic = combineEpics([
   receiveResponse,
   onEvent,
   onNewTask,
+  encrypt,
+  // authTransfer,
 ])
 
 export default rootEpic

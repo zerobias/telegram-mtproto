@@ -167,6 +167,7 @@ export type MessageUnit = {
   +seq: number,
   +session: Uint8Array,
   +dc: number,
+  +uid: UID,
   +flags: {
     +api: boolean,
     +inner: boolean,

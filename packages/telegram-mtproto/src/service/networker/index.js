@@ -95,11 +95,10 @@ export class NetworkerThread {
     resend_msg_ids: string[],
   } | void
 
-  constructor(dc: number, uid: UID) {
+  constructor(dc: DCNumber, uid: UID) {
     this.uid = uid
     const emitter = Config.rootEmitter(this.uid)
     this.emit = emitter.emit
-    //$off
     this.dcID = dc
     this.iii = iii++
 
@@ -132,6 +131,9 @@ export class NetworkerThread {
     setInterval(() => this.checkLongPoll(), 10000) //NOTE make configurable interval
     // this.checkLongPoll()
   }
+  get isHome(): boolean {
+    return isHomeDC(this.uid, this.dcID)
+  }
   get state(): L1Cache {
     return Config.fastCache.get(this.uid, this.dcID)
   }
@@ -143,7 +145,8 @@ export class NetworkerThread {
 
   updateSentMessage(sentMessageID: string) {
     if (!this.state.hasSent(sentMessageID)) {
-      console.log(`no id`, sentMessageID)
+      if (__DEV__)
+        console.log(`no id`, sentMessageID)
       return false
     }
     const sentMessage = this.state.getSent(sentMessageID)
@@ -212,6 +215,10 @@ export class NetworkerThread {
       options,
       requestID
     } = netReq
+    // for (const msg of this.state.sent.values())
+    //   if (typeof msg.requestID === 'string' && msg.requestID === requestID)
+    //     if (msg.resultType !== 'auth.Authorization') //TODO Remove hack
+    //       return msg
     const serializer = new Serialization(options, this.uid)
     const serialBox = serializer.writer
     if (!this.connectionInited) {
@@ -232,6 +239,12 @@ export class NetworkerThread {
     )
     message.isAPI = true
     message.requestID = requestID
+    if (this.dcID === 1) {
+      log`api call, req`(netReq)
+      log`api call, seqNo`(seqNo)
+      if (__DEV__)
+        console.trace('api call')
+    }
     this.pushMessage(message, options)
     return message
   }
@@ -453,13 +466,11 @@ export class NetworkerThread {
     this.state.addSent(message)
 
     if (lengthOverflow) this.sheduleRequest()
-    dispatch(NET.SEND({
+    dispatch(NET.ENCRYPT({
       message,
-      options : {},
-      threadID: this.threadID,
-      thread  : this,
+      thread: this,
       noResponseMsgs,
-    }, this.dcID), this.uid)
+    }), this.uid)
     return Bluebird.resolve(true)
   }
 

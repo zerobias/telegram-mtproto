@@ -18,7 +18,7 @@ import { scopedEmitter } from '../../event'
 import { type ConfigType, type StrictConfig } from './index.h'
 import { dispatch } from 'State'
 import { emitter } from '../../state/portal'
-import { MAIN } from 'Action/main'
+import { MAIN, API } from 'Action/main'
 import loadStorage from './load-storage'
 import { init } from './init'
 
@@ -106,7 +106,10 @@ class MTProto {
         await loadStorage(dcMap, uid)
     }
     this.load = load
-    setTimeout(load, 1e3)
+    setTimeout(load, 300)
+    // setInterval(() => {
+    //   dispatch(API.NEXT({ uid }), uid)
+    // }, 6e3)
   }
 }
 

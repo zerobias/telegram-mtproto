@@ -41,7 +41,5 @@ export default function MTProto(config: ConfigType = {}): ApiManagerInstance {
   telegram.bus = mtproto.bus
   telegram.mtproto = mtproto
   telegram.future = futureRequest
-  if (__DEV__)
-    telegram.api = mtproto
   return telegram
 }

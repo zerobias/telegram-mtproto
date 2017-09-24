@@ -1,7 +1,7 @@
 //@flow
 
 import { type AxiosXHR } from 'axios'
-import { OrderedSet, Map } from 'immutable'
+import { OrderedSet, Map, OrderedMap } from 'immutable'
 
 import ApiRequest from '../service/main/request'
 import { NetMessage } from '../service/networker/net-message'
@@ -54,7 +54,6 @@ export type Progress = {
   current: ApiRequest[],
   done: ApiRequest[],
   result: KeyValue<string, RequestResult[]>,
-  pending: OrderedSet<ApiRequest>,
 }
 
 export type Client = {
@@ -70,11 +69,19 @@ export type Client = {
   auth: KeyStorage,
   authID: KeyStorage,
   homeStatus: boolean,
+  authImported: Map<DCNumber, boolean>,
   status: KeyValue<DCNumber, boolean>,
 }
 
 export type Instance = {
   uid: UID,
+  homeDc: DCNumber,
+  dcDetected: boolean,
+  lastMessages: OrderedSet<UID>,
+  message: OrderedMap<string, NetMessage>,
+  messagePending: OrderedSet<string>,
+  apiPending: OrderedSet<string>,
+  messageApiLink: OrderedMap<string, UID>,
 }
 
 export type ClientList = {
@@ -128,9 +135,18 @@ export type OnReceiveResponse = {
   uid: UID,
 }
 
-export type OnNetSend = {
+export type OnNetEncrypt = {
   message: NetMessage,
-  threadID: string,
+  thread: NetworkerThread,
+  noResponseMsgs: string[],
+}
+
+export type OnNetSend = {
+  mtBytes: Int32Array,
+  url: string,
+  message: NetMessage,
+  dc: DCNumber,
+  uid: UID,
   thread: NetworkerThread,
   noResponseMsgs: string[],
 }
@@ -151,4 +167,9 @@ export type OnAuthResolve = {
   authKey: CryptoKey,
   authKeyID: CryptoKey,
   serverSalt: CryptoKey,
+}
+
+export type OnAuthImport = {
+  dc: DCNumber,
+  uid: UID,
 }

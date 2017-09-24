@@ -252,7 +252,7 @@ test(`Parallel requests safety`, async() => {
   ).resolves.toHaveLength(TIMES)
 })
 
-describe.only('Download small files', () => {
+describe('Download small files', () => {
   test(`Manual`, async() => {
     consoleHR(`Download small files`)
 

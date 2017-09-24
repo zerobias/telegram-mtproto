@@ -137,7 +137,7 @@ function ackMessage(uid, dc, msg: string, thread: NetworkerThread) {
   const ackMsgIDs = queryAck(uid, dc)
   if (contains(msg, ackMsgIDs)) return
   dispatch(NET.ACK_ADD({ dc, ack: [msg] }), uid)
-  thread.sheduleRequest(30000)
+  thread.sheduleRequest(6000)
 }
 
 function pushResend(uid, dc, msg: string, thread: NetworkerThread) {
@@ -151,7 +151,7 @@ function pushResend(uid, dc, msg: string, thread: NetworkerThread) {
   } else {
     cache.setPending(msg, value)
   }
-  thread.sheduleRequest(100)
+  thread.sheduleRequest(10)
 }
 
 function performResend(uid, dc, thread: NetworkerThread) {

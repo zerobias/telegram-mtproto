@@ -4,7 +4,7 @@
 
 import { combineReducers, type Reducer } from 'redux'
 import { createReducer } from 'redux-act'
-import { Map } from 'immutable'
+import { Map, OrderedSet, OrderedMap } from 'immutable'
 import { Maybe } from 'apropos'
 const { fromNullable } = Maybe
 import {
@@ -15,6 +15,7 @@ import {
   takeLast,
   pipe,
   concat,
+  zip,
   tail,
   head,
   remove,
@@ -36,10 +37,13 @@ import type {
 } from '../index.h'
 import {
   trimType,
+  makeReducer,
+  type ActReducer,
 } from '../helpers'
 import {
   type UID,
   toUID,
+  toDCNumber,
   type DCNumber,
 } from 'Newtype'
 import { MAIN, NET, API } from 'Action'
@@ -47,10 +51,11 @@ import keyStorage, { KeyStorage } from 'Util/key-storage'
 import { mapGet } from 'Util/immutable'
 import { KeyValue } from 'Monad'
 import { sha1BytesSync } from 'Bin'
-import { NetMessage } from '../../service/networker/net-message'
+import { NetMessage, NetContainer } from '../../service/networker/net-message'
 import requestWatch from './request'
 import progress from './progress'
 import ApiRequest from '../../service/main/request'
+import { queryRequest } from '../query'
 import Config from 'ConfigProvider'
 
 import {
@@ -61,13 +66,14 @@ import {
 const initial: any = {}
 
 declare var req: ApiRequest
+declare var uidFake: UID
 
 const uid = createReducer({
   //$FlowIssue
   [MAIN.INIT]: (state: string, payload: InitType) => payload.uid,
 }, '')
 
-type AckMap = { [dc: number]: string[] }
+type AckMap = { [dc: DCNumber]: string[] }
 
 const ackDefault: AckMap = initial
 const pendingAck = createReducer({
@@ -75,13 +81,13 @@ const pendingAck = createReducer({
   [NET.ACK_ADD]: (state: AckMap, { dc, ack }: OnAckAdd): AckMap => {
     const dcAcks = state[dc] || []
     const updated = [...new Set([...dcAcks, ...ack])]
-    return { ...state, [dc | 0]: updated }
+    return { ...state, [dc]: updated }
   },
   //$off
   [NET.ACK_DELETE]: (state: AckMap, { dc, ack }: OnAckAdd): AckMap => {
     const dcAcks = state[dc] || []
     const updated = without(ack, dcAcks)
-    return { ...state, [dc | 0]: updated }
+    return { ...state, [dc]: updated }
   },
   //$off
   [MAIN.RECOVERY_MODE]: (state: AckMap, { halt, recovery }: OnRecovery): AckMap =>  ({
@@ -90,21 +96,15 @@ const pendingAck = createReducer({
   })
 }, ackDefault)
 
-const homeDc = createReducer({
-  //$off
-  [MAIN.STORAGE_IMPORTED]: (state: number, { home }: OnStorageImported) => home,
-  //$off
-  [MAIN.DC_DETECTED]     : (state: number, { dc }: OnDcDetected) => dc,
-  //$FlowIssue
-  [MAIN.DC_CHANGED]      : (state: number, { newDC }: OnDcDetected) => newDC,
-}, 2)
+const getDC = n => /*::toDCNumber*/(parseInt(n, 10))
 
-const dcDetected = createReducer({
-  //$off
-  [MAIN.DC_DETECTED]: () => true,
-  //$off
-  [MAIN.DC_REJECTED]: () => false,
-}, false)
+const homeDc: ActReducer<DCNumber> = makeReducer(/*::toDCNumber*/(2))
+  .on(MAIN.STORAGE_IMPORTED, (state, { home }) => getDC(home))
+  .on(MAIN.DC_DETECTED, (state, { dc }) => getDC(dc))
+
+const dcDetected = makeReducer(false)
+  .on(MAIN.DC_DETECTED, () => true)
+  .on(MAIN.DC_REJECTED, () => false)
 
 
 const lastMessages = createReducer({
@@ -117,27 +117,21 @@ const lastMessages = createReducer({
 }, [])
 
 const authData = (() => {
-  const salt = createReducer({
-    //$off
-    [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.serverSalt),
-    //$off
-    [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { salt }: OnStorageImported) => state.merge(salt),
-    // '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.salt),
-    //$off
-    [MAIN.RECOVERY_MODE]   : (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
-      state.remove(halt)
-  }, keyStorage())
+  const salt = makeReducer(keyStorage())
+    .on(MAIN.AUTH.RESOLVE,
+        (state, payload): KeyStorage => state.set(payload.dc, payload.serverSalt))
+    .on(MAIN.STORAGE_IMPORTED,
+        (state, { salt }): KeyStorage => state.merge(salt))
+    .on(MAIN.RECOVERY_MODE,
+        (state, { halt }): KeyStorage => state.remove(halt))
 
-  const auth = createReducer({
-    //$off
-    [MAIN.STORAGE_IMPORTED]: (state: KeyStorage, { auth }: OnStorageImported) => state.merge(auth),
-    // '[01] action carrier'  : (state: KeyStorage, payload: PUnitList) => state.merge(payload.summary.auth),
-    //$off
-    [MAIN.AUTH.RESOLVE]    : (state: KeyStorage, payload: OnAuthResolve) => state.set(payload.dc, payload.authKey),
-    //$off
-    [MAIN.RECOVERY_MODE]   : (state: KeyStorage, { halt, recovery }: OnRecovery): KeyStorage =>
-      state.remove(halt)
-  }, keyStorage())
+  const auth = makeReducer(keyStorage())
+    .on(MAIN.AUTH.RESOLVE,
+        (state, payload) => state.set(payload.dc, payload.authKey))
+    .on(MAIN.STORAGE_IMPORTED,
+        (state, { auth }) => state.merge(auth))
+    .on(MAIN.RECOVERY_MODE,
+        (state, { halt }) => state.remove(halt))
 
   const authID = createReducer({
     //$off
@@ -176,14 +170,38 @@ function commandReducer(
   }
 }
 
-const clientRequest = createReducer({
-  //$off
-  [API.REQUEST.NEW]: (
-    state: KeyValue<UID, ApiRequest>,
-    { netReq }: ApiNewRequest
-  ): KeyValue<UID, ApiRequest> =>
-    state.push([[netReq.requestID, netReq]])
-}, KeyValue.empty())
+const isValidMessage = msg =>
+  msg.flags.api
+  && msg.flags.body
+  && !msg.flags.error
+  && msg.api.resolved
+
+const isAuthImport = msg => msg.data.method === 'auth.importAuthorization'
+
+const authImported: ActReducer<Map<DCNumber, boolean>> =
+makeReducer(Map([]))
+  .on(API.TASK.DONE,
+      (state, payload): Map<DCNumber, boolean> => {
+        const valid = payload
+          .filter(isValidMessage)
+          .reduce(
+            (acc, msg) => queryRequest(msg.uid, msg.methodResult.outID).fold(
+              () => acc,
+              req => [...acc, req]), [])
+          .filter(isAuthImport)
+          .reduce(
+            (acc, val) => val.dc.fold(
+              () => acc,
+              dc => [...acc, [dc, true]]), [])
+
+        return state.merge(valid)
+      })
+
+const clientRequest: ActReducer<KeyValue<UID, ApiRequest>> =
+makeReducer(KeyValue.empty())
+  .on(API.REQUEST.NEW,
+      (state, { netReq }): KeyValue<UID, ApiRequest> =>
+        state.push([[netReq.requestID, netReq]]))
 
 const client: Reducer<Client> = combineReducers({
   uid,
@@ -195,6 +213,7 @@ const client: Reducer<Client> = combineReducers({
   dcDetected,
   ...authData,
   pendingAck,
+  authImported,
   status    : createReducer({}, {}),
   homeStatus: createReducer({}, false),
 })
@@ -205,6 +224,10 @@ function statusWatch(state: Client) {
     state.auth.has(dc)
     && state.authID.has(dc)
     && state.salt.has(dc)
+    && (
+      (state.authImported.get(dc) === true)
+      || (state.homeDc === dc)
+    )
   const kv: KeyValue<DCNumber, boolean> = KeyValue.empty()
   return kv.push(
     dcList
@@ -237,9 +260,83 @@ const clientReducer: Reducer<ClientList> = (state: ClientList = { ids: [] }, act
   }
 }
 
+const unitIDS = map((unit: MessageUnit) => /*:: toUID( */ unit.id /*:: ) */)
+
+const lastMessagesImm: ActReducer<OrderedSet<UID>> =
+makeReducer(OrderedSet.of(/*:: uidFake */))
+  .on(API.TASK.DONE, (state, payload): OrderedSet<UID> => state
+    .concat(unitIDS(payload))
+    .slice(-100))
+
+const message: ActReducer<OrderedMap<string, NetMessage>> =
+makeReducer(OrderedMap([]))
+  .on(NET.SEND, (state, payload): OrderedMap<string, NetMessage> => state
+    .set(payload.message.msg_id, payload.message))
+
+const messagePending: ActReducer<OrderedSet<string>> =
+makeReducer(OrderedSet.of(/*:: '' */))
+  .on(NET.SEND,
+      (state, { message }): OrderedSet<string> => state
+        .add(message.msg_id)
+        .concat(...(message.inner || []))
+  )
+  .on(NET.RECEIVE_RESPONSE,
+      (state, { message }): OrderedSet<string> => state
+        .remove(message.msg_id)
+        .subtract(message.inner || [])
+  )
+
+const getStrings = (arr: any[] = []) => arr.filter(e => typeof e === 'string')
+
+const apiPending: ActReducer<OrderedSet<string>> =
+  makeReducer(OrderedSet.of(/*:: '' */))
+    //$off
+    .on(NET.SEND,
+        (state, { message }): OrderedSet<string> => state
+          .concat(...getStrings(message.innerAPI)))
+    //$off
+    .on(NET.RECEIVE_RESPONSE,
+        (state, { message }): OrderedSet<string> => state
+          .subtract(getStrings(message.innerAPI)))
+
+const messageApiLink: ActReducer<OrderedMap<string, UID>> =
+  makeReducer(OrderedMap([]))
+    .on(NET.SEND,
+        (state, { message }): OrderedMap<string, UID> => state
+          .merge(getApiPairs(message))
+          // .concat(...getStrings(message.innerAPI))
+    )
+    // .on(NET.RECEIVE_RESPONSE,
+    //     (state, { message }): OrderedMap<string, UID> => state
+    //       .subtract(getStrings(message.innerAPI))
+    // )
+
+function getApiPairs(message: NetMessage): Array<[string, UID]> {
+  if (message instanceof NetContainer && message.innerAPI != null) {
+    const pairs = zip(message.inner, message.innerAPI)
+    //$off
+    const result: Array<[string, UID]> = pairs.filter(([, uid]) => typeof uid === 'string')
+    return result
+  }
+  if (message.isAPI && message.requestID != null && message.requestID !== '') {
+    //$off
+    const result: Array<[string, UID]> = [[message.msg_id, message.requestID]]
+    return result
+  }
+  return []
+}
+
 const instance: Reducer<Instance> = combineReducers({
-  uid
+  uid,
+  homeDc,
+  dcDetected,
+  lastMessages: lastMessagesImm,
+  message,
+  messagePending,
+  apiPending,
+  messageApiLink,
 })
+
 const instanceReducer: Reducer<Map<UID, Instance>> =
 (state: Map<UID, Instance> = Map([]), action: any) =>
   actionUID(action)

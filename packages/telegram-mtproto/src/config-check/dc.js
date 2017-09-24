@@ -16,7 +16,7 @@ const defaults: DcSettings = {
 }
 
 type SingleDc = {|
-  +id: number,
+  +id: number | 'media',
   +host: string,
 |}
 
@@ -35,6 +35,7 @@ const mainDev: DcConfig = {
     { id: 1, host: '149.154.175.10' },
     { id: 2, host: '149.154.167.40' },
     { id: 3, host: '149.154.175.117' },
+    { id: 'media', host: '149.154.167.42' },
   ]
 }
 
@@ -48,6 +49,7 @@ const mainProd: DcConfig = {
     { id: 3, host: '149.154.175.100' },
     { id: 4, host: '149.154.167.91' },
     { id: 5, host: '149.154.171.5' },
+    { id: 'media', host: '149.154.165.120' },
   ]
 }
 
@@ -61,6 +63,7 @@ const webogramProd: DcConfig = {
     { id: 3, host: 'aurora.web.telegram.org' },
     { id: 4, host: 'vesta.web.telegram.org' },
     { id: 5, host: 'flora.web.telegram.org' },
+    { id: 'media', host: '149.154.165.120' },
   ]
 }
 
@@ -74,6 +77,7 @@ const webogramDev: DcConfig = {
     { id: 3, host: 'aurora.web.telegram.org' },
     { id: 4, host: 'vesta.web.telegram.org' },
     { id: 5, host: 'flora.web.telegram.org' },
+    { id: 'media', host: '149.154.167.42' },
   ]
 }
 

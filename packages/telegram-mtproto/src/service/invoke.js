@@ -1,9 +1,11 @@
 //@flow
+
 import { tap } from 'ramda'
-// import { Just } from 'folktale/maybe'
 import { Maybe } from 'apropos'
 const { Just } = Maybe
 import { tryP, of as ofF } from 'fluture'
+import Logger from 'mtproto-logger'
+const log = Logger`invoke`
 
 import Auth from './authorizer'
 import { type LeftOptions } from './main/index.h'
@@ -25,11 +27,16 @@ import {
 export const makeAuthRequest = (netReq: ApiRequest) =>
   MaybeT
     .toFuture(ERR.noDC, queryReqDc(netReq))
+    .map(tap(log`queryReqDc`))
     .chain(dc => withDC(netReq.uid, dc))
+    .map(tap(log`withDC`))
     .map(networker => networker.wrapApiCall(netReq))
+    .map(tap(log`wrapAPICall`))
     .chain(msg => tryP(() => msg.deferred.promise))
+    .map(tap(log`msg.deferred`))
     .mapRej(tap(e => netReq.defer.reject(e)))
     .chain(() => tryP(() => netReq.defer.promise))
+    .map(tap(log`netReq.defer`))
 
 const queryReqDc = (netReq: ApiRequest) =>
   netReq.dc
@@ -38,20 +45,55 @@ const queryReqDc = (netReq: ApiRequest) =>
       x => Just(x)
     )
 
+function ensureThread(uid, dc) {
+  return Config.thread
+    .get(uid, dc)
+    .fold(() => createThread( dc, uid ), x => x)
+}
+
+// function withDC(uid, dc) {
+//   // const home = queryHomeDc(uid)
+//   //   .fold((): DCNumber => 2, x => x)
+//   const runA = () => authRequest(uid, dc)
+//   const doAuth = () => isHome
+//     ? authRequest(uid, dc)
+//     : invoke(uid, 'auth.exportAuthorization', { dc_id: dc | 0 })
+//       .chain(({ id, bytes }) => {
+//         console.warn(`\nexported!\n`)
+//         return runA()
+//           .map(() => ({ id, bytes }))
+//       })
+//       .chain(({ id, bytes }) => {
+//         const netReq = new ApiRequest(
+//           { method: 'auth.importAuthorization', params: { id, bytes: [...bytes] } },
+//           { dcID: dc },
+//           uid,
+//           dc
+//         )
+//         const message = thread.wrapApiCall(netReq)
+//         thread.performSheduledRequest()
+//         return tryP(() => message.deferred.promise)
+//       })
+//   const thread = ensureThread(uid, dc)
+//   const isHome = queryHomeDc(uid)
+//     .fold(() => false, homed => homed === dc)
+//   log`dc, isHome`(dc, isHome)
+//   return MaybeT
+//     .toFutureR(queryKeys(uid, dc))
+//     .bimap(tap(log`qKeys error`), tap(log`qKeys result`))
+//     .chainRej(doAuth)
+//     .map(() => thread)
+//     .bimap(tap(log`withDC,error`), tap(log`withDC,result`))
+// }
+
 function withDC(uid, dc) {
   const doAuth = () => authRequest(uid, dc)
-  const newThread = () => createThread( dc, uid )
-  const getThread = () =>
-    Config
-      .thread
-      .get(uid, dc)
-      .fold(newThread, x => x)
-
   return MaybeT
     .toFutureR(queryKeys(uid, dc))
     .chainRej(doAuth)
-    .map(getThread)
+    .map(() => ensureThread(uid, dc))
 }
+
 
 export const authRequest = (uid: UID, dc: DCNumber) => Auth(uid, dc)
   .bimap(

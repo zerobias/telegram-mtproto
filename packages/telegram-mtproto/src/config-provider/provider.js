@@ -23,11 +23,11 @@ const provider: Provider = { }
 export function getConfig(uid: string) {
   const config = provider[uid]
   if (config == null) {
-    if (isMock) {
-      const { registerMock } = require('../service/main')
-      registerMock({}, uid)
-      return provider[uid]
-    }
+    // if (isMock) {
+    //   const { registerMock } = require('../service/main')
+    //   registerMock({}, uid)
+    //   return provider[uid]
+    // }
     throw new ProviderRegistryError(uid)
   }
   return config
@@ -66,12 +66,12 @@ type InstanceConfig = {
   /*::+*/apiConfig: ApiConfig,
   publicKeys: { [key: string]: PublicKey },
   keyManager: (fingerprints: string[]) => PublicKeyExtended,
-  authRequest: { [dc: number]: Fluture<*, *> },
-  seq: { [dc: number]: number },
-  session: { [dc: number]: number[] },
-  halt: { [dc: number]: boolean },
-  thread: { [dc: number]: NetworkerThread },
-  fastCache: { [dc: number]: L1Cache },
+  authRequest: { [dc: DCNumber]: Fluture<*, *> },
+  seq: { [dc: DCNumber]: number },
+  session: { [dc: DCNumber]: number[] },
+  halt: { [dc: DCNumber]: boolean },
+  thread: { [dc: DCNumber]: NetworkerThread },
+  fastCache: { [dc: DCNumber]: L1Cache },
   /*::+*/schema: {|
     apiSchema: TLSchema,
     mtSchema: TLSchema
@@ -89,14 +89,14 @@ type InstanceDiff = {
   timerOffset: number,
   lastMessageID: [number, number],
   /*::+*/storageAdapter: StorageAdapter,
-  authRequest: { [dc: number]: Fluture<*, *> },
-  thread: { [dc: number]: NetworkerThread },
-  halt: { [dc: number]: boolean },
-  fastCache: { [dc: number]: L1Cache },
+  authRequest: { [dc: DCNumber]: Fluture<*, *> },
+  thread: { [dc: DCNumber]: NetworkerThread },
+  halt: { [dc: DCNumber]: boolean },
+  fastCache: { [dc: DCNumber]: L1Cache },
   keyManager(fingerprints: string[]): PublicKeyExtended,
   publicKeys: { [key: string]: PublicKey },
-  seq: { [dc: number]: number },
-  session: { [dc: number]: number[] },
+  seq: { [dc: DCNumber]: number },
+  session: { [dc: DCNumber]: number[] },
 }
 
 type Provider = {

@@ -2,9 +2,34 @@
 
 import { Stream } from 'most'
 import { replace } from 'ramda'
-import { createAction } from 'redux-act'
+import { createAction, createReducer } from 'redux-act'
 import { select } from 'redux-most'
 
+export type ActReducer<Field> = {
+  <-A>(state: Field, action: A): Field,
+  $call<-A>(state: Field, action: A): Field,
+  on<Type, Payload, Meta>(
+    action: ActionPair<Type, Payload, Meta>,
+    reducer: (state: Field, payload: Payload) => Field
+  ): ActReducer<Field>,
+}
+
+export function makeReducer<Field>(defs: Field): ActReducer<Field> {
+  const reducer: ActReducer<Field> = createReducer({}, defs)
+  return reducer
+}
+
+// function on<Field, Type, Payload, Meta>(
+//   field: ActReducer<Field>,
+//   action: ActionPair<Type, Payload, Meta>,
+//   reducer: (state: Field, payload: Payload) => Field
+// ) {
+//   if (typeof field.on === 'function') {
+//     field.on(action, reducer)
+//     return field
+//   }
+//   throw new TypeError('')
+// }
 
 type ActionCreator<Type, Payload> =
   (stream: Stream<any>) =>
@@ -27,6 +52,7 @@ const actionSelector =
 
 export type ActionPair<Type, Payload, Meta = void> = Action<Type, Payload, Meta> & {
   stream: ActionCreator<Type, Payload>,
+  short: string,
   type: Type,
 }
 
@@ -45,7 +71,10 @@ export function doubleCreator<Type, Payload, Meta>(
     type: {
       value     : action.getType(),
       enumerable: false,
-    }
+    },
+    short: {
+      value: String(tag)
+    },
   })
   return action
 }
