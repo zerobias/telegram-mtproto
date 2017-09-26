@@ -2,11 +2,13 @@ rimraf ./package-lock.json
 rimraf ./packages/mtproto-beam/package-lock.json
 rimraf ./packages/mtproto-logger/package-lock.json
 rimraf ./packages/mtproto-shared/package-lock.json
+rimraf ./packages/mtproto-classify/package-lock.json
 rimraf ./packages/mtproto-storage-fs/package-lock.json
 rimraf ./packages/mtproto-storage-browser/package-lock.json
 rimraf ./packages/telegram-mtproto/package-lock.json
 
 rimraf ./packages/mtproto-beam/node_modules
+rimraf ./packages/mtproto-classify/node_modules
 rimraf ./packages/mtproto-logger/node_modules
 rimraf ./packages/mtproto-shared/node_modules
 rimraf ./packages/mtproto-storage-fs/node_modules
@@ -16,6 +18,7 @@ rimraf ./node_modules
 
 rimraf ./packages/mtproto-beam/lib
 rimraf ./packages/mtproto-logger/lib
+rimraf ./packages/mtproto-classify/lib
 rimraf ./packages/mtproto-shared/lib
 rimraf ./packages/mtproto-storage-fs/lib
 rimraf ./packages/mtproto-storage-browser/lib
