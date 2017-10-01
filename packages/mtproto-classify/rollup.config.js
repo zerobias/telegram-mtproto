@@ -9,7 +9,7 @@ export default {
   sourcemap: true,
   plugins  : [
     purs({
-      debug        : false,
+      debug: false,
       // optimizations: {
       //   uncurry: false
       // },

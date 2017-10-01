@@ -1,56 +1,59 @@
 module Classify.Message where
 
+import Classify.Message.Error (MTError, mtError)
+import Classify.Message.Response
+
 import Data.Argonaut.Core
 import Data.Maybe
--- import Data.Tuple
 import Prelude
 
 import Data.StrMap
+import Data.Int (floor)
 
-type TLError = {
-  code :: Number,
-  message :: String
-}
 
-type Response = forall a. { "_" :: String | a }
 
-data Message = Message {
-  response :: Maybe Response,
-  error :: Maybe TLError
-}
+-- type Response = forall a. { "_" :: String | a }
 
-data Msg =
-  ApiResponse (Maybe (StrMap Json))
-  | ApiError Number String
+data Message =
+  ApiResponse (Maybe (StrMap Json)) MTResponse
+  | ApiError Int String MTError
   | MessageUnknown
 
-instance showApiResponse :: Show Msg where
-  show (ApiResponse (Just msg)) = "Message ApiResponse (" <> (tlType msg) <> ")"
-  show (ApiResponse Nothing) = "Message ApiResponse (void)"
-  show (ApiError code message) = "Message ApiError (code "
+instance showApiResponse :: Show Message where
+  show (ApiResponse (Just msg) resp) = "ApiResponse " <> show resp <> " (" <> (tlType msg) <> ") "
+  show (ApiResponse Nothing resp) = "ApiResponse (no body) " <> show resp
+  show (ApiError code message mtErr) =
+    "ApiError "
+    <> (show mtErr)
+    <> " (code "
     <> (show code)
     <> ", message "
     <> (show message)
     <> ")"
   show MessageUnknown = "MessageUnknown ()"
 
-apiError :: StrMap Json -> Msg
-apiError resultData = ApiError code message where
-  maybeMsg = do
+apiError :: StrMap Json -> Message
+apiError resultData = ApiError code message (mtError { code, message }) where
+  message :: String
+  message = fromMaybe "Unknown error" $ do
     field <- lookup "error_message" resultData
     toString field
-  maybeCode = do
+  code :: Int
+  code = fromMaybe (-1) $ do
     field <- lookup "error_code" resultData
-    toNumber field
+    num <- toNumber field
+    pure $ floor num
 
-  message :: String
-  message = ((maybe "Unknown error") \x -> x) maybeMsg
-
-  code :: Number
-  code = ((maybe (-1.0)) \x -> x) maybeCode
+apiResponse :: StrMap Json -> Message
+apiResponse resultData = ApiResponse (Just resultData)
+  case tlType resultData of
+    "msg_detailed_info" -> DetailedInfo
+    "msg_new_detailed_info" -> NewDetailedInfo
+    "msgs_ack" -> Ack
+    _ -> MTResponse
 
 tlType :: StrMap Json -> String
-tlType strMap = ((maybe "No type") \x -> x) $ do
+tlType strMap = fromMaybe "No type" $ do
   field <- lookup "_" strMap
   toString field
 

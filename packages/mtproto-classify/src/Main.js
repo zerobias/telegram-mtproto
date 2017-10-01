@@ -1,5 +1,6 @@
+'use strict'
 
-exports.messageExample = {
+exports['messageExample'] = {
   '_'         : 'rpc_result',
   'req_msg_id': '6469337826915064756',
   'result'    : {
@@ -10,7 +11,7 @@ exports.messageExample = {
   }
 }
 
-exports.rawExample = {
+exports['rawExample'] = {
   '_'       : 'msg_container',
   'messages': [
     {
@@ -1330,6 +1331,21 @@ exports.rawExample = {
       'seqno' : 11,
       'bytes' : 40,
       'msg_id': '6469337971327860737'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'         : 'rpc_result',
+        'req_msg_id': '6469337968829274940',
+        'result'    : {
+          '_'            : 'rpc_error',
+          'error_code'   : 420,
+          'error_message': 'FLOOD_WAIT_3478'
+        }
+      },
+      'seqno' : 13,
+      'bytes' : 40,
+      'msg_id': '6469337971327860738'
     }
   ]
 }
