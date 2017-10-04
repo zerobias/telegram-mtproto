@@ -141,7 +141,8 @@ export class NetworkerThread {
 
   updateSentMessage(sentMessageID: string) {
     if (!this.state.hasSent(sentMessageID)) {
-      console.log(`no id`, sentMessageID)
+      if (__DEV__)
+        console.log(`no id`, sentMessageID)
       return false
     }
     const sentMessage = this.state.getSent(sentMessageID)

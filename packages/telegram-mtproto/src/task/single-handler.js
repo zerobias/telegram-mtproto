@@ -408,10 +408,10 @@ const patchNothing = data => () => ({
   patch: emptyPatch(),
 })
 
-const formatSeconds = seconds => 
+const formatSeconds = seconds =>
   new Intl.DateTimeFormat(undefined, {
-    hour    : 'numeric', 
-    minute  : 'numeric', 
+    hour    : 'numeric',
+    minute  : 'numeric',
     second  : 'numeric',
     timeZone: 'UTC'
   }).format(new Date(seconds * 1000))
@@ -458,7 +458,11 @@ function handleFileMigrate(message, data, code, ctx) {
         const futureAuth = Config.authRequest.get(uid, newDc)
         if (!futureAuth) {
           const authReq = cache(invoke(uid, 'auth.exportAuthorization', { dc_id: newDc })
-            .map(resp => (console.log(resp), resp))
+            .map(resp => {
+              if (__DEV__)
+                console.log(resp)
+              return resp
+            })
             .map((resp: mixed) => {
               if (typeof resp === 'object' && resp != null) {
                 if (typeof resp.id === 'number') {
@@ -472,7 +476,8 @@ function handleFileMigrate(message, data, code, ctx) {
                   }
                 }
               }
-              console.error('incorrect', resp)
+              if (__DEV__)
+                console.error('incorrect', resp)
               return resp
             })
             .chain(resp => invoke(uid, 'auth.importAuthorization', resp, { dcID: newDc })))
@@ -780,7 +785,8 @@ function handleRpcResult(ctx: IncomingType, message: MessageUnit) {
 
   // thread.processMessageAck(sentMessageID)
   if (!sentMessage) {
-    console.warn('No sent message!', sentMessageID, message)
+    if (__DEV__)
+      console.warn('No sent message!', sentMessageID, message)
     return emptyPatch()
   }
   dispatch(NETWORKER_STATE.SENT.DEL([sentMessage], dc), uid)
@@ -805,7 +811,8 @@ function handleRpcResult(ctx: IncomingType, message: MessageUnit) {
       })
     }
   } else {
-    console.warn('No result!', sentMessageID, message)
+    if (__DEV__)
+      console.warn('No result!', sentMessageID, message)
   }
   if (sentMessage.isAPI)
     thread.connectionInited = true
