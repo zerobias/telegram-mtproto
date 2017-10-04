@@ -49,7 +49,7 @@ The **telegram-mtproto** library implements the **Mobile Protocol** and provides
 ## Installation
 
 ```bash
-$ npm install --save telegram-mtproto@beta
+$ npm install --save telegram-mtproto@alpha
 ```
 
 ## Usage
