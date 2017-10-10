@@ -12,12 +12,10 @@ import Data.Traversable (traverse)
 foreign import rawExample :: Json
 foreign import messageExample :: Json
 
--- type ConsoleEff = forall eff. Eff (console :: CONSOLE | eff) Unit
-
-testPrint :: forall t9. Json -> Eff ( console :: CONSOLE | t9 ) (Array Unit)
+testPrint :: ∀ eff. Json -> Eff ( console :: CONSOLE | eff ) (Array Unit)
 testPrint = (traverse logShow) <<< (fromMaybe []) <<< smokeTest
 
-main :: forall t20. Eff ( console :: CONSOLE | t20 ) (Array Unit)
+main :: ∀ eff. Eff ( console :: CONSOLE | eff ) (Array Unit)
 main = do
   _ <- testPrint rawExample
   testPrint messageExample
