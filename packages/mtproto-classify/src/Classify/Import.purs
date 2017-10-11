@@ -2,10 +2,11 @@ module Classify.Import where
 
 import Classify.Message (Message, messageUnknown, apiError, apiResponse)
 import Classify.Message.MessageIndex (MessageIndex, messageIndex)
-import Data.Argonaut.Core (JObject, JString, Json, toArray, toObject, toString)
+import Classify.Message.Util (lookupArray, lookupTLType, (⨀))
+import Data.Argonaut.Core (JObject, Json, toObject)
 import Data.Array (catMaybes)
 import Data.Maybe (Maybe(Just, Nothing), fromMaybe)
-import Data.StrMap (StrMap, lookup)
+import Data.StrMap (lookup)
 import Prelude (class Applicative, bind, pure, ($), (<$>), (<<<))
 
 typeLookup :: ∀ a. (Json -> JObject -> String -> Maybe a) -> Json -> Maybe a
@@ -13,11 +14,6 @@ typeLookup fn rawObj = do
   objMap <- toObject rawObj
   tlType <- lookupTLType objMap
   fn rawObj objMap tlType
-
-lookupTLType :: StrMap Json -> Maybe JString
-lookupTLType obj = do
-  val <- lookup "_" obj
-  toString val
 
 objectLookup :: String -> JObject -> Maybe JObject
 objectLookup field obj = do
@@ -33,10 +29,9 @@ smokeTest = (fromMaybe []) <<< (typeLookup classifyCarrier)
 classifyCarrier :: Json -> JObject -> String -> Maybe (Array Message)
 classifyCarrier objRaw objMap tlType = case tlType of
   "msg_container" -> do
-    val <- lookup "messages" objMap
-    arr <- toArray val
+    arr <- lookupArray objMap "messages"
     pureJust $ (typeLookup innerMessage) <$> arr
-  "rpc_result" -> pureJust $ (typeLookup singleMessage) <$> [objRaw]
+  "rpc_result" -> typeLookup singleMessage objRaw
   _ -> Nothing
 
 innerMessage :: Json -> JObject -> String -> Maybe Message
@@ -46,20 +41,19 @@ innerMessage rawObj objMap tlType = do
     "message" -> objectLookup "body" objMap
     _ -> Nothing
   case objectLookup "result" body of
-    Just result -> case lookupTLType result of
-      Just "rpc_error" -> pure $ apiError indx result
-      Just type' -> do
-        respType <- lookupTLType body
-        pure $ apiResponse indx result type'
-      _ -> pure $ messageUnknown
+    Just result -> pure $ result ⨀ contentMessage indx result
     _ -> serviceMessage indx body
 
 serviceMessage :: MessageIndex -> JObject -> Maybe Message
-serviceMessage indx body = do
-  tlType <- lookupTLType body
-  pure $ apiResponse indx body tlType
+serviceMessage indx body =
+  apiResponse indx body
+  <$> lookupTLType body
 
--- contentMessage ::
+contentMessage :: MessageIndex -> JObject -> Maybe String -> Message
+contentMessage indx result bodyType = case bodyType of
+  Just "rpc_error" -> apiError indx result
+  Just type' -> apiResponse indx result type'
+  _ -> messageUnknown
 
-singleMessage :: Json -> JObject -> String -> Maybe Message
-singleMessage rawObj objMap tlType = Just messageUnknown
+singleMessage :: Json -> JObject -> String -> Maybe (Array Message)
+singleMessage rawObj objMap tlType = Just [messageUnknown]

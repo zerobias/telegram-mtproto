@@ -1,8 +1,11 @@
 module Classify.Message.Util where
 
+import Data.Argonaut (JObject, JString, Json, toArray, toString)
 import Data.Foldable (class Foldable, foldl)
+import Data.Maybe (Maybe)
+import Data.StrMap (lookup)
 import Data.String (Pattern(Pattern), split)
-import Prelude (otherwise, ($), (+), (-), (<), (<=), (<>), (==))
+import Prelude (bind, otherwise, ($), (+), (-), (<), (<=), (<>), (==))
 
 inBrackets :: String -> String
 inBrackets text = "[" <> text <> "]"
@@ -72,3 +75,27 @@ keyValue :: String -> String -> String
 keyValue a b = a <> ":" ∾ b
 
 infix 8 keyValue as ☍
+
+lookupTLType :: JObject -> Maybe JString
+lookupTLType obj = do
+  val <- lookup "_" obj
+  toString val
+
+lookupOperator :: ∀ t. JObject -> (Maybe JString -> t) -> t
+lookupOperator obj fn = fn $ lookupTLType obj
+
+infixl 7 lookupOperator as ⨀
+
+lookupArray :: JObject -> String -> Maybe (Array Json)
+lookupArray obj str = do
+  val <- lookup str obj
+  toArray val
+
+-- infixl 7 lookupArray as ⟽
+
+lookupString :: JObject -> String -> Maybe String
+lookupString obj field = do
+  val <- lookup field obj
+  toString val
+
+infixl 7 lookupString as 🅢

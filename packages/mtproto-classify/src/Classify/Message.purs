@@ -5,11 +5,12 @@ import Classify.Message.Util
 import Classify.Message.Error (MTError, mtError, TLError, tlError)
 import Classify.Message.MessageIndex (MessageIndex)
 import Classify.Message.Response (MTResponse(..))
-import Data.Argonaut.Core (JObject, toNumber, toString)
+import Data.Argonaut.Core (JObject, Json, toNumber, toString)
 import Data.Int (floor)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.StrMap (lookup)
-import Prelude (class Show, bind, negate, pure, show, ($))
+import Data.Traversable (traverse)
+import Prelude (class Show, bind, negate, pure, show, (#), ($), (<$>), (<*>))
 
 
 
@@ -67,16 +68,30 @@ messageUnknown :: Message
 messageUnknown = MessageUnknown
 
 chooseMTResponse :: String -> JObject -> MTResponse
-chooseMTResponse type' resultData = case type' of
+chooseMTResponse type' data' = case type' of
   "msg_detailed_info" -> DetailedInfo
   "msg_new_detailed_info" -> NewDetailedInfo
-  "msgs_ack" -> Ack
-  "new_session_created" -> NewSession
+  "msgs_ack" -> (Ack $ getStringList data' "msg_ids")
+
+  "new_session_created" -> newSession data'
   t -> (MTResponse t)
 
 
+newSession :: JObject -> MTResponse
+newSession obj =
+  NewSession
+    <$> obj 🅢 "first_msg_id"
+    <*> obj 🅢 "server_salt"
+    # fromMaybe MTResponseUnknown
+
+getStringList :: JObject -> String -> Array String
+getStringList obj field = (fromMaybe []) $ do
+  arr <- lookupArray obj field
+  toStringArray arr
+
+toStringArray :: Array Json -> Maybe (Array String)
+toStringArray = traverse (toString)
+
 tlType :: JObject -> String
-tlType strMap = fromMaybe "No type" $ do
-  field <- lookup "_" strMap
-  toString field
+tlType strMap = strMap ⨀ fromMaybe "No type"
 
