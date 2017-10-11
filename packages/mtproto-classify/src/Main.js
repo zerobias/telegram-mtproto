@@ -11,6 +11,274 @@ exports['messageExample'] = {
   }
 }
 
+exports['detailedInfoAndUpdShort'] = {
+  '_'       : 'msg_container',
+  'messages': [
+    {
+      '_'   : 'message',
+      'body': {
+        '_'         : 'rpc_result',
+        'req_msg_id': '6475416378305629316',
+        'result'    : {
+          '_'         : 'nearestDc',
+          'country'   : 'RU',
+          'this_dc'   : 2,
+          'nearest_dc': 2
+        }
+      },
+      'seqno' : 3,
+      'bytes' : 28,
+      'msg_id': '6475416381804694529'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'         : 'rpc_result',
+        'req_msg_id': '6475416379125142140',
+        'result'    : {
+          '_'               : 'auth.sentCode',
+          'flags'           : 3,
+          'phone_registered': true,
+          'type'            : {
+            '_'     : 'auth.sentCodeTypeApp',
+            'length': 5
+          },
+          'phone_code_hash': '785aca4eafa44096bb',
+          'next_type'      : {
+            '_': 'auth.codeTypeSms'
+          }
+        }
+      },
+      'seqno' : 5,
+      'bytes' : 52,
+      'msg_id': '6475416383493737473'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'         : 'rpc_result',
+        'req_msg_id': '6475416381752923364',
+        'result'    : {
+          '_'    : 'auth.authorization',
+          'flags': 0,
+          'user' : {
+            '_'          : 'user',
+            'flags'      : 3195,
+            'self'       : true,
+            'contact'    : true,
+            'id'         : 297169,
+            'access_hash': '6362957075171533052',
+            'first_name' : 'lambda257',
+            'username'   : 'lambda',
+            'phone'      : '9996620000',
+            'photo'      : {
+              '_'          : 'userProfilePhoto',
+              'photo_id'   : '1276331592624111',
+              'photo_small': {
+                '_'        : 'fileLocation',
+                'dc_id'    : 2,
+                'volume_id': '604116248',
+                'local_id' : 204,
+                'secret'   : '15001237309940136639'
+              },
+              'photo_big': {
+                '_'        : 'fileLocation',
+                'dc_id'    : 2,
+                'volume_id': '604116248',
+                'local_id' : 206,
+                'secret'   : '5708407752355442935'
+              }
+            },
+            'status': {
+              '_'      : 'userStatusOnline',
+              'expires': 1507675632
+            }
+          }
+        }
+      },
+      'seqno' : 7,
+      'bytes' : 148,
+      'msg_id': '6475416384416892929'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416382250187468',
+        'answer_msg_id': '6475416385491397633',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338641921'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416383313199836',
+        'answer_msg_id': '6475416387655886849',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338649089'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416386016730916',
+        'answer_msg_id': '6475416388684033025',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338652161'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416382799717076',
+        'answer_msg_id': '6475416386584066049',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338654209'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416386515667812',
+        'answer_msg_id': '6475416389711134721',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338656257'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416390282302004',
+        'answer_msg_id': '6475416392896020481',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338661377'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416387574568820',
+        'answer_msg_id': '6475416391895000065',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338663425'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416391297242852',
+        'answer_msg_id': '6475416395002836993',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338665473'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416390785802068',
+        'answer_msg_id': '6475416393929719809',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338667521'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'            : 'msg_detailed_info',
+        'msg_id'       : '6475416387033512092',
+        'answer_msg_id': '6475416390823334913',
+        'bytes'        : 2092,
+        'status'       : 0
+      },
+      'seqno' : 28,
+      'bytes' : 28,
+      'msg_id': '6475416418338668545'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'        : 'updateShortMessage',
+        'flags'    : 0,
+        'id'       : 6101,
+        'user_id'  : 777000,
+        'message'  : "Your login code: 22222\n\nThis code can be used to log in to your Telegram account. We never ask it for anything else. Do not give it to anyone, even if they say they're from Telegram!!\n\nIf you didn't request this code by trying to log in on another device, simply ignore this message.",
+        'pts'      : 8222,
+        'pts_count': 1,
+        'date'     : 1507675372
+      },
+      'seqno' : 29,
+      'bytes' : 256,
+      'msg_id': '6475416418338671617'
+    }
+  ]
+}
+
+exports['newSessionAndAck'] = {
+  '_'       : 'msg_container',
+  'messages': [
+    {
+      '_'   : 'message',
+      'body': {
+        '_'           : 'new_session_created',
+        'first_msg_id': '6475416149516675284',
+        'unique_id'   : '1149214835638777811',
+        'server_salt' : '8646898345719505880'
+      },
+      'seqno' : 1,
+      'bytes' : 28,
+      'msg_id': '6475416284902969345'
+    },
+    {
+      '_'   : 'message',
+      'body': {
+        '_'      : 'msgs_ack',
+        'msg_ids': [
+          '6475416149516675284'
+        ]
+      },
+      'seqno' : 2,
+      'bytes' : 20,
+      'msg_id': '6475416284903060481'
+    }
+  ]
+}
+
 exports['rawExample'] = {
   '_'       : 'msg_container',
   'messages': [

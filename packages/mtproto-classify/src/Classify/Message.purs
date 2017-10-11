@@ -1,14 +1,15 @@
 module Classify.Message where
 
-import Classify.Message.Response (MTResponse(..))
-import Data.Argonaut.Core (Json, toNumber, toString)
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.StrMap (StrMap, lookup)
-import Prelude (class Show, bind, negate, pure, show, ($), (<>))
+import Classify.Message.Util
 
-import Classify.Message.Error (MTError, mtError)
+import Classify.Message.Error (MTError, mtError, TLError, tlError)
 import Classify.Message.MessageIndex (MessageIndex)
+import Classify.Message.Response (MTResponse(..))
+import Data.Argonaut.Core (JObject, toNumber, toString)
 import Data.Int (floor)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.StrMap (lookup)
+import Prelude (class Show, bind, negate, pure, show, ($))
 
 
 
@@ -18,32 +19,28 @@ type Code = Int
 type MessageText = String
 
 data Message =
-  ApiResponse (Maybe (StrMap Json)) MTResponse MessageIndex
-  | ApiError Code MessageText MTError MessageIndex
+  ApiResponse (Maybe JObject) MTResponse MessageIndex
+  | ApiError TLError MTError MessageIndex
   | MessageUnknown
 
 instance showApiResponse :: Show Message where
-  show (ApiResponse (Just msg) resp indx) = "ApiResponse "
-    <> show resp
-    <> " ("
-    <> tlType msg
-    <> ") "
-    <> show indx
-  show (ApiResponse Nothing resp indx) = "ApiResponse (no body) "
-    <> show resp
-    <> show indx
-  show (ApiError code message mtErr indx) = "ApiError "
-    <> (show mtErr)
-    <> " (code "
-    <> (show code)
-    <> ", message "
-    <> (show message)
-    <> ")"
-    <> show indx
+  show (ApiResponse (Just msg) resp indx) =
+    "ApiResponse"
+      ⇶ show resp
+      ↵ show indx
+  show (ApiResponse Nothing resp indx) =
+    "ApiResponse" ∾ "(no body)"
+      ⇶ show resp
+      ↵ show indx
+  show (ApiError tlErr mtErr indx) =
+    "ApiError"
+      ⇶ show mtErr
+      ↵ show tlErr
+      ↵ show indx
   show MessageUnknown = "MessageUnknown ()"
 
 
-apiError :: MessageIndex -> (StrMap Json) -> Message
+apiError :: MessageIndex -> JObject -> Message
 apiError indx resultData = result where
   message :: String
   message = fromMaybe "Unknown error" $ do
@@ -55,23 +52,30 @@ apiError indx resultData = result where
     num <- toNumber field
     pure $ floor num
   result :: Message
-  result = ApiError code message (mtError { code, message }) indx
+  result = ApiError
+    (tlError code message)
+    (mtError message code)
+    indx
 
-apiResponse :: MessageIndex -> StrMap Json -> Message
-apiResponse indx resultData =
-  ApiResponse (Just resultData) (chooseMTResponse resultData) indx
+apiResponse :: MessageIndex -> JObject -> String -> Message
+apiResponse indx resultData type' = ApiResponse
+  (Just resultData)
+  (chooseMTResponse type' resultData)
+  indx
 
 messageUnknown :: Message
 messageUnknown = MessageUnknown
 
-chooseMTResponse :: StrMap Json -> MTResponse
-chooseMTResponse resultData = case tlType resultData of
+chooseMTResponse :: String -> JObject -> MTResponse
+chooseMTResponse type' resultData = case type' of
   "msg_detailed_info" -> DetailedInfo
   "msg_new_detailed_info" -> NewDetailedInfo
   "msgs_ack" -> Ack
-  _ -> MTResponse
+  "new_session_created" -> NewSession
+  t -> (MTResponse t)
 
-tlType :: StrMap Json -> String
+
+tlType :: JObject -> String
 tlType strMap = fromMaybe "No type" $ do
   field <- lookup "_" strMap
   toString field

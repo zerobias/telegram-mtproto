@@ -1,11 +1,12 @@
 module Classify.Message.MessageIndex (MessageIndex, messageIndex, parseMsgId, parseSeqno) where
 
+import Classify.Message.Util
 
-import Data.Argonaut.Core (Json, toNumber, toString)
+import Data.Argonaut.Core (Json, JObject, toNumber, toString)
 import Data.Int (fromNumber)
 import Data.Maybe (Maybe(..))
 import Data.StrMap (StrMap, lookup)
-import Prelude (class Show, bind, show, (<>))
+import Prelude (class Show, bind, show)
 
 parseMsgId :: StrMap Json -> Maybe String
 parseMsgId obj = do
@@ -25,15 +26,12 @@ data MessageIndex = MessageIndex Seqno MsgId
 
 instance showMessageIndex :: Show MessageIndex where
   show (MessageIndex seq msg) =
-    "<" <>
-    "seq " <>
-    show seq <>
-    " | " <>
-    "msg " <>
-    show msg <>
-    ">"
+    "MessageIndex"
+      ⇶ "seq" ☍ show seq
+      ↵ "msg" ☍ show msg
 
-messageIndex :: StrMap Json -> Maybe MessageIndex
+
+messageIndex :: JObject -> Maybe MessageIndex
 messageIndex obj = messageIndex' seq msg where
   seq = parseSeqno obj
   msg = parseMsgId obj
