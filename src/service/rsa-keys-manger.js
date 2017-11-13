@@ -13,7 +13,7 @@ import { bytesToHex, sha1BytesSync,
 
 
 export const KeyManager = (Serialization: SerializationFabric,
-  publisKeysHex: PublicKey[],
+  publicKeysHex: PublicKey[],
   publicKeysParsed: Cached<PublicKey>) => {
   let prepared = false
 
@@ -37,7 +37,7 @@ export const KeyManager = (Serialization: SerializationFabric,
   async function prepareRsaKeys() {
     if (prepared) return
 
-    await Promise.map(publisKeysHex, mapPrepare)
+    await Promise.map(publicKeysHex, mapPrepare)
 
     prepared = true
   }
