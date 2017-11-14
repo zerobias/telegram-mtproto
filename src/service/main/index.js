@@ -53,7 +53,7 @@ const configNormalization = (config: ConfigType): StrictConfig => {
     api = {},
     app: {
       storage = PureStorage,
-      publicKeys = publisKeysHex
+      publicKeys = publicKeysHex
     } = {},
     schema = api57,
     mtSchema = mtproto57,
@@ -85,7 +85,7 @@ const configNormalization = (config: ConfigType): StrictConfig => {
 * -----END RSA PUBLIC KEY-----
 */
 
-const publisKeysHex: PublicKey[] = [{
+const publicKeysHex: PublicKey[] = [{
   modulus:
   'c150023e2f70db7985ded064759cfecf0af328e69a41daf4d6f01b538135a6f91f' +
   '8f8b2a0ec9ba9720ce352efcf6c5680ffc424bd634864902de0b4bd6d49f4e5802' +
