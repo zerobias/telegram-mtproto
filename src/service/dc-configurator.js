@@ -47,7 +47,7 @@ export const chooseServer = (chosenServers, {
       chosenServer = `https://${ subdomain }.web.telegram.org/${ path }`
       return chosenServer //TODO Possibly bug. Isn't it necessary? chosenServers[dcID] = chosenServer
     }
-    const dcOption = findById(dcID)(dcList)
+    const dcOption = findById(parseInt(dcID))(dcList)
     if (dcOption)
       chosenServer = `http://${ dcOption.host }${portString(dcOption)}/apiw1`
     chosenServers[dcID] = chosenServer
