@@ -11,7 +11,7 @@ import type { PublicKeyExtended } from './service/main/index.h'
 
 import { eGCD_, greater, divide_, str2bigInt, equalsInt,
   isZero, bigInt2str, copy_, copyInt_, rightShift_,
-  leftShift_, sub_, add_, powMod, bpe, one } from './vendor/leemon'
+  leftShift_, sub_, add_, powMod, bpe, one } from 'leemon'
 
 
 const rushaInstance = new Rusha(1024 * 1024)

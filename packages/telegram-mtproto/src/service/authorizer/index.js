@@ -15,7 +15,7 @@ import { bytesCmp, bytesToHex, sha1BytesSync,
   aesEncryptSync, aesDecryptSync, bytesToArrayBuffer,
   bytesFromHex, bytesXor, generateNonce } from 'Bin'
 import { bpe, str2bigInt, one,
-  dup, sub_, sub, greater } from '../../vendor/leemon'
+  dup, sub_, sub, greater } from 'leemon'
 import {
   type DCNumber,
   type UID,

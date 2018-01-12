@@ -83,6 +83,7 @@ module.name_mapper='^load-json-file$' -> '<PROJECT_ROOT>/node_modules/load-json-
 module.name_mapper='^write-json-file$' -> '<PROJECT_ROOT>/node_modules/write-json-file'
 module.name_mapper='^chokidar$' -> '<PROJECT_ROOT>/node_modules/chokidar'
 module.name_mapper='^\(.*\)goodmind\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1goodmind\2'
+module.name_mapper='^leemon$' -> '<PROJECT_ROOT>/node_modules/leemon'
 module.name_mapper='^pako\(.*\)$' -> '<PROJECT_ROOT>/node_modules/pako\1'
 module.name_mapper='^\(.*\)redux\(.*\)$' -> '<PROJECT_ROOT>/node_modules/\1redux\2'
 module.name_mapper='^mtproto\(.*\)$' -> '<PROJECT_ROOT>/packages/mtproto\1/src'
