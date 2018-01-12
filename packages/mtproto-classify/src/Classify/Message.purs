@@ -58,31 +58,47 @@ apiError indx resultData = result where
     (mtError message code)
     indx
 
-apiResponse :: MessageIndex -> JObject -> String -> Message
-apiResponse indx resultData type' = ApiResponse
-  (Just resultData)
-  (chooseMTResponse type' resultData)
+apiResponse ::
+  MessageIndex ->
+  JObject ->
+  Maybe JObject ->
+  String ->
+  Message
+apiResponse indx body resultData type' = ApiResponse
+  resultData
+  (chooseMTResponse type' body resultData)
   indx
 
 messageUnknown :: Message
 messageUnknown = MessageUnknown
 
-chooseMTResponse :: String -> JObject -> MTResponse
-chooseMTResponse type' data' = case type' of
+maybeMTResponse :: Maybe MTResponse -> MTResponse
+maybeMTResponse = fromMaybe MTResponseUnknown
+
+chooseMTResponse ::
+  String ->
+  JObject ->
+  Maybe JObject ->
+  MTResponse
+chooseMTResponse type' body data' = case type' of
   "msg_detailed_info" -> DetailedInfo
   "msg_new_detailed_info" -> NewDetailedInfo
-  "msgs_ack" -> (Ack $ getStringList data' "msg_ids")
+  "msgs_ack" -> maybeMTResponse $ do
+    data'' <- data'
+    pure $ Ack $ (getStringList data'') "msg_ids"
 
-  "new_session_created" -> newSession data'
+  "new_session_created" ->
+    newSession <$> data' # maybeMTResponse
   t -> (MTResponse t)
-
+    <$> body 🅢 "req_msg_id"
+    # maybeMTResponse
 
 newSession :: JObject -> MTResponse
 newSession obj =
   NewSession
     <$> obj 🅢 "first_msg_id"
     <*> obj 🅢 "server_salt"
-    # fromMaybe MTResponseUnknown
+    # maybeMTResponse
 
 getStringList :: JObject -> String -> Array String
 getStringList obj field = (fromMaybe []) $ do

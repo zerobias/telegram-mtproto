@@ -11,7 +11,7 @@ data MTResponse =
   DetailedInfo
   | NewDetailedInfo
   | Ack (Array String)
-  | MTResponse String
+  | MTResponse String String
   | NewSession MsgId Salt
   | MTResponseUnknown
 
@@ -20,8 +20,10 @@ instance showMTResponse :: Show MTResponse where
   show NewDetailedInfo = inBrackets "New detailed info"
   show (Ack ids) = "Ack" ⇶
     "ids" ☍ show ids
-  show (MTResponse t) = "Response" ⇶
-    "type" ☍ t
+  show (MTResponse type' reqMsg) =
+    "Response"
+      ⇶ "type"    ☍ type'
+      ↵ "req msg" ☍ reqMsg
   show (NewSession msg salt) =
     "New session"
       ⇶ "first msg" ☍ msg

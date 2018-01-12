@@ -65,7 +65,6 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowIssue
 suppress_comment=\\(.\\|\n\\)*\\$off
 suppress_type=$FlowIssue
 suppress_type=$off
-unsafe.enable_getters_and_setters=true
 emoji=true
 traces=3
 esproposal.decorators=ignore

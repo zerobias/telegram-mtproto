@@ -1,5 +1,7 @@
 //@flow
 
+import datalog from 'Util/datalog'
+
 import { Right } from 'apropos'
 
 import {
@@ -27,6 +29,7 @@ type NormalizeInput = typeof decryptedData
 */
 
 export function normalize(ctx: NormalizeInput) {
+  datalog`raw`(ctx.response)
   const flattenRaw = flattenMessage(ctx)
   const processed = processing(ctx, flattenRaw)
   return { ...mergePatch(ctx, processed), ...ctx }
