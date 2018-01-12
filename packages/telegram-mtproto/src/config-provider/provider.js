@@ -35,10 +35,8 @@ export function getConfig(uid: string) {
 
 export function registerInstance(config: $Diff<InstanceConfig, InstanceDiff>) {
   const fullConfig: InstanceConfig = {
-    //$FlowIssue
     ...config,
     keyManager    : keyManagerNotInited,
-    //$off
     storageAdapter: new StorageAdapter(config.storage),
     timerOffset   : 0,
     seq           : {},
