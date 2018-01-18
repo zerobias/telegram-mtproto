@@ -1,0 +1,31 @@
+{
+  "collectCoverage": true,
+  "automock": false,
+  "browser": false,
+  "coverageDirectory": "coverage",
+  "coverageReporters": [
+    "lcov",
+    "html"
+  ],
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.jsx?$": "babel-jest"
+  },
+  "moduleNameMapper": {
+    "^Action(.*)$": "<rootDir>/src/state/action$1",
+    "^Util(.*)$": "<rootDir>/src/util$1",
+    "^State$": "<rootDir>/src/state",
+    "^ConfigProvider$": "<rootDir>/src/config-provider",
+    "^Mtp$": "<rootDir>/src/mtp.h.js",
+    "^Newtype$": "<rootDir>/src/newtype.h.js",
+    "^Bin$": "<rootDir>/src/bin",
+    "^Monad$": "<rootDir>/src/util/monad-t",
+    "^Runtime$": "<rootDir>/src/runtime"
+  },
+  "roots": [
+    "<rootDir>/src/"
+  ],
+  "testMatch": [
+    "<rootDir>/src/**/__test__/**/*.test.js"
+  ]
+}

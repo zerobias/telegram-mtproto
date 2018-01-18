@@ -12,6 +12,7 @@
     "test": "jest test/node.test.js",
     "test:esnext": "jest test/*.test.js",
     "test:task": "jest test/task/*.test.js",
+    "test:unit": "jest --config=jest-unit.json",
     "build": "npm run build:cjs && npm run build:es",
     "build:esnext": "cross-env BABEL_ENV=commonjs babel src/ -d lib -s --no-babelrc --plugins=transform-flow-strip-types,transform-exponentiation-operator,transform-es2015-modules-commonjs,transform-class-properties,transform-object-rest-spread",
     "watch:esnext": "npm run build:esnext -- --watch",
@@ -46,7 +47,9 @@
     "fp-ts": "^0.6.7",
     "immutable": "^4.0.0-rc.9",
     "leemon": "^6.1.0",
+    "monocle-ts": "^0.5.2",
     "most": "^1.7.2",
+    "most-proxy": "^3.3.0",
     "most-subject": "^5.3.0",
     "mtproto-logger": "^0.1.9",
     "mtproto-shared": "^0.1.8",
@@ -58,6 +61,7 @@
     "redux-act": "^1.5.1",
     "redux-most": "^0.6.2",
     "rusha": "^0.8.11",
+    "symbol-observable": "^1.1.0",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
