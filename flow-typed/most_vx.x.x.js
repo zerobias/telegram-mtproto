@@ -1,15 +1,19 @@
 
+
 declare module 'most' {
-  declare type SeedValue<-S, -V> = {
-    -seed: S,
-    -value: V,
+
+  /*::declare*/ export type SeedValue<S, V> = {
+    seed: S,
+    value: V,
   }
-  declare type TimeValue<+V> = {
-    +time: number,
-    +value: V
+  declare export type TimeValue<V> = {
+    /*::+*/time: number,
+    /*::+*/value: V
   }
-  declare type CreateGenerator<A>= (...args: Array<mixed>) => Generator<A | Promise<A>, mixed, mixed>
-  declare export type Sink<-A> = {
+  /*::declare*/ export type CreateGenerator<A>=
+    ((...args: $ReadOnlyArray<mixed>) => Generator<A | Promise<A>, mixed, mixed>)
+    | ((...args: $ReadOnlyArray<mixed>) => AsyncGenerator<A, mixed, mixed>)
+  declare export type Sink<A> = {
     event(time: number, value: A): void,
     end(time: number, value?: A): void,
     error(time: number, err: Error): void
@@ -20,7 +24,7 @@ declare module 'most' {
     dispose(): void
   }
   declare export type ScheduledTask = {
-    +task: Task,
+    /*::+*/task: Task,
     run(): void,
     error(err: Error): void,
     dispose(): void
@@ -34,25 +38,25 @@ declare module 'most' {
     cancel(task: Task): void,
     cancelAll(predicate: (task: Task) => boolean): void
   }
-  declare export type Disposable<+A> = {
+  declare export type Disposable<A> = {
     dispose(): void | Promise<A>
   }
-  /*declare class Source<A>{
-    run(sink: Sink<A>, scheduler: Scheduler): Disposable<A>
-  }*/
-  declare export type Observable<+A> = {
-    subscribe(subscriber: Subscriber<A>): Subscription<A>
+
+  /*::declare*/ export type Subscription<A> = {
+    unsubscribe(): void
   }
-  declare export type Subscriber<-A> = {
+
+  /*::declare*/ export type Subscriber<A> = {
     next(value: A): void,
     error(err: Error): void,
     complete(value?: A): void
   }
-  declare export type Subscription<+A> = {
-    unsubscribe(): void
+
+  /*::declare*/ export type Observable<A> = {
+    subscribe(subscriber: Subscriber<A>): Subscription<A>
   }
 
-  declare export class Stream<+A> {
+  /*::declare*/ export class Stream<A> {
     run(sink: Sink<A>, scheduler: Scheduler): Disposable<A>,
     reduce<B>(f: (b: B, a: A) => B, b: B): Promise<B>,
     observe<B>(f: (a: A) => B): Promise<B>,
@@ -61,7 +65,7 @@ declare module 'most' {
     subscribe(subscriber: Subscriber<A>): Subscription<A>,
     constant<B>(b: B): Stream<B>,
     map<B>(f: (a: A) => B): Stream<B>,
-    tap<+B>(f: (a: A) => B): Stream<A>,
+    tap<B>(f: (a: A) => B): Stream<A>,
     chain<B>(f: (a: A) => Stream<B>): Stream<B>,
     flatMap<B>(f: (a: A) => Stream<B>): Stream<B>,
     ap<B>(fs: Stream<(a: A) => B>): Stream<B>,
@@ -126,7 +130,7 @@ declare module 'most' {
 
 
     scan<B>(f: (b: B, a: A) => B, b: B): Stream<B>,
-    loop<S, +B>(f: (seed: S, a: A) => SeedValue<S, B>, seed: S): Stream<B>,
+    loop<S, B>(f: (seed: S, a: A) => SeedValue<S, B>, seed: S): Stream<B>,
 
     concat<B>(s2: Stream<B>): Stream<A | B>,
     startWith<B>(a: B): Stream<A | B>,
@@ -142,11 +146,11 @@ declare module 'most' {
     skipAfter(p: (a: A) => boolean): Stream<A>,
     slice(start: number, end: number): Stream<A>,
 
-    until<-B>(signal: Stream<B>): Stream<A>,
-    takeUntil<-B>(signal: Stream<B>): Stream<A>,
-    since<-B>(signal: Stream<B>): Stream<A>,
-    skipUntil<-B>(signal: Stream<B>): Stream<A>,
-    during<-B>(timeWindow: Stream<Stream<B>>): Stream<A>,
+    until<B>(signal: Stream<B>): Stream<A>,
+    takeUntil<B>(signal: Stream<B>): Stream<A>,
+    since<B>(signal: Stream<B>): Stream<A>,
+    skipUntil<B>(signal: Stream<B>): Stream<A>,
+    during<B>(timeWindow: Stream<Stream<B>>): Stream<A>,
     throttle(period: number): Stream<A>,
     debounce(period: number): Stream<A>,
 
@@ -188,38 +192,35 @@ declare module 'most' {
       fn: (b: B) => R,
       b: Stream<B>,
       noc: void,
-      nod: void
+      nod: void,
+      noe: void
     ): Stream<R>,
     sample<B, C, R>(
       fn: (b: B, c: C) => R,
       b: Stream<B>,
       c: Stream<C>,
-      nod: void
+      nod: void,
+      noe: void
     ): Stream<R>,
     sample<B, C, D, R>(
       fn: (b: B, c: C, d: D) => R,
       b: Stream<B>,
       c: Stream<C>,
-      d: Stream<D>
+      d: Stream<D>,
+      noe: void
     ): Stream<R>,
-    // sample<B, C, D, R>(
-    //   fn: (b: B, c: C, d: D) => R,
-    //   b: Stream<B>,
-    //   c: Stream<C>,
-    //   d: Stream<D>
-    // ): Stream<R>,
-    // sample<B, C, D, E, R>(
-    //   fn: (b: B, c: C, d: D, e: E) => R,
-    //   b: Stream<B>,
-    //   c: Stream<C>,
-    //   d: Stream<D>,
-    //   e: Stream<E>
-    // ): Stream<R>,
+    sample<B, C, D, E, R>(
+      fn: (b: B, c: C, d: D, e: E) => R,
+      b: Stream<B>,
+      c: Stream<C>,
+      d: Stream<D>,
+      e: Stream<E>
+    ): Stream<R>,
 
 
 
 
-    sampleWith<-B>(sampler: Stream<B>): Stream<A>,
+    sampleWith<B>(sampler: Stream<B>): Stream<A>,
 
     zip<B, R>(
       fn: (a: A, b: B) => R,
@@ -254,28 +255,25 @@ declare module 'most' {
 
 
 
-    recoverWith<+B, C>(p: (a: B) => Stream<C>): Stream<C>,
+    recoverWith<B, C>(p: (a: B) => Stream<C>): Stream<C>,
     multicast(): Stream<A>,
 
-    thru<B>(transform: (stream: Stream<A>) => Stream<B>): Stream<B>,
+    thru<B>(transform: (stream: Stream<A>) => B): B,
   }
 
-  // declare export class Stream<A>{
-  //     source: Source<A>,
-  //     constructor(source: Source<A>): this
-  // }
-
-  declare export function awaitPromises<A>(a: Stream<Promise<A>>): Stream<A>
+  declare export function awaitPromises<A>(
+    a: Stream<Promise<A>>
+  ): Stream<A>
   declare export function just<A>(a: A): Stream<A>
-  declare export function of<A>(a: A): Stream<A>
-  declare export function empty<+A>(): Stream<A>// should be <void>, but this breaks some things
-  declare export function never<+A>(): Stream<A>
-  declare export function from<+A, +T:Array<A>| Iterable<A> | Iterator<A> | Observable<A>>(as: T): Stream<A>
-  declare export function periodic<A>(period: number, a?: A): Stream<A>
+  /*::declare*/ export function of<A>(a: A): Stream<A>
+  /*::declare*/ export function empty<A>(): Stream<A>// should be <void>, but this breaks some things
+  /*::declare*/ export function never<A>(): Stream<A>
+  /*::declare*/ export function from<A, T/*:::$ReadOnlyArray<A>| Iterable<A> | Iterator<A> | Observable<A>*/>(as: T): Stream<A>
+  /*::declare*/ export function periodic<A>(period: number, a?: A): Stream<A>
   declare export function fromEvent<T>(event: string, target: any, useCapture?: boolean): Stream<T>
-  declare export function unfold<A, B, S>(f: (seed: S) => (SeedValue<S, B> | Promise<SeedValue<S, B>>) , seed: S): Stream<B>
-  declare export function iterate<A>(f: (a: A) => A | Promise<A>, a: A): Stream<A>
-  declare export function generate<A>(g: CreateGenerator<A>, ...args: Array<any>): Stream<A>
+  /*::declare*/ export function unfold<A, B, S>(f: (seed: S) => (SeedValue<S, B> | Promise<SeedValue<S, B>>) , seed: S): Stream<B>
+  /*::declare*/ export function iterate<A>(f: (a: A) => A | Promise<A>, a: A): Stream<A>
+  /*::declare*/ export function generate<A>(g: CreateGenerator<A>, ...args: $ReadOnlyArray<any>): Stream<A>
   declare export function reduce<A, B>(f: (b: B, a: A) => B, b: B, s: Stream<A>): Promise<B>
   declare export function observe<A, B>(f: (a: A) => B, s: Stream<A>): Promise<B>
   declare export function forEach<A, B>(f: (a: A) => B, s: Stream<A>): Promise<B>
@@ -292,12 +290,59 @@ declare module 'most' {
   declare export function continueWith<A, B>(f: () => Stream<B>, s: Stream<A>): Stream<A | B>
   declare export function concatMap<A, B>(f: (a: A) => Stream<B>, s: Stream<A>): Stream<B>
   declare export function mergeConcurrently<A>(concurrency: number, s: Stream<Stream<A>> ): Stream<A>
-  declare export function merge<A>(...ss: Array<Stream<A>> ): Stream<A>
-  declare export function mergeArray<A>(streams: Array<Stream<A>> ): Stream<A>
-  declare export function combine<A, B, R>(fn: (a: A, b: B) => R, a: Stream<A>, b: Stream<B>): Stream<R >
-  declare export function combineArray<A, B, R>(fn: (a: A, b: B) => R, streams: [Stream<A>, Stream<B>]): Stream<R >
-  declare export function scan<A, B>(f: (b: B, a: A) => B, b: B, s: Stream<A>): Stream<B>
-  declare export function loop<A, B, S>(
+  declare export function merge<A>(...ss: $ReadOnlyArray<Stream<A>> ): Stream<A>
+  declare export function mergeArray<A>(streams: $ReadOnlyArray<Stream<A>> ): Stream<A>
+
+  declare export function combine<A, B, R>(
+    fn: (a: A, b: B) => R,
+    streamA: Stream<A>,
+    streamB: Stream<B>,
+    noc: void,
+    nod: void,
+    noe: void,
+    nof: void
+  ): Stream<R>
+  declare export function combine<A, B, C, R>(
+    fn: (a: A, b: B, c: C) => R,
+    streamA: Stream<A>,
+    streamB: Stream<B>,
+    streamC: Stream<C>,
+    nod: void,
+    noe: void,
+    nof: void
+  ): Stream<R>
+  declare export function combine<A, B, C, D, R>(
+    fn: (a: A, b: B, c: C, d: D) => R,
+    streamA: Stream<A>,
+    streamB: Stream<B>,
+    streamC: Stream<C>,
+    streamD: Stream<D>,
+    noe: void,
+    nof: void
+  ): Stream<R>
+  declare export function combine<A, B, C, D, E, R>(
+    fn: (a: A, b: B, c: C, d: D, e: E) => R,
+    streamA: Stream<A>,
+    streamB: Stream<B>,
+    streamC: Stream<C>,
+    streamD: Stream<D>,
+    streamE: Stream<E>,
+    nof: void
+  ): Stream<R>
+  declare export function combine<A, B, C, D, E, F, R>(
+    fn: (a: A, b: B, c: C, d: D, e: E, f: F) => R,
+    streamA: Stream<A>,
+    streamB: Stream<B>,
+    streamC: Stream<C>,
+    streamD: Stream<D>,
+    streamE: Stream<E>,
+    streamF: Stream<F>
+  ): Stream<R>
+
+  declare export function combineArray<A, B, R>(fn: (a: A, b: B) => R, streams: [Stream<A>, Stream<B>]): Stream<R>
+  declare export function combineArray<A, R>(fn: (...items: $ReadOnlyArray<A>) => R, streams: $ReadOnlyArray<Stream<A>>): Stream<R>
+  /*::declare*/ export function scan<A, B>(f: (b: B, a: A) => B, b: B, s: Stream<A>): Stream<B>
+  /*::declare*/ export function loop<A, B, S>(
       f: (seed: S, a: A) => SeedValue<S, B>,
       seed: S,
       s: Stream<A>): Stream<B>
@@ -312,26 +357,26 @@ declare module 'most' {
   declare export function skipWhile<A>(p: (a: A) => boolean, s: Stream<A>): Stream<A>
   declare export function skipAfter<A>(p: (a: A) => boolean, s: Stream<A>): Stream<A>
   declare export function slice<A>(start: number, end: number, s: Stream<A>): Stream<A>
-  declare export function until<A, +B>(signal: Stream<B>, s: Stream<A>): Stream<A>
-  declare export function takeUntil<A, +B>(signal: Stream<B>, s: Stream<A>): Stream<A>
-  declare export function since<A, +B>(signal: Stream<B>, s: Stream<A>): Stream<A>
-  declare export function skipUntil<A, +B>(signal: Stream<B>, s: Stream<A>): Stream<A>
-  declare export function during<A, +B>(timeWindow: Stream<Stream<B>> , s: Stream<A>): Stream<A>
+  declare export function until<A, B>(signal: Stream<B>, s: Stream<A>): Stream<A>
+  declare export function takeUntil<A, B>(signal: Stream<B>, s: Stream<A>): Stream<A>
+  declare export function since<A, B>(signal: Stream<B>, s: Stream<A>): Stream<A>
+  declare export function skipUntil<A, B>(signal: Stream<B>, s: Stream<A>): Stream<A>
+  declare export function during<A, B>(timeWindow: Stream<Stream<B>> , s: Stream<A>): Stream<A>
   declare export function throttle<A>(period: number, s: Stream<A>): Stream<A>
   declare export function debounce<A>(period: number, s: Stream<A>): Stream<A>
   declare export function timestamp<A>(s: Stream<A>): Stream<TimeValue<A>>
   declare export function delay<A>(dt: number, s: Stream<A>): Stream<A>
-  declare export function fromPromise<A>(p: Promise<A>): Stream<A>
+  /*::declare*/ export function fromPromise<A>(p: Promise<A>): Stream<A>
   declare export function await<A>(s: Stream<Promise<A>> ): Stream<A>
-  declare export function sample<A, B, +S, R>(
+  declare export function sample<A, B, S, R>(
       fn: (a: A, b: B) => R,
       sampler: Stream<S>,
       a: Stream<A>,
       b: Stream<B>): Stream<R>
-  declare export function sampleWith<A, +S>(sampler: Stream<S>, s: Stream<A>): Stream<A>
+  declare export function sampleWith<A, S>(sampler: Stream<S>, s: Stream<A>): Stream<A>
   declare export function zip<A, B, R>(fn: (a: A, b: B) => R, a: Stream<A>, b: Stream<B>): Stream<R>
   declare export function recoverWith<A, B>(p: (a: B) => Stream<A>, s: Stream<A>): Stream<A>
-  declare export function throwError<+E: Error>(e: E): Stream<E>
+  declare export function throwError<E/*::: Error*/>(e: E): Stream<E>
   declare export function multicast<A>(s: Stream<A>): Stream<A>
   /*declare export class PropagateTask<T> implements Task {
     _run(time: number, value: T, sink: Sink<T>): any
