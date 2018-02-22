@@ -3022,6 +3022,14 @@ ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
 
+effector@^0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/effector/-/effector-0.11.1.tgz#b4951782bd3a3c6147609ff7ba844668e7a5556e"
+  dependencies:
+    most "^1.7.3"
+    most-subject "5.3.0"
+    symbol-observable "^1.2.0"
+
 ejs@^2.4.1:
   version "2.5.7"
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.5.7.tgz#cc872c168880ae3c7189762fd5ffc00896c9518a"
@@ -3786,9 +3794,9 @@ fleximap@~0.9.10:
   version "0.9.10"
   resolved "https://registry.yarnpkg.com/fleximap/-/fleximap-0.9.10.tgz#1aa50ff6a8fea0037cc378e38ddacc091025ac10"
 
-flow-bin@^0.63.1:
-  version "0.63.1"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.63.1.tgz#ab00067c197169a5fb5b4996c8f6927b06694828"
+flow-bin@^0.66.0:
+  version "0.66.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.66.0.tgz#a96dde7015dc3343fd552a7b4963c02be705ca26"
 
 flow-copy-source@^1.2.1:
   version "1.2.1"
@@ -6416,7 +6424,7 @@ most-proxy@^3.3.0:
     "@most/multicast" "^1.2.4"
     most "^1.1.0"
 
-most-subject@^5.3.0:
+most-subject@5.3.0, most-subject@^5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/most-subject/-/most-subject-5.3.0.tgz#3a6e3efd436fa93bd8b33c2a239c9088230a6102"
   dependencies:
@@ -6427,6 +6435,14 @@ most-subject@^5.3.0:
 most@^1.1.0, most@^1.7.1, most@^1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/most/-/most-1.7.2.tgz#3f8b8bf0e4410ad8490b3599ea3777fca964a1c4"
+  dependencies:
+    "@most/multicast" "^1.2.5"
+    "@most/prelude" "^1.4.0"
+    symbol-observable "^1.0.2"
+
+most@^1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/most/-/most-1.7.3.tgz#406c31a66d73aa16957816fdf96965e27df84f1a"
   dependencies:
     "@most/multicast" "^1.2.5"
     "@most/prelude" "^1.4.0"
@@ -8949,6 +8965,10 @@ symbol-observable@1.0.4:
 symbol-observable@^1.0.2, symbol-observable@^1.0.3, symbol-observable@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.1.0.tgz#5c68fd8d54115d9dfb72a84720549222e8db9b32"
+
+symbol-observable@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
 
 symbol-tree@^3.2.1:
   version "3.2.2"
