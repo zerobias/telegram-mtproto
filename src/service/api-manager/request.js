@@ -66,7 +66,7 @@ class Request {
     const matched = err.type.match(/^FLOOD_WAIT_(\d+)/)
     if (!matched || matched.length < 2) return Promise.reject(err)
     const [ , waitTime ] = matched
-    console.error(`Flood error! It means that mtproto server bans you on ${waitTime} seconds`)
+    console.error(`Flood error! The mtproto server has banned you for ${waitTime} seconds.`)
     return +waitTime > 60
       ? Promise.reject(err)
       : delayedCall(this.performRequest, +waitTime * 1e3)
