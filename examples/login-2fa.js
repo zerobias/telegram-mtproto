@@ -38,7 +38,7 @@ const login = async () => {
       const password = 'sekrit'
       const { current_salt } = await telegram('account.getPassword', {})
       const password_hash = crypto.createHash('sha256')
-        .update(current_salt + password + current_salt)
+        .update(Buffer.concat([Buffer.from(current_salt), Buffer.from(password, 'utf8'), Buffer.from(current_salt)])
         .digest()
       res = await telegram('auth.checkPassword', {
         password_hash
