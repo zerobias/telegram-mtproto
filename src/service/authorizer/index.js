@@ -109,8 +109,9 @@ const getTwoPow = () => { //Dirty hack to count 2^(2048 - 64)
 
 const leemonTwoPow = getTwoPow()
 
-export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, prepare }: Args) => {
-  const sendPlainReq = SendPlainReq({ Serialization, Deserialization })
+export const Auth = ({ Serialization, Deserialization }: TLFabric, { select, prepare }: Args, proxy) => {
+
+  const sendPlainReq = SendPlainReq({ Serialization, Deserialization }, proxy)
 
   async function mtpSendReqPQ(auth: AuthBasic) {
     const deferred = auth.deferred

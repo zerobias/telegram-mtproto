@@ -16,7 +16,10 @@ import type { TLFabric } from '../../tl'
 const is404 = pathEq(['response', 'status'], 404)
 const notError = allPass([has('message'), has('type')])
 
-const SendPlain = ({ Serialization, Deserialization }: TLFabric) => {
+const SendPlain = ({ Serialization, Deserialization }: TLFabric, proxy) => {
+  if (proxy) {
+    httpClient.defaults.proxy = proxy
+  }
   const onlySendPlainReq = (url: string, requestBuffer: ArrayBuffer) => {
     const requestLength = requestBuffer.byteLength,
           requestArray = new Int32Array(requestBuffer)

@@ -40,8 +40,8 @@ class MTProto {
   constructor(config: ConfigType) {
     this.config = configNormalization(config)
     this.tls = TL(this.config.schema, this.config.mtSchema)
-    const netFabric = NetworkerFabric(this.config.api, this.tls, this.config.app.storage, this.emit)
-    this.api = new ApiManager(this.config, this.tls, netFabric, { on: this.on, emit: this.emit })
+    const netFabric = NetworkerFabric(this.config.api, this.tls, this.config.app.storage, this.emit, config.proxy)
+    this.api = new ApiManager(this.config, this.tls, netFabric, { on: this.on, emit: this.emit }, config.proxy)
   }
 }
 
