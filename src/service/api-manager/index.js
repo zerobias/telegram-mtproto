@@ -70,7 +70,7 @@ export class ApiManager {
   on: On
   emit: Emit
   chooseServer: (dcID: number, upload?: boolean) => {}
-  constructor(config: StrictConfig, tls: TLFabric, netFabric: Function, { on, emit }: { on: On, emit: Emit }) {
+  constructor(config: StrictConfig, tls: TLFabric, netFabric: Function, { on, emit }: { on: On, emit: Emit }, proxy) {
     const {
       server,
       api,
@@ -92,7 +92,7 @@ export class ApiManager {
     this.emit = emit
     this.TL = tls
     this.keyManager = KeyManager(this.TL.Serialization, publicKeys, this.cache.keysParsed)
-    this.auth = Auth(this.TL, this.keyManager)
+    this.auth = Auth(this.TL, this.keyManager, proxy)
     this.networkFabric = netFabric(this.chooseServer)
     this.mtpInvokeApi = this.mtpInvokeApi.bind(this)
     this.mtpGetNetworker = this.mtpGetNetworker.bind(this)

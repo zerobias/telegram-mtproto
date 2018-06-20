@@ -87,7 +87,8 @@ export class NetworkerThread {
       Serialization,
       Deserialization,
       storage,
-      emit
+      emit,
+      proxy
     }: ContextConfig,
     dc: number,
     authKey: string,
@@ -101,6 +102,9 @@ export class NetworkerThread {
     this.emit = emit
     this.dcID = dc
     this.iii = iii++
+    if (proxy) {
+      httpClient.defaults.proxy = proxy
+    }
 
     this.authKey = authKey
     this.authKeyUint8 = convertToUint8Array(authKey)
@@ -960,7 +964,8 @@ export const NetworkerFabric = (
   appConfig,
   { Serialization, Deserialization }: TLFabric,
   storage,
-  emit: Emit) => chooseServer =>
+  emit: Emit,
+  proxy) => chooseServer =>
     (dc: number,
     authKey: string,
     serverSalt: string,
@@ -971,7 +976,8 @@ export const NetworkerFabric = (
         Serialization,
         Deserialization,
         storage,
-        emit
+        emit,
+        proxy
       }, dc, authKey, serverSalt, options)
 
 

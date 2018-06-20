@@ -36,6 +36,14 @@ export type ConfigType = {
   },
   schema?: TLSchema,
   mtSchema?: TLSchema,
+  proxy?: {
+    host: string,
+    port: number,
+    auth?: {
+      username: string,
+      password: string
+    }
+  }
 }
 
 export type StrictConfig = {
