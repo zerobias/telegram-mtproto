@@ -36,7 +36,7 @@ declare module 'telegram-mtproto' {
     mtSchema?: Object
   }
 
-  interface ApiManagerInstance {
+  export interface ApiManagerInstance {
     readonly storage: AsyncStorage
     readonly updates: any
     <T>(method: string): Promise<T>
