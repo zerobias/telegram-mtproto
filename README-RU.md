@@ -2,25 +2,25 @@
 
 [![npm version][npm-image]][npm-url]
 
-**Mobile Telegram Protocol** [(MTProto)](https://core.telegram.org/mtproto) пакет написан на **es6**
+**Mobile Telegram Protocol** [(MTProto)](https://core.telegram.org/mtproto) пакет написан на **ES6**
 
 ## Про MTProto...
 
-**MTProto** это протокол сервиса [Telegram](http://www.telegram.org) _"придуман для работа с серверами API из мобильных приложений"_.
+**MTProto** - это протокол сервиса [Telegram](http://www.telegram.org) _"придуман для работы с серверами API из мобильных приложений"_.
 
-Mobile Protocol подразделяться на 3 части ([с официального сайта](https://core.telegram.org/mtproto#general-description)):
+Mobile Protocol подразделятся на 3 части ([с официального сайта](https://core.telegram.org/mtproto#general-description)):
 
- - Компонент высшего уровня (API query language): определяет методы через которые запросы и ответы преобразуются в двоичные сообщения.
- - Криптографический слой (для авторизаций): определяет методы через которые сообщения шифруются перед передачей.
- - Транспортный компонент: определяет протоколы по которым будут общаться клиент и сервер (такие как, http, https, tcp, udp).
+ - **Компонент высшего уровня (API query language):** определяет методы через которые запросы и ответы преобразуются в двоичные сообщения.
+ - **Криптографический слой (для авторизаций):** определяет методы через которые сообщения шифруются перед передачей.
+ - **Транспортный компонент:** определяет протоколы по которым будут общаться клиент и сервер (такие как, `http`, `https`, `tcp`, `udp`).
 
 
-## telegram-mtproto в двух словах...
+## Про telegram-mtproto в двух словах...
 
 Никакие другие пакеты не нужны.
 Пакет **telegram-mtproto** позволяет реализовать все возможности работы с **Mobile Protocol**:
 
- - Выший уровень api для подключения к серверу
+ - Выший уровень API для подключения к серверу
 
  - API которая работает через промисы
 
@@ -30,13 +30,13 @@ Mobile Protocol подразделяться на 3 части ([с официа
 
  - Реализация **AES и RSA-шифрования** шифрования, для безопасности
 
- - Обе методы **plain-text и encrypted message** для передачи данных на сервер
+ - Оба метода **plain-text** и **encrypted message** для передачи данных на сервер
 
- - **Обмен ключами Диффи-Хеллмана** поддерживающие функцию **prime factorization**, для безопасности
+ - Обмен **ключами Диффи-Хеллмана**, поддерживающими функцию **prime factorization**, для безопасности
 
- - **MTProto TL-Schema** сборник **javascript классов и функций**
+ - **MTProto TL-Schema** сборник **JavaScript классов и функций**
 
- - **async storage** для сохранения данных между сесиями
+ - **async storage** для сохранения данных между сессиями
 
 
 ## Установка
@@ -89,27 +89,36 @@ connect()
 Выше мы использовали две функции из API.
 
 ```typescript
-type auth.sendCode = (phone_number: string, sms_type: int,
-  api_id: int, api_hash: string, lang_code: string) => {
-    phone_registered: boolean,
-    phone_code_hash: string,
-    send_call_timeout: int,
-    is_password: boolean
-  }
+type auth.sendCode = (
+  phone_number: string,
+  sms_type: int,
+  api_id: int,
+  api_hash: string,
+  lang_code: string
+) => {
+  phone_registered: boolean,
+  phone_code_hash: string,
+  send_call_timeout: int,
+  is_password: boolean
+}
 
-type auth.signIn = (phone_number: string, phone_code_hash: string, phone_code: string) => {
+type auth.signIn = (
+  phone_number: string,
+  phone_code_hash: string,
+  phone_code: string
+) => {
   expires: int,
   user: User
 }
 ```
-[Больше][send-code] про [авторизаций][sign-in], а также о многих других методах, Вы можете прочитать в [официальной документаций][docs].
+[Больше][send-code] про [авторизацию][sign-in], а также о многих других методах, вы можете прочитать в [документации][docs].
 
 Дополнительные примеры можно посмотреть в [папке с примерами][examples].
 
 ## Хранение
 
-Вы можете использовать наши основные хранилищи [localForage][localForage] for saving data.
-Module accepts the following interface
+Вы можете использовать наши основные хранилища [localForage][localForage] для хранения данных.
+Модуль имеет следующие интерфейсы:
 
 ```typescript
 interface AsyncStorage {
@@ -136,7 +145,7 @@ const client = MTProto({
 
 ## Лицензия
 
-Проект запущен под [Mit License](./LICENSE)
+Проект запущен под лицензией [MIT](./LICENSE)
 
 [examples]: https://github.com/zerobias/telegram-mtproto/tree/develop/examples
 [localForage]: https://github.com/localForage/localForage
