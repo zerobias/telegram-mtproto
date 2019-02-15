@@ -1,3 +1,8 @@
+# ‼️ **Better use [Telethon](https://lonamiwebs.github.io/Telethon/)**
+
+It does have docs
+
+
 # telegram-mtproto
 
 [![npm version][npm-image]][npm-url]
