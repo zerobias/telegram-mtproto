@@ -1,7 +1,4 @@
-# ‼️ **Better use [Telethon](https://lonamiwebs.github.io/Telethon/)**
-
-It does have docs
-
+# ‼️ **Better use [@mtproto/core](https://github.com/alik0211/mtproto-core)**
 
 # telegram-mtproto
 
